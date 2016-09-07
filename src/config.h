@@ -1,0 +1,8 @@
+#define PACKAGE "MESH"
+#define PACKAGE_BUGREPORT "kfchen@stanford.edu"
+#define PACKAGE_NAME "MESH"
+#define PACKAGE_STRING "MESH 1.1.1"
+#define PACKAGE_TARNAME "MESH"
+#define PACKAGE_URL ""
+#define PACKAGE_VERSION "1.1.1"
+#define VERSION "1.1.1"
