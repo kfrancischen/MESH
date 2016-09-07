@@ -4,16 +4,10 @@
 #include <armadillo>
 #include <complex>
 
-namespace RCWA{
-
-void initSMatrix(
-  size_t n,
-  arma::cx_mat* S
-);
+void initSMatrix(size_t n, arma::cx_mat* S);
 
 
-void getSMatrix(
-  size_t numOfLayers,
+void getSMatrix(size_t numOfLayers,
   size_t startLayer,
   size_t n,
   const arma::vec* thicknessList,
@@ -27,6 +21,4 @@ void populateQ(
   arma::cx_mat* qL
 );
 
-
-};
 #endif

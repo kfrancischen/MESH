@@ -1,7 +1,7 @@
 #include "Rcwa.h"
 #include <armadillo>
 
-void RCWA::initSMatrix(
+void initSMatrix(
   size_t n,
   arma::cx_mat* S
 )
@@ -9,7 +9,7 @@ void RCWA::initSMatrix(
   S->eye(n,n);
 }
 
-void RCWA::getSMatrix(
+void getSMatrix(
   size_t numOfLayers,
   size_t startLayer,
   size_t n,
@@ -20,7 +20,7 @@ void RCWA::getSMatrix(
 
 }
 
-void RCWA::populateQ(
+void populateQ(
   const std::complex<double> *q,
   arma::cx_mat* qR,
   arma::cx_mat* qL
