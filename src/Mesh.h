@@ -3,7 +3,21 @@
 
 #include <complex>
 #include <armadillo>
-namespace MESH{
+
+# ifdef __cplusplus
+#  include <cstdio>
+# else
+#  include <stdio.h>
+# endif
+
+#ifdef __cplusplus
+# include <cstdlib>
+#else
+# include <stdlib.h>
+#endif
+
+void* meshMalloc(size_t size);
+void* meshFree(void *ptr);
 
 typedef struct Material_{
   char *name;
@@ -26,29 +40,59 @@ typedef struct Layer_{
 
 
 typedef struct Solution_{
+  int n_G;
   double *omega;
   double *transmissionFactor;
   char *outputName;
 } Solution;
 
 typedef struct Simulation_{
-  int G_x, G_y;
+  int n_G;
   Material *material;
   Layer *layer;
   Solution *solution;
   //Options options;
 } Simulation;
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 void layerInit(Layer *L, const char *name, double thickness, const char *material, const char* copy);
 void layerDestroy(Layer *L);
+
 void materialInit(Material *M, const char *name, const double eps[2]);
-void materialDestry(Material *M);
+void materialInitTensor(Material *M, const char *name, const double abcde[10]);
+void materialDestroy(Material *M);
 
 void simulationInit(Simulation *S);
 void simulationDestroy(Simulation *S);
+void simulationClone(Simulation *S, Simulation *T);
 
+void simulationDestroySolution(Simulation *S);
 
+Material* simulationAddMaterial(Simulation *S);
+Layer* simulationAddLayer(Simulation *S);
 
-};
+int simulationSetNumG(Simulation *S, int n);
+
+Layer* simulationGetLayerByName(const Simulation *S, const char *name, int *index);
+Layer* simulationGetLayerByIndex(const Simulation *S, int i);
+
+Material* simulationGetMaterialByName(const Simulation *S, const char *name, int *index);
+Material* simulationGetMaterialByIndex(const Simulation *S, int i);
+
+int simulationAddLayeredPatternCircle(Simulation *S, Layer *layer, int material, const double center[2], double radius);
+int simulationAddLayeredPatternRectangle(Simulation *S, Layer *layer, int material, const double center[2], double halfwidths[2]);
+
+int simulationRemoveLayerPatterns(Simulation *S, Layer *layer);
+int simulationChangeLayerThickness(Simulation *S, Layer *layer, const double *thickness);
+
+int simulationInitSolution(Simulation *S);
+double simulationGetPoyntingFlux(Simulation *S, int *sourceLayers, int targetLayer);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
