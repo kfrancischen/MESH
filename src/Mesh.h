@@ -51,7 +51,10 @@ void* meshFree(void *ptr);
 /*============================================================
 * material type
 ==============================================================*/
-enum Type {SCALAR ,TENSOR};
+typedef enum Type_{
+  SCALAR,
+  TENSOR
+} Type;
 
 /*============================================================
 * material structure
@@ -152,7 +155,7 @@ Material* simulationGetMaterialByIndex(const Simulation *S, int i);
 * functions to add patterns to the layer in the simulation
 ==============================================================*/
 int simulationAddLayeredPatternCircle(Simulation *S, Layer *layer, int material, const double center[2], double radius);
-int simulationAddLayeredPatternRectangle(Simulation *S, Layer *layer, int material, const double center[2], double halfwidths[2]);
+int simulationAddLayeredPatternRectangle(Simulation *S, Layer *layer, int material, const double center[2], double angle, double halfwidths[2]);
 
 /*============================================================
 * functions to change layers in the simulation

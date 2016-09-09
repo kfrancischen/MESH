@@ -48,6 +48,9 @@ void layerInit(Layer *L,
   const char *copy){
     L->name = strdup(name);
     L->thickness = thickness;
+    L->pattern.nshapes = 0
+    L->pattern.shapes = NULL;
+    L->pattern.parent = NULL;
     L->material = strdup(material);
     L->copy = strdup(copy);
     L->isSource = false;
@@ -62,6 +65,10 @@ void layerDestroy(Layer *L){
   L->material = NULL;
   free(L->copy);
   L->copy = NULL
+  free(L->pattern.shapes);
+  L->pattern.shapes = NULL;
+  free(l->pattern.parent);
+  L->pattern.parent = NULL;
 
   return;
 }
@@ -351,15 +358,81 @@ int simulationAddLayeredPatternCircle(Simulation *S,
   int material,
   const double center[2],
   double radius){
-
+    int ret = 0;
+    if(S == NULL){
+      ret = -1;
+    }
+    if(layer == NULL){
+      ret = -2;
+    }
+    if(material < 0){
+      ret = -3;
+    }
+    if(center == NULL){
+      ret = -4;
+    }
+    if(radius < 0){
+      ret = -5;
+    }
+    if(ret < 0){
+      return ret;
+    }
+    simulationDestroySolution(S);
+    int n = layer->patter.nshapes++;
+    layer->pattern.nshapes = (shape*)realloc(layer->pattern.shapes, sizeof(shape)*layer->pattern.nshapes);
+    if(layer->pattern.shapes == NULL){
+      return 1;
+    }
+    shape *sh = &layer->pattern.nshapes[n];
+    sh->type = CIRCLE;
+    sh->center[0] = center[0];
+    sh->center[1] = center[1];
+    sh->vtab.circle.radius = radius;
+    sh->tag = material;
+    return 0;
 }
 
 int simulationAddLayeredPatternRectangle(Simulation *S,
   Layer *layer,
   int material,
   const double center[2],
+  double angle,
   double halfwidths[2]){
+    int ret = 0;
+    if(S == NULL){
+      ret = -1;
+    }
+    if(layer == NULL){
+      ret = -2;
+    }
+    if(material < 0){
+      ret = -3;
+    }
+    if(center == NULL){
+      ret = -4;
+    }
+    if(halfwidths == NULL){
+      ret = -6;
+    }
+    if(ret != 0){
+      return;
+    }
+    simulationDestroySolution(S);
+    int n = layer->patter.nshapes++;
+    layer->pattern.nshapes = (shape*)realloc(layer->pattern.shapes, sizeof(shape)*layer->pattern.nshapes);
+    if(layer->pattern.shapes == NULL){
+      return 1;
+    }
+    shape *sh = &layer->pattern.nshapes[n];
+    sh->type = RECTANGLE;
+    sh->center[0] = center[0];
+    sh->center[1] = center[1];
+    sh->angle = angle;
+    sh->vtab.rectange.halfwidths[0] = halfwidths[0];
+    sh->vtab.rectange.halfwidths[1] = halfwidths[1];
+    sh->tag = material;
 
+    return 0;
 }
 
 /*============================================================
