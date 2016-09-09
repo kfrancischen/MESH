@@ -90,7 +90,7 @@ typedef struct Layer_{
 * solution structure
 ==============================================================*/
 typedef struct Solution_{
-  int **G;
+  int *G;
   double *omega;
   double *transmissionFactor;
   char *outputName;
@@ -102,9 +102,18 @@ typedef struct Solution_{
 ==============================================================*/
 typedef struct Simulation_{
   int n_G;
+  double omega;
   Material *material;
   Layer *layer;
   Solution *solution;
+  double k[2]; // xy components of k vector, as fraction of k0 = omega
+  double Lr[4];// real space lattice:
+	             //  {Lr[0],Lr[1]} is the first basis vector's x and y coords.
+	             //  {Lr[2],Lr[3]} is the second basis vector's x and y coords.
+  double Lk[4];// reciprocal lattice:
+	             //  2pi*{Lk[0],Lk[1]} is the first basis vector's x and y coords.
+	             //  2pi*{Lk[2],Lk[3]} is the second basis vector's x and y coords.
+	             // Computed by taking the inverse of Lr as a 2x2 column-major matrix.
   //Options options;
 } Simulation;
 
@@ -130,6 +139,7 @@ void materialDestroy(Material *M);
 /*============================================================
 * functions to initiate, clone and destroy a simulation
 ==============================================================*/
+int simulationMakeReciprocalLattice(Simulation *S);
 void simulationInit(Simulation *S);
 void simulationDestroy(Simulation *S);
 void simulationClone(Simulation *S, Simulation *T);
@@ -167,7 +177,7 @@ int simulationChangeLayerThickness(Simulation *S, Layer *layer, const double *th
 * functions to solve for the heat transfer
 ==============================================================*/
 int simulationInitSolution(Simulation *S);
-double simulationGetPoyntingFlux(Simulation *S);
+void simulationGetPoyntingFlux(Simulation *S);
 
 #ifdef __cplusplus
 }

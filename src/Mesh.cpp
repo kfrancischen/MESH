@@ -23,6 +23,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <numalloc.h>
+extern "C" {
+#include "pattern/gsel.h"
+}
 
 
 /*============================================================
@@ -114,11 +117,58 @@ void materialDestroy(Material *M){
 /*============================================================
 * functions to initiate, clone and destroy a simulation
 ==============================================================*/
+int simulationMakeReciprocalLattice(Simulation *S){
+  double d;
+  if(S == NULL){
+    return -1;
+  }
+  simulationDestroySolution(S);
+  d = S->Lr[0] * S->Lr[3] - S->Lr[1] * S->Lr[2];
+  if(d == 0){
+    if(S->Lr[2] != 0 || S->Lr[3] != 0){
+      return 1;
+    }
+    d = hypot(S->Lr[0], S->Lr[1]);
+    if(d == 0){
+      return 2;
+    }
+    d = 1./(d*d);
+    S->Lk[0] = S->Lr[0] * d;
+    S->Lk[1] = S->Lr[1] * d;
+    S->Lk[2] = 0;
+    S->Lk[3] = 0;
+  }
+  else{
+    if(d<0){
+      double t;
+      t = S->Lr[0]; S->Lr[0] = S->Lr[2]; S->Lr[2] = t;
+      t = S->Lr[1]; S->Lr[1] = S->Lr[3]; S->Lr[3] = t;
+      d = -d;
+    }
+    d = 1./d;
+    S->Lk[0] = d * S->Lr[3];
+    S->Lk[1] = -d * S->Lr[2];
+    S->Lk[2] = -d * S->Lk[1];
+    S->Lk[3] = d * S->Lk[0];
+  }
+
+  return 0;
+}
+
 void simulationInit(Simulation *S){
   S->n_G = 0;
   S->solution = NULL;
   S->material = NULL;
   S->layer = NULL;
+  S->Lr[0] = 1;
+  S->Lr[1] = 0;
+  S->Lr[2] = 0;
+  S->Lr[3] = 1;
+  simulationMakeReciprocalLattice(S);
+  S->omega = 0;
+  S->k[0] = 0;
+  S->k[1] = 0;
+
 
   return;
 }
@@ -440,11 +490,49 @@ int simulationAddLayeredPatternRectangle(Simulation *S,
 ==============================================================*/
 
 int simulationRemoveLayerPatterns(Simulation *S, Layer *layer){
+  int ret = 0;
+  if(S == NULL){
+    ret = -1;
+  }
+  if(layer == NULL){
+    ret = -2;
+  }
+  if(ret != 0){
+    return ret;
+  }
 
+  simulationDestroySolution(S);
+  layer->pattern.nshapes = 0;
+  if(layer->pattern.shapes != NULL){
+    free(layer->pattern.shapes);
+    layer->pattern.shapes = NULL;
+  }
+  if(layer->pattern.parent != NULL){
+    free(layer->pattern.parent);
+    layer->pattern.parent = NULL;
+  }
+
+  return 0;
 }
 
-int simulationChangeLayerThickness(Simulation *S, Layer *layer){
+int simulationChangeLayerThickness(Simulation *S, Layer *layer, const double *thickness){
+  int ret = 0;
+  if(S == NULL){
+    ret = -1;
+  }
+  if(layer == NULL){
+    ret = -2;
+  }
+  if(thickness < 0){
+    ret = -3;
+  }
+  if(ret != 0){
+    return ret;
+  }
+  simulationDestroySolution(S);
+  layer->thickness = *thick;
 
+  return 0;
 }
 
 /*============================================================
@@ -452,11 +540,44 @@ int simulationChangeLayerThickness(Simulation *S, Layer *layer){
 ==============================================================*/
 
 int simulationInitSolution(Simulation *S){
+  if(S->solution != NULL){
+    simulationDestroySolution(S)
+  }
+  S->solution = (Solution *)meshMalloc(sizeof(Solution));
+  Solution *sol = S->solution;
+  S->G = (int*)meshMalloc(sizeof(int) * 2 * S->n_G);
+  if(S->Lr[2] != 0 || S->Lr[3] != 0){
+    unsigned int NG = S->n_G;
+    G_select(0, &NG, S->Lk, sol->G);
+    S->n_G = NG;
+  }
+  else{
+    // 1D grating
+    sol->G[0] = 0; sol->G[1] = 0;
+    int remaining = (S->n_G - 1) / 2;
+    S->n_G = 2 * remaining + 1;
+    for(int i = 0;i < remaining; i++){
+      sol->G[2 + 4*i + 0] = i+1;
+      sol->G[2 + 4*i + 1] = 0;
+      sol->G[2 + 4*i + 2] = -(i+1);
+      sol->G[2 + 4*i + 3] = 0;
+    }
 
+  }
+  sol->kx = (double*)meshMalloc(sizeof(double) * 2 * S->n_G);
+  sol->ky = sol->kx + S->n_G;
+
+  for(i = 0; i < S->n_G; ++i){
+		sol->kx[i] = S->k[0]*S->omega + 2*M_PI*(S->Lk[0]*sol->G[2*i+0] + S->Lk[2]*sol->G[2*i+1]);
+		sol->ky[i] = S->k[1]*S->omega + 2*M_PI*(S->Lk[1]*sol->G[2*i+0] + S->Lk[3]*sol->G[2*i+1]);
+	}
+
+  return 0;
 }
 
-double simulationGetPoyntingFlux(Simulation *S,
+void simulationGetPoyntingFlux(Simulation *S,
   int *sourceLayers,
   int targetLayer){
-
+    // TODO
+    return;
 }
