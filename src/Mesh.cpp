@@ -22,7 +22,7 @@
 #include <armadillo>
 #include <cstring>
 #include <cstdlib>
-#include <numalloc.h>
+#include "numalloc.h"
 extern "C" {
 #include "pattern/gsel.h"
 }
@@ -45,13 +45,13 @@ void meshFree(void *ptr){
 * functions to initiate, destroy, and modify a layer
 ==============================================================*/
 void layerInit(Layer *L,
-  const *name,
+  const char *name,
   double thickness,
   const char *material,
   const char *copy){
     L->name = strdup(name);
     L->thickness = thickness;
-    L->pattern.nshapes = 0
+    L->pattern.nshapes = 0;
     L->pattern.shapes = NULL;
     L->pattern.parent = NULL;
     L->material = strdup(material);
@@ -67,10 +67,10 @@ void layerDestroy(Layer *L){
   free(L->material);
   L->material = NULL;
   free(L->copy);
-  L->copy = NULL
+  L->copy = NULL;
   free(L->pattern.shapes);
   L->pattern.shapes = NULL;
-  free(l->pattern.parent);
+  free(L->pattern.parent);
   L->pattern.parent = NULL;
 
   return;
@@ -175,7 +175,7 @@ void simulationInit(Simulation *S){
 
 void simulationDestroy(Simulation *S){
   if(S->solution != NULL){
-    simulationDestroySolution(s);
+    simulationDestroySolution(S);
   }
 
   while(S->layer != NULL){
@@ -254,7 +254,7 @@ void simulationDestroySolution(Simulation *S){
   }
   if(sol->outputName != NULL){
     meshFree(sol->outputName);
-    sol->outputName = NULL
+    sol->outputName = NULL;
   }
   if(sol->kx != NULL){
     meshFree(sol->kx);
@@ -358,7 +358,7 @@ Layer* simulationGetLayerByName(const Simulation *S,
 }
 
 Layer* simulationGetLayerByIndex(const Simulation *S, int i){
-  Layer *l = S->Layer;
+  Layer *l = S->layer;
   while(l != NULL){
     if(i == 0){
       return l;
@@ -372,7 +372,7 @@ Layer* simulationGetLayerByIndex(const Simulation *S, int i){
 Material* simulationGetMaterialByName(const Simulation *S,
   const char *name,
   int *index){
-  Material *m = S->material;
+  Material *M = S->material;
   int i = 0;
   while(M != NULL){
     if(strcmp(M->name, name) == 0){
@@ -428,12 +428,12 @@ int simulationAddLayeredPatternCircle(Simulation *S,
       return ret;
     }
     simulationDestroySolution(S);
-    int n = layer->patter.nshapes++;
-    layer->pattern.nshapes = (shape*)realloc(layer->pattern.shapes, sizeof(shape)*layer->pattern.nshapes);
+    int n = layer->pattern.nshapes++;
+    layer->pattern.shapes = (shape*)realloc(layer->pattern.shapes, sizeof(shape)*layer->pattern.nshapes);
     if(layer->pattern.shapes == NULL){
       return 1;
     }
-    shape *sh = &layer->pattern.nshapes[n];
+    shape *sh = &layer->pattern.shapes[n];
     sh->type = CIRCLE;
     sh->center[0] = center[0];
     sh->center[1] = center[1];
@@ -465,21 +465,21 @@ int simulationAddLayeredPatternRectangle(Simulation *S,
       ret = -6;
     }
     if(ret != 0){
-      return;
+      return ret;
     }
     simulationDestroySolution(S);
-    int n = layer->patter.nshapes++;
-    layer->pattern.nshapes = (shape*)realloc(layer->pattern.shapes, sizeof(shape)*layer->pattern.nshapes);
+    int n = layer->pattern.nshapes++;
+    layer->pattern.shapes = (shape*)realloc(layer->pattern.shapes, sizeof(shape)*layer->pattern.nshapes);
     if(layer->pattern.shapes == NULL){
       return 1;
     }
-    shape *sh = &layer->pattern.nshapes[n];
+    shape *sh = &layer->pattern.shapes[n];
     sh->type = RECTANGLE;
     sh->center[0] = center[0];
     sh->center[1] = center[1];
     sh->angle = angle;
-    sh->vtab.rectange.halfwidths[0] = halfwidths[0];
-    sh->vtab.rectange.halfwidths[1] = halfwidths[1];
+    sh->vtab.rectangle.halfwidth[0] = halfwidths[0];
+    sh->vtab.rectangle.halfwidth[1] = halfwidths[1];
     sh->tag = material;
 
     return 0;
@@ -530,7 +530,7 @@ int simulationChangeLayerThickness(Simulation *S, Layer *layer, const double *th
     return ret;
   }
   simulationDestroySolution(S);
-  layer->thickness = *thick;
+  layer->thickness = *thickness;
 
   return 0;
 }
@@ -541,11 +541,11 @@ int simulationChangeLayerThickness(Simulation *S, Layer *layer, const double *th
 
 int simulationInitSolution(Simulation *S){
   if(S->solution != NULL){
-    simulationDestroySolution(S)
+    simulationDestroySolution(S);
   }
   S->solution = (Solution *)meshMalloc(sizeof(Solution));
   Solution *sol = S->solution;
-  S->G = (int*)meshMalloc(sizeof(int) * 2 * S->n_G);
+  sol->G = (int*)meshMalloc(sizeof(int) * 2 * S->n_G);
   if(S->Lr[2] != 0 || S->Lr[3] != 0){
     unsigned int NG = S->n_G;
     G_select(0, &NG, S->Lk, sol->G);
@@ -567,7 +567,7 @@ int simulationInitSolution(Simulation *S){
   sol->kx = (double*)meshMalloc(sizeof(double) * 2 * S->n_G);
   sol->ky = sol->kx + S->n_G;
 
-  for(i = 0; i < S->n_G; ++i){
+  for(int i = 0; i < S->n_G; ++i){
 		sol->kx[i] = S->k[0]*S->omega + 2*M_PI*(S->Lk[0]*sol->G[2*i+0] + S->Lk[2]*sol->G[2*i+1]);
 		sol->ky[i] = S->k[1]*S->omega + 2*M_PI*(S->Lk[1]*sol->G[2*i+0] + S->Lk[3]*sol->G[2*i+1]);
 	}

@@ -46,7 +46,7 @@ extern "C" {
 * Helper functions for mallocating and freeing memory
 ==============================================================*/
 void* meshMalloc(size_t size);
-void* meshFree(void *ptr);
+void meshFree(void *ptr);
 
 /*============================================================
 * material type
