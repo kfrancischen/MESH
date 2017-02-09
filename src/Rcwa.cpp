@@ -17,7 +17,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "Rcwa.h"
-
 /*============================================================
 * Function initializing S matrix
 @arg:
@@ -122,6 +121,7 @@ RCWA::RCWAMatrices RCWA::getSMatrix(
 @arg:
  vL, vR: the input two vectors (here everything is a matrix)
  qL, qR: the input two vectors
+ [qL, qR] = meshgrid(vl, vR)
 ==============================================================*/
 void RCWA::populateQ(
   RCWAMatrix vL,
@@ -129,8 +129,8 @@ void RCWA::populateQ(
   RCWAMatrix *qL,
   RCWAMatrix *qR
 ){
-  *qL = repmat(vR, 1, vL.n_rows);
-  *qR = repmat(vL.st(), vR.n_rows, 1);
+  *qL = repmat(vL.st(), vR.n_rows, 1);
+  *qR = repmat(vR, 1, vL.n_rows);
 }
 
 /*============================================================
@@ -178,12 +178,12 @@ double RCWA::poyntingFlux(
   RCWAMatrix onePadding(N, N, fill::eye);
 
   switch (d) {
-    case NO:
+    case NO_:
       break;
-    case ONE:
+    case ONE_:
       Gx = 2 * datum::pi / period[0];
       break;
-    case TWO:
+    case TWO_:
       Gx = 2 * datum::pi / period[0];
       Gy = 2 * datum::pi / period[1];
   }
@@ -241,7 +241,7 @@ double RCWA::poyntingFlux(
     cx_vec eigVal;
     eig_gen(eigVal, EigenVecMatrices[i], eigMatrix);
     eigVal = sqrt(eigVal);
-    eigVal = eigVal % sign(imag(eigVal));
+    eigVal = -eigVal % sign(imag(eigVal));
     EigenVecMatrices[i] = diagmat(eigVal);
 
     if(i == 0 || i == numOfLayer - 1){
@@ -267,7 +267,7 @@ double RCWA::poyntingFlux(
 
   for(size_t layerIdx = 0; layerIdx < targetLayer; layerIdx++){
     // if is not source layer, then continue
-    if(sourceList[layerIdx] == 0) continue;
+    if(sourceList[layerIdx] == ISNOTLOSSY_) continue;
 
     // initial steps, propogate S matrix
     RCWAMatrices S_matrix_target = getSMatrix(targetLayer, Nx, Ny, thicknessList,
@@ -280,7 +280,7 @@ double RCWA::poyntingFlux(
 
     RCWAMatrix q_R, q_L;
     RCWAMatrix q(diagvec(EigenValMatrices[layerIdx]));
-    populateQ(q, q, &q_L, &q_R);
+    populateQ(q, q, &q_R, &q_L);
 
     // defining source
     RCWAMatrix source = zeros<RCWAMatrix>(4*N, 3*N);

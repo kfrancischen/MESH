@@ -22,6 +22,7 @@
 #include <armadillo>
 #include <complex>
 #include <vector>
+#include "Common.h"
 
 namespace RCWA{
 
@@ -29,10 +30,9 @@ namespace RCWA{
   typedef cx_mat RCWAMatrix;
   typedef std::vector< RCWAMatrix > RCWAMatrices;
   typedef fvec RCWAVector;
-  typedef std::vector< int > SourceList;
-  typedef std::complex<double> dcomplex;
+  typedef std::vector< LOSSY > SourceList;
 
-  enum DIMENSION { NO, ONE, TWO };
+
 
   /*============================================================
   * Function initializing S matrix
