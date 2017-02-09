@@ -46,19 +46,19 @@ namespace RCWA{
   * Function computing S matrix for each layers
   @arg:
    startLayer: the starting layer for the propogation
-   Nx: number of G in x direction
-   Ny: number of G in y direction
-   thicknessList: the thickness for each layer
+   N: number of G total G
+   numOfLayer: the number of layers
    MMatrices: matrix corresponding to the propogation in each layer
    FMatrices: matrix corresponding to the phase in each layer
+   SMatrices: the S matrix for each layer
   ==============================================================*/
-  RCWAMatrices getSMatrix(
+void getSMatrix(
     const int startLayer,
-    const int Nx,
-    const int Ny,
-    const RCWAVector thicknessList,
-    RCWAMatrices MMatrices,
-    RCWAMatrices FMatrices
+    const int N,
+    const int numOfLayer,
+    RCWAMatrices* MMatrices,
+    RCWAMatrices* FMatrices,
+    RCWAMatrices* SMatrices
   );
 
   /*============================================================
@@ -69,8 +69,8 @@ namespace RCWA{
     [qL, qR] = meshgrid(vl, vR)
   ==============================================================*/
   void populateQ(
-    RCWAMatrix vL,
-    RCWAMatrix vR,
+    const RCWAMatrix* vL,
+    const RCWAMatrix* vR,
     RCWAMatrix* qL,
     RCWAMatrix* qR
   );
@@ -94,13 +94,13 @@ namespace RCWA{
   ==============================================================*/
   double poyntingFlux(
     const double omega,
-    const RCWAVector thicknessList,
+    const RCWAVector* thicknessList,
     double kx,
     double ky,
-    const RCWAMatrices dielectricMatrixInverse,
-    const RCWAMatrices dielectricMatrix,
-    const RCWAMatrices dielectricImMatrix,
-    const SourceList sourceList,
+    const RCWAMatrices* dielectricMatrixInverse,
+    const RCWAMatrices* dielectricMatrix,
+    const RCWAMatrices* dielectricImMatrix,
+    const SourceList* sourceList,
     const int targetLayer,
     const int nGx,
     const int nGy,
