@@ -1,24 +1,54 @@
 #ifndef _RCWA_H
 #define _RCWA_H
-
+#define ARMA_DONT_USE_WRAPPER
 #include <armadillo>
 #include <complex>
+#include <vector>
 
-void initSMatrix(size_t n, arma::cx_mat* S);
+namespace RCWA{
+
+  using namespace arma;
+  typedef cx_mat RCWAMatrix;
+  typedef std::vector< RCWAMatrix > RCWAMatrices;
+  typedef fvec RCWAVector;
+  typedef std::vector< int > SourceList;
+  typedef std::complex<double> dcomplex;
+
+  enum DIMENSION { NO, ONE, TWO };
+
+  void initSMatrix(const int n, RCWAMatrix* S);
 
 
-void getSMatrix(size_t numOfLayers,
-  size_t startLayer,
-  size_t n,
-  const arma::vec* thicknessList,
-  std::vector<arma::cx_mat*> MMatrices,
-  std::vector<arma::cx_mat*> fMatrices
-);
+  RCWAMatrices getSMatrix(
+    const int startLayer,
+    const int Nx,
+    const int Ny,
+    const RCWAVector thicknessList,
+    RCWAMatrices MMatrices,
+    RCWAMatrices FMatrices
+  );
 
-void populateQ(
-  const std::complex<double> *q,
-  arma::cx_mat* qR,
-  arma::cx_mat* qL
-);
+  void populateQ(
+    RCWAMatrix vL,
+    RCWAMatrix vR,
+    RCWAMatrix* qR,
+    RCWAMatrix* qL
+  );
 
+  double poyntingFlux(
+    const double omega,
+    const RCWAVector thicknessList,
+    double kx,
+    double ky,
+    const RCWAMatrices dielectricMatrixInverse,
+    const RCWAMatrices dielectricMatrix,
+    const RCWAMatrices dielectricImMatrix,
+    const SourceList sourceList,
+    const int targetLayer,
+    const int nGx,
+    const int nGy,
+    const double *period,
+    const DIMENSION d
+  );
+}
 #endif
