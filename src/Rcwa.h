@@ -66,12 +66,13 @@ namespace RCWA{
   @arg:
    vL, vR: the input two vectors (here everything is a matrix)
    qL, qR: the input two vectors
+    [qL, qR] = meshgrid(vl, vR)
   ==============================================================*/
   void populateQ(
     RCWAMatrix vL,
     RCWAMatrix vR,
-    RCWAMatrix* qR,
-    RCWAMatrix* qL
+    RCWAMatrix* qL,
+    RCWAMatrix* qR
   );
 
   /*============================================================
