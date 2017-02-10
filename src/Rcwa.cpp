@@ -283,7 +283,7 @@ double RCWA::poyntingFlux(
   =======================================================*/
   for(size_t layerIdx = 0; layerIdx < targetLayer; layerIdx++){
     // if is not source layer, then continue
-    if((*sourceList)[layerIdx] == ISNOTLOSSY_) continue;
+    if((*sourceList)[layerIdx] == ISNOTSOURCE_) continue;
 
     // initial steps, propogate S matrix
     grandImaginaryMatrix = join_vert(

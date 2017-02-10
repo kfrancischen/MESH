@@ -20,7 +20,6 @@
 #define _RCWA_H
 #define ARMA_DONT_USE_WRAPPER
 #include <armadillo>
-#include <complex>
 #include <vector>
 #include "Common.h"
 
@@ -30,7 +29,7 @@ namespace RCWA{
   typedef cx_mat RCWAMatrix;
   typedef std::vector< RCWAMatrix > RCWAMatrices;
   typedef fvec RCWAVector;
-  typedef std::vector< LOSSY > SourceList;
+  typedef std::vector< SOURCE > SourceList;
 
 
 
