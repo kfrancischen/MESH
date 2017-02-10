@@ -56,6 +56,10 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
+  typedef std::vector< std::pair<double, double> > LayerPattern;
+  typedef LayerPattern::iterator PatternIter;
+  typedef LayerPattern::const_iterator const_PatternIter;
+
   class Layer{
   public:
     Layer(Material* material);
@@ -64,16 +68,20 @@ namespace SYSTEM{
     Layer(const Layer& layer);
 
     void setBackGround(Material* material);
+    void isSource();
+    void isNotSource();
+
     Material* getBackGround();
     int getNumOfMaterial();
-    void setGx(int nGx);
-    void setGy(int nGy);
-
-    int getGx();
-    int getGy();
 
     const_MaterialIter getVecBegin();
     const_MaterialIter getVecEnd();
+
+    const_PatternIter getArg1Begin();
+    const_PatternIter getArg2Begin();
+
+    const_PatternIter getArg1End();
+    const_PatternIter getArg2End();
 
     void addPattern(Material* material, double args1[2], double args2[2], std::string pattern);
 
@@ -81,10 +89,9 @@ namespace SYSTEM{
     Material* backGround_;
     MaterialVec materialVec_;
     std::string pattern_;
-    double args1_[2];
-    double args2_[2];
-    int nGx_;
-    int nGy_;
+    LayerPattern args1_;
+    LayerPattern args2_;
+    SOURCE source_;
   };
 
   typedef std::map<int, Layer*> LayerMap;
@@ -99,12 +106,23 @@ namespace SYSTEM{
     Structure();
     ~Structure();
 
+    Structure(Structure& structure);
+    
     void addLayer(Layer* layer);
     Layer* getLayerByIndex(int index);
     int getNumOfLayer();
 
+
+    void setGx(int nGx);
+    void setGy(int nGy);
+
+    int getGx();
+    int getGy();
+
   private:
     LayerMap layerMap_;
+    int nGx_;
+    int nGy_;
   };
 
 

@@ -79,11 +79,12 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  Layer::Layer(Material* material) : nGx_(0), nGy_(0){
-    backGround_ = new Material(*material);
+  Layer::Layer(Material* material) : source_(ISNOTSOURCE_){
+    //backGround_ = new Material(*material);
+    backGround_ = material;
   }
 
-  Layer::Layer() : backGround_(nullptr), nGx_(0), nGy_(0){}
+  Layer::Layer() : backGround_(nullptr), source_(ISNOTSOURCE_){}
 
   Layer::~Layer(){
     for(MaterialIter it = materialVec_.begin(); it != materialVec_.end(); it++){
@@ -94,20 +95,32 @@ namespace SYSTEM{
   Layer::Layer(const Layer& layer){
     backGround_ = new Material(*(layer.backGround_));
     pattern_ = layer.pattern_;
-    args1_[0] = layer.args1_[0];
-    args1_[1] = layer.args1_[1];
-    args2_[0] = layer.args2_[0];
-    args2_[1] = layer.args2_[1];
-    nGx_ = layer.nGx_;
-    nGy_ = layer.nGy_;
+    source_ = layer.source_;
     for(const_MaterialIter it = layer.materialVec_.cbegin(); it != layer.materialVec_.cend(); it++){
       Material* material = new Material(*(*it));
       materialVec_.push_back(material);
     }
+
+    for(const_PatternIter it = layer.args1_.cbegin(); it != layer.args1_.cend(); it++){
+      args1_.push_back(*it);
+    }
+
+    for(const_PatternIter it = layer.args2_.cbegin(); it != layer.args2_.cend(); it++){
+      args2_.push_back(*it);
+    }
   }
 
   void Layer::setBackGround(Material *material){
-    backGround_ = new Material(*material);
+    //backGround_ = new Material(*material);
+    backGround_ = material;
+  }
+
+  void Layer::isSource(){
+    source_ = ISSOURCE_;
+  }
+
+  void Layer::isNotSource(){
+    source_ = ISNOTSOURCE_;
   }
 
   Material* Layer::getBackGround(){
@@ -118,22 +131,6 @@ namespace SYSTEM{
     return materialVec_.size();
   }
 
-  void Layer::setGx(int nGx){
-    nGx_ = nGx;
-  }
-
-  void Layer::setGy(int nGy){
-    nGy_ = nGy;
-  }
-
-  int Layer::getGx(){
-    return nGx_;
-  }
-
-  int Layer::getGy(){
-    return nGy_;
-  }
-
   const_MaterialIter Layer::getVecBegin(){
     return materialVec_.cbegin();
   }
@@ -142,25 +139,48 @@ namespace SYSTEM{
     return materialVec_.cend();
   }
 
+  const_PatternIter Layer::getArg1Begin(){
+    return args1_.cbegin();
+  }
+
+  const_PatternIter Layer::getArg2Begin(){
+    return args2_.cbegin();
+  }
+
+  const_PatternIter Layer::getArg1End(){
+    return args1_.cend();
+  }
+
+  const_PatternIter Layer::getArg2End(){
+    return args2_.cend();
+  }
+
   void Layer::addPattern(Material * material, double args1[2], double args2[2], std::string pattern){
     pattern_ = pattern;
     materialVec_.push_back(material);
-    args1_[0] = args1[0];
-    args1_[1] = args1[1];
-    args2_[0] = args2[0];
-    args2_[1] = args2[1];
+    args1_.push_back(std::make_pair(args1[0], args1[1]));
+    args2_.push_back(std::make_pair(args2[0], args2[2]));
   }
 
   /*======================================================
   Implementaion of the structure class
   =======================================================*/
-  Structure::Structure(){}
+  Structure::Structure() : nGx_(0), nGy_(0){}
 
   Structure::~Structure(){
     for(LayerIter it = layerMap_.begin(); it != layerMap_.end(); it++){
       delete(it->second);
     }
   }
+
+  Structure::Structure(Structure& structure){
+    nGx_ = structure.nGx_;
+    nGy_ = structure.nGy_;
+    for(const_LayerIter it = structure.layerMap_.cbegin(); it != structure.layerMap_.cend(); it++){
+      layerMap_.insert(LayerMap::value_type(it->first, it->second));
+    }
+  }
+
 
   void Structure::addLayer(Layer* layer){
     int size = layerMap_.size();
@@ -175,5 +195,21 @@ namespace SYSTEM{
     return layerMap_.size();
   }
 
+
+  void Structure::setGx(int nGx){
+    nGx_ = nGx;
+  }
+
+  void Structure::setGy(int nGy){
+    nGy_ = nGy;
+  }
+
+  int Structure::getGx(){
+    return nGx_;
+  }
+
+  int Structure::getGy(){
+    return nGy_;
+  }
 
 }
