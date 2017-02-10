@@ -16,11 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
+#include <complex>
 #ifndef _COMMON_H
 #define _COMMON_H
 
+#define MATERIALNAMELEN 10;
 enum DIMENSION { NO_, ONE_, TWO_ };
-enum LOSSY {ISLOSSY_, ISNOTLOSSY_};
+enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 typedef std::complex<double> dcomplex;
 
 #endif
