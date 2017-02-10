@@ -79,12 +79,16 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  Layer::Layer(Material* material) : source_(ISNOTSOURCE_){
+  Layer::Layer(Material* material, double thickness, SOURCE source) : thickness_(thickness), source_(source){
+    backGround_ = material;
+  }
+
+  Layer::Layer(Material* material) : source_(ISNOTSOURCE_), thickness_(0){
     //backGround_ = new Material(*material);
     backGround_ = material;
   }
 
-  Layer::Layer() : backGround_(nullptr), source_(ISNOTSOURCE_){}
+  Layer::Layer() : backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0){}
 
   Layer::~Layer(){
     for(MaterialIter it = materialVec_.begin(); it != materialVec_.end(); it++){
@@ -96,6 +100,7 @@ namespace SYSTEM{
     backGround_ = new Material(*(layer.backGround_));
     pattern_ = layer.pattern_;
     source_ = layer.source_;
+    thickness_ = layer.thickness_;
     for(const_MaterialIter it = layer.materialVec_.cbegin(); it != layer.materialVec_.cend(); it++){
       Material* material = new Material(*(*it));
       materialVec_.push_back(material);
@@ -115,6 +120,10 @@ namespace SYSTEM{
     backGround_ = material;
   }
 
+  void Layer::setThickness(double thickness){
+    thickness_ = thickness;
+  }
+
   void Layer::isSource(){
     source_ = ISSOURCE_;
   }
@@ -127,8 +136,19 @@ namespace SYSTEM{
     return backGround_;
   }
 
+  Material* Layer::getMaterialByName(std::string name){
+    for(const_MaterialIter it = this->getVecBegin(); it != this->getVecEnd(); it++){
+      if(name.compare((*it)->getName()) == 0) return *it;
+    }
+    return nullptr;
+  }
+
   int Layer::getNumOfMaterial(){
     return materialVec_.size();
+  }
+
+  double Layer::getThickness(){
+    return thickness_;
   }
 
   const_MaterialIter Layer::getVecBegin(){
@@ -160,6 +180,11 @@ namespace SYSTEM{
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args1[0], args1[1]));
     args2_.push_back(std::make_pair(args2[0], args2[2]));
+  }
+
+  void Layer::addPattern(Material * material, double args1[2]){
+    materialVec_.push_back(material);
+    args1_.push_back(std::make_pair(args1[0], args1[1]));
   }
 
   /*======================================================
@@ -195,6 +220,23 @@ namespace SYSTEM{
     return layerMap_.size();
   }
 
+  double* Structure::getThicknessList(){
+    int numOfLayer = this->getNumOfLayer();
+    double* thicknessList = new double[numOfLayer];
+    int count = 0;
+    for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
+      thicknessList[count] = (it->second)->getThickness();
+    }
+    return thicknessList;
+  }
+
+  const_LayerIter Structure::getMapBegin(){
+    return layerMap_.cbegin();
+  }
+
+  const_LayerIter Structure::getMapEnd(){
+    return layerMap_.cend();
+  }
 
   void Structure::setGx(int nGx){
     nGx_ = nGx;
