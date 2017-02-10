@@ -23,8 +23,116 @@
 #include "Rcwa.h"
 #include "System.h"
 #include "Common.h"
+#include "config.h"
 
 namespace MESH{
+using namespace SYSTEM;
+using namespace RCWA;
+typedef std::vector<RCWAMatrices> RCWAMatricesVec;
 
+typedef struct ARGWEAPPER{
+  double ky;
+  RCWAMatrices* EMatrices;
+  RCWAMatrices* grandImaginaryMatrices;
+  RCWAMatrices* dielectricMatrixInverse;
+  RCWAMatrix* Gx_mat;
+  RCWAMatrix* Gy_mat;
+  SourceList* sourceList;
+  int targetLayer;
+  int N = 0;
+}ArgWrapper;
+
+void filerLoader(std::string fileName, double* omega, dcomplex* epsilon, int size);
+void saveData(std::string fileName, double* omega, double* fluxSpectrum, int size);
+/*======================================================
+Implementaion of the parent simulation super class
+=======================================================*/
+class Simulation{
+public:
+  Simulation();
+  ~Simulation();
+  void addStructure(Structure* structure);
+  void setNumOfPoints(int numOfPoints);
+  void setOmega(double* omegaList);
+  void enableMPI(int numOfCore = 1);
+  void setPeriod(double p1 = 0, double p2 = 0);
+  void resetSimulation();
+
+  Structure* getStructure();
+  double* getOmegaList();
+  double* getFluxSpectrum();
+  double* getPeriod();
+
+  virtual void initMatrices() = 0;
+  virtual void setKxIntegral(double start, double points, double end) = 0;
+  virtual void setKxIntegral(double start, double points) = 0;
+  virtual void setKyIntegral(double start, double points) = 0;
+  virtual void run() = 0;
+
+private:
+  int nGx_;
+  int nGy_;
+  int numOfCore_;
+  int numOfPoints_;
+  double period_[2];
+  Structure* structure_;
+  double* fluxSpectrum_;
+  double* omegaList_;
+
+  RCWAMatricesVec EMatricesVec;
+  RCWAMatricesVec dielectricImMatrixVec;
+  RCWAMatricesVec dielectricMatrixVec;
+  RCWAMatricesVec dielectricMatrixInverseVec;
+  RCWAMatrix Gx_mat;
+  RCWAMatrix Gy_mat;
+};
+
+
+/*======================================================
+Implementaion of the class on planar simulation
+=======================================================*/
+class SimulationPlanar : public Simulation{
+public:
+  SimulationPlanar() : Simulation(){};
+  ~SimulationPlanar();
+
+  void initMatrices();
+  void setKxIntegral(double start, double points, double end);
+  void setKxIntegral(double start, double points);
+  void setKyIntegral(double start, double points);
+  void run();
+private:
+
+};
+
+/*======================================================
+Implementaion of the class on 1D grating simulation
+=======================================================*/
+class SimulationGrating : public Simulation{
+public:
+  SimulationGrating() : Simulation(){};
+  ~SimulationGrating();
+
+  void initMatrices();
+  void setKxIntegral(double start, double points, double end);
+  void setKxIntegral(double start, double points);
+  void setKyIntegral(double start, double points);
+  void run();
+};
+
+/*======================================================
+Implementaion of the class on 2D patterning simulation
+=======================================================*/
+class SimulationPattern : public Simulation{
+public:
+  SimulationPattern() : Simulation(){};
+  ~SimulationPattern();
+
+  void initMatrices();
+  void setKxIntegral(double start, double points, double end);
+  void setKxIntegral(double start, double points);
+  void setKyIntegral(double start, double points);
+  void run();
+};
 }
 #endif
