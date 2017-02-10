@@ -22,33 +22,6 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Material class
   =======================================================*/
-  Material* Layer::getBackGround(){
-    return backGround_;
-  }
-
-  int Layer::getNumOfMaterial(){
-    return materialVec_.size();
-  }
-
-
-  const_MaterialIter Layer::getVecBegin(){
-    return materialVec_.cbegin();
-  }
-
-  const_MaterialIter Layer::getVecEnd(){
-    return materialVec_.cend();
-  }
-
-  void Layer::addPattern(Material * material, double args1[2], double args2[2], std::string pattern){
-    pattern_ = pattern;
-    materialVec_.push_back(material);
-    args1_[0] = args1[0];
-    args1_[1] = args1[1];
-    args2_[0] = args2[0];
-    args2_[1] = args2[1];
-  }
-
-
   Material::Material(std::string name, dcomplex* epsilonList, double* omegaList, size_t size):
   name_(name), size_(size){
     epsilonList_ = new dcomplex[size_];
@@ -106,11 +79,11 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  Layer::Layer(Material* material){
+  Layer::Layer(Material* material) : nGx_(0), nGy_(0){
     backGround_ = new Material(*material);
   }
 
-  Layer::Layer() : backGround_(nullptr){}
+  Layer::Layer() : backGround_(nullptr), nGx_(0), nGy_(0){}
 
   Layer::~Layer(){
     for(MaterialIter it = materialVec_.begin(); it != materialVec_.end(); it++){
@@ -125,6 +98,8 @@ namespace SYSTEM{
     args1_[1] = layer.args1_[1];
     args2_[0] = layer.args2_[0];
     args2_[1] = layer.args2_[1];
+    nGx_ = layer.nGx_;
+    nGy_ = layer.nGy_;
     for(const_MaterialIter it = layer.materialVec_.cbegin(); it != layer.materialVec_.cend(); it++){
       Material* material = new Material(*(*it));
       materialVec_.push_back(material);
@@ -134,6 +109,48 @@ namespace SYSTEM{
   void Layer::setBackGround(Material *material){
     backGround_ = new Material(*material);
   }
+
+  Material* Layer::getBackGround(){
+    return backGround_;
+  }
+
+  int Layer::getNumOfMaterial(){
+    return materialVec_.size();
+  }
+
+  void Layer::setGx(int nGx){
+    nGx_ = nGx;
+  }
+
+  void Layer::setGy(int nGy){
+    nGy_ = nGy;
+  }
+
+  int Layer::getGx(){
+    return nGx_;
+  }
+
+  int Layer::getGy(){
+    return nGy_;
+  }
+
+  const_MaterialIter Layer::getVecBegin(){
+    return materialVec_.cbegin();
+  }
+
+  const_MaterialIter Layer::getVecEnd(){
+    return materialVec_.cend();
+  }
+
+  void Layer::addPattern(Material * material, double args1[2], double args2[2], std::string pattern){
+    pattern_ = pattern;
+    materialVec_.push_back(material);
+    args1_[0] = args1[0];
+    args1_[1] = args1[1];
+    args2_[0] = args2[0];
+    args2_[1] = args2[1];
+  }
+
   /*======================================================
   Implementaion of the structure class
   =======================================================*/

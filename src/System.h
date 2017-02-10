@@ -66,6 +66,11 @@ namespace SYSTEM{
     void setBackGround(Material* material);
     Material* getBackGround();
     int getNumOfMaterial();
+    void setGx(int nGx);
+    void setGy(int nGy);
+
+    int getGx();
+    int getGy();
 
     const_MaterialIter getVecBegin();
     const_MaterialIter getVecEnd();
@@ -78,12 +83,14 @@ namespace SYSTEM{
     std::string pattern_;
     double args1_[2];
     double args2_[2];
+    int nGx_;
+    int nGy_;
   };
 
   typedef std::map<int, Layer*> LayerMap;
   typedef LayerMap::iterator LayerIter;
   typedef LayerMap::const_iterator const_LayerIter;
-  
+
   /*======================================================
   Implementaion of the structure class
   =======================================================*/
