@@ -21,7 +21,8 @@
 #ifndef _COMMON_H
 #define _COMMON_H
 
-#define MATERIALNAMELEN 10;
+#define DEGREE 1024
+
 enum DIMENSION { NO_, ONE_, TWO_ };
 enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 typedef std::complex<double> dcomplex;
