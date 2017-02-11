@@ -130,7 +130,7 @@ void RCWA::getSMatrices(
  nGx: positive G along x direction
  nGy: positive G along y direction
 ==============================================================*/
-int getN(
+int RCWA::getN(
  const int nGx,
  const int nGy
 ){
