@@ -25,6 +25,7 @@
 
 enum DIMENSION { NO_, ONE_, TWO_ };
 enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
+enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};
 typedef std::complex<double> dcomplex;
 
 #endif
