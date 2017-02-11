@@ -7,28 +7,30 @@
 using namespace SYSTEM;
 using namespace MESH;
 int main(){
-  RCWA::RCWAMatrix S;
-  RCWA::initSMatrix(2, &S);
-//  std::cout << S << std::endl << S(arma::span(0, 1), arma::span(0, 1));
-  RCWA::RCWAMatrix T = S;
-  //T(arma::span(0, 1), arma::span(0, 1)) = arma::ones<RCWA::RCWAMatrix>(2, 2);
-  //std::cout << S << std::endl << S(arma::span(0, 1), arma::span(0, 1));
 
-  RCWA::RCWAMatrices S_vec;
-  S_vec.push_back(S);
-  S_vec.push_back(S);
+  // initializing material
+  int numOfOmega = 2;
+  dcomplex epsilonGaAs[numOfOmega] = {dcomplex(1, -1), dcomplex(1, -1)};
+  dcomplex epsilonVac[numOfOmega] = {dcomplex(1, 1e-10), dcomplex(1, 1e-10)};
+  double omegaList[numOfOmega] = {1.0e15, 2.0e15};
 
-  S_vec[0] *= 2;
-  std::cout << S_vec[1]<< std::endl << S_vec[0] << std::endl;
+  Material* GaAs = new Material("GaAs", epsilonGaAs, omegaList, numOfOmega);
+  Material* Vacuum = new Material("Vacuum", epsilonVac, omegaList, numOfOmega);
 
-  std::string name = "abc";
-  Material* material = new Material(name);
-  Layer* layer = new Layer(material);
+  // initializing layer
+  Layer* GaAsLayer = new Layer(GaAs, 0, ISSOURCE_);
+  Layer* VacLayer = new Layer(Vacuum, 0);
+
+  // initializing structure
   Structure* structure = new Structure();
-  structure->addLayer(layer);
+  structure->addLayer(GaAsLayer);
+  structure->addLayer(VacLayer);
+
   std::cout << structure->getNumOfLayer() << std::endl;
 
+  // initializing simulation
   SimulationPlanar* simulation = new SimulationPlanar();
   simulation->addStructure(structure);
+  simulation->setTargetLayerByLayer(VacLayer);
   return 0;
 }

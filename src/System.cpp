@@ -22,25 +22,25 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Material class
   =======================================================*/
-  Material::Material(std::string name, dcomplex* epsilonList, double* omegaList, size_t size):
-  name_(name), size_(size){
-    epsilonList_ = new dcomplex[size_];
-    std::copy(epsilonList, epsilonList + size_, epsilonList_);
-    omegaList_ = new double[size_];
-    std::copy(omegaList, omegaList + size_, omegaList_);
+  Material::Material(std::string name, dcomplex* epsilonList, double* omegaList, int numOfOmega):
+  name_(name), numOfOmega_(numOfOmega){
+    epsilonList_ = new dcomplex[numOfOmega_];
+    std::copy(epsilonList, epsilonList + numOfOmega_, epsilonList_);
+    omegaList_ = new double[numOfOmega_];
+    std::copy(omegaList, omegaList + numOfOmega_, omegaList_);
   }
 
   Material::Material(std::string name) :
-  name_(name), epsilonList_(nullptr), omegaList_(nullptr), size_(0){}
+  name_(name), epsilonList_(nullptr), omegaList_(nullptr), numOfOmega_(0){}
 
 
   Material::Material(const Material &material){
-    size_ = material.size_;
+    numOfOmega_ = material.numOfOmega_;
     name_ = material.name_;
-    epsilonList_ = new dcomplex[size_];
-    std::copy(material.epsilonList_, material.epsilonList_ + size_, epsilonList_);
-    omegaList_ = new double[size_];
-    std::copy(material.omegaList_, material.omegaList_ + size_, omegaList_);
+    epsilonList_ = new dcomplex[numOfOmega_];
+    std::copy(material.epsilonList_, material.epsilonList_ + numOfOmega_, epsilonList_);
+    omegaList_ = new double[numOfOmega_];
+    std::copy(material.omegaList_, material.omegaList_ + numOfOmega_, omegaList_);
   }
 
   Material::~Material(){
@@ -56,39 +56,46 @@ namespace SYSTEM{
     return epsilonList_;
   }
 
-  double* Material::getOmega(){
+  double* Material::getOmegaList(){
     return omegaList_;
+  }
+
+  int Material::getNumOfOmega(){
+    return numOfOmega_;
   }
 
   void Material::setName(const std::string name){
     name_ = name;
   }
 
-  void Material::setOmega(const double* omega, size_t size){
-    size_ = size;
-    omegaList_ = new double[size_];
-    std::copy(omega, omega + size_, omegaList_);
+  void Material::setOmega(const double* omegaList, int numOfOmega){
+    numOfOmega_ = numOfOmega;
+    omegaList_ = new double[numOfOmega_];
+    std::copy(omegaList, omegaList + numOfOmega_, omegaList_);
   }
 
-  void Material::setEpsilon(const dcomplex* epsilon, size_t size){
-    size_ = size;
-    epsilonList_ = new dcomplex[size_];
-    std::copy(epsilon, epsilon + size_, epsilonList_);
+  void Material::setEpsilon(const dcomplex* epsilonList, int numOfOmega){
+    numOfOmega_ = numOfOmega;
+    epsilonList_ = new dcomplex[numOfOmega_];
+    std::copy(epsilonList, epsilonList + numOfOmega_, epsilonList_);
   }
 
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  Layer::Layer(Material* material, double thickness, SOURCE source) : thickness_(thickness), source_(source){
+  Layer::Layer(Material* material, double thickness, SOURCE source) :
+    thickness_(thickness), source_(source){
     backGround_ = material;
   }
 
-  Layer::Layer(Material* material) : source_(ISNOTSOURCE_), thickness_(0){
+  Layer::Layer(Material* material) :
+    source_(ISNOTSOURCE_), thickness_(0){
     //backGround_ = new Material(*material);
     backGround_ = material;
   }
 
-  Layer::Layer() : backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0){}
+  Layer::Layer() :
+    backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0){}
 
   Layer::~Layer(){
     for(MaterialIter it = materialVec_.begin(); it != materialVec_.end(); it++){
@@ -113,6 +120,7 @@ namespace SYSTEM{
     for(const_PatternIter it = layer.args2_.cbegin(); it != layer.args2_.cend(); it++){
       args2_.push_back(*it);
     }
+
   }
 
   void Layer::setBackGround(Material *material){

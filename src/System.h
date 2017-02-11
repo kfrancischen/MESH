@@ -29,24 +29,25 @@ namespace SYSTEM{
   =======================================================*/
   class Material{
   public:
-    Material(std::string name, dcomplex* epsilonList, double* omegaList, size_t size);
+    Material(std::string name, dcomplex* epsilonList, double* omegaList, int numOfOmega);
     Material(std::string name);
     Material(const Material& material);
     ~Material();
 
     std::string getName();
     dcomplex* getEpsilon();
-    double* getOmega();
+    double* getOmegaList();
+    int getNumOfOmega();
 
     void setName(const std::string name);
-    void setOmega(const double* omega, size_t size);
-    void setEpsilon(const dcomplex* epsilon, size_t size);
+    void setOmega(const double* omegaList, int numOfOmega);
+    void setEpsilon(const dcomplex* epsilonList, int numOfOmega);
 
   private:
     std::string name_;
     dcomplex* epsilonList_;
     double* omegaList_;
-    size_t size_;
+    int numOfOmega_;
   };
 
   typedef std::vector<Material*> MaterialVec;
@@ -135,6 +136,7 @@ private:
     LayerMap layerMap_;
     int nGx_;
     int nGy_;
+    int numOfPoints_;
   };
 
 

@@ -48,7 +48,7 @@ namespace MESH{
   /*======================================================
   Implementaion of the parent simulation super class
   =======================================================*/
-  Simulation::Simulation() : nGx_(0), nGy_(0), numOfCore_(1), numOfPoints_(0), structure_(nullptr),
+  Simulation::Simulation() : nGx_(0), nGy_(0), numOfCore_(1), numOfOmega_(0), structure_(nullptr),
   fluxSpectrum_(nullptr), omegaList_(nullptr), kxStart_(0), kxEnd_(0), kyStart_(0), kyEnd_(0), numOfKx_(0), numOfKy_(0)
   {
   }
@@ -63,20 +63,6 @@ namespace MESH{
     structure_ = structure;
   }
 
-  void Simulation::setNumOfPoints(int numOfPoints){
-    numOfPoints_ = numOfPoints;
-    fluxSpectrum_ = new double[numOfPoints_];
-    omegaList_ = new double[numOfPoints_];
-    EMatricesVec_.reserve(numOfPoints);
-    grandImaginaryMatricesVec_.reserve(numOfPoints);
-    dielectricMatrixInverseVec_.reserve(numOfPoints);
-  }
-
-  void Simulation::setOmega(double* omegaList){
-    for(size_t i = 0; i < numOfPoints_; i++){
-      omegaList_[i] = omegaList[i];
-    }
-  }
 
   void Simulation::enableMPI(int numOfCore){
     numOfCore_ = numOfCore;
@@ -130,30 +116,6 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on planar simulation
   =======================================================*/
-  void SimulationPlanar::initMatrices(){
-    RCWAMatricesVec dielectricMatrixVec(numOfPoints_), dielectricImMatrixVec(numOfPoints_);
-
-    int numOfLayer = structure_->getNumOfLayer();
-    for(size_t i = 0; i < numOfLayer; i++){
-      Layer* layer = structure_->getLayerByIndex(i);
-      dcomplex* epsilon = (layer->getBackGround())->getEpsilon();
-      for(size_t j = 0; j < numOfPoints_; j++){
-        double real = (epsilon[j]).real();
-        double imag = (epsilon[j]).imag();
-        dielectricMatrixVec[j].push_back(RCWAMatrix(real, imag));
-        dielectricMatrixInverseVec_[j].push_back(RCWAMatrix(1.0 / real, 1.0 / imag));
-        dielectricImMatrixVec[j].push_back(RCWAMatrix(0, imag));
-      }
-    }
-    getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, NO_);
-    int N = getN(nGx_, nGy_);
-    for(size_t i = 0; i < numOfPoints_; i++){
-      getEMatrices(&(EMatricesVec_[i]), &(dielectricMatrixVec[i]), numOfLayer, N);
-      getGrandImaginaryMatrices(&(grandImaginaryMatricesVec_[i]), &(dielectricImMatrixVec[i]), numOfLayer);
-    }
-
-  }
-
   void SimulationPlanar::setKxIntegral(double start, double points, double end){
     // nothing to do
   }
@@ -170,6 +132,48 @@ namespace MESH{
     // nothing to do
   }
 
+  void SimulationPlanar::build(){
+    Layer* firstLayer = structure_->getLayerByIndex(0);
+    Material* backGround = firstLayer->getBackGround();
+    numOfOmega_ = backGround->getNumOfOmega();
+    omegaList_ = backGround->getOmegaList();
+    fluxSpectrum_ = new double[numOfOmega_];
+    omegaList_ = new double[numOfOmega_];
+    EMatricesVec_.reserve(numOfOmega_);
+    grandImaginaryMatricesVec_.reserve(numOfOmega_);
+    dielectricMatrixInverseVec_.reserve(numOfOmega_);
+
+    RCWAMatricesVec dielectricMatrixVec(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
+
+    int numOfLayer = structure_->getNumOfLayer();
+    for(size_t i = 0; i < numOfLayer; i++){
+      Layer* layer = structure_->getLayerByIndex(i);
+      dcomplex* epsilon = (layer->getBackGround())->getEpsilon();
+      for(size_t j = 0; j < numOfOmega_; j++){
+        double real = (epsilon[j]).real();
+        double imag = (epsilon[j]).imag();
+        dielectricMatrixVec[j].push_back(RCWAMatrix(real, imag));
+        dielectricMatrixInverseVec_[j].push_back(RCWAMatrix(1.0 / real, 1.0 / imag));
+        dielectricImMatrixVec[j].push_back(RCWAMatrix(0, imag));
+      }
+    }
+    getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, NO_);
+    int N = getN(nGx_, nGy_);
+    for(size_t i = 0; i < numOfOmega_; i++){
+      getEMatrices(
+        &(EMatricesVec_[i]),
+        &(dielectricMatrixVec[i]),
+        numOfLayer,
+        N
+      );
+      getGrandImaginaryMatrices(
+        &(grandImaginaryMatricesVec_[i]),
+        &(dielectricImMatrixVec[i]),
+        numOfLayer
+      );
+    }
+  }
+
   void SimulationPlanar::run(){
     int numOfLayer = structure_->getNumOfLayer();
 
@@ -181,6 +185,7 @@ namespace MESH{
       thicknessListVec(i) = thicknessList[i];
       sourceList[i] = (structure_->getLayerByIndex(i))->checkSource();
     }
+
     if(numOfCore_ == 1){
       ArgWrapper* wrapper;
       wrapper->thicknessList = thicknessListVec;
@@ -189,12 +194,13 @@ namespace MESH{
       wrapper->sourceList = sourceList;
       wrapper->targetLayer = targetLayer_;
 
-      for(size_t omegaIdx = 0; omegaIdx < numOfPoints_; omegaIdx++){
+      for(size_t omegaIdx = 0; omegaIdx < numOfOmega_; omegaIdx++){
         wrapper->omega = omegaList_[omegaIdx] / datum::c_0;
         wrapper->EMatrices = EMatricesVec_[omegaIdx];
         wrapper->grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
         wrapper->dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
-        fluxSpectrum_[omegaIdx] = gauss_legendre(DEGREE, wrapperFun, wrapper, kxStart_, kxEnd_);
+        fluxSpectrum_[omegaIdx] = pow(omegaList_[omegaIdx] / datum::c_0, 2)
+          / pow(datum::pi, 2) * gauss_legendre(DEGREE, wrapperFun, wrapper, kxStart_, kxEnd_);
       }
     }
     else{
@@ -205,10 +211,6 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on 1D grating simulation
   =======================================================*/
-  void SimulationGrating::initMatrices(){
-    // TODO
-  }
-
   void SimulationGrating::setKxIntegral(double start, double points, double end){
     // TODO
   }
@@ -225,6 +227,10 @@ namespace MESH{
     // TODO
   }
 
+  void SimulationGrating::build(){
+    // TODO
+  }
+
   void SimulationGrating::run(){
     // TODO
   }
@@ -232,10 +238,6 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on 2D patterning simulation
   =======================================================*/
-  void SimulationPattern::initMatrices(){
-    // TODO
-  }
-
   void SimulationPattern::setKxIntegral(double start, double points, double end){
     // nothing to do
   }
@@ -249,6 +251,10 @@ namespace MESH{
   }
 
   void SimulationPattern::setKyIntegral(double start, double points){
+    // TODO
+  }
+
+  void SimulationPattern::build(){
     // TODO
   }
 

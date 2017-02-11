@@ -56,8 +56,6 @@ public:
   Simulation();
   ~Simulation();
   void addStructure(Structure* structure);
-  void setNumOfPoints(int numOfPoints);
-  void setOmega(double* omegaList);
   void enableMPI(int numOfCore = 1);
   void setPeriod(double p1 = 0, double p2 = 0);
   void resetSimulation();
@@ -69,19 +67,19 @@ public:
   double* getFluxSpectrum();
   double* getPeriod();
 
-  virtual void initMatrices() = 0;
-  virtual void setKxIntegral(double end) = 0;
 
+  virtual void setKxIntegral(double end) = 0;
   virtual void setKxIntegral(double start, double points, double end) = 0;
   virtual void setKxIntegral(double start, double points) = 0;
   virtual void setKyIntegral(double start, double points) = 0;
+  virtual void build() = 0;
   virtual void run() = 0;
 
 protected:
   int nGx_;
   int nGy_;
   int numOfCore_;
-  int numOfPoints_;
+  int numOfOmega_;
   double period_[2];
   Structure* structure_;
   double* fluxSpectrum_;
@@ -112,11 +110,11 @@ public:
   SimulationPlanar() : Simulation(){};
   ~SimulationPlanar();
 
-  void initMatrices();
   void setKxIntegral(double start, double points, double end);
   void setKxIntegral(double end);
   void setKxIntegral(double start, double points);
   void setKyIntegral(double start, double points);
+  void build();
   void run();
 private:
 
@@ -130,11 +128,11 @@ public:
   SimulationGrating() : Simulation(){};
   ~SimulationGrating();
 
-  void initMatrices();
   void setKxIntegral(double start, double points, double end);
   void setKxIntegral(double end);
   void setKxIntegral(double start, double points);
   void setKyIntegral(double start, double points);
+  void build();
   void run();
 };
 
@@ -146,11 +144,11 @@ public:
   SimulationPattern() : Simulation(){};
   ~SimulationPattern();
 
-  void initMatrices();
   void setKxIntegral(double start, double points, double end);
   void setKxIntegral(double end);
   void setKxIntegral(double start, double points);
   void setKyIntegral(double start, double points);
+  void build();
   void run();
 };
 }
