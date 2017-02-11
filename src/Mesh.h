@@ -24,26 +24,30 @@
 #include "System.h"
 #include "Common.h"
 #include "config.h"
+#include "gauss_legendre.h"
 
 namespace MESH{
 using namespace SYSTEM;
 using namespace RCWA;
 typedef std::vector<RCWAMatrices> RCWAMatricesVec;
+typedef RCWAMatricesVec::iterator RCWAMatricesIter;
+typedef RCWAMatricesVec::const_iterator const_RCWAMatricesIter;
 
 typedef struct ARGWEAPPER{
-  double ky;
-  RCWAMatrices* EMatrices;
-  RCWAMatrices* grandImaginaryMatrices;
-  RCWAMatrices* dielectricMatrixInverse;
-  RCWAMatrix* Gx_mat;
-  RCWAMatrix* Gy_mat;
-  SourceList* sourceList;
+  double omega;
+  RCWAVector thicknessList;
+  RCWAMatrices EMatrices;
+  RCWAMatrices grandImaginaryMatrices;
+  RCWAMatrices dielectricMatrixInverse;
+  RCWAMatrix Gx_mat;
+  RCWAMatrix Gy_mat;
+  SourceList sourceList;
   int targetLayer;
-  int N = 0;
 }ArgWrapper;
 
 void filerLoader(std::string fileName, double* omega, dcomplex* epsilon, int size);
 void saveData(std::string fileName, double* omega, double* fluxSpectrum, int size);
+double wrapperFun(double kx, ArgWrapper* wrapper);
 /*======================================================
 Implementaion of the parent simulation super class
 =======================================================*/
@@ -57,6 +61,8 @@ public:
   void enableMPI(int numOfCore = 1);
   void setPeriod(double p1 = 0, double p2 = 0);
   void resetSimulation();
+  void setTargetLayerByIndex(int index);
+  void setTargetLayerByLayer(Layer* layer);
 
   Structure* getStructure();
   double* getOmegaList();
@@ -64,12 +70,14 @@ public:
   double* getPeriod();
 
   virtual void initMatrices() = 0;
+  virtual void setKxIntegral(double end) = 0;
+
   virtual void setKxIntegral(double start, double points, double end) = 0;
   virtual void setKxIntegral(double start, double points) = 0;
   virtual void setKyIntegral(double start, double points) = 0;
   virtual void run() = 0;
 
-private:
+protected:
   int nGx_;
   int nGy_;
   int numOfCore_;
@@ -79,12 +87,20 @@ private:
   double* fluxSpectrum_;
   double* omegaList_;
 
-  RCWAMatricesVec EMatricesVec;
-  RCWAMatricesVec dielectricImMatrixVec;
-  RCWAMatricesVec dielectricMatrixVec;
-  RCWAMatricesVec dielectricMatrixInverseVec;
-  RCWAMatrix Gx_mat;
-  RCWAMatrix Gy_mat;
+  double kxStart_;
+  double kxEnd_;
+  double numOfKx_;
+
+  double kyStart_;
+  double kyEnd_;
+  double numOfKy_;
+  int targetLayer_;
+
+  RCWAMatricesVec EMatricesVec_;
+  RCWAMatricesVec grandImaginaryMatricesVec_;
+  RCWAMatricesVec dielectricMatrixInverseVec_;
+  RCWAMatrix Gx_mat_;
+  RCWAMatrix Gy_mat_;
 };
 
 
@@ -98,6 +114,7 @@ public:
 
   void initMatrices();
   void setKxIntegral(double start, double points, double end);
+  void setKxIntegral(double end);
   void setKxIntegral(double start, double points);
   void setKyIntegral(double start, double points);
   void run();
@@ -115,6 +132,7 @@ public:
 
   void initMatrices();
   void setKxIntegral(double start, double points, double end);
+  void setKxIntegral(double end);
   void setKxIntegral(double start, double points);
   void setKyIntegral(double start, double points);
   void run();
@@ -130,6 +148,7 @@ public:
 
   void initMatrices();
   void setKxIntegral(double start, double points, double end);
+  void setKxIntegral(double end);
   void setKxIntegral(double start, double points);
   void setKyIntegral(double start, double points);
   void run();
