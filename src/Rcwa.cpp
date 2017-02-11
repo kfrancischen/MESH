@@ -156,7 +156,10 @@ void RCWA::getGMatrices(
   DIMENSION d
 )
 {
-  int N = RCWA::getN(nGx, nGy);
+  int Nx = 2 * nGx + 1;
+  int Ny = 2 * nGy + 1;
+  int N = Nx * Ny;
+  int Gx = 0, Gy = 0;
   switch (d) {
     case NO_:
       break;
