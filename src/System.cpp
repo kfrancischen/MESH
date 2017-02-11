@@ -132,6 +132,10 @@ namespace SYSTEM{
     source_ = ISNOTSOURCE_;
   }
 
+  SOURCE Layer::checkSource(){
+    return source_;
+  }
+
   Material* Layer::getBackGround(){
     return backGround_;
   }

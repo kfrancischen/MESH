@@ -72,6 +72,7 @@ namespace SYSTEM{
     void setThickness(double thickness);
     void isSource();
     void isNotSource();
+    SOURCE checkSource();
 
     Material* getBackGround();
     Material* getMaterialByName(std::string name);
