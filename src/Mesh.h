@@ -67,11 +67,6 @@ public:
   double* getFluxSpectrum();
   double* getPeriod();
 
-
-  virtual void setKxIntegral(double end) = 0;
-  virtual void setKxIntegral(double start, double points, double end) = 0;
-  virtual void setKxIntegral(double start, double points) = 0;
-  virtual void setKyIntegral(double start, double points) = 0;
   virtual void build() = 0;
   virtual void run() = 0;
 
@@ -110,10 +105,7 @@ public:
   SimulationPlanar() : Simulation(){};
   ~SimulationPlanar();
 
-  void setKxIntegral(double start, double points, double end);
-  void setKxIntegral(double end);
-  void setKxIntegral(double start, double points);
-  void setKyIntegral(double start, double points);
+  void setKxIntegral(double points, double end);
   void build();
   void run();
 private:
@@ -125,15 +117,19 @@ Implementaion of the class on 1D grating simulation
 =======================================================*/
 class SimulationGrating : public Simulation{
 public:
-  SimulationGrating() : Simulation(){};
+  SimulationGrating() : Simulation(){
+    prefactor_ = 1;
+  };
   ~SimulationGrating();
-
-  void setKxIntegral(double start, double points, double end);
-  void setKxIntegral(double end);
-  void setKxIntegral(double start, double points);
-  void setKyIntegral(double start, double points);
+  void setKxIntegral(double points);
+  void setKxIntegralSym(double points);
+  // for ky integral, from 0 to inf
+  void setKyIntegral(double points, double end);
   void build();
   void run();
+
+private:
+  int prefactor_;
 };
 
 /*======================================================
@@ -141,15 +137,20 @@ Implementaion of the class on 2D patterning simulation
 =======================================================*/
 class SimulationPattern : public Simulation{
 public:
-  SimulationPattern() : Simulation(){};
+  SimulationPattern() : Simulation(){
+    prefactor_ = 1;
+  };
   ~SimulationPattern();
 
-  void setKxIntegral(double start, double points, double end);
-  void setKxIntegral(double end);
-  void setKxIntegral(double start, double points);
-  void setKyIntegral(double start, double points);
+  void setKxIntegral(double points);
+  void setKxIntegralSym(double points);
+  void setKyIntegral(double points);
+  void setKyIntegralSym(double points);
   void build();
   void run();
+
+private:
+  int prefactor_;
 };
 }
 #endif

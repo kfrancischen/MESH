@@ -19,6 +19,8 @@
 
 #include "Mesh.h"
 
+#define POW2(x) pow(x, 2)
+#define _2PI datum::pi * 2
 namespace MESH{
   void filerLoader(std::string fileName, double* omega, dcomplex* epsilon, int size){
     // TODO
@@ -118,20 +120,10 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on planar simulation
   =======================================================*/
-  void SimulationPlanar::setKxIntegral(double start, double points, double end){
-    // nothing to do
-  }
-
-  void SimulationPlanar::setKxIntegral(double end){
+  void SimulationPlanar::setKxIntegral(double points, double end){
+    kxStart_ = 0;
+    numOfKx_ = points;
     kxEnd_ = end;
-  }
-
-  void SimulationPlanar::setKxIntegral(double start, double points){
-    // nothing to do
-  }
-
-  void SimulationPlanar::setKyIntegral(double start, double points){
-    // nothing to do
   }
 
   void SimulationPlanar::build(){
@@ -140,7 +132,6 @@ namespace MESH{
     numOfOmega_ = backGround->getNumOfOmega();
     omegaList_ = backGround->getOmegaList();
     fluxSpectrum_ = new double[numOfOmega_];
-    omegaList_ = new double[numOfOmega_];
     EMatricesVec_.reserve(numOfOmega_);
     grandImaginaryMatricesVec_.reserve(numOfOmega_);
     dielectricMatrixInverseVec_.reserve(numOfOmega_);
@@ -201,8 +192,8 @@ namespace MESH{
         wrapper->EMatrices = EMatricesVec_[omegaIdx];
         wrapper->grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
         wrapper->dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
-        fluxSpectrum_[omegaIdx] = pow(omegaList_[omegaIdx] / datum::c_0, 2)
-          / pow(datum::pi, 2) * gauss_legendre(DEGREE, wrapperFun, wrapper, kxStart_, kxEnd_);
+        fluxSpectrum_[omegaIdx] = POW2(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
+          gauss_legendre(DEGREE, wrapperFun, wrapper, kxStart_, kxEnd_);
       }
     }
     else{
@@ -213,20 +204,23 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on 1D grating simulation
   =======================================================*/
-  void SimulationGrating::setKxIntegral(double start, double points, double end){
-    // TODO
+  void SimulationGrating::setKxIntegral(double points){
+    numOfKx_ = points;
+    kxStart_ = -_2PI / period_[0];
+    kxEnd_ = -kxStart_;
   }
 
-  void SimulationGrating::setKxIntegral(double end){
-    // nothing to do
+  void SimulationGrating::setKxIntegralSym(double points){
+    numOfKx_ = points;
+    kxStart_ = 0;
+    kxEnd_ = _2PI / period_[0];
+    prefactor_ *= 2;
   }
 
-  void SimulationGrating::setKxIntegral(double start, double points){
-    // nothing to do
-  }
-
-  void SimulationGrating::setKyIntegral(double start, double points){
-    // TODO
+  void SimulationGrating::setKyIntegral(double points, double end){
+    kyStart_ = 0;
+    numOfKy_ = points;
+    kyEnd_ = end;
   }
 
   void SimulationGrating::build(){
@@ -240,20 +234,30 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on 2D patterning simulation
   =======================================================*/
-  void SimulationPattern::setKxIntegral(double start, double points, double end){
-    // nothing to do
+  void SimulationPattern::setKxIntegral(double points){
+    kxStart_ = -_2PI / period_[0];
+    numOfKx_ = points;
+    kxEnd_ = -kxStart_;
   }
 
-  void SimulationPattern::setKxIntegral(double end){
-    // nothing to do
+  void SimulationPattern::setKxIntegralSym(double points){
+    kxStart_ = 0;
+    numOfKx_ = points;
+    kxEnd_ = _2PI / period_[0];
+    prefactor_ *= 2;
   }
 
-  void SimulationPattern::setKxIntegral(double start, double points){
-    // TODO
+  void SimulationPattern::setKyIntegral(double points){
+    kyStart_ = -_2PI / period_[1];
+    numOfKy_ = points;
+    kyEnd_ = -kyStart_;
   }
 
-  void SimulationPattern::setKyIntegral(double start, double points){
-    // TODO
+  void SimulationPattern::setKyIntegralSym(double points){
+    kyStart_ = 0;
+    numOfKy_ = points;
+    kyEnd_ = _2PI / period_[1];
+    prefactor_ *= 2;
   }
 
   void SimulationPattern::build(){
