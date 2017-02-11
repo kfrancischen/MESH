@@ -74,6 +74,16 @@ namespace RCWA{
   );
 
   /*============================================================
+  * Function computing numbef of G for the system
+  @arg:
+   nGx: positive G along x direction
+   nGy: positive G along y direction
+  ==============================================================*/
+ int getN(
+   const int nGx,
+   const int nGy
+ );
+  /*============================================================
   * Function computing G matrix for the system
   @arg:
    startLayer: the starting layer for the propogation
