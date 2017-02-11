@@ -57,7 +57,7 @@ public:
   ~Simulation();
   void addStructure(Structure* structure);
   void enableMPI(int numOfCore = 1);
-  void setPeriod(double p1 = 0, double p2 = 0);
+  void setPeriod(double p1, double p2 = 0);
   void resetSimulation();
   void setTargetLayerByIndex(int index);
   void setTargetLayerByLayer(Layer* layer);
