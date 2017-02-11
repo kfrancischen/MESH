@@ -84,18 +84,18 @@ namespace SYSTEM{
   Implementaion of the Layer class
   =======================================================*/
   Layer::Layer(Material* material, double thickness, SOURCE source) :
-    thickness_(thickness), source_(source){
+    thickness_(thickness), source_(source), pattern_(PLANAR_){
     backGround_ = material;
   }
 
   Layer::Layer(Material* material) :
-    source_(ISNOTSOURCE_), thickness_(0){
+    source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
     //backGround_ = new Material(*material);
     backGround_ = material;
   }
 
   Layer::Layer() :
-    backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0){}
+    backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){}
 
   Layer::~Layer(){
     for(MaterialIter it = materialVec_.begin(); it != materialVec_.end(); it++){
@@ -187,16 +187,26 @@ namespace SYSTEM{
     return args2_.cend();
   }
 
-  void Layer::addPattern(Material * material, double args1[2], double args2[2], std::string pattern){
-    pattern_ = pattern;
+  void Layer::addRectanlgePattern(Material * material, double args1[2], double args2[2]){
+    pattern_ = RECTANGLE_;
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args1[0], args1[1]));
     args2_.push_back(std::make_pair(args2[0], args2[2]));
   }
 
-  void Layer::addPattern(Material * material, double args1[2]){
+
+  void Layer::addCirclePattern(Material* material, double args[2], double radius){
+    pattern_ = CIRCLE_;
     materialVec_.push_back(material);
-    args1_.push_back(std::make_pair(args1[0], args1[1]));
+    args1_.push_back(std::make_pair(args[0], radius));
+    args2_.push_back(std::make_pair(args[1], radius));
+
+  }
+
+  void Layer::addGratingPattern(Material * material, double start, double end){
+    pattern_ = GRATING_;
+    materialVec_.push_back(material);
+    args1_.push_back(std::make_pair(start, end));
   }
 
   /*======================================================

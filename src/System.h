@@ -90,15 +90,16 @@ namespace SYSTEM{
     const_PatternIter getArg2End();
 
 
-    void addPattern(Material* material, double args1[2], double args2[2], std::string pattern);
-    void addPattern(Material* material, double args1[2]);
+    void addRectanlgePattern(Material* material, double args1[2], double args2[2]);
+    void addCirclePattern(Material* material, double args[2], double radius);
+    void addGratingPattern(Material* material, double start, double end);
 
   private:
 
     double thickness_;
     Material* backGround_;
     MaterialVec materialVec_;
-    std::string pattern_;
+    PATTEN pattern_;
     LayerPattern args1_;
     LayerPattern args2_;
     SOURCE source_;
