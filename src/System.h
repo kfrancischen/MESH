@@ -36,9 +36,9 @@ namespace SYSTEM{
 
     std::string getName();
     dcomplex* getEpsilon();
-    double* getOmegaList();
     int getNumOfOmega();
-
+    double* getOmegaList();
+    
     void setName(const std::string name);
     void setOmega(const double* omegaList, int numOfOmega);
     void setEpsilon(const dcomplex* epsilonList, int numOfOmega);
