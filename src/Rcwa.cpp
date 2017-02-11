@@ -125,6 +125,18 @@ void RCWA::getSMatrices(
 }
 
 /*============================================================
+* Function computing numbef of G for the system
+@arg:
+ nGx: positive G along x direction
+ nGy: positive G along y direction
+==============================================================*/
+int getN(
+ const int nGx,
+ const int nGy
+){
+  return (2*nGx + 1) * (2*nGy + 1);
+}
+/*============================================================
 * Function computing G matrix for the system
 @arg:
  startLayer: the starting layer for the propogation

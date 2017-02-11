@@ -22,6 +22,7 @@
 #include <armadillo>
 #include <vector>
 #include "Common.h"
+#include "gauss_legendre.h"
 
 namespace RCWA{
 
