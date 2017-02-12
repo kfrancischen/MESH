@@ -64,11 +64,13 @@ public:
 
   Structure* getStructure();
   double* getOmegaList();
-  double* getFluxSpectrum();
+  double* getPhi();
   double* getPeriod();
 
-  virtual void build() = 0;
-  virtual void run() = 0;
+  double getPhiAtKxKy(int omegaIndex, double kx, double ky = 0);
+
+  void build();
+  void run();
 
 protected:
   int nGx_;
@@ -77,7 +79,7 @@ protected:
   int numOfOmega_;
   double period_[2];
   Structure* structure_;
-  double* fluxSpectrum_;
+  double* Phi_;
   double* omegaList_;
 
   double kxStart_;
@@ -94,6 +96,9 @@ protected:
   RCWAMatricesVec dielectricMatrixInverseVec_;
   RCWAMatrix Gx_mat_;
   RCWAMatrix Gy_mat_;
+
+  SourceList sourceList_;
+  RCWAVector thicknessListVec_;
 };
 
 
@@ -106,8 +111,9 @@ public:
   ~SimulationPlanar();
 
   void setKxIntegral(double points, double end);
-  void build();
   void run();
+
+  double getPhiAtKx(int omegaIndex, double kx);
 private:
 
 };
@@ -125,8 +131,7 @@ public:
   void setKxIntegralSym(double points);
   // for ky integral, from 0 to inf
   void setKyIntegral(double points, double end);
-  void build();
-  void run();
+
 
 private:
   int prefactor_;
@@ -146,8 +151,7 @@ public:
   void setKxIntegralSym(double points);
   void setKyIntegral(double points);
   void setKyIntegralSym(double points);
-  void build();
-  void run();
+
 
 private:
   int prefactor_;

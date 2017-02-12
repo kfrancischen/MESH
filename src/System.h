@@ -38,7 +38,7 @@ namespace SYSTEM{
     dcomplex* getEpsilon();
     int getNumOfOmega();
     double* getOmegaList();
-    
+
     void setName(const std::string name);
     void setOmega(const double* omegaList, int numOfOmega);
     void setEpsilon(const dcomplex* epsilonList, int numOfOmega);
@@ -71,14 +71,15 @@ namespace SYSTEM{
 
     void setBackGround(Material* material);
     void setThickness(double thickness);
-    void isSource();
-    void isNotSource();
-    SOURCE checkSource();
+    void setIsSource();
+    void setIsNotSource();
+    SOURCE checkIsSource();
 
     Material* getBackGround();
     Material* getMaterialByName(std::string name);
     int getNumOfMaterial();
     double getThickness();
+    PATTEN getPattern();
 
     const_MaterialIter getVecBegin();
     const_MaterialIter getVecEnd();
@@ -137,7 +138,6 @@ private:
     LayerMap layerMap_;
     int nGx_;
     int nGy_;
-    int numOfPoints_;
   };
 
 

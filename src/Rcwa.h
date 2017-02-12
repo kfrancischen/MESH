@@ -32,7 +32,6 @@ namespace RCWA{
   typedef std::vector< SOURCE > SourceList;
 
 
-
   /*============================================================
   * Function initializing S matrix
   @arg:

@@ -132,15 +132,15 @@ namespace SYSTEM{
     thickness_ = thickness;
   }
 
-  void Layer::isSource(){
+  void Layer::setIsSource(){
     source_ = ISSOURCE_;
   }
 
-  void Layer::isNotSource(){
+  void Layer::setIsNotSource(){
     source_ = ISNOTSOURCE_;
   }
 
-  SOURCE Layer::checkSource(){
+  SOURCE Layer::checkIsSource(){
     return source_;
   }
 
@@ -163,6 +163,10 @@ namespace SYSTEM{
     return thickness_;
   }
 
+  PATTEN Layer::getPattern(){
+    return pattern_;
+  }
+  
   const_MaterialIter Layer::getVecBegin(){
     return materialVec_.cbegin();
   }
@@ -191,7 +195,7 @@ namespace SYSTEM{
     pattern_ = RECTANGLE_;
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args1[0], args1[1]));
-    args2_.push_back(std::make_pair(args2[0], args2[2]));
+    args2_.push_back(std::make_pair(args2[0], args2[1]));
   }
 
 

@@ -73,7 +73,6 @@ void RCWA::getSMatrices(
 // propogating down
   for(size_t i = startLayer; i >=1; i--){
     RCWAMatrix I = solve((*MMatrices)[i], (*MMatrices)[i-1]);
-
     RCWAMatrix leftTop = I(span(r3, r4), span(r3, r4));
     RCWAMatrix rightTop = I(span(r3, r4), span(r1, r2));
     RCWAMatrix leftBottom = I(span(r1, r2), span(r3, r4));
@@ -95,13 +94,12 @@ void RCWA::getSMatrices(
     (*SMatrices)[i-1](span(r3,r4), span(r3,r4)) = (*SMatrices)[i](span(r3,r4), span(r3,r4)) *
       (leftBottom * (*SMatrices)[i-1](span(r1,r2), span(r3,r4)) + rightBottom * (*FMatrices)[i-1]);
   }
-
 // propogating up
   for(size_t i = startLayer; i < numOfLayer - 1; i++){
     RCWAMatrix I = solve((*MMatrices)[i], (*MMatrices)[i-1]);
 
     RCWAMatrix leftTop = I(span(r1, r2), span(r1, r2));
-    RCWAMatrix rightTop = I(span(r1, r2), span(r1, r2));
+    RCWAMatrix rightTop = I(span(r1, r2), span(r3, r4));
     RCWAMatrix leftBottom = I(span(r3, r4), span(r1, r2));
     RCWAMatrix rightBottom = I(span(r3, r4), span(r3, r4));
 
@@ -163,14 +161,16 @@ void RCWA::getGMatrices(
   switch (d) {
     case NO_:
       break;
-    case ONE_:
+    case ONE_:{
       Gx = 2 * datum::pi / period[0];
       break;
-    case TWO_:
+    }
+    case TWO_:{
       Gx = 2 * datum::pi / period[0];
       Gy = 2 * datum::pi / period[1];
+      break;
+    }
   }
-
   RCWAMatrix Gx_list(1, Nx), Gy_list(1, Ny);
   for(int i = -nGx; i <= nGx; i++){
     Gx_list(0, i) = i * Gx;
@@ -178,10 +178,9 @@ void RCWA::getGMatrices(
   for(int i = -nGy; i <= nGy; i++){
     Gy_list(0, i) = i * Gy;
   }
-  RCWAMatrix Gx_mat, Gy_mat;
-  populateQ(&Gx_list, &Gy_list, &Gx_mat, &Gy_mat);
-  Gx_mat.reshape(N, 1);
-  Gy_mat.reshape(N, 1);
+  populateQ(&Gx_list, &Gy_list, Gx_mat, Gy_mat);
+  Gx_mat->reshape(N, 1);
+  Gy_mat->reshape(N, 1);
 }
 
 /*============================================================
@@ -269,8 +268,12 @@ double RCWA::poyntingFlux(
 
   int r1 = 0, r2 = 2 * N -1, r3 = 2 * N, r4 = 4 * N -1;
   dcomplex IMAG_I = dcomplex(0, 1);
-  RCWAMatrix zeroPadding(N, N, fill::zeros);
-  RCWAMatrix onePadding(N, N, fill::eye);
+  RCWAMatrix onePadding4N(4*N, 4*N, fill::eye);
+  RCWAMatrix onePadding2N(2*N, 2*N, fill::eye);
+  RCWAMatrix onePadding1N(N, N, fill::eye);
+  RCWAMatrix zeroPadding2N(2*N, 2*N, fill::zeros);
+  RCWAMatrix zeroPadding4N(4*N, 4*N, fill::zeros);
+
   int numOfLayer = thicknessList->n_elem;
 
   // populate Gx and Gy matrices
@@ -301,27 +304,26 @@ double RCWA::poyntingFlux(
       join_horiz(-kxMat * (*dielectricMatrixInverse)[i] * kyMat, kyMat * (*dielectricMatrixInverse)[i] * kyMat)
     );
 
-    RCWAMatrix eigMatrix = (*EMatrices)[i] * (omega * omega * onePadding - TMatrices[i]) - KMatrix;
+    RCWAMatrix eigMatrix = (*EMatrices)[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;
     cx_vec eigVal;
     eig_gen(eigVal, EigenVecMatrices[i], eigMatrix);
     eigVal = sqrt(eigVal);
     eigVal = -eigVal % sign(imag(eigVal));
-    EigenVecMatrices[i] = diagmat(eigVal);
+    EigenValMatrices[i] = diagmat(eigVal);
 
     if(i == 0 || i == numOfLayer - 1){
-      FMatrices[i] = eye<RCWAMatrix>(2*N, 2*N);
+      FMatrices[i] = onePadding2N;
     }
     else{
       FMatrices[i] = diagmat(exp(-IMAG_I * dcomplex((*thicknessList)(i),0) * eigVal));
     }
-
-    MMatrices[i] = zeros<RCWAMatrix>(2 * N, 2 * N);
-    MMatrices[i](span(r1, r2), span(r1, r2)) = (omega * eye<RCWAMatrix>(2*N, 2*N) - TMatrices[i] / omega) *
+    MMatrices[i] = zeroPadding4N;
+    MMatrices[i](span(r1, r2), span(r1, r2)) = (omega * onePadding2N - TMatrices[i] / omega) *
       EigenVecMatrices[i] * inv(EigenValMatrices[i]);
-    MMatrices[i](span(r1, r2), span(r3, r4)) = MMatrices[i](span(r1, r2), span(r1, r2));
-    MMatrices[i](span(r3, r4), span(r1,r2)) = EigenVecMatrices[i];
-    MMatrices[i](span(r3, r4), span(r3,r4)) = MMatrices[i](span(r3, r4), span(r1,r2));
 
+    MMatrices[i](span(r1, r2), span(r3, r4)) = -MMatrices[i](span(r1, r2), span(r1, r2));
+    MMatrices[i](span(r3, r4), span(r1, r2)) = EigenVecMatrices[i];
+    MMatrices[i](span(r3, r4), span(r3, r4)) = MMatrices[i](span(r3, r4), span(r1, r2));
     // normalization
     MMatrices[i] = MMatrices[i] * inv(sqrt(diagmat(diagvec(MMatrices[i].t() * MMatrices[i]))));
   }
@@ -331,14 +333,11 @@ double RCWA::poyntingFlux(
   =======================================================*/
 
   double flux = 0;
-
   RCWAMatrices S_matrices_target;
-  RCWAMatrix S_one;
 
-  initSMatrix(N, &S_one);
 
   for(size_t i = 0; i < numOfLayer; i++){
-    S_matrices_target.push_back(S_one);
+    S_matrices_target.push_back(onePadding4N);
   }
 
   getSMatrices(targetLayer, N, numOfLayer,
@@ -346,17 +345,18 @@ double RCWA::poyntingFlux(
 
   RCWAMatrix q_R, q_L, targetFields, P1, P2, Q1, Q2, R;
   RCWAMatrix integralSelf, integralMutual, integral, poyntingMat;
-  RCWAMatrices S_matrices, NewFMatrices(numOfLayer);
+  RCWAMatrices S_matrices(numOfLayer), NewFMatrices(numOfLayer);
 
   RCWAMatrix source = zeros<RCWAMatrix>(4*N, 3*N);
-  source(span(2*N, 3*N-1), span(N, 2*N-1)) = onePadding;
-  source(span(3*N, 4*N-1), span(0, N-1)) = -onePadding;
+  source(span(2*N, 3*N-1), span(N, 2*N-1)) = onePadding1N;
+  source(span(3*N, 4*N-1), span(0, N-1)) = -onePadding1N;
 
 
   /*======================================================
   This part compute flux by collecting emission from source layers
   =======================================================*/
   for(size_t layerIdx = 0; layerIdx < targetLayer; layerIdx++){
+
     // if is not source layer, then continue
     if((*sourceList)[layerIdx] == ISNOTSOURCE_) continue;
 
@@ -371,41 +371,40 @@ double RCWA::poyntingFlux(
 
     // treat as if the source layer has no thickness
     NewFMatrices = FMatrices;
-    NewFMatrices[layerIdx] = eye<RCWAMatrix>(2*N, 2*N);
+    NewFMatrices[layerIdx] = onePadding2N;
 
-    RCWAMatrices S_matrices;
     for(size_t i = 0; i < numOfLayer; i++){
-      S_matrices[i] = S_one;
+      S_matrices[i] = onePadding4N;
     }
-
     getSMatrices(layerIdx, N, numOfLayer,
         &MMatrices, &NewFMatrices, &S_matrices);
+
 
     // solve the source
     targetFields = solve(MMatrices[layerIdx], source);
 
     // calculating the P1 and P2
     P1 = solve(
-      eye<RCWAMatrix>(2*N, 2*N) - S_matrices[targetLayer](span(r1, r2), span(r3, r4)) * S_matrices_target[numOfLayer-1](span(r3, r4), span(r1, r2)),
+      onePadding2N - S_matrices[targetLayer](span(r1, r2), span(r3, r4)) * S_matrices_target[numOfLayer-1](span(r3, r4), span(r1, r2)),
       S_matrices[targetLayer](span(r1, r2), span(r1, r2))
     );
 
     P2 = S_matrices_target[numOfLayer-1](span(r3, r4), span(r1, r2)) * P1;
 
     // calculating the Q1 and Q2
-    Q1 = eye<RCWAMatrix>(2*N, 2*N) - FMatrices[layerIdx] * S_matrices[0](span(r3, r4), span(r1, r2)) *
+    Q1 = onePadding2N - FMatrices[layerIdx] * S_matrices[0](span(r3, r4), span(r1, r2)) *
       FMatrices[layerIdx] * S_matrices[numOfLayer-1](span(r3, r4), span(r1, r2));
 
     Q2 = -FMatrices[layerIdx] * S_matrices[0](span(r3, r4), span(r1, r2));
 
     // calculating R
     R = MMatrices[targetLayer] * join_vert(FMatrices[targetLayer] * P1, P2) *
-      inv(Q1) * join_horiz(eye<RCWAMatrix>(2*N, 2*N), Q2);
+      inv(Q1) * join_horiz(onePadding2N, Q2);
 
     // calculating integrands
     if(layerIdx == 0 || layerIdx == numOfLayer - 1){
       integralSelf = 1 / (IMAG_I * (q_L - conj(q_R)));
-      integralMutual = zeros<RCWAMatrix>(2*N, 2*N);
+      integralMutual = zeroPadding2N;
     }
     else{
       integralSelf = (1 - exp(-IMAG_I * dcomplex((*thicknessList)[layerIdx], 0) * (q_L - conj(q_R)))) /
@@ -424,6 +423,7 @@ double RCWA::poyntingFlux(
 
     poyntingMat = -R * poyntingMat * R.t();
     flux += real(trace(poyntingMat(span(r1, r2), span(r3, r4))));
+
   }
   return flux;
 
