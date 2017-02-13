@@ -307,7 +307,7 @@ double RCWA::poyntingFlux(
     MMatrices[i](span(r3, r4), span(r1, r2)) = EigenVecMatrices[i];
     MMatrices[i](span(r3, r4), span(r3, r4)) = MMatrices[i](span(r3, r4), span(r1, r2));
     // normalization
-    MMatrices[i] = MMatrices[i] * (diagmatsqrt((diagvec(MMatrices[i].t() * MMatrices[i])))).i();
+    MMatrices[i] = MMatrices[i] * (diagmat(sqrt(diagvec(MMatrices[i].t() * MMatrices[i])))).i();
   }
 
   /*======================================================
