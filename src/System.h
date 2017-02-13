@@ -63,7 +63,7 @@ namespace SYSTEM{
 
   class Layer{
   public:
-    Layer(Material* material, double thickness, SOURCE source = ISNOTSOURCE_);
+    Layer(Material* material, double thickness);
     Layer(Material* material);
     Layer();
     ~Layer();

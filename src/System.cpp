@@ -83,8 +83,8 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  Layer::Layer(Material* material, double thickness, SOURCE source) :
-    thickness_(thickness), source_(source), pattern_(PLANAR_){
+  Layer::Layer(Material* material, double thickness) :
+    thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
     backGround_ = material;
   }
 
