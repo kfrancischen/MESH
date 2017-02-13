@@ -195,8 +195,12 @@ namespace MESH{
   @note
   used by grating and patterning
   ==============================================*/
-  double Simulation::getPhiAtKxKy(int omegaIndex, double kx, double ky){
-    // TODO
+  double Simulation::getPhiAtKxKy(int omegaIdx, double kx, double ky){
+    int N = getN(nGx_, nGy_);
+    return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
+      poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, 0, &(EMatricesVec_[omegaIdx]),
+      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInverseVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
+      &sourceList_, targetLayer_,1);
   }
 
   /*==============================================
@@ -228,7 +232,7 @@ namespace MESH{
         case PLANAR_:{
           for(size_t j = 0; j < numOfOmega_; j++){
             dielectricMatrixVec[j].push_back(onePadding1N * epsilon[j]);
-            dielectricMatrixInverseVec_[j].push_back(onePadding1N * dcomplex(1, 0) / epsilon[j]);
+            dielectricMatrixInverseVec_[j].push_back(onePadding1N * dcomplex(1.0 / epsilon[j].real(), 1.0 / epsilon[j].imag()));
             dielectricImMatrixVec[j].push_back(onePadding1N * (epsilon[j]).imag());
           }
           getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, NO_);
@@ -260,7 +264,8 @@ namespace MESH{
       getGrandImaginaryMatrices(
         &(grandImaginaryMatricesVec_[i]),
         &(dielectricImMatrixVec[i]),
-        numOfLayer
+        numOfLayer,
+        N
       );
 
     }
@@ -296,8 +301,11 @@ namespace MESH{
   omegaIndex: the index of omega
   kx: the kx value, normalized
   ==============================================*/
-  double SimulationPlanar::getPhiAtKx(int omegaIndex, double kx){
-    // TODO
+  double SimulationPlanar::getPhiAtKx(int omegaIdx, double kx){
+    return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * kx *
+      poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, 0, &(EMatricesVec_[omegaIdx]),
+      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInverseVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
+      &sourceList_, targetLayer_,1);
   }
 
   /*==============================================
@@ -316,7 +324,7 @@ namespace MESH{
         wrapper.EMatrices = EMatricesVec_[omegaIdx];
         wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
         wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
-        Phi_[omegaIdx] = POW2(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
+        Phi_[omegaIdx] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
           gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
       }
 
