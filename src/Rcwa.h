@@ -29,16 +29,7 @@ namespace RCWA{
   typedef cx_mat RCWAMatrix;
   typedef std::vector< RCWAMatrix > RCWAMatrices;
   typedef fvec RCWAVector;
-  typedef std::vector< SOURCE > SourceList;
 
-
-  /*============================================================
-  * Function initializing S matrix
-  @arg:
-   n: size of S matrix
-   S: the S matrix, initialized to be an identity matrix with size nxn
-  ==============================================================*/
-  void initSMatrix(const int n, RCWAMatrix* S);
 
   /*============================================================
   * Function similar to meshgrid in matlab
@@ -135,8 +126,8 @@ namespace RCWA{
   @arg:
    omega: the angular frequency (normalized to c)
    thicknessList: the thickness for each layer
-   kx: the k vector at x direction (absolute value)
-   ky: the y vector at x direction (absolute value)
+   kx: the k vector at x direction (normalized value)
+   ky: the y vector at x direction (normalized value)
    EMatrices:  the E matrices for all layers
    grandImaginaryMatrices: collection of all imaginary matrices in all layers
    dielectricMatrixInverse: the inverse of dielectric matrix
