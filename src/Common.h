@@ -28,5 +28,5 @@ enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};
 typedef std::complex<double> dcomplex;
 #define POW2(x) pow(x, 2)
-
+typedef std::vector< SOURCE > SourceList;
 #endif
