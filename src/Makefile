@@ -9,14 +9,11 @@ all: main
 main: Rcwa.o System.o Mesh.o gauss_legendre.o
 	g++ Rcwa.o System.o Mesh.o gauss_legendre.o main.cpp -o main -std=c++11 -O3 -ffast-math -larmadillo -lopenblas -llapack
 
-Mesh.o: Mesh.cpp
-	g++ -c -std=c++11 Mesh.cpp -O3 -ffast-math -larmadillo -lopenblas -llapack
+Mesh.o: Mesh.cpp Rcwa.cpp System.cpp
+	g++ -c -std=c++11 Mesh.cpp Rcwa.cpp System.cpp -O3 -ffast-math -larmadillo -lopenblas -llapack
 
 System.o: System.cpp
 	g++ -c -std=c++11 System.cpp -O3 -ffast-math -larmadillo -lopenblas -llapack
-
-main.o: main.cpp
-	g++ -c -std=c++11 main.cpp -O3 -ffast-math -larmadillo -lopenblas -llapack
 
 Rcwa.o: Rcwa.cpp
 	g++ -c -std=c++11 Rcwa.cpp -O3 -ffast-math -larmadillo -lopenblas -llapack
