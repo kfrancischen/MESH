@@ -43,7 +43,7 @@ typedef struct ARGWEAPPER{
   RCWAMatrix Gy_mat;
   SourceList sourceList;
   int targetLayer;
-}ArgWrapper;
+} ArgWrapper;
 
 void filerLoader(std::string fileName, double* omega, dcomplex* epsilon, int size);
 void saveData(std::string fileName, double* omega, double* fluxSpectrum, int size);
@@ -57,15 +57,16 @@ public:
   ~Simulation();
   void addStructure(Structure* structure);
   void enableMPI(int numOfCore = 1);
-  void setPeriod(double p1, double p2 = 0);
   void resetSimulation();
   void setTargetLayerByIndex(int index);
   void setTargetLayerByLayer(Layer* layer);
+  void setGx(int nGx);
+  void setGy(int nGy);
 
   Structure* getStructure();
   double* getOmegaList();
   double* getPhi();
-  double* getPeriod();
+  double* getPeriodicity();
 
   double getPhiAtKxKy(int omegaIndex, double kx, double ky = 0);
 
@@ -77,7 +78,7 @@ protected:
   int nGy_;
   int numOfCore_;
   int numOfOmega_;
-  double period_[2];
+  double* period_;
   Structure* structure_;
   double* Phi_;
   double* omegaList_;
@@ -110,7 +111,12 @@ public:
   SimulationPlanar() : Simulation(){};
   ~SimulationPlanar();
 
-  void setKxIntegral(double points, double end);
+  void setGx() = delete;
+  void setGy() = delete;
+  void setPeriod() = delete;
+  double getPhiAtKxKy(int omegaIndex, double kx, double ky) = delete;
+
+  void setKxIntegral(double end);
   void run();
 
   double getPhiAtKx(int omegaIndex, double kx);
@@ -127,6 +133,7 @@ public:
     prefactor_ = 1;
   };
   ~SimulationGrating();
+  void setGy() = delete;
   void setKxIntegral(double points);
   void setKxIntegralSym(double points);
   // for ky integral, from 0 to inf
