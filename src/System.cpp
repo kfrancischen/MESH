@@ -44,8 +44,8 @@ namespace SYSTEM{
   }
 
   Material::~Material(){
-    delete epsilonList_;
-    delete omegaList_;
+    delete[] epsilonList_;
+    delete[] omegaList_;
   }
 
   std::string Material::getName(){
@@ -98,6 +98,7 @@ namespace SYSTEM{
     backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){}
 
   Layer::~Layer(){
+    delete backGround_;
     for(MaterialIter it = materialVec_.begin(); it != materialVec_.end(); it++){
       delete(*it);
     }
@@ -166,7 +167,7 @@ namespace SYSTEM{
   PATTEN Layer::getPattern(){
     return pattern_;
   }
-  
+
   const_MaterialIter Layer::getVecBegin(){
     return materialVec_.cbegin();
   }
@@ -216,22 +217,29 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the structure class
   =======================================================*/
-  Structure::Structure() : nGx_(0), nGy_(0){}
+  Structure::Structure(){
+    period_ = new double[2];
+    period_[0] = 0;
+    period_[1] = 0;
+  }
 
   Structure::~Structure(){
     for(LayerIter it = layerMap_.begin(); it != layerMap_.end(); it++){
       delete(it->second);
     }
+    delete[] period_;
   }
 
   Structure::Structure(Structure& structure){
-    nGx_ = structure.nGx_;
-    nGy_ = structure.nGy_;
     for(const_LayerIter it = structure.layerMap_.cbegin(); it != structure.layerMap_.cend(); it++){
       layerMap_.insert(LayerMap::value_type(it->first, it->second));
     }
   }
 
+  void Structure::setPeriodicity(double p1, double p2){
+    period_[0] = p1;
+    period_[1] = p2;
+  }
 
   void Structure::addLayer(Layer* layer){
     int size = layerMap_.size();
@@ -264,20 +272,8 @@ namespace SYSTEM{
     return layerMap_.cend();
   }
 
-  void Structure::setGx(int nGx){
-    nGx_ = nGx;
-  }
-
-  void Structure::setGy(int nGy){
-    nGy_ = nGy;
-  }
-
-  int Structure::getGx(){
-    return nGx_;
-  }
-
-  int Structure::getGy(){
-    return nGy_;
+  double* Structure::getPeriodicity(){
+    return period_;
   }
 
 }

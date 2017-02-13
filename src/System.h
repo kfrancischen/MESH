@@ -119,6 +119,7 @@ namespace SYSTEM{
     ~Structure();
 
     Structure(Structure& structure);
+    void setPeriodicity(double p1, double p2 = 0);
 
     void addLayer(Layer* layer);
     Layer* getLayerByIndex(int index);
@@ -128,16 +129,11 @@ namespace SYSTEM{
     const_LayerIter getMapBegin();
     const_LayerIter getMapEnd();
 
-private:
-    void setGx(int nGx);
-    void setGy(int nGy);
+    double* getPeriodicity();
 
-    int getGx();
-    int getGy();
-
+  private:
     LayerMap layerMap_;
-    int nGx_;
-    int nGy_;
+    double* period_;
   };
 
 
