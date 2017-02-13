@@ -99,11 +99,13 @@ namespace RCWA{
   grandImaginaryMatrices: the matrices containing the imaginary part matrix
   dielectricImMatrix: the imaginary part matrices
   numOfLayer: the number of layer in the system
+  N: the number of G
   ==============================================================*/
   void getGrandImaginaryMatrices(
     RCWAMatrices* grandImaginaryMatrices,
     RCWAMatrices* dielectricImMatrix,
-    int numOfLayer
+    int numOfLayer,
+    int N
   );
 
   /*============================================================
