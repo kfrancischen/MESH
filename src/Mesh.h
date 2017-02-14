@@ -25,6 +25,7 @@
 #include "Common.h"
 #include "config.h"
 #include "gauss_legendre.h"
+#include <fstream>
 
 namespace MESH{
 using namespace SYSTEM;
@@ -45,8 +46,8 @@ typedef struct ARGWEAPPER{
   int targetLayer;
 } ArgWrapper;
 
-void filerLoader(std::string fileName, double* omega, dcomplex* epsilon, int size);
-void saveData(std::string fileName, double* omega, double* fluxSpectrum, int size);
+void fileLoader(std::string fileName, double* omega, dcomplex* epsilon, int size);
+void fileSaver(std::string fileName, double* omega, double* fluxSpectrum, int size);
 double wrapperFun(double kx, ArgWrapper* wrapper);
 /*======================================================
 Implementaion of the parent simulation super class

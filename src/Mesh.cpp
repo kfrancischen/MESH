@@ -28,8 +28,15 @@ namespace MESH{
   epsilon: the input epsilon list
   size: the size of omega
   ==============================================*/
-  void filerLoader(std::string fileName, double* omega, dcomplex* epsilon, int size){
-    // TODO
+  void fileLoader(std::string fileName, double* omega, dcomplex* epsilon, int size){
+    std::ifstream inputFile(fileName);
+    std::string line;
+    double real, imag;
+    for(size_t i = 0; i < size; i++){
+      inputFile >> omega[i] >> real >> imag;
+      epsilon[i] = dcomplex(real, imag);
+    }
+    inputFile.close();
   }
 
   /*==============================================
@@ -40,8 +47,12 @@ namespace MESH{
   epsilon: the output epsilon list
   size: the size of omega
   ==============================================*/
-  void saveData(std::string fileName, double* omega, double* Phi, int size){
-    // TODO
+  void fileSaver(std::string fileName, double* omega, double* Phi, int size){
+    std::ofstream outputFile(fileName);
+    for(size_t i = 0; i < size; i++){
+      outputFile << omega[i] << "\t" << Phi[i] << std::endl;
+    }
+    outputFile.close();
   }
 
   /*==============================================
@@ -231,9 +242,9 @@ namespace MESH{
 
         case PLANAR_:{
           for(size_t j = 0; j < numOfOmega_; j++){
-            dielectricMatrixVec[j].push_back(onePadding1N * epsilon[j]);
-            dielectricMatrixInverseVec_[j].push_back(onePadding1N * dcomplex(1.0 / epsilon[j].real(), 1.0 / epsilon[j].imag()));
-            dielectricImMatrixVec[j].push_back(onePadding1N * (epsilon[j]).imag());
+            dielectricMatrixVec[j].push_back(onePadding1N * conj(epsilon[j]));
+            dielectricMatrixInverseVec_[j].push_back(onePadding1N * dcomplex(1, 0) / conj(epsilon[j]));
+            dielectricImMatrixVec[j].push_back(-onePadding1N * (epsilon[j]).imag());
           }
           getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, NO_);
           break;
@@ -319,6 +330,7 @@ namespace MESH{
       wrapper.Gy_mat = Gy_mat_;
       wrapper.sourceList = sourceList_;
       wrapper.targetLayer = targetLayer_;
+
       for(size_t omegaIdx = 0; omegaIdx < numOfOmega_; omegaIdx++){
         wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
         wrapper.EMatrices = EMatricesVec_[omegaIdx];
