@@ -255,6 +255,7 @@ double RCWA::poyntingFlux(
   ky = ky * omega;
   int r1 = 0, r2 = 2 * N -1, r3 = 2 * N, r4 = 4 * N -1;
   dcomplex IMAG_I = dcomplex(0, 1);
+
   RCWAMatrix onePadding4N(4*N, 4*N, fill::eye);
   RCWAMatrix onePadding2N(2*N, 2*N, fill::eye);
   RCWAMatrix onePadding1N(N, N, fill::eye);

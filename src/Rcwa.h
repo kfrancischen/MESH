@@ -28,7 +28,7 @@ namespace RCWA{
   using namespace arma;
   typedef cx_mat RCWAMatrix;
   typedef std::vector< RCWAMatrix > RCWAMatrices;
-  typedef fvec RCWAVector;
+  typedef vec RCWAVector;
 
 
   /*============================================================
