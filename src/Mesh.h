@@ -64,7 +64,6 @@ public:
   void setGx(int nGx);
   void setGy(int nGy);
 
-  Structure* getStructure();
   double* getOmegaList();
   double* getPhi();
   double* getPeriodicity();
@@ -75,6 +74,7 @@ public:
   void run();
 
 protected:
+  Structure* getStructure();
   int nGx_;
   int nGy_;
   int numOfCore_;
@@ -114,7 +114,6 @@ public:
 
   void setGx() = delete;
   void setGy() = delete;
-  void setPeriod() = delete;
   double getPhiAtKxKy(int omegaIndex, double kx, double ky) = delete;
 
   void setKxIntegral(double end);

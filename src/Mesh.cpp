@@ -34,7 +34,7 @@ namespace MESH{
     double real, imag;
     for(size_t i = 0; i < size; i++){
       inputFile >> omega[i] >> real >> imag;
-      epsilon[i] = dcomplex(real, imag);
+      epsilon[i] = dcomplex(real, -imag);
     }
     inputFile.close();
   }
@@ -209,9 +209,9 @@ namespace MESH{
   double Simulation::getPhiAtKxKy(int omegaIdx, double kx, double ky){
     int N = getN(nGx_, nGy_);
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
-      poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, 0, &(EMatricesVec_[omegaIdx]),
+      poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, ky, &(EMatricesVec_[omegaIdx]),
       &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInverseVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
-      &sourceList_, targetLayer_,1);
+      &sourceList_, targetLayer_,N);
   }
 
   /*==============================================
@@ -239,22 +239,79 @@ namespace MESH{
       dcomplex* epsilon = (layer->getBackGround())->getEpsilon();
 
       switch (layer->getPattern()) {
-
+        /*************************************
+        /* if the pattern is a plane */
         case PLANAR_:{
           for(size_t j = 0; j < numOfOmega_; j++){
-            dielectricMatrixVec[j].push_back(onePadding1N * conj(epsilon[j]));
-            dielectricMatrixInverseVec_[j].push_back(onePadding1N * dcomplex(1, 0) / conj(epsilon[j]));
-            dielectricImMatrixVec[j].push_back(-onePadding1N * (epsilon[j]).imag());
+            dielectricMatrixVec[j].push_back(onePadding1N * epsilon[j]);
+            dielectricMatrixInverseVec_[j].push_back(onePadding1N * dcomplex(1, 0) / epsilon[j]);
+            dielectricImMatrixVec[j].push_back(onePadding1N * (epsilon[j]).imag());
           }
           getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, NO_);
           break;
         }
+        /*************************************
+        /* if the pattern is a grating (1D) */
+        /************************************/
+        case GRATING_:{
+          dcomplex IMAG_I = dcomplex(0, 1);
+          dcomplex* epsilonBG = backGround->getEpsilon();
+          RCWAMatrix G_row(1, N), G_col(N, 1);
+          for(size_t i = 0; i < N; i++){
+            G_row(0, i) = -i * 2 * datum::pi / period_[0];
+            G_col(i, 0) = -G_row(0, i);
+          }
 
+          RCWAMatrix G_mat = toeplitz(G_col, G_row);
+          int numOfMaterial = layer->getNumOfMaterial();
+
+          RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
+          int count = 0;
+
+          for (size_t j = 0; j < numOfOmega_; j++) {
+            RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros);
+            count = 0;
+
+            for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
+              centerVec(i) = (it->first + it->second) / 2;
+              widthVec(i) = it->second - it->first;
+              count++;
+            }
+            count = 0;
+            for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
+              dcomplex epsilon = (*it)->getEpsilonAtIndex(j);
+              dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[j])
+                * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
+
+              dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[j])
+                * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
+              count++;
+            }
+
+            dielectricMatrix /= period_[0];
+            dielectricImMatrix /= period_[0];
+            dielectricMatrix += epsilonBG[j] * eye<RCWAMatrix>(N, N);
+            dielectricImMatrix += epsilonBG[j].imag() * eye<RCWAMatrix>(N, N);
+
+            dielectricMatrixVec[j].push_back(dielectricMatrix);
+            dielectricImMatrixVec[j].push_back(dielectricImMatrix); 
+            dielectricMatrixInverseVec_[j].push_back(dielectricMatrix.i());
+
+          }
+          break;
+        }
+
+        /*************************************
+        /* if the pattern is a circle (2D) */
+        /************************************/
         case CIRCLE_:{
           // TODO
           break;
         }
 
+        /*************************************
+        /* if the pattern is a rectangle (2D) */
+        /************************************/
         case RECTANGLE_:{
           // TODO
           break;
@@ -278,7 +335,6 @@ namespace MESH{
         numOfLayer,
         N
       );
-
     }
 
     thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
