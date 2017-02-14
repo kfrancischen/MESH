@@ -29,7 +29,7 @@ namespace SYSTEM{
   =======================================================*/
   class Material{
   public:
-    Material(std::string name, dcomplex* epsilonList, double* omegaList, int numOfOmega);
+    Material(std::string name, double* omegaList, dcomplex* epsilonList,  int numOfOmega);
     Material(std::string name);
     Material(const Material& material);
     ~Material();

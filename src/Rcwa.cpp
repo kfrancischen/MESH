@@ -260,7 +260,6 @@ double RCWA::poyntingFlux(
   RCWAMatrix onePadding1N(N, N, fill::eye);
   RCWAMatrix zeroPadding2N(2*N, 2*N, fill::zeros);
   RCWAMatrix zeroPadding4N(4*N, 4*N, fill::zeros);
-
   int numOfLayer = thicknessList->n_elem;
 
   // populate Gx and Gy matrices
@@ -286,7 +285,7 @@ double RCWA::poyntingFlux(
 
     TMatrices[i] = join_vert(
       join_horiz(kyMat * (*dielectricMatrixInverse)[i] * kyMat, -kyMat * (*dielectricMatrixInverse)[i] * kxMat),
-      join_horiz(-kxMat * (*dielectricMatrixInverse)[i] * kyMat, kyMat * (*dielectricMatrixInverse)[i] * kyMat)
+      join_horiz(-kxMat * (*dielectricMatrixInverse)[i] * kyMat, kxMat * (*dielectricMatrixInverse)[i] * kxMat)
     );
 
     RCWAMatrix eigMatrix = (*EMatrices)[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;

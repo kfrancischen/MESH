@@ -22,7 +22,7 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Material class
   =======================================================*/
-  Material::Material(std::string name, dcomplex* epsilonList, double* omegaList, int numOfOmega):
+  Material::Material(std::string name, double* omegaList, dcomplex* epsilonList,  int numOfOmega):
   name_(name), numOfOmega_(numOfOmega){
     epsilonList_ = new dcomplex[numOfOmega_];
     std::copy(epsilonList, epsilonList + numOfOmega_, epsilonList_);
