@@ -56,6 +56,10 @@ namespace SYSTEM{
     return epsilonList_;
   }
 
+  dcomplex Material::getEpsilonAtIndex(int index){
+    return epsilonList_[index];
+  }
+
   double* Material::getOmegaList(){
     return omegaList_;
   }
@@ -260,6 +264,7 @@ namespace SYSTEM{
     int count = 0;
     for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
       thicknessList[count] = (it->second)->getThickness();
+      count++;
     }
     return thicknessList;
   }
