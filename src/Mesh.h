@@ -26,6 +26,7 @@
 #include "config.h"
 #include "gauss_legendre.h"
 #include <fstream>
+#include "mpi.h"
 
 namespace MESH{
 using namespace SYSTEM;
@@ -48,7 +49,6 @@ typedef struct ARGWEAPPER{
 
 void fileLoader(std::string fileName, double* omega, dcomplex* epsilon, int size);
 void fileSaver(std::string fileName, double* omega, double* fluxSpectrum, int size);
-double wrapperFun(double kx, ArgWrapper* wrapper);
 /*======================================================
 Implementaion of the parent simulation super class
 =======================================================*/
@@ -118,10 +118,9 @@ public:
 
   void setKxIntegral(double end);
   void run();
-
   double getPhiAtKx(int omegaIndex, double kx);
-private:
 
+private:
 };
 
 /*======================================================

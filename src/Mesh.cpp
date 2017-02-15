@@ -294,7 +294,7 @@ namespace MESH{
             dielectricImMatrix += epsilonBG[j].imag() * eye<RCWAMatrix>(N, N);
 
             dielectricMatrixVec[j].push_back(dielectricMatrix);
-            dielectricImMatrixVec[j].push_back(dielectricImMatrix); 
+            dielectricImMatrixVec[j].push_back(dielectricImMatrix);
             dielectricMatrixInverseVec_[j].push_back(dielectricMatrix.i());
 
           }
@@ -375,10 +375,12 @@ namespace MESH{
       &sourceList_, targetLayer_,1);
   }
 
+
   /*==============================================
   This function integrates kx using gauss_legendre method
   ==============================================*/
   void SimulationPlanar::run(){
+
     if(numOfCore_ == 1){
       ArgWrapper wrapper;
       wrapper.thicknessList = thicknessListVec_;
@@ -395,10 +397,77 @@ namespace MESH{
         Phi_[omegaIdx] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
           gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
       }
-
     }
     else{
-      // TODO: implement MPI
+      MPI_Status status;
+      int rank, numProcs, start, end, startPosition, endPosition;
+      int offset = 0;
+      MPI_Init(NULL, NULL);
+      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+      MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+
+      int chunkSize = numOfOmega_ / numProcs;
+      int numLeft = numOfOmega_ - numProcs * chunkSize;
+      // if is master node
+      if(rank == MASTER){
+        for(int thread = 1; thread < numProcs; thread++){
+          if(numLeft > 0){
+            start = thread * chunkSize + offset;
+            end = (thread + 1) * chunkSize + offset + 1;
+            offset++;
+            numLeft--;
+          }
+          else{
+            start = thread * chunkSize + offset;
+            end = (thread + 1) * chunkSize + offset;
+          }
+
+          if(thread == numProcs - 1) end = numOfOmega_;
+
+          MPI_Send(&start, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
+          MPI_Send(&end, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
+          MPI_Send(&Phi_[start], end - start, MPI_DOUBLE, thread, SENDTAG, MPI_COMM_WORLD);
+        }
+
+        ArgWrapper wrapper;
+        wrapper.thicknessList = thicknessListVec_;
+        wrapper.Gx_mat = Gx_mat_;
+        wrapper.Gy_mat = Gy_mat_;
+        wrapper.sourceList = sourceList_;
+        wrapper.targetLayer = targetLayer_;
+        for(int omegaIdx = 0; omegaIdx < chunkSize; omegaIdx++){
+          wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
+          wrapper.EMatrices = EMatricesVec_[omegaIdx];
+          wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
+          wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
+          Phi_[omegaIdx] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
+            gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
+        }
+
+      }
+      // if its a slave node
+      else{
+
+        MPI_Recv(&startPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
+        MPI_Recv(&endPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
+        MPI_Recv(&Phi_[startPosition], endPosition - startPosition, MPI_DOUBLE, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
+
+        ArgWrapper wrapper;
+        wrapper.thicknessList = thicknessListVec_;
+        wrapper.Gx_mat = Gx_mat_;
+        wrapper.Gy_mat = Gy_mat_;
+        wrapper.sourceList = sourceList_;
+        wrapper.targetLayer = targetLayer_;
+        for(int omegaIdx = startPosition; omegaIdx < endPosition; omegaIdx++){
+          wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
+          wrapper.EMatrices = EMatricesVec_[omegaIdx];
+          wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
+          wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
+          Phi_[omegaIdx] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
+            gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
+        }
+      }
+      MPI_Finalize();
     }
   }
 
