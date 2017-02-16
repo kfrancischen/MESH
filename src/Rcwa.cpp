@@ -25,7 +25,7 @@
  qL, qR: the input two vectors
  [qL, qR] = meshgrid(vl, vR)
 ==============================================================*/
-void RCWA::populateQ(
+void RCWA::meshGrid(
   const RCWAMatrix *vL,
   const RCWAMatrix *vR,
   RCWAMatrix *qL,
@@ -163,7 +163,7 @@ void RCWA::getGMatrices(
   for(int i = -nGy; i <= nGy; i++){
     Gy_list(0, i) = i * Gy;
   }
-  populateQ(&Gx_list, &Gy_list, Gx_mat, Gy_mat);
+  meshGrid(&Gx_list, &Gy_list, Gx_mat, Gy_mat);
   Gx_mat->reshape(N, 1);
   Gy_mat->reshape(N, 1);
 }
@@ -345,7 +345,7 @@ double RCWA::poyntingFlux(
 
     // initial steps, propogate S matrix
     RCWAMatrix q(diagvec(EigenValMatrices[layerIdx]));
-    populateQ(&q, &q, &q_R, &q_L);
+    meshGrid(&q, &q, &q_R, &q_L);
 
     // defining source
     source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * (*dielectricMatrixInverse)[layerIdx] / omega;

@@ -38,7 +38,7 @@ namespace RCWA{
    qL, qR: the input two vectors
     [qL, qR] = meshgrid(vl, vR)
   ==============================================================*/
-  void populateQ(
+  void meshGrid(
     const RCWAMatrix* vL,
     const RCWAMatrix* vR,
     RCWAMatrix* qL,
