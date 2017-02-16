@@ -72,6 +72,7 @@ namespace MESH{
     period_[0] = 0;
     period_[1] = 0;
     output_ = "output.txt";
+    targetLayer_ = -1;
   }
 
   Simulation::~Simulation(){
@@ -100,16 +101,14 @@ namespace MESH{
   void Simulation::addStructure(Structure* structure){
     structure_ = structure;
   }
-
   /*==============================================
   This function set the output file name
   @args:
   name: the output file name
   ==============================================*/
-  void Simulation::setOutput(std::string name){
+  void Simulation::setOutputFile(std::string name){
     output_ = name;
   }
-
   /*==============================================
   This function sets number of positive Gx
   @args:
@@ -204,10 +203,158 @@ namespace MESH{
   }
 
   /*==============================================
+  This function computes the Fourier transform for planar
+  @args:
+  dielectricMatrixVec: the vector containing dielectric matrices
+  dielectricImMatrixVec: the vector containing imaginary part matrices
+  epsilonBG: the epsilon values for the background
+  N: the number of total G
+  ==============================================*/
+  void Simulation::transformPlanar(
+    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricImMatrixVec,
+    const dcomplex* epsilonBG,
+    const int N
+  ){
+    RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
+    for(size_t i = 0; i < numOfOmega_; i++){
+      (*dielectricMatrixVec)[i].push_back(onePadding1N * epsilonBG[i]);
+      dielectricMatrixInverseVec_[i].push_back(onePadding1N * dcomplex(1, 0) / epsilonBG[i]);
+      (*dielectricImMatrixVec)[i].push_back(onePadding1N * (epsilonBG[i]).imag());
+    }
+  }
+  /*==============================================
+  This function computes the Fourier transform for grating
+  @args:
+  dielectricMatrixVec: the vector containing dielectric matrices
+  dielectricImMatrixVec: the vector containing imaginary part matrices
+  layer: the current layer
+  epsilonBG: the epsilon values for the background
+  N: the number of total G
+  ==============================================*/
+  void Simulation::transformGrating(
+    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricImMatrixVec,
+    Layer* layer,
+    const dcomplex* epsilonBG,
+    const int N
+  ){
+    dcomplex IMAG_I = dcomplex(0, 1);
+    RCWAMatrix G_row(1, N), G_col(N, 1);
+    for(size_t i = 0; i < N; i++){
+      G_row(0, i) = -i * 2 * datum::pi / period_[0];
+      G_col(i, 0) = -G_row(0, i);
+    }
+
+    RCWAMatrix G_mat = toeplitz(G_col, G_row);
+    int numOfMaterial = layer->getNumOfMaterial();
+
+    RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
+    int count = 0;
+
+    for (size_t j = 0; j < numOfOmega_; j++) {
+      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros);
+      count = 0;
+
+      for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
+        centerVec(count) = (it->first + it->second) / 2;
+        widthVec(count) = it->second - it->first;
+        count++;
+      }
+      count = 0;
+      for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
+        dcomplex epsilon = (*it)->getEpsilonAtIndex(j);
+        dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[j])
+          * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
+
+        dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[j])
+          * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
+        count++;
+      }
+
+      dielectricMatrix /= period_[0];
+      dielectricImMatrix /= period_[0];
+      dielectricMatrix += epsilonBG[j] * eye<RCWAMatrix>(N, N);
+      dielectricImMatrix += epsilonBG[j].imag() * eye<RCWAMatrix>(N, N);
+
+      (*dielectricMatrixVec)[j].push_back(dielectricMatrix);
+      (*dielectricImMatrixVec)[j].push_back(dielectricImMatrix);
+      dielectricMatrixInverseVec_[j].push_back(dielectricMatrix.i());
+    }
+  }
+
+  /*==============================================
+  This function computes the Fourier transform for rectangle
+  @args:
+  dielectricMatrixVec: the vector containing dielectric matrices
+  dielectricImMatrixVec: the vector containing imaginary part matrices
+  layer: the current layer
+  epsilonBG: the epsilon values for the background
+  N: the number of total G
+  ==============================================*/
+  void Simulation::transformRectangle(
+    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricImMatrixVec,
+    Layer* layer,
+    const dcomplex* epsilonBG,
+    const int N
+  ){
+    dcomplex IMAG_I = dcomplex(0, 1);
+    RCWAMatrix Gx_range(2*nGx_+1, 1), Gy_range(2*nGy_+1, 1);
+    for(size_t i = -nGx_; i <= nGx_; i++){
+      Gx_range(i, 0) = i * 2 * datum::pi / period_[0];
+    }
+    for(size_t i = -nGy_; i<= nGy_; i++){
+      Gy_range(i, 0) = i * 2 * datum::pi / period_[1];
+    }
+
+    RCWAMatrix GxMat, GyMat;
+    meshGrid(&Gx_range, &Gy_range, &GxMat, &GyMat);
+    RCWAMatrix GxMatVec = reshape(GxMat, N, 1);
+    RCWAMatrix GyMatVec = reshape(GyMat, N, 1);
+
+    RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
+    meshGrid(&GxMatVec, &GxMatVec, &Gx_r, &Gx_l);
+    meshGrid(&GyMatVec, &GyMatVec, &Gy_r, &Gy_l);
+
+    GxMat = Gx_l - Gx_r;
+    GyMat = Gy_l - Gy_r;
+
+    int numOfMaterial = layer->getNumOfMaterial();
+
+    RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
+    int count = 0;
+  }
+
+  /*==============================================
+  This function computes the Fourier transform for circle
+  @args:
+  dielectricMatrixVec: the vector containing dielectric matrices
+  dielectricImMatrixVec: the vector containing imaginary part matrices
+  layer: the current layer
+  epsilonBG: the epsilon values for the background
+  N: the number of total G
+  ==============================================*/
+  void Simulation::transformCircle(
+    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricImMatrixVec,
+    Layer* layer,
+    const dcomplex* epsilonBG,
+    const int N
+  ){
+    // TODO
+  }
+  /*==============================================
   This function builds up the matrices
   ==============================================*/
   void Simulation::build(){
     period_ = structure_->getPeriodicity();
+    DIMENSION d;
+    if(nGx_ != 0 && nGy_ != 0) d = NO_;
+    else if(nGx_ != 0 && nGy_ != 0) d = ONE_;
+    else d = TWO_;
+    getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, d);
+
     Layer* firstLayer = structure_->getLayerByIndex(0);
     Material* backGround = firstLayer->getBackGround();
     numOfOmega_ = backGround->getNumOfOmega();
@@ -221,80 +368,34 @@ namespace MESH{
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
 
+
     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
 
     for(size_t i = 0; i < numOfLayer; i++){
       Layer* layer = structure_->getLayerByIndex(i);
-      dcomplex* epsilon = (layer->getBackGround())->getEpsilon();
+      dcomplex* epsilonBG = (layer->getBackGround())->getEpsilon();
 
       switch (layer->getPattern()) {
         /*************************************
         /* if the pattern is a plane */
         case PLANAR_:{
-          for(size_t j = 0; j < numOfOmega_; j++){
-            dielectricMatrixVec[j].push_back(onePadding1N * epsilon[j]);
-            dielectricMatrixInverseVec_[j].push_back(onePadding1N * dcomplex(1, 0) / epsilon[j]);
-            dielectricImMatrixVec[j].push_back(onePadding1N * (epsilon[j]).imag());
-          }
-          getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, NO_);
+          this->transformPlanar(&dielectricMatrixVec,
+            &dielectricImMatrixVec,
+            epsilonBG,
+            N
+          );
           break;
         }
         /*************************************
         /* if the pattern is a grating (1D) */
         /************************************/
         case GRATING_:{
-          dcomplex IMAG_I = dcomplex(0, 1);
-          dcomplex* epsilonBG = backGround->getEpsilon();
-          RCWAMatrix G_row(1, N), G_col(N, 1);
-          for(size_t i = 0; i < N; i++){
-            G_row(0, i) = -i * 2 * datum::pi / period_[0];
-            G_col(i, 0) = -G_row(0, i);
-          }
-
-          RCWAMatrix G_mat = toeplitz(G_col, G_row);
-          int numOfMaterial = layer->getNumOfMaterial();
-
-          RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
-          int count = 0;
-
-          for (size_t j = 0; j < numOfOmega_; j++) {
-            RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros);
-            count = 0;
-
-            for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
-              centerVec(i) = (it->first + it->second) / 2;
-              widthVec(i) = it->second - it->first;
-              count++;
-            }
-            count = 0;
-            for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
-              dcomplex epsilon = (*it)->getEpsilonAtIndex(j);
-              dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[j])
-                * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
-
-              dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[j])
-                * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
-              count++;
-            }
-
-            dielectricMatrix /= period_[0];
-            dielectricImMatrix /= period_[0];
-            dielectricMatrix += epsilonBG[j] * eye<RCWAMatrix>(N, N);
-            dielectricImMatrix += epsilonBG[j].imag() * eye<RCWAMatrix>(N, N);
-
-            dielectricMatrixVec[j].push_back(dielectricMatrix);
-            dielectricImMatrixVec[j].push_back(dielectricImMatrix);
-            dielectricMatrixInverseVec_[j].push_back(dielectricMatrix.i());
-
-          }
-          break;
-        }
-
-        /*************************************
-        /* if the pattern is a circle (2D) */
-        /************************************/
-        case CIRCLE_:{
-          // TODO
+          this->transformGrating(&dielectricMatrixVec,
+            &dielectricImMatrixVec,
+            layer,
+            epsilonBG,
+            N
+          );
           break;
         }
 
@@ -302,10 +403,27 @@ namespace MESH{
         /* if the pattern is a rectangle (2D) */
         /************************************/
         case RECTANGLE_:{
-          // TODO
+          this->transformRectangle(&dielectricMatrixVec,
+            &dielectricImMatrixVec,
+            layer,
+            epsilonBG,
+            N
+          );
           break;
         }
 
+      /*************************************
+      /* if the pattern is a circle (2D) */
+      /************************************/
+        case CIRCLE_:{
+          this->transformCircle(&dielectricMatrixVec,
+            &dielectricImMatrixVec,
+            layer,
+            epsilonBG,
+            N
+          );
+          break;
+        }
         default: break;
       }
     }
@@ -339,7 +457,78 @@ namespace MESH{
   This function computes the flux
   ==============================================*/
   void Simulation::run(){
-    //TODO
+    double kxList[numOfKx_], kyList[numOfKy_];
+    double dkx = (kxEnd_ - kxStart_) / (numOfKx_ - 1);
+    double dky = (kyEnd_ - kyStart_) / (numOfKy_ - 1);
+    for(size_t i = 0; i < numOfKx_; i++){
+      kxList[i] = kxStart_ + dkx * i;
+    }
+    for(size_t i = 0; i < numOfKy_; i++){
+      kyList[i] = kyStart_ + dky * i;
+    }
+
+    int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
+
+    MPI_Status status;
+    int rank, numProcs, start, end, startPosition, endPosition;
+    int offset = 0;
+    int chunkSize = totalNum / numProcs;
+    int numLeft = totalNum - numProcs * chunkSize;
+    MPI_Init(NULL, NULL);MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+    /*************************************
+    // for master node
+    *************************************/
+    if(rank == MASTER){
+      for(size_t thread = 1; thread < numProcs; thread++){
+        if(numLeft > 0){
+          start = thread * chunkSize + offset;
+          end = (thread + 1) * chunkSize + offset + 1;
+          offset++;
+          numLeft--;
+        }
+        else{
+          start = thread * chunkSize + offset;
+          end = (thread + 1) * chunkSize + offset;
+        }
+        if(thread == numProcs - 1) end = totalNum;
+        MPI_Send(&start, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
+        MPI_Send(&end, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
+      }
+      for(size_t i = 0; i < chunkSize; i++){
+        int omegaIdx = i % (numOfKx_ * numOfKy_);
+        int residue = i - omegaIdx * (numOfKx_ * numOfKy_);
+        int kxIdx = residue / numOfKy_;
+        int kyIdx = residue % numOfKy_;
+        Phi_[omegaIdx] += this->getPhiAtKxKy(omegaIdx, kxList[kxIdx], kyList[kyIdx]);
+      }
+
+      // wait for all the slave process finished
+      for(size_t thread = 1; thread < numProcs; thread++){
+        MPI_Recv(&startPosition, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
+      }
+
+      for(size_t i = 0; i < numOfOmega_; i++){
+        Phi_[i] *= prefactor_ * dkx * dky;
+      }
+      this->saveToFile();
+    }
+    /*************************************
+    // for slave nodes
+    *************************************/
+    else{
+      MPI_Recv(&startPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
+      MPI_Recv(&endPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
+      for(size_t i = startPosition; i < endPosition; i++){
+        int omegaIdx = i % (numOfKx_ * numOfKy_);
+        int residue = i - omegaIdx * (numOfKx_ * numOfKy_);
+        int kxIdx = residue / numOfKy_;
+        int kyIdx = residue % numOfKy_;
+        Phi_[omegaIdx] += this->getPhiAtKxKy(omegaIdx, kxList[kxIdx], kyList[kyIdx]);
+      }
+      MPI_Send(&startPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
+    }
+    MPI_Finalize();
   }
 
   /*======================================================
@@ -369,10 +558,8 @@ namespace MESH{
   This function integrates kx using gauss_legendre method
   ==============================================*/
   void SimulationPlanar::run(){
-
-
     MPI_Status status;
-    int rank, numProcs, start, end, startPosition, endPosition;
+    int rank, numProcs, start, end;
     int offset = 0;
     MPI_Init(NULL, NULL);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -385,7 +572,7 @@ namespace MESH{
     // allocating sizes for each processor
     displs[0] = 0;
     sendCounts[0] = chunkSize;
-    for(int thread = 1; thread < numProcs; thread++){
+    for(size_t thread = 1; thread < numProcs; thread++){
       if(numLeft > 0){
         start = thread * chunkSize + offset;
         end = (thread + 1) * chunkSize + offset + 1;
@@ -417,17 +604,14 @@ namespace MESH{
       wrapper.EMatrices = EMatricesVec_[omegaIdx];
       wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
       wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
-      recvBuf[i] = omegaList_[omegaIdx];
       recvBuf[i] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
         gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
     }
-
     // gatther the Phi from each processor
     MPI_Gatherv(&recvBuf[0], 1, dtype, &Phi_[0], sendCounts, displs, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
-
-    // master node outputs the results
+    MPI_Barrier(MPI_COMM_WORLD);
     if(rank == MASTER){
-      this->saveToFile();
+        this->saveToFile();
     }
     MPI_Finalize();
   }
@@ -435,7 +619,7 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on 1D grating simulation
   =======================================================*/
-  void SimulationGrating::setKxIntegral(double points){
+  void SimulationGrating::setKxIntegral(int points){
     numOfKx_ = points;
     kxStart_ = -datum::pi / period_[0];
     kxEnd_ = -kxStart_;
@@ -446,7 +630,7 @@ namespace MESH{
   @args:
   points: number of kx points
   ==============================================*/
-  void SimulationGrating::setKxIntegralSym(double points){
+  void SimulationGrating::setKxIntegralSym(int points){
     numOfKx_ = points;
     kxStart_ = 0;
     kxEnd_ = datum::pi / period_[0];
@@ -459,7 +643,7 @@ namespace MESH{
   points: number of ky points
   end: the upperbound of the integral
   ==============================================*/
-  void SimulationGrating::setKyIntegral(double points, double end){
+  void SimulationGrating::setKyIntegral(int points, double end){
     kyStart_ = 0;
     numOfKy_ = points;
     kyEnd_ = end;
@@ -468,7 +652,7 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on 2D patterning simulation
   =======================================================*/
-  void SimulationPattern::setKxIntegral(double points){
+  void SimulationPattern::setKxIntegral(int points){
     kxStart_ = -datum::pi / period_[0];
     numOfKx_ = points;
     kxEnd_ = -kxStart_;
@@ -479,7 +663,7 @@ namespace MESH{
   @args:
   points: number of kx points
   ==============================================*/
-  void SimulationPattern::setKxIntegralSym(double points){
+  void SimulationPattern::setKxIntegralSym(int points){
     kxStart_ = 0;
     numOfKx_ = points;
     kxEnd_ = datum::pi / period_[0];
@@ -492,7 +676,7 @@ namespace MESH{
   points: number of ky points
   end: the upperbound of the integral
   ==============================================*/
-  void SimulationPattern::setKyIntegral(double points){
+  void SimulationPattern::setKyIntegral(int points){
     kyStart_ = -datum::pi / period_[1];
     numOfKy_ = points;
     kyEnd_ = -kyStart_;
@@ -503,7 +687,7 @@ namespace MESH{
   @args:
   points: number of ky points
   ==============================================*/
-  void SimulationPattern::setKyIntegralSym(double points){
+  void SimulationPattern::setKyIntegralSym(int points){
     kyStart_ = 0;
     numOfKy_ = points;
     kyEnd_ = datum::pi / period_[1];
