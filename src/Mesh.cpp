@@ -100,6 +100,7 @@ namespace MESH{
   ==============================================*/
   void Simulation::addStructure(Structure* structure){
     structure_ = structure;
+    period_ = structure_->getPeriodicity();
   }
   /*==============================================
   This function set the output file name
@@ -247,8 +248,8 @@ namespace MESH{
     }
 
     RCWAMatrix G_mat = toeplitz(G_col, G_row);
+    RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
     int numOfMaterial = layer->getNumOfMaterial();
-
     RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
     int count = 0;
     for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
@@ -256,16 +257,17 @@ namespace MESH{
       widthVec(count) = it->second - it->first;
       count++;
     }
+
     for (size_t i = 0; i < numOfOmega_; i++) {
       RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros);
       count = 0;
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
         dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[i])
-          * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
+          * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
 
-        dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[i])
-          * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
+        dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon.imag() - epsilonBG[i].imag())
+          * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
         count++;
       }
 
@@ -273,11 +275,11 @@ namespace MESH{
       dielectricImMatrix /= period_[0];
       dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
-
       (*dielectricMatrixVec)[i].push_back(dielectricMatrix);
       (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
       dielectricMatrixInverseVec_[i].push_back(dielectricMatrix.i());
     }
+
   }
 
   /*==============================================
@@ -375,15 +377,14 @@ namespace MESH{
   This function builds up the matrices
   ==============================================*/
   void Simulation::build(){
-    period_ = structure_->getPeriodicity();
     // check the dimension by looking at nGx and nGy
     DIMENSION d;
     if(nGx_ != 0 && nGy_ != 0) d = NO_;
-    else if(nGx_ != 0 && nGy_ != 0) d = ONE_;
+    else if(nGx_ != 0 && nGy_ == 0) d = ONE_;
     else d = TWO_;
+
     // essential, get the shared Gx_mat_ and Gy_mat_
     getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, d);
-
     // get constants
     Layer* firstLayer = structure_->getLayerByIndex(0);
     Material* backGround = firstLayer->getBackGround();
@@ -397,11 +398,9 @@ namespace MESH{
     RCWAMatricesVec dielectricMatrixVec(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
-
     for(size_t i = 0; i < numOfLayer; i++){
       Layer* layer = structure_->getLayerByIndex(i);
       dcomplex* epsilonBG = (layer->getBackGround())->getEpsilon();
-
       switch (layer->getPattern()) {
         /*************************************
         /* if the pattern is a plane */
@@ -454,7 +453,6 @@ namespace MESH{
         default: break;
       }
     }
-
     for(size_t i = 0; i < numOfOmega_; i++){
       getEMatrices(
         &(EMatricesVec_[i]),
@@ -478,6 +476,7 @@ namespace MESH{
       thicknessListVec_(i) = thicknessList[i];
       sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
     }
+
   }
 
   /*==============================================
@@ -498,11 +497,13 @@ namespace MESH{
 
     MPI_Status status;
     int rank, numProcs, start, end, startPosition, endPosition;
+    MPI_Init(NULL, NULL);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
     int offset = 0;
     int chunkSize = totalNum / numProcs;
     int numLeft = totalNum - numProcs * chunkSize;
-    MPI_Init(NULL, NULL);MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+
     /*************************************
     // for master node
     *************************************/
