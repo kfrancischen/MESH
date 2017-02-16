@@ -251,35 +251,32 @@ namespace MESH{
 
     RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
     int count = 0;
-
-    for (size_t j = 0; j < numOfOmega_; j++) {
+    for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
+      centerVec(count) = (it->first + it->second) / 2;
+      widthVec(count) = it->second - it->first;
+      count++;
+    }
+    for (size_t i = 0; i < numOfOmega_; i++) {
       RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros);
       count = 0;
-
-      for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
-        centerVec(count) = (it->first + it->second) / 2;
-        widthVec(count) = it->second - it->first;
-        count++;
-      }
-      count = 0;
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
-        dcomplex epsilon = (*it)->getEpsilonAtIndex(j);
-        dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[j])
+        dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
+        dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[i])
           * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
 
-        dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[j])
+        dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[i])
           * widthVec(count) % sinh(G_mat / (2*datum::pi) * widthVec(count));
         count++;
       }
 
       dielectricMatrix /= period_[0];
       dielectricImMatrix /= period_[0];
-      dielectricMatrix += epsilonBG[j] * eye<RCWAMatrix>(N, N);
-      dielectricImMatrix += epsilonBG[j].imag() * eye<RCWAMatrix>(N, N);
+      dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
+      dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
 
-      (*dielectricMatrixVec)[j].push_back(dielectricMatrix);
-      (*dielectricImMatrixVec)[j].push_back(dielectricImMatrix);
-      dielectricMatrixInverseVec_[j].push_back(dielectricMatrix.i());
+      (*dielectricMatrixVec)[i].push_back(dielectricMatrix);
+      (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
+      dielectricMatrixInverseVec_[i].push_back(dielectricMatrix.i());
     }
   }
 
@@ -300,30 +297,51 @@ namespace MESH{
     const int N
   ){
     dcomplex IMAG_I = dcomplex(0, 1);
-    RCWAMatrix Gx_range(2*nGx_+1, 1), Gy_range(2*nGy_+1, 1);
-    for(size_t i = -nGx_; i <= nGx_; i++){
-      Gx_range(i, 0) = i * 2 * datum::pi / period_[0];
-    }
-    for(size_t i = -nGy_; i<= nGy_; i++){
-      Gy_range(i, 0) = i * 2 * datum::pi / period_[1];
-    }
-
-    RCWAMatrix GxMat, GyMat;
-    meshGrid(&Gx_range, &Gy_range, &GxMat, &GyMat);
-    RCWAMatrix GxMatVec = reshape(GxMat, N, 1);
-    RCWAMatrix GyMatVec = reshape(GyMat, N, 1);
-
     RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
-    meshGrid(&GxMatVec, &GxMatVec, &Gx_r, &Gx_l);
-    meshGrid(&GyMatVec, &GyMatVec, &Gy_r, &Gy_l);
+    meshGrid(&Gx_mat_, &Gx_mat_, &Gx_r, &Gx_l);
+    meshGrid(&Gy_mat_, &Gy_mat_, &Gy_r, &Gy_l);
 
-    GxMat = Gx_l - Gx_r;
-    GyMat = Gy_l - Gy_r;
+    RCWAMatrix GxMat = Gx_l - Gx_r;
+    RCWAMatrix GyMat = Gy_l - Gy_r;
 
     int numOfMaterial = layer->getNumOfMaterial();
 
-    RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
+    RCWAVector centerxVec(numOfMaterial), centeryVec(numOfMaterial), widthxVec(numOfMaterial), widthyVec(numOfMaterial);
     int count = 0;
+    for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
+      centerxVec(count) = it->first;
+      centeryVec(count) = it->second;
+      count++;
+    }
+    count = 0;
+    for(const_PatternIter it = layer->getArg2Begin(); it != layer->getArg2End(); it++){
+      widthxVec(count) = it->first;
+      widthyVec(count) = it->second;
+      count++;
+    }
+
+    for (size_t i = 0; i < numOfOmega_; i++) {
+      count = 0;
+      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros);
+      for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
+        dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
+        dielectricMatrix += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (epsilon - epsilonBG[i])
+          * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
+          % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
+
+        dielectricMatrix += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (epsilon.imag() - epsilonBG[i].imag())
+          * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
+          % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
+        count++;
+      }
+
+      dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
+      dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
+
+      (*dielectricMatrixVec)[i].push_back(dielectricMatrix);
+      (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
+      dielectricMatrixInverseVec_[i].push_back(dielectricMatrix.i());
+    }
   }
 
   /*==============================================
@@ -342,6 +360,15 @@ namespace MESH{
     const dcomplex* epsilonBG,
     const int N
   ){
+    dcomplex IMAG_I = dcomplex(0, 1);
+    RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
+    meshGrid(&Gx_mat_, &Gx_mat_, &Gx_r, &Gx_l);
+    meshGrid(&Gy_mat_, &Gy_mat_, &Gy_r, &Gy_l);
+
+    RCWAMatrix GxMat = Gx_l - Gx_r;
+    RCWAMatrix GyMat = Gy_l - Gy_r;
+
+    int numOfMaterial = layer->getNumOfMaterial();
     // TODO
   }
   /*==============================================
@@ -349,12 +376,15 @@ namespace MESH{
   ==============================================*/
   void Simulation::build(){
     period_ = structure_->getPeriodicity();
+    // check the dimension by looking at nGx and nGy
     DIMENSION d;
     if(nGx_ != 0 && nGy_ != 0) d = NO_;
     else if(nGx_ != 0 && nGy_ != 0) d = ONE_;
     else d = TWO_;
+    // essential, get the shared Gx_mat_ and Gy_mat_
     getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, d);
 
+    // get constants
     Layer* firstLayer = structure_->getLayerByIndex(0);
     Material* backGround = firstLayer->getBackGround();
     numOfOmega_ = backGround->getNumOfOmega();
@@ -367,9 +397,6 @@ namespace MESH{
     RCWAMatricesVec dielectricMatrixVec(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
-
-
-    RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
 
     for(size_t i = 0; i < numOfLayer; i++){
       Layer* layer = structure_->getLayerByIndex(i);
