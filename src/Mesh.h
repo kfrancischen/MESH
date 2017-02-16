@@ -48,7 +48,6 @@ typedef struct ARGWEAPPER{
 } ArgWrapper;
 
 void fileLoader(std::string fileName, double* omega, dcomplex* epsilon, int size);
-void fileSaver(std::string fileName, double* omega, double* fluxSpectrum, int size);
 /*======================================================
 Implementaion of the parent simulation super class
 =======================================================*/
@@ -64,8 +63,9 @@ public:
   void setGx(int nGx);
   void setGy(int nGy);
 
+  void saveToFile(std::string fileName);
   double* getOmegaList();
-  double* getPhi();
+  void setOutput(std::string name);
   double* getPeriodicity();
 
   double getPhiAtKxKy(int omegaIndex, double kx, double ky = 0);
@@ -75,9 +75,9 @@ public:
 
 protected:
   Structure* getStructure();
+  void saveToFile();
   int nGx_;
   int nGy_;
-  int numOfCore_;
   int numOfOmega_;
   double* period_;
   Structure* structure_;
@@ -92,6 +92,7 @@ protected:
   double kyEnd_;
   double numOfKy_;
   int targetLayer_;
+  std::string output_;
 
   RCWAMatricesVec EMatricesVec_;
   RCWAMatricesVec grandImaginaryMatricesVec_;

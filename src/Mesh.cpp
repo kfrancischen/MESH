@@ -40,22 +40,6 @@ namespace MESH{
   }
 
   /*==============================================
-  This function saves data from disk
-  @args:
-  fileName: the name of the output file
-  omega: the output omega list
-  epsilon: the output epsilon list
-  size: the size of omega
-  ==============================================*/
-  void fileSaver(std::string fileName, double* omega, double* Phi, int size){
-    std::ofstream outputFile(fileName);
-    for(size_t i = 0; i < size; i++){
-      outputFile << omega[i] << "\t" << Phi[i] << std::endl;
-    }
-    outputFile.close();
-  }
-
-  /*==============================================
   This function wraps the data for quad_legendre
   @args:
   kx: the kx value (normalized)
@@ -81,12 +65,13 @@ namespace MESH{
   /*======================================================
   Implementaion of the parent simulation super class
   =======================================================*/
-  Simulation::Simulation() : nGx_(0), nGy_(0), numOfCore_(1), numOfOmega_(0), structure_(nullptr),
+  Simulation::Simulation() : nGx_(0), nGy_(0), numOfOmega_(0), structure_(nullptr),
   Phi_(nullptr), omegaList_(nullptr), kxStart_(0), kxEnd_(0), kyStart_(0), kyEnd_(0), numOfKx_(0), numOfKy_(0)
   {
     period_ = new double[2];
     period_[0] = 0;
     period_[1] = 0;
+    output_ = "output.txt";
   }
 
   Simulation::~Simulation(){
@@ -94,6 +79,17 @@ namespace MESH{
     delete[] Phi_;
     delete[] omegaList_;
     delete[] period_;
+  }
+
+  /*==============================================
+  This function saves data to disk
+  ==============================================*/
+  void Simulation::saveToFile(){
+    std::ofstream outputFile(output_);
+    for(size_t i = 0; i < numOfOmega_; i++){
+      outputFile << omegaList_[i] << "\t" << Phi_[i] << std::endl;
+    }
+    outputFile.close();
   }
 
   /*==============================================
@@ -106,12 +102,12 @@ namespace MESH{
   }
 
   /*==============================================
-  This function enables MPI
+  This function set the output file name
   @args:
-  numOfCore: the number of cores in the simulation
+  name: the output file name
   ==============================================*/
-  void Simulation::enableMPI(int numOfCore){
-    numOfCore_ = numOfCore;
+  void Simulation::setOutput(std::string name){
+    output_ = name;
   }
 
   /*==============================================
@@ -181,13 +177,6 @@ namespace MESH{
   ==============================================*/
   double* Simulation::getOmegaList(){
     return omegaList_;
-  }
-
-  /*==============================================
-  This function gets the \Phi
-  ==============================================*/
-  double* Simulation::getPhi(){
-    return Phi_;
   }
 
   /*==============================================
@@ -381,94 +370,66 @@ namespace MESH{
   ==============================================*/
   void SimulationPlanar::run(){
 
-    if(numOfCore_ == 1){
-      ArgWrapper wrapper;
-      wrapper.thicknessList = thicknessListVec_;
-      wrapper.Gx_mat = Gx_mat_;
-      wrapper.Gy_mat = Gy_mat_;
-      wrapper.sourceList = sourceList_;
-      wrapper.targetLayer = targetLayer_;
 
-      for(size_t omegaIdx = 0; omegaIdx < numOfOmega_; omegaIdx++){
-        wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
-        wrapper.EMatrices = EMatricesVec_[omegaIdx];
-        wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
-        wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
-        Phi_[omegaIdx] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
-          gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
+    MPI_Status status;
+    int rank, numProcs, start, end, startPosition, endPosition;
+    int offset = 0;
+    MPI_Init(NULL, NULL);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
+    int displs[numProcs], sendCounts[numProcs];
+    int chunkSize = numOfOmega_ / numProcs;
+    int numLeft = numOfOmega_ - numProcs * chunkSize;
+    double recvBuf[chunkSize + 1];
+    MPI_Datatype dtype;
+    // allocating sizes for each processor
+    displs[0] = 0;
+    sendCounts[0] = chunkSize;
+    for(int thread = 1; thread < numProcs; thread++){
+      if(numLeft > 0){
+        start = thread * chunkSize + offset;
+        end = (thread + 1) * chunkSize + offset + 1;
+        offset++;
+        numLeft--;
       }
-    }
-    else{
-      MPI_Status status;
-      int rank, numProcs, start, end, startPosition, endPosition;
-      int offset = 0;
-      MPI_Init(NULL, NULL);
-      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-      MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
-
-      int chunkSize = numOfOmega_ / numProcs;
-      int numLeft = numOfOmega_ - numProcs * chunkSize;
-      // if is master node
-      if(rank == MASTER){
-        for(int thread = 1; thread < numProcs; thread++){
-          if(numLeft > 0){
-            start = thread * chunkSize + offset;
-            end = (thread + 1) * chunkSize + offset + 1;
-            offset++;
-            numLeft--;
-          }
-          else{
-            start = thread * chunkSize + offset;
-            end = (thread + 1) * chunkSize + offset;
-          }
-
-          if(thread == numProcs - 1) end = numOfOmega_;
-
-          MPI_Send(&start, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
-          MPI_Send(&end, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
-          MPI_Send(&Phi_[start], end - start, MPI_DOUBLE, thread, SENDTAG, MPI_COMM_WORLD);
-        }
-
-        ArgWrapper wrapper;
-        wrapper.thicknessList = thicknessListVec_;
-        wrapper.Gx_mat = Gx_mat_;
-        wrapper.Gy_mat = Gy_mat_;
-        wrapper.sourceList = sourceList_;
-        wrapper.targetLayer = targetLayer_;
-        for(int omegaIdx = 0; omegaIdx < chunkSize; omegaIdx++){
-          wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
-          wrapper.EMatrices = EMatricesVec_[omegaIdx];
-          wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
-          wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
-          Phi_[omegaIdx] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
-            gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
-        }
-
-      }
-      // if its a slave node
       else{
-
-        MPI_Recv(&startPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
-        MPI_Recv(&endPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
-        MPI_Recv(&Phi_[startPosition], endPosition - startPosition, MPI_DOUBLE, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
-
-        ArgWrapper wrapper;
-        wrapper.thicknessList = thicknessListVec_;
-        wrapper.Gx_mat = Gx_mat_;
-        wrapper.Gy_mat = Gy_mat_;
-        wrapper.sourceList = sourceList_;
-        wrapper.targetLayer = targetLayer_;
-        for(int omegaIdx = startPosition; omegaIdx < endPosition; omegaIdx++){
-          wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
-          wrapper.EMatrices = EMatricesVec_[omegaIdx];
-          wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
-          wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
-          Phi_[omegaIdx] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
-            gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
-        }
+        start = thread * chunkSize + offset;
+        end = (thread + 1) * chunkSize + offset;
       }
-      MPI_Finalize();
+      if(thread == numProcs - 1) end = numOfOmega_;
+      displs[thread] = start;
+      sendCounts[thread] = end - start;
     }
+    MPI_Type_contiguous(sendCounts[rank], MPI_DOUBLE, &dtype);
+    MPI_Type_commit(&dtype);
+    // scattering the Phi to each processor
+    MPI_Scatterv(&Phi_[0], sendCounts, displs, MPI_DOUBLE, &recvBuf[0], 1, dtype, MASTER, MPI_COMM_WORLD);
+
+    ArgWrapper wrapper;
+    wrapper.thicknessList = thicknessListVec_;
+    wrapper.Gx_mat = Gx_mat_;
+    wrapper.Gy_mat = Gy_mat_;
+    wrapper.sourceList = sourceList_;
+    wrapper.targetLayer = targetLayer_;
+    for(size_t i = 0; i < sendCounts[rank]; i++){
+      int omegaIdx = i + displs[rank];
+      wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
+      wrapper.EMatrices = EMatricesVec_[omegaIdx];
+      wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
+      wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
+      recvBuf[i] = omegaList_[omegaIdx];
+      recvBuf[i] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
+        gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
+    }
+
+    // gatther the Phi from each processor
+    MPI_Gatherv(&recvBuf[0], 1, dtype, &Phi_[0], sendCounts, displs, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
+
+    // master node outputs the results
+    if(rank == MASTER){
+      this->saveToFile();
+    }
+    MPI_Finalize();
   }
 
   /*======================================================
