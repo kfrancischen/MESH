@@ -126,7 +126,7 @@ int RCWA::getN(
  mask: the matrix denoting the zero positions of x
 ==============================================================*/
 RCWA::RCWAMatrix RCWA::sinc(RCWAMatrix x, RCWAMatrix* mask){
-  RCWAMatrix output = sin(x * datum::pi) / (x * datum::pi);
+  RCWAMatrix output = sin(x) / x;
   if(mask != nullptr){
     RCWAMatrix allOnes = RCWAMatrix(size(*mask), fill::ones);
     output = output % (allOnes - *mask) + *mask;
