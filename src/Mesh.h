@@ -108,6 +108,7 @@ protected:
     const dcomplex* epsilon,
     const int N
   );
+
   void transformGrating(
     RCWAMatricesVec* dielectricMatrixVec,
     RCWAMatricesVec* dielectricImMatrixVec,
@@ -115,6 +116,7 @@ protected:
     const dcomplex* epsilonBG,
     const int N
   );
+
   void transformRectangle(
     RCWAMatricesVec* dielectricMatrixVec,
     RCWAMatricesVec* dielectricImMatrixVec,
@@ -122,6 +124,7 @@ protected:
     const dcomplex* epsilonBG,
     const int N
   );
+  
   void transformCircle(
     RCWAMatricesVec* dielectricMatrixVec,
     RCWAMatricesVec* dielectricImMatrixVec,
