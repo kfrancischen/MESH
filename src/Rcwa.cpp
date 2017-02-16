@@ -120,6 +120,20 @@ int RCWA::getN(
   return (2*nGx + 1) * (2*nGy + 1);
 }
 /*============================================================
+* Function computing the sinc function (sin(x) / x)
+@arg:
+ x: the input argument
+ mask: the matrix denoting the zero positions of x
+==============================================================*/
+RCWA::RCWAMatrix RCWA::sinc(RCWAMatrix x, RCWAMatrix* mask){
+  RCWAMatrix output = sin(x * datum::pi) / (x * datum::pi);
+  if(mask != nullptr){
+    RCWAMatrix allOnes = RCWAMatrix(size(*mask), fill::ones);
+    output = output % (allOnes - *mask) + *mask;
+  }
+  return output;
+}
+/*============================================================
 * Function computing G matrix for the system
 @arg:
  startLayer: the starting layer for the propogation
@@ -139,6 +153,7 @@ void RCWA::getGMatrices(
   DIMENSION d
 )
 {
+
   int Nx = 2 * nGx + 1;
   int Ny = 2 * nGy + 1;
   int N = Nx * Ny;
@@ -158,12 +173,14 @@ void RCWA::getGMatrices(
   }
   RCWAMatrix Gx_list(1, Nx), Gy_list(1, Ny);
   for(int i = -nGx; i <= nGx; i++){
-    Gx_list(0, i) = i * Gx;
+    Gx_list(0, i+nGx) = i * Gx;
   }
   for(int i = -nGy; i <= nGy; i++){
-    Gy_list(0, i) = i * Gy;
+    Gy_list(0, i+nGy) = i * Gy;
   }
+
   meshGrid(&Gx_list, &Gy_list, Gx_mat, Gy_mat);
+
   Gx_mat->reshape(N, 1);
   Gy_mat->reshape(N, 1);
 }
@@ -255,7 +272,6 @@ double RCWA::poyntingFlux(
   ky = ky * omega;
   int r1 = 0, r2 = 2 * N -1, r3 = 2 * N, r4 = 4 * N -1;
   dcomplex IMAG_I = dcomplex(0, 1);
-
   RCWAMatrix onePadding4N(4*N, 4*N, fill::eye);
   RCWAMatrix onePadding2N(2*N, 2*N, fill::eye);
   RCWAMatrix onePadding1N(N, N, fill::eye);
@@ -288,14 +304,14 @@ double RCWA::poyntingFlux(
       join_horiz(kyMat * (*dielectricMatrixInverse)[i] * kyMat, -kyMat * (*dielectricMatrixInverse)[i] * kxMat),
       join_horiz(-kxMat * (*dielectricMatrixInverse)[i] * kyMat, kxMat * (*dielectricMatrixInverse)[i] * kxMat)
     );
-
     RCWAMatrix eigMatrix = (*EMatrices)[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;
     cx_vec eigVal;
+    // here is the problem
     eig_gen(eigVal, EigenVecMatrices[i], eigMatrix);
+
     eigVal = sqrt(eigVal);
     eigVal = -eigVal % sign(imag(eigVal));
     EigenValMatrices[i] = diagmat(eigVal);
-
     if(i == 0 || i == numOfLayer - 1){
       FMatrices[i] = onePadding2N;
     }
@@ -338,6 +354,7 @@ double RCWA::poyntingFlux(
   /*======================================================
   This part compute flux by collecting emission from source layers
   =======================================================*/
+
   for(size_t layerIdx = 0; layerIdx < targetLayer; layerIdx++){
 
     // if is not source layer, then continue

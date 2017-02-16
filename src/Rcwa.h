@@ -73,6 +73,14 @@ namespace RCWA{
    const int nGx,
    const int nGy
  );
+
+ /*============================================================
+ * Function computing the sinc function (sin(x) / x)
+ @arg:
+  x: the input argument
+  mask: the matrix denoting the zero positions of x
+ ==============================================================*/
+ RCWAMatrix sinc(RCWAMatrix x, RCWAMatrix* mask);
   /*============================================================
   * Function computing G matrix for the system
   @arg:
