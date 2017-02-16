@@ -62,10 +62,9 @@ public:
   void setTargetLayerByLayer(Layer* layer);
   void setGx(int nGx);
   void setGy(int nGy);
+  void setOutputFile(std::string name);
 
-  void saveToFile(std::string fileName);
   double* getOmegaList();
-  void setOutput(std::string name);
   double* getPeriodicity();
 
   double getPhiAtKxKy(int omegaIndex, double kx, double ky = 0);
@@ -74,26 +73,24 @@ public:
   void run();
 
 protected:
-  Structure* getStructure();
-  void saveToFile();
-  int nGx_;
-  int nGy_;
-  int numOfOmega_;
-  double* period_;
-  Structure* structure_;
-  double* Phi_;
-  double* omegaList_;
 
+  double* period_;
   double kxStart_;
   double kxEnd_;
-  double numOfKx_;
+  int numOfKx_;
 
   double kyStart_;
   double kyEnd_;
-  double numOfKy_;
-  int targetLayer_;
+  int numOfKy_;
+  int prefactor_;
+  int nGx_;
+  int nGy_;
+  int numOfOmega_;
+  Structure* structure_;
+  double* Phi_;
+  double* omegaList_;
   std::string output_;
-
+  int targetLayer_;
   RCWAMatricesVec EMatricesVec_;
   RCWAMatricesVec grandImaginaryMatricesVec_;
   RCWAMatricesVec dielectricMatrixInverseVec_;
@@ -102,6 +99,36 @@ protected:
 
   SourceList sourceList_;
   RCWAVector thicknessListVec_;
+
+  Structure* getStructure();
+  void saveToFile();
+  void transformPlanar(
+    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricImMatrixVec,
+    const dcomplex* epsilon,
+    const int N
+  );
+  void transformGrating(
+    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricImMatrixVec,
+    Layer* layer,
+    const dcomplex* epsilonBG,
+    const int N
+  );
+  void transformRectangle(
+    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricImMatrixVec,
+    Layer* layer,
+    const dcomplex* epsilonBG,
+    const int N
+  );
+  void transformCircle(
+    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricImMatrixVec,
+    Layer* layer,
+    const dcomplex* epsilonBG,
+    const int N
+  );
 };
 
 
@@ -134,14 +161,13 @@ public:
   };
   ~SimulationGrating();
   void setGy() = delete;
-  void setKxIntegral(double points);
-  void setKxIntegralSym(double points);
+  void setKxIntegral(int points);
+  void setKxIntegralSym(int points);
   // for ky integral, from 0 to inf
-  void setKyIntegral(double points, double end);
+  void setKyIntegral(int points, double end);
 
 
 private:
-  int prefactor_;
 };
 
 /*======================================================
@@ -154,14 +180,13 @@ public:
   };
   ~SimulationPattern();
 
-  void setKxIntegral(double points);
-  void setKxIntegralSym(double points);
-  void setKyIntegral(double points);
-  void setKyIntegralSym(double points);
+  void setKxIntegral(int points);
+  void setKxIntegralSym(int points);
+  void setKyIntegral(int points);
+  void setKyIntegralSym(int points);
 
 
 private:
-  int prefactor_;
 };
 }
 #endif
