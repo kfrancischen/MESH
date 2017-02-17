@@ -103,14 +103,16 @@ protected:
   Structure* getStructure();
   void saveToFile();
   void transformPlanar(
-    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     const dcomplex* epsilon,
     const int N
   );
 
   void transformGrating(
-    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -118,15 +120,17 @@ protected:
   );
 
   void transformRectangle(
-    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
     const int N
   );
-  
+
   void transformCircle(
-    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,

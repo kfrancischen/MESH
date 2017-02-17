@@ -206,35 +206,38 @@ namespace MESH{
   /*==============================================
   This function computes the Fourier transform for planar
   @args:
-  dielectricMatrixVec: the vector containing dielectric matrices
+  dielectricMatrixVecTE: the vector containing dielectric matrices
   dielectricImMatrixVec: the vector containing imaginary part matrices
   epsilonBG: the epsilon values for the background
   N: the number of total G
   ==============================================*/
   void Simulation::transformPlanar(
-    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     const dcomplex* epsilonBG,
     const int N
   ){
     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
     for(size_t i = 0; i < numOfOmega_; i++){
-      (*dielectricMatrixVec)[i].push_back(onePadding1N * epsilonBG[i]);
-      dielectricMatrixInverseVec_[i].push_back(onePadding1N * dcomplex(1, 0) / epsilonBG[i]);
+      (*dielectricMatrixVecTE)[i].push_back(onePadding1N * epsilonBG[i]);
+      (*dielectricMatrixVecTM)[i].push_back(onePadding1N * epsilonBG[i]);
+      dielectricMatrixInverseVec_[i].push_back(onePadding1N * dcomplex(1.0, 0) / epsilonBG[i]);
       (*dielectricImMatrixVec)[i].push_back(onePadding1N * (epsilonBG[i]).imag());
     }
   }
   /*==============================================
   This function computes the Fourier transform for grating
   @args:
-  dielectricMatrixVec: the vector containing dielectric matrices
+  dielectricMatrixVecTE: the vector containing dielectric matrices
   dielectricImMatrixVec: the vector containing imaginary part matrices
   layer: the current layer
   epsilonBG: the epsilon values for the background
   N: the number of total G
   ==============================================*/
   void Simulation::transformGrating(
-    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -259,11 +262,14 @@ namespace MESH{
     }
 
     for (size_t i = 0; i < numOfOmega_; i++) {
-      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros);
+      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInvInv(N, N, fill::zeros);
       count = 0;
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
         dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[i])
+          * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
+
+        dielectricMatrixInvInv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(1.0, 0) / epsilon - dcomplex(1.0, 0) / epsilonBG[i])
           * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
 
         dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon.imag() - epsilonBG[i].imag())
@@ -272,10 +278,13 @@ namespace MESH{
       }
 
       dielectricMatrix /= period_[0];
+      dielectricMatrixInvInv /= period_[0];
       dielectricImMatrix /= period_[0];
       dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
+      dielectricMatrixInvInv += dcomplex(1.0,0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
-      (*dielectricMatrixVec)[i].push_back(dielectricMatrix);
+      (*dielectricMatrixVecTE)[i].push_back(dielectricMatrix);
+      (*dielectricMatrixVecTM)[i].push_back(dielectricMatrixInvInv.i());
       (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
       dielectricMatrixInverseVec_[i].push_back(dielectricMatrix.i());
     }
@@ -285,14 +294,15 @@ namespace MESH{
   /*==============================================
   This function computes the Fourier transform for rectangle
   @args:
-  dielectricMatrixVec: the vector containing dielectric matrices
+  dielectricMatrixVecTE: the vector containing dielectric matrices
   dielectricImMatrixVec: the vector containing imaginary part matrices
   layer: the current layer
   epsilonBG: the epsilon values for the background
   N: the number of total G
   ==============================================*/
   void Simulation::transformRectangle(
-    RCWAMatricesVec* dielectricMatrixVec,
+    RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -324,10 +334,14 @@ namespace MESH{
 
     for (size_t i = 0; i < numOfOmega_; i++) {
       count = 0;
-      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros);
+      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInvInv(N, N, fill::zeros);
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
         dielectricMatrix += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (epsilon - epsilonBG[i])
+          * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
+          % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
+
+        dielectricMatrixInvInv += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (dcomplex(1.0,0) / epsilon - dcomplex(1.0,0) / epsilonBG[i])
           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
           % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
 
@@ -338,9 +352,11 @@ namespace MESH{
       }
 
       dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
+      dielectricMatrixInvInv += dcomplex(1, 0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
 
-      (*dielectricMatrixVec)[i].push_back(dielectricMatrix);
+      (*dielectricMatrixVecTE)[i].push_back(dielectricMatrix);
+      (*dielectricMatrixVecTM)[i].push_back(dielectricMatrixInvInv.i());
       (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
       dielectricMatrixInverseVec_[i].push_back(dielectricMatrix.i());
     }
@@ -349,30 +365,23 @@ namespace MESH{
   /*==============================================
   This function computes the Fourier transform for circle
   @args:
-  dielectricMatrixVec: the vector containing dielectric matrices
+  dielectricMatrixVecTE: the vector containing dielectric matrices
   dielectricImMatrixVec: the vector containing imaginary part matrices
   layer: the current layer
   epsilonBG: the epsilon values for the background
   N: the number of total G
   ==============================================*/
   void Simulation::transformCircle(
-    RCWAMatricesVec* dielectricMatrixVec,
-    RCWAMatricesVec* dielectricImMatrixVec,
-    Layer* layer,
-    const dcomplex* epsilonBG,
-    const int N
-  ){
-    dcomplex IMAG_I = dcomplex(0, 1);
-    RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
-    meshGrid(&Gx_mat_, &Gx_mat_, &Gx_r, &Gx_l);
-    meshGrid(&Gy_mat_, &Gy_mat_, &Gy_r, &Gy_l);
-
-    RCWAMatrix GxMat = Gx_l - Gx_r;
-    RCWAMatrix GyMat = Gy_l - Gy_r;
-
-    int numOfMaterial = layer->getNumOfMaterial();
+      RCWAMatricesVec* dielectricMatrixVecTE,
+      RCWAMatricesVec* dielectricMatrixVecTM,
+      RCWAMatricesVec* dielectricImMatrixVec,
+      Layer* layer,
+      const dcomplex* epsilonBG,
+      const int N
+    ){
     // TODO
   }
+
   /*==============================================
   This function builds up the matrices
   ==============================================*/
@@ -395,7 +404,7 @@ namespace MESH{
     grandImaginaryMatricesVec_.resize(numOfOmega_);
     dielectricMatrixInverseVec_.resize(numOfOmega_);
 
-    RCWAMatricesVec dielectricMatrixVec(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
+    RCWAMatricesVec dielectricMatrixVecTE(numOfOmega_), dielectricMatrixVecTM(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
     for(size_t i = 0; i < numOfLayer; i++){
@@ -405,7 +414,8 @@ namespace MESH{
         /*************************************
         /* if the pattern is a plane */
         case PLANAR_:{
-          this->transformPlanar(&dielectricMatrixVec,
+          this->transformPlanar(&dielectricMatrixVecTE,
+            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             epsilonBG,
             N
@@ -416,7 +426,8 @@ namespace MESH{
         /* if the pattern is a grating (1D) */
         /************************************/
         case GRATING_:{
-          this->transformGrating(&dielectricMatrixVec,
+          this->transformGrating(&dielectricMatrixVecTE,
+            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -429,7 +440,8 @@ namespace MESH{
         /* if the pattern is a rectangle (2D) */
         /************************************/
         case RECTANGLE_:{
-          this->transformRectangle(&dielectricMatrixVec,
+          this->transformRectangle(&dielectricMatrixVecTE,
+            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -442,7 +454,8 @@ namespace MESH{
       /* if the pattern is a circle (2D) */
       /************************************/
         case CIRCLE_:{
-          this->transformCircle(&dielectricMatrixVec,
+          this->transformCircle(&dielectricMatrixVecTE,
+            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -456,7 +469,8 @@ namespace MESH{
     for(size_t i = 0; i < numOfOmega_; i++){
       getEMatrices(
         &(EMatricesVec_[i]),
-        &(dielectricMatrixVec[i]),
+        &(dielectricMatrixVecTE[i]),
+        &(dielectricMatrixVecTM[i]),
         numOfLayer,
         N
       );
