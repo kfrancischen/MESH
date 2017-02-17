@@ -219,15 +219,16 @@ N: the number of G
 ==============================================================*/
 void RCWA::getEMatrices(
   RCWAMatrices* EMatrices,
-  RCWAMatrices* dielectricMatrix,
+  RCWAMatrices* dielectricMatrixTE,
+  RCWAMatrices* dielectricMatrixTM,
   int numOfLayer,
   int N
 ){
   RCWAMatrix zeroPadding(N, N, fill::zeros);
   for(size_t i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
-      join_horiz((*dielectricMatrix)[i], zeroPadding),
-      join_horiz(zeroPadding, (*dielectricMatrix)[i])
+      join_horiz((*dielectricMatrixTE)[i], zeroPadding),
+      join_horiz(zeroPadding, (*dielectricMatrixTM)[i])
     );
     EMatrices->push_back(EMatrix);
   }

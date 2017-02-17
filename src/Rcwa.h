@@ -126,7 +126,8 @@ namespace RCWA{
   ==============================================================*/
   void getEMatrices(
     RCWAMatrices* EMatrices,
-    RCWAMatrices* dielectricMatrix,
+    RCWAMatrices* dielectricMatrixTE,
+    RCWAMatrices* dielectricMatrixTM,
     int numOfLayer,
     int N
   );
