@@ -40,7 +40,7 @@ typedef struct ARGWEAPPER{
   RCWAVector thicknessList;
   RCWAMatrices EMatrices;
   RCWAMatrices grandImaginaryMatrices;
-  RCWAMatrices dielectricMatrixInverse;
+  RCWAMatrices dielectricMatrixInvTM;
   RCWAMatrix Gx_mat;
   RCWAMatrix Gy_mat;
   SourceList sourceList;
@@ -93,18 +93,18 @@ protected:
   int targetLayer_;
   RCWAMatricesVec EMatricesVec_;
   RCWAMatricesVec grandImaginaryMatricesVec_;
-  RCWAMatricesVec dielectricMatrixInverseVec_;
+  RCWAMatricesVec dielectricMatrixInvTMVec_;
   RCWAMatrix Gx_mat_;
   RCWAMatrix Gy_mat_;
 
   SourceList sourceList_;
   RCWAVector thicknessListVec_;
+  DIMENSION dim_;
 
   Structure* getStructure();
   void saveToFile();
   void transformPlanar(
     RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     const dcomplex* epsilon,
     const int N
@@ -112,7 +112,6 @@ protected:
 
   void transformGrating(
     RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -121,7 +120,6 @@ protected:
 
   void transformRectangle(
     RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -130,7 +128,6 @@ protected:
 
   void transformCircle(
     RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -144,7 +141,9 @@ Implementaion of the class on planar simulation
 =======================================================*/
 class SimulationPlanar : public Simulation{
 public:
-  SimulationPlanar() : Simulation(){};
+  SimulationPlanar() : Simulation(){
+    dim_ = NO_;
+  };
   ~SimulationPlanar();
 
   void setGx() = delete;
@@ -164,7 +163,8 @@ Implementaion of the class on 1D grating simulation
 class SimulationGrating : public Simulation{
 public:
   SimulationGrating() : Simulation(){
-    prefactor_ = 1;
+    prefactor_ = 2;
+    dim_ = ONE_;
   };
   ~SimulationGrating();
   void setGy() = delete;
@@ -184,6 +184,7 @@ class SimulationPattern : public Simulation{
 public:
   SimulationPattern() : Simulation(){
     prefactor_ = 1;
+    dim_ = TWO_;
   };
   ~SimulationPattern();
 

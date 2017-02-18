@@ -126,6 +126,7 @@ int RCWA::getN(
  mask: the matrix denoting the zero positions of x
 ==============================================================*/
 RCWA::RCWAMatrix RCWA::sinc(RCWAMatrix x, RCWAMatrix* mask){
+  x += *mask;
   RCWAMatrix output = sin(x) / x;
   if(mask != nullptr){
     RCWAMatrix allOnes = RCWAMatrix(size(*mask), fill::ones);
@@ -220,7 +221,7 @@ N: the number of G
 void RCWA::getEMatrices(
   RCWAMatrices* EMatrices,
   RCWAMatrices* dielectricMatrixTE,
-  RCWAMatrices* dielectricMatrixTM,
+  RCWAMatrices* dielectricMatrixTMInv,
   int numOfLayer,
   int N
 ){
@@ -228,7 +229,7 @@ void RCWA::getEMatrices(
   for(size_t i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
       join_horiz((*dielectricMatrixTE)[i], zeroPadding),
-      join_horiz(zeroPadding, (*dielectricMatrixTM)[i])
+      join_horiz(zeroPadding, (*dielectricMatrixTMInv)[i].i())
     );
     EMatrices->push_back(EMatrix);
   }
@@ -258,7 +259,7 @@ double RCWA::poyntingFlux(
   double ky,
   const RCWAMatrices* EMatrices,
   const RCWAMatrices* grandImaginaryMatrices,
-  const RCWAMatrices* dielectricMatrixInverse,
+  const RCWAMatrices* dielectricMatrixTMInv,
   const RCWAMatrix* Gx_mat,
   const RCWAMatrix* Gy_mat,
   const SourceList* sourceList,
@@ -302,8 +303,8 @@ double RCWA::poyntingFlux(
   for(size_t i = 0; i < numOfLayer; i++){
 
     TMatrices[i] = join_vert(
-      join_horiz(kyMat * (*dielectricMatrixInverse)[i] * kyMat, -kyMat * (*dielectricMatrixInverse)[i] * kxMat),
-      join_horiz(-kxMat * (*dielectricMatrixInverse)[i] * kyMat, kxMat * (*dielectricMatrixInverse)[i] * kxMat)
+      join_horiz(kyMat * (*dielectricMatrixTMInv)[i] * kyMat, -kyMat * (*dielectricMatrixTMInv)[i] * kxMat),
+      join_horiz(-kxMat * (*dielectricMatrixTMInv)[i] * kyMat, kxMat * (*dielectricMatrixTMInv)[i] * kxMat)
     );
     RCWAMatrix eigMatrix = (*EMatrices)[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;
     cx_vec eigVal;
@@ -350,8 +351,6 @@ double RCWA::poyntingFlux(
   RCWAMatrices S_matrices(numOfLayer), NewFMatrices(numOfLayer);
 
   RCWAMatrix source = zeros<RCWAMatrix>(4*N, 3*N);
-  source(span(2*N, 3*N-1), span(N, 2*N-1)) = onePadding1N;
-  source(span(3*N, 4*N-1), span(0, N-1)) = -onePadding1N;
   /*======================================================
   This part compute flux by collecting emission from source layers
   =======================================================*/
@@ -366,8 +365,8 @@ double RCWA::poyntingFlux(
     meshGrid(&q, &q, &q_R, &q_L);
 
     // defining source
-    source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * (*dielectricMatrixInverse)[layerIdx] / omega;
-    source(span(N, 2*N-1), span(2*N, 3*N-1)) = kxMat * (*dielectricMatrixInverse)[layerIdx] / omega;
+    source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * (*dielectricMatrixTMInv)[layerIdx] / omega;
+    source(span(N, 2*N-1), span(2*N, 3*N-1)) = kxMat * (*dielectricMatrixTMInv)[layerIdx] / omega;
     source(span(2*N, 3*N-1), span(N, 2*N-1)) = onePadding1N;
     source(span(3*N, 4*N-1), span(0, N-1)) = -onePadding1N;
 

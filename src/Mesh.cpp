@@ -54,7 +54,7 @@ namespace MESH{
       0,
       &(wrapper.EMatrices),
       &(wrapper.grandImaginaryMatrices),
-      &(wrapper.dielectricMatrixInverse),
+      &(wrapper.dielectricMatrixInvTM),
       &(wrapper.Gx_mat),
       &(wrapper.Gy_mat),
       &(wrapper.sourceList),
@@ -73,6 +73,7 @@ namespace MESH{
     period_[1] = 0;
     output_ = "output.txt";
     targetLayer_ = -1;
+    dim_ = NO_;
   }
 
   Simulation::~Simulation(){
@@ -158,11 +159,11 @@ namespace MESH{
     for(size_t i = 0; i < EMatricesVec_.size(); i++){
       EMatricesVec_[i].clear();
       grandImaginaryMatricesVec_.clear();
-      dielectricMatrixInverseVec_[i].clear();
+      dielectricMatrixInvTMVec_[i].clear();
     }
     EMatricesVec_.clear();
     grandImaginaryMatricesVec_.clear();
-    dielectricMatrixInverseVec_.clear();
+    dielectricMatrixInvTMVec_.clear();
   }
 
   /*==============================================
@@ -199,7 +200,7 @@ namespace MESH{
     int N = getN(nGx_, nGy_);
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, ky, &(EMatricesVec_[omegaIdx]),
-      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInverseVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
+      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInvTMVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
       &sourceList_, targetLayer_,N);
   }
 
@@ -213,7 +214,6 @@ namespace MESH{
   ==============================================*/
   void Simulation::transformPlanar(
     RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     const dcomplex* epsilonBG,
     const int N
@@ -221,8 +221,7 @@ namespace MESH{
     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
     for(size_t i = 0; i < numOfOmega_; i++){
       (*dielectricMatrixVecTE)[i].push_back(onePadding1N * epsilonBG[i]);
-      (*dielectricMatrixVecTM)[i].push_back(onePadding1N * epsilonBG[i]);
-      dielectricMatrixInverseVec_[i].push_back(onePadding1N * dcomplex(1.0, 0) / epsilonBG[i]);
+      dielectricMatrixInvTMVec_[i].push_back(onePadding1N * dcomplex(1.0, 0) / epsilonBG[i]);
       (*dielectricImMatrixVec)[i].push_back(onePadding1N * (epsilonBG[i]).imag());
     }
   }
@@ -237,7 +236,6 @@ namespace MESH{
   ==============================================*/
   void Simulation::transformGrating(
     RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -245,12 +243,12 @@ namespace MESH{
   ){
     dcomplex IMAG_I = dcomplex(0, 1);
     RCWAMatrix G_row(1, N), G_col(N, 1);
-    for(size_t i = 0; i < N; i++){
-      G_row(0, i) = -i * 2 * datum::pi / period_[0];
+    for(int i = 0; i < N; i++){
+      G_row(0, i) = -i * 2.0 * datum::pi / period_[0];
       G_col(i, 0) = -G_row(0, i);
     }
-
     RCWAMatrix G_mat = toeplitz(G_col, G_row);
+
     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
     int numOfMaterial = layer->getNumOfMaterial();
     RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
@@ -260,33 +258,30 @@ namespace MESH{
       widthVec(count) = it->second - it->first;
       count++;
     }
-
     for (size_t i = 0; i < numOfOmega_; i++) {
-      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInvInv(N, N, fill::zeros);
+      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInv(N, N, fill::zeros);
       count = 0;
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
         dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[i])
           * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
-
-        dielectricMatrixInvInv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(1.0, 0) / epsilon - dcomplex(1.0, 0) / epsilonBG[i])
+        dielectricMatrixInv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(1.0, 0) / epsilon - dcomplex(1.0, 0) / epsilonBG[i])
           * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
 
         dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon.imag() - epsilonBG[i].imag())
           * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
         count++;
       }
-
       dielectricMatrix /= period_[0];
-      dielectricMatrixInvInv /= period_[0];
+      dielectricMatrixInv /= period_[0];
       dielectricImMatrix /= period_[0];
       dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
-      dielectricMatrixInvInv += dcomplex(1.0,0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
+      dielectricMatrixInv += dcomplex(1.0,0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
+
       (*dielectricMatrixVecTE)[i].push_back(dielectricMatrix);
-      (*dielectricMatrixVecTM)[i].push_back(dielectricMatrixInvInv.i());
+      dielectricMatrixInvTMVec_[i].push_back(dielectricMatrixInv);
       (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
-      dielectricMatrixInverseVec_[i].push_back(dielectricMatrix.i());
     }
 
   }
@@ -302,13 +297,12 @@ namespace MESH{
   ==============================================*/
   void Simulation::transformRectangle(
     RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
     const int N
   ){
-    dcomplex IMAG_I = dcomplex(0, 1);
+    dcomplex IMAG_I = dcomplex(0, 1.0);
     RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
     meshGrid(&Gx_mat_, &Gx_mat_, &Gx_r, &Gx_l);
     meshGrid(&Gy_mat_, &Gy_mat_, &Gy_r, &Gy_l);
@@ -334,14 +328,14 @@ namespace MESH{
 
     for (size_t i = 0; i < numOfOmega_; i++) {
       count = 0;
-      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInvInv(N, N, fill::zeros);
+      RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInv(N, N, fill::zeros);
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
         dielectricMatrix += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (epsilon - epsilonBG[i])
           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
           % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
 
-        dielectricMatrixInvInv += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (dcomplex(1.0,0) / epsilon - dcomplex(1.0,0) / epsilonBG[i])
+        dielectricMatrixInv += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (dcomplex(1.0,0) / epsilon - dcomplex(1.0,0) / epsilonBG[i])
           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
           % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
 
@@ -352,13 +346,12 @@ namespace MESH{
       }
 
       dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
-      dielectricMatrixInvInv += dcomplex(1, 0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
+      dielectricMatrixInv += dcomplex(1, 0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
 
       (*dielectricMatrixVecTE)[i].push_back(dielectricMatrix);
-      (*dielectricMatrixVecTM)[i].push_back(dielectricMatrixInvInv.i());
+      dielectricMatrixInvTMVec_[i].push_back(dielectricMatrixInv);
       (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
-      dielectricMatrixInverseVec_[i].push_back(dielectricMatrix.i());
     }
   }
 
@@ -373,7 +366,6 @@ namespace MESH{
   ==============================================*/
   void Simulation::transformCircle(
       RCWAMatricesVec* dielectricMatrixVecTE,
-      RCWAMatricesVec* dielectricMatrixVecTM,
       RCWAMatricesVec* dielectricImMatrixVec,
       Layer* layer,
       const dcomplex* epsilonBG,
@@ -386,14 +378,8 @@ namespace MESH{
   This function builds up the matrices
   ==============================================*/
   void Simulation::build(){
-    // check the dimension by looking at nGx and nGy
-    DIMENSION d;
-    if(nGx_ != 0 && nGy_ != 0) d = NO_;
-    else if(nGx_ != 0 && nGy_ == 0) d = ONE_;
-    else d = TWO_;
-
     // essential, get the shared Gx_mat_ and Gy_mat_
-    getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, d);
+    getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, dim_);
     // get constants
     Layer* firstLayer = structure_->getLayerByIndex(0);
     Material* backGround = firstLayer->getBackGround();
@@ -402,9 +388,9 @@ namespace MESH{
     Phi_ = new double[numOfOmega_];
     EMatricesVec_.resize(numOfOmega_);
     grandImaginaryMatricesVec_.resize(numOfOmega_);
-    dielectricMatrixInverseVec_.resize(numOfOmega_);
+    dielectricMatrixInvTMVec_.resize(numOfOmega_);
 
-    RCWAMatricesVec dielectricMatrixVecTE(numOfOmega_), dielectricMatrixVecTM(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
+    RCWAMatricesVec dielectricMatrixVecTE(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
     for(size_t i = 0; i < numOfLayer; i++){
@@ -415,7 +401,6 @@ namespace MESH{
         /* if the pattern is a plane */
         case PLANAR_:{
           this->transformPlanar(&dielectricMatrixVecTE,
-            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             epsilonBG,
             N
@@ -427,7 +412,6 @@ namespace MESH{
         /************************************/
         case GRATING_:{
           this->transformGrating(&dielectricMatrixVecTE,
-            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -441,7 +425,6 @@ namespace MESH{
         /************************************/
         case RECTANGLE_:{
           this->transformRectangle(&dielectricMatrixVecTE,
-            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -455,7 +438,6 @@ namespace MESH{
       /************************************/
         case CIRCLE_:{
           this->transformCircle(&dielectricMatrixVecTE,
-            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -470,7 +452,7 @@ namespace MESH{
       getEMatrices(
         &(EMatricesVec_[i]),
         &(dielectricMatrixVecTE[i]),
-        &(dielectricMatrixVecTM[i]),
+        &(dielectricMatrixInvTMVec_[i]),
         numOfLayer,
         N
       );
@@ -498,15 +480,37 @@ namespace MESH{
   ==============================================*/
   void Simulation::run(){
     double kxList[numOfKx_], kyList[numOfKy_];
+    double scalex[numOfOmega_], scaley[numOfOmega_];
+    // here dkx is not normalized
     double dkx = (kxEnd_ - kxStart_) / (numOfKx_ - 1);
+    // here kyEnd_ is normalized for 1D case
     double dky = (kyEnd_ - kyStart_) / (numOfKy_ - 1);
-    for(size_t i = 0; i < numOfKx_; i++){
+    for(int i = 0; i < numOfKx_; i++){
       kxList[i] = kxStart_ + dkx * i;
     }
-    for(size_t i = 0; i < numOfKy_; i++){
+    for(int i = 0; i < numOfKy_; i++){
       kyList[i] = kyStart_ + dky * i;
     }
 
+    for(int i = 0; i < numOfOmega_; i++){
+      switch (dim_) {
+        case NO_:{
+          // this function not run
+          break;
+        }
+        case ONE_:{
+          scalex[i] = omegaList_[i] / datum::c_0;
+          scaley[i] = 1;
+          break;
+        }
+        case TWO_:{
+          scalex[i] = omegaList_[i] / datum::c_0;
+          scaley[i] = scalex[i];
+          break;
+        }
+        defaul: break;
+      }
+    }
     int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
 
     MPI_Status status;
@@ -522,7 +526,7 @@ namespace MESH{
     // for master node
     *************************************/
     if(rank == MASTER){
-      for(size_t thread = 1; thread < numProcs; thread++){
+      for(int thread = 1; thread < numProcs; thread++){
         if(numLeft > 0){
           start = thread * chunkSize + offset;
           end = (thread + 1) * chunkSize + offset + 1;
@@ -537,12 +541,13 @@ namespace MESH{
         MPI_Send(&start, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
         MPI_Send(&end, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
       }
-      for(size_t i = 0; i < chunkSize; i++){
-        int omegaIdx = i % (numOfKx_ * numOfKy_);
-        int residue = i - omegaIdx * (numOfKx_ * numOfKy_);
+      for(int i = 0; i < chunkSize; i++){
+        int omegaIdx = i / (numOfKx_ * numOfKy_);
+        int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
-        Phi_[omegaIdx] += this->getPhiAtKxKy(omegaIdx, kxList[kxIdx], kyList[kyIdx]);
+        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
+        Phi_[omegaIdx] += this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
       }
 
       // wait for all the slave process finished
@@ -551,7 +556,7 @@ namespace MESH{
       }
 
       for(size_t i = 0; i < numOfOmega_; i++){
-        Phi_[i] *= prefactor_ * dkx * dky;
+        Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i];
       }
       this->saveToFile();
     }
@@ -561,12 +566,12 @@ namespace MESH{
     else{
       MPI_Recv(&startPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
       MPI_Recv(&endPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
-      for(size_t i = startPosition; i < endPosition; i++){
-        int omegaIdx = i % (numOfKx_ * numOfKy_);
-        int residue = i - omegaIdx * (numOfKx_ * numOfKy_);
+      for(int i = startPosition; i < endPosition; i++){
+        int omegaIdx = i / (numOfKx_ * numOfKy_);
+        int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
-        Phi_[omegaIdx] += this->getPhiAtKxKy(omegaIdx, kxList[kxIdx], kyList[kyIdx]);
+        Phi_[omegaIdx] += this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]);
       }
       MPI_Send(&startPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
     }
@@ -591,7 +596,7 @@ namespace MESH{
   double SimulationPlanar::getPhiAtKx(int omegaIdx, double kx){
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * kx *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, 0, &(EMatricesVec_[omegaIdx]),
-      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInverseVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
+      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInvTMVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
       &sourceList_, targetLayer_,1);
   }
 
@@ -614,7 +619,7 @@ namespace MESH{
     // allocating sizes for each processor
     displs[0] = 0;
     sendCounts[0] = chunkSize;
-    for(size_t thread = 1; thread < numProcs; thread++){
+    for(int thread = 1; thread < numProcs; thread++){
       if(numLeft > 0){
         start = thread * chunkSize + offset;
         end = (thread + 1) * chunkSize + offset + 1;
@@ -640,12 +645,12 @@ namespace MESH{
     wrapper.Gy_mat = Gy_mat_;
     wrapper.sourceList = sourceList_;
     wrapper.targetLayer = targetLayer_;
-    for(size_t i = 0; i < sendCounts[rank]; i++){
+    for(int i = 0; i < sendCounts[rank]; i++){
       int omegaIdx = i + displs[rank];
       wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
       wrapper.EMatrices = EMatricesVec_[omegaIdx];
       wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
-      wrapper.dielectricMatrixInverse = dielectricMatrixInverseVec_[omegaIdx];
+      wrapper.dielectricMatrixInvTM = dielectricMatrixInvTMVec_[omegaIdx];
       recvBuf[i] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
         gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
     }
