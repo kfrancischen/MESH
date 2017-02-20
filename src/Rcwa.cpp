@@ -221,7 +221,7 @@ N: the number of G
 void RCWA::getEMatrices(
   RCWAMatrices* EMatrices,
   RCWAMatrices* dielectricMatrixTE,
-  RCWAMatrices* dielectricMatrixTMInv,
+  RCWAMatrices* dielectricMatrixTM,
   int numOfLayer,
   int N
 ){
@@ -229,7 +229,7 @@ void RCWA::getEMatrices(
   for(size_t i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
       join_horiz((*dielectricMatrixTE)[i], zeroPadding),
-      join_horiz(zeroPadding, (*dielectricMatrixTMInv)[i].i())
+      join_horiz(zeroPadding, (*dielectricMatrixTM)[i])
     );
     EMatrices->push_back(EMatrix);
   }
@@ -259,7 +259,7 @@ double RCWA::poyntingFlux(
   double ky,
   const RCWAMatrices* EMatrices,
   const RCWAMatrices* grandImaginaryMatrices,
-  const RCWAMatrices* dielectricMatrixTMInv,
+  const RCWAMatrices* dielectricMatrixZInv,
   const RCWAMatrix* Gx_mat,
   const RCWAMatrix* Gy_mat,
   const SourceList* sourceList,
@@ -303,8 +303,8 @@ double RCWA::poyntingFlux(
   for(size_t i = 0; i < numOfLayer; i++){
 
     TMatrices[i] = join_vert(
-      join_horiz(kyMat * (*dielectricMatrixTMInv)[i] * kyMat, -kyMat * (*dielectricMatrixTMInv)[i] * kxMat),
-      join_horiz(-kxMat * (*dielectricMatrixTMInv)[i] * kyMat, kxMat * (*dielectricMatrixTMInv)[i] * kxMat)
+      join_horiz(kyMat * (*dielectricMatrixZInv)[i] * kyMat, -kyMat * (*dielectricMatrixZInv)[i] * kxMat),
+      join_horiz(-kxMat * (*dielectricMatrixZInv)[i] * kyMat, kxMat * (*dielectricMatrixZInv)[i] * kxMat)
     );
     RCWAMatrix eigMatrix = (*EMatrices)[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;
     cx_vec eigVal;
@@ -365,8 +365,8 @@ double RCWA::poyntingFlux(
     meshGrid(&q, &q, &q_R, &q_L);
 
     // defining source
-    source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * (*dielectricMatrixTMInv)[layerIdx] / omega;
-    source(span(N, 2*N-1), span(2*N, 3*N-1)) = kxMat * (*dielectricMatrixTMInv)[layerIdx] / omega;
+    source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * (*dielectricMatrixZInv)[layerIdx] / omega;
+    source(span(N, 2*N-1), span(2*N, 3*N-1)) = kxMat * (*dielectricMatrixZInv)[layerIdx] / omega;
     source(span(2*N, 3*N-1), span(N, 2*N-1)) = onePadding1N;
     source(span(3*N, 4*N-1), span(0, N-1)) = -onePadding1N;
 
