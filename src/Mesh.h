@@ -40,7 +40,7 @@ typedef struct ARGWEAPPER{
   RCWAVector thicknessList;
   RCWAMatrices EMatrices;
   RCWAMatrices grandImaginaryMatrices;
-  RCWAMatrices dielectricMatrixInvTM;
+  RCWAMatrices dielectricMatrixZInv;
   RCWAMatrix Gx_mat;
   RCWAMatrix Gy_mat;
   SourceList sourceList;
@@ -93,7 +93,7 @@ protected:
   int targetLayer_;
   RCWAMatricesVec EMatricesVec_;
   RCWAMatricesVec grandImaginaryMatricesVec_;
-  RCWAMatricesVec dielectricMatrixInvTMVec_;
+  RCWAMatricesVec dielectricMatrixZInvVec_;
   RCWAMatrix Gx_mat_;
   RCWAMatrix Gy_mat_;
 
@@ -105,6 +105,7 @@ protected:
   void saveToFile();
   void transformPlanar(
     RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     const dcomplex* epsilon,
     const int N
@@ -112,6 +113,7 @@ protected:
 
   void transformGrating(
     RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -120,6 +122,7 @@ protected:
 
   void transformRectangle(
     RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -128,6 +131,7 @@ protected:
 
   void transformCircle(
     RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,

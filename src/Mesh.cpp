@@ -54,7 +54,7 @@ namespace MESH{
       0,
       &(wrapper.EMatrices),
       &(wrapper.grandImaginaryMatrices),
-      &(wrapper.dielectricMatrixInvTM),
+      &(wrapper.dielectricMatrixZInv),
       &(wrapper.Gx_mat),
       &(wrapper.Gy_mat),
       &(wrapper.sourceList),
@@ -159,11 +159,11 @@ namespace MESH{
     for(size_t i = 0; i < EMatricesVec_.size(); i++){
       EMatricesVec_[i].clear();
       grandImaginaryMatricesVec_.clear();
-      dielectricMatrixInvTMVec_[i].clear();
+      dielectricMatrixZInvVec_[i].clear();
     }
     EMatricesVec_.clear();
     grandImaginaryMatricesVec_.clear();
-    dielectricMatrixInvTMVec_.clear();
+    dielectricMatrixZInvVec_.clear();
   }
 
   /*==============================================
@@ -200,7 +200,7 @@ namespace MESH{
     int N = getN(nGx_, nGy_);
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, ky, &(EMatricesVec_[omegaIdx]),
-      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInvTMVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
+      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixZInvVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
       &sourceList_, targetLayer_,N);
   }
 
@@ -214,6 +214,7 @@ namespace MESH{
   ==============================================*/
   void Simulation::transformPlanar(
     RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     const dcomplex* epsilonBG,
     const int N
@@ -221,8 +222,9 @@ namespace MESH{
     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
     for(size_t i = 0; i < numOfOmega_; i++){
       (*dielectricMatrixVecTE)[i].push_back(onePadding1N * epsilonBG[i]);
-      dielectricMatrixInvTMVec_[i].push_back(onePadding1N * dcomplex(1.0, 0) / epsilonBG[i]);
+      (*dielectricMatrixVecTM)[i].push_back(onePadding1N * epsilonBG[i]);
       (*dielectricImMatrixVec)[i].push_back(onePadding1N * (epsilonBG[i]).imag());
+      dielectricMatrixZInvVec_[i].push_back(onePadding1N * dcomplex(1, 0) / epsilonBG[i]);
     }
   }
   /*==============================================
@@ -236,6 +238,7 @@ namespace MESH{
   ==============================================*/
   void Simulation::transformGrating(
     RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -280,8 +283,9 @@ namespace MESH{
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
 
       (*dielectricMatrixVecTE)[i].push_back(dielectricMatrix);
-      dielectricMatrixInvTMVec_[i].push_back(dielectricMatrixInv);
+      (*dielectricMatrixVecTM)[i].push_back(dielectricMatrixInv.i());
       (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
+      dielectricMatrixZInvVec_[i].push_back(dielectricMatrix.i());
     }
 
   }
@@ -297,6 +301,7 @@ namespace MESH{
   ==============================================*/
   void Simulation::transformRectangle(
     RCWAMatricesVec* dielectricMatrixVecTE,
+    RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
     Layer* layer,
     const dcomplex* epsilonBG,
@@ -350,8 +355,9 @@ namespace MESH{
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
 
       (*dielectricMatrixVecTE)[i].push_back(dielectricMatrix);
-      dielectricMatrixInvTMVec_[i].push_back(dielectricMatrixInv);
+      (*dielectricMatrixVecTM)[i].push_back(dielectricMatrixInv.i());
       (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
+      dielectricMatrixZInvVec_[i].push_back(dielectricMatrix.i());
     }
   }
 
@@ -366,6 +372,7 @@ namespace MESH{
   ==============================================*/
   void Simulation::transformCircle(
       RCWAMatricesVec* dielectricMatrixVecTE,
+      RCWAMatricesVec* dielectricMatrixVecTM,
       RCWAMatricesVec* dielectricImMatrixVec,
       Layer* layer,
       const dcomplex* epsilonBG,
@@ -388,9 +395,9 @@ namespace MESH{
     Phi_ = new double[numOfOmega_];
     EMatricesVec_.resize(numOfOmega_);
     grandImaginaryMatricesVec_.resize(numOfOmega_);
-    dielectricMatrixInvTMVec_.resize(numOfOmega_);
+    dielectricMatrixZInvVec_.resize(numOfOmega_);
 
-    RCWAMatricesVec dielectricMatrixVecTE(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
+    RCWAMatricesVec dielectricMatrixVecTE(numOfOmega_), dielectricMatrixVecTM(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
     for(size_t i = 0; i < numOfLayer; i++){
@@ -400,7 +407,9 @@ namespace MESH{
         /*************************************
         /* if the pattern is a plane */
         case PLANAR_:{
-          this->transformPlanar(&dielectricMatrixVecTE,
+          this->transformPlanar(
+            &dielectricMatrixVecTE,
+            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             epsilonBG,
             N
@@ -411,7 +420,9 @@ namespace MESH{
         /* if the pattern is a grating (1D) */
         /************************************/
         case GRATING_:{
-          this->transformGrating(&dielectricMatrixVecTE,
+          this->transformGrating(
+            &dielectricMatrixVecTE,
+            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -424,7 +435,9 @@ namespace MESH{
         /* if the pattern is a rectangle (2D) */
         /************************************/
         case RECTANGLE_:{
-          this->transformRectangle(&dielectricMatrixVecTE,
+          this->transformRectangle(
+            &dielectricMatrixVecTE,
+            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -437,7 +450,9 @@ namespace MESH{
       /* if the pattern is a circle (2D) */
       /************************************/
         case CIRCLE_:{
-          this->transformCircle(&dielectricMatrixVecTE,
+          this->transformCircle(
+            &dielectricMatrixVecTE,
+            &dielectricMatrixVecTM,
             &dielectricImMatrixVec,
             layer,
             epsilonBG,
@@ -452,7 +467,7 @@ namespace MESH{
       getEMatrices(
         &(EMatricesVec_[i]),
         &(dielectricMatrixVecTE[i]),
-        &(dielectricMatrixInvTMVec_[i]),
+        &(dielectricMatrixVecTM[i]),
         numOfLayer,
         N
       );
@@ -596,7 +611,7 @@ namespace MESH{
   double SimulationPlanar::getPhiAtKx(int omegaIdx, double kx){
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * kx *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, 0, &(EMatricesVec_[omegaIdx]),
-      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixInvTMVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
+      &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixZInvVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
       &sourceList_, targetLayer_,1);
   }
 
@@ -650,7 +665,7 @@ namespace MESH{
       wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
       wrapper.EMatrices = EMatricesVec_[omegaIdx];
       wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
-      wrapper.dielectricMatrixInvTM = dielectricMatrixInvTMVec_[omegaIdx];
+      wrapper.dielectricMatrixZInv = dielectricMatrixZInvVec_[omegaIdx];
       recvBuf[i] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
         gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
     }
