@@ -80,7 +80,7 @@ namespace RCWA{
   x: the input argument
   mask: the matrix denoting the zero positions of x
  ==============================================================*/
- RCWAMatrix sinc(RCWAMatrix x, RCWAMatrix* mask);
+ RCWAMatrix sinc(RCWAMatrix x);
   /*============================================================
   * Function computing G matrix for the system
   @arg:
