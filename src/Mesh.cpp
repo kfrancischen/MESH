@@ -267,12 +267,12 @@ namespace MESH{
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
         dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[i])
-          * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
+          * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
         dielectricMatrixInv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(1.0, 0) / epsilon - dcomplex(1.0, 0) / epsilonBG[i])
-          * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
+          * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
 
         dielectricImMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon.imag() - epsilonBG[i].imag())
-          * widthVec(count) % sinc(G_mat / 2 * widthVec(count), &onePadding1N);
+          * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
         count++;
       }
       dielectricMatrix /= period_[0];
@@ -338,15 +338,15 @@ namespace MESH{
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
         dielectricMatrix += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (epsilon - epsilonBG[i])
           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-          % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
+          % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
 
         dielectricMatrixInv += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (dcomplex(1.0,0) / epsilon - dcomplex(1.0,0) / epsilonBG[i])
           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-          % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
+          % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
 
         dielectricMatrix += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (epsilon.imag() - epsilonBG[i].imag())
           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-          % sinh(GxMat * widthxVec(count) / 2 / datum::pi) % sinh(GyMat * widthyVec(count) / 2 / datum::pi);
+          % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
         count++;
       }
 
@@ -354,7 +354,7 @@ namespace MESH{
       dielectricMatrixInv += dcomplex(1, 0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
 
-      (*dielectricMatrixVecTE)[i].push_back(dielectricMatrix);
+      (*dielectricMatrixVecTE)[i].push_back(dielectricMatrixInv.i());
       (*dielectricMatrixVecTM)[i].push_back(dielectricMatrixInv.i());
       (*dielectricImMatrixVec)[i].push_back(dielectricImMatrix);
       dielectricMatrixZInvVec_[i].push_back(dielectricMatrix.i());
@@ -527,7 +527,7 @@ namespace MESH{
       }
     }
     int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
-
+    double resultArray[totalNum];
     MPI_Status status;
     int rank, numProcs, start, end, startPosition, endPosition;
     MPI_Init(NULL, NULL);
@@ -555,6 +555,7 @@ namespace MESH{
         if(thread == numProcs - 1) end = totalNum;
         MPI_Send(&start, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
         MPI_Send(&end, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
+        MPI_Send(&resultArray[start], end - start, MPI_DOUBLE, thread, SENDTAG, MPI_COMM_WORLD);
       }
       for(int i = 0; i < chunkSize; i++){
         int omegaIdx = i / (numOfKx_ * numOfKy_);
@@ -562,15 +563,20 @@ namespace MESH{
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
         std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
-        Phi_[omegaIdx] += this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
       }
 
       // wait for all the slave process finished
       for(size_t thread = 1; thread < numProcs; thread++){
-        MPI_Recv(&startPosition, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
+        MPI_Recv(&start, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
+        MPI_Recv(&end, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
+        MPI_Recv(&resultArray[start], end - start, MPI_DOUBLE, thread, RECVTAG, MPI_COMM_WORLD, &status);
       }
 
       for(size_t i = 0; i < numOfOmega_; i++){
+        for(size_t j = 0; j < numOfKx_ * numOfKy_; j++){
+          Phi_[i] += resultArray[i * numOfKx_ * numOfKy_ + j];
+        }
         Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i];
       }
       this->saveToFile();
@@ -581,14 +587,20 @@ namespace MESH{
     else{
       MPI_Recv(&startPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
       MPI_Recv(&endPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
+      MPI_Recv(&resultArray[startPosition], endPosition - startPosition, MPI_DOUBLE, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
+
       for(int i = startPosition; i < endPosition; i++){
         int omegaIdx = i / (numOfKx_ * numOfKy_);
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
-        Phi_[omegaIdx] += this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]);
+        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
+        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]);
       }
+
       MPI_Send(&startPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
+      MPI_Send(&endPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
+      MPI_Send(&resultArray[startPosition], endPosition - startPosition, MPI_DOUBLE, MASTER, RECVTAG, MPI_COMM_WORLD);
     }
     MPI_Finalize();
   }
