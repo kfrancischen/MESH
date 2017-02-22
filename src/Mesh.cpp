@@ -562,7 +562,6 @@ namespace MESH{
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
-        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
       }
 
@@ -594,7 +593,6 @@ namespace MESH{
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
-        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]);
       }
 
