@@ -1,0 +1,7 @@
+OBJDIR = build
+SHLIB_EXT = do
+SHLIB_FLAGS = -fPIC -shared
+
+CFLAGS += -Wall -O3 -ffast-math -fPIC -larmadillo -lopenblas -llapack
+CXXFlAGS += -Wall -O3 -ffast-math -fPIC -larmadillo -lopenblas -llapack
+LA_LIBS = -O3 -ffast-math -larmadillo -lopenblas -llapack
