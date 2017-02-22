@@ -147,6 +147,7 @@ class SimulationPlanar : public Simulation{
 public:
   SimulationPlanar() : Simulation(){
     dim_ = NO_;
+    degree_ = DEGREE;
   };
   ~SimulationPlanar();
 
@@ -154,11 +155,12 @@ public:
   void setGy() = delete;
   double getPhiAtKxKy(int omegaIndex, double kx, double ky) = delete;
 
-  void setKxIntegral(double end);
+  void setKxIntegral(double end, int degree = DEGREE);
   void run();
   double getPhiAtKx(int omegaIndex, double kx);
 
 private:
+  int degree_;
 };
 
 /*======================================================

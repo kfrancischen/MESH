@@ -523,7 +523,7 @@ namespace MESH{
           scaley[i] = scalex[i];
           break;
         }
-        defaul: break;
+        default: break;
       }
     }
     int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
@@ -562,6 +562,7 @@ namespace MESH{
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
+        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
       }
 
@@ -593,6 +594,7 @@ namespace MESH{
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
+        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]);
       }
 
@@ -606,10 +608,11 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on planar simulation
   =======================================================*/
-  void SimulationPlanar::setKxIntegral(double end){
+  void SimulationPlanar::setKxIntegral(double end, int degree){
     kxStart_ = 0;
     numOfKx_ = 0;
     kxEnd_ = end;
+    degree_ = degree;
   }
 
   /*==============================================
@@ -663,13 +666,13 @@ namespace MESH{
     MPI_Type_commit(&dtype);
     // scattering the Phi to each processor
     MPI_Scatterv(&Phi_[0], sendCounts, displs, MPI_DOUBLE, &recvBuf[0], 1, dtype, MASTER, MPI_COMM_WORLD);
-
     ArgWrapper wrapper;
     wrapper.thicknessList = thicknessListVec_;
     wrapper.Gx_mat = Gx_mat_;
     wrapper.Gy_mat = Gy_mat_;
     wrapper.sourceList = sourceList_;
     wrapper.targetLayer = targetLayer_;
+
     for(int i = 0; i < sendCounts[rank]; i++){
       int omegaIdx = i + displs[rank];
       wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
@@ -677,7 +680,7 @@ namespace MESH{
       wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
       wrapper.dielectricMatrixZInv = dielectricMatrixZInvVec_[omegaIdx];
       recvBuf[i] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
-        gauss_legendre(DEGREE, wrapperFun, &wrapper, kxStart_, kxEnd_);
+        gauss_legendre(degree_, wrapperFun, &wrapper, kxStart_, kxEnd_);
     }
     // gatther the Phi from each processor
     MPI_Gatherv(&recvBuf[0], 1, dtype, &Phi_[0], sendCounts, displs, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
@@ -686,6 +689,7 @@ namespace MESH{
         this->saveToFile();
     }
     MPI_Finalize();
+
   }
 
   /*======================================================
