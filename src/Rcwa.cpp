@@ -31,6 +31,9 @@ void RCWA::meshGrid(
   RCWAMatrix *qL,
   RCWAMatrix *qR
 ){
+  if(vL == nullptr || vR == nullptr){
+    throw UTILITY::NullPointerException("vL or vR is null");
+  }
   *qL = repmat((*vL).st(), vR->n_rows, 1);
   *qR = repmat(*vR, 1, vL->n_rows);
 }
@@ -53,6 +56,9 @@ void RCWA::getSMatrices(
   RCWAMatrices* FMatrices,
   RCWAMatrices* SMatrices
 ){
+  if(MMatrices == nullptr || FMatrices == nullptr){
+    throw UTILITY::NullPointerException("M matrices or F matrices is null");
+  }
   int r1 = 0, r2 = 2*N -1, r3 = 2*N, r4 = 4*N -1;
 // propogating down
 
@@ -196,6 +202,9 @@ void RCWA::getGrandImaginaryMatrices(
   int N
 )
 {
+  if(dielectricImMatrix == nullptr){
+    throw UTILITY::NullPointerException("imaginary matrix is null");
+  }
   for(size_t i = 0; i < numOfLayer; i++){
     RCWAMatrix grandImaginaryMatrix = zeros<RCWAMatrix>(3*N, 3*N);
     grandImaginaryMatrix(span(0, N-1), span(0, N-1)) = (*dielectricImMatrix)[i];
@@ -220,6 +229,9 @@ void RCWA::getEMatrices(
   int numOfLayer,
   int N
 ){
+  if(dielectricMatrixTE == nullptr || dielectricMatrixTM == nullptr){
+    throw UTILITY::NullPointerException("TE or TM matrices is null");
+  }
   RCWAMatrix zeroPadding(N, N, fill::zeros);
   for(size_t i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(

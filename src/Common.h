@@ -18,11 +18,13 @@
  */
 
 #include <complex>
+#include "utility/Utility.h"
 #ifndef _COMMON_H
 #define _COMMON_H
 
 #define DEGREE 512
 
+using UTILITY::Ptr;
 enum DIMENSION { NO_, ONE_, TWO_ };
 enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};

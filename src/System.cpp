@@ -71,6 +71,9 @@ namespace SYSTEM{
   function return the epsilon at a specific index
   =======================================================*/
   dcomplex Material::getEpsilonAtIndex(int index){
+    if(index >= numOfOmega_){
+      throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
+    }
     return epsilonList_[index];
   }
 
@@ -207,6 +210,9 @@ namespace SYSTEM{
   get the background material
   =======================================================*/
   Material* Layer::getBackGround(){
+    if(backGround_ == nullptr){
+      throw UTILITY::NullPointerException("Backgroud not set yet!");
+    }
     return backGround_;
   }
   /*======================================================
@@ -363,6 +369,9 @@ namespace SYSTEM{
   index: the index of the wanted layer
   =======================================================*/
   Layer* Structure::getLayerByIndex(int index){
+    if(index >= this->getNumOfLayer()){
+      throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
+    }
     return layerMap_.at(index);
   }
   /*======================================================

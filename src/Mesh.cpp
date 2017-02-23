@@ -30,6 +30,9 @@ namespace MESH{
   ==============================================*/
   void fileLoader(std::string fileName, double* omega, dcomplex* epsilon, int size){
     std::ifstream inputFile(fileName);
+    if(!inputFile.good()){
+      throw UTILITY::FileNotExistException(fileName + " not exists!");
+    }
     std::string line;
     double real, imag;
     for(size_t i = 0; i < size; i++){
@@ -135,6 +138,9 @@ namespace MESH{
   index: target layer index
   ==============================================*/
   void Simulation::setTargetLayerByIndex(int index){
+    if(index >= structure_->getNumOfLayer()){
+      throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
+    }
     targetLayer_ = index;
   }
 
@@ -197,6 +203,9 @@ namespace MESH{
   used by grating and patterning
   ==============================================*/
   double Simulation::getPhiAtKxKy(int omegaIdx, double kx, double ky){
+    if(omegaIdx >= numOfOmega_){
+      throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
+    }
     int N = getN(nGx_, nGy_);
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, ky, &(EMatricesVec_[omegaIdx]),
@@ -622,6 +631,9 @@ namespace MESH{
   kx: the kx value, normalized
   ==============================================*/
   double SimulationPlanar::getPhiAtKx(int omegaIdx, double kx){
+    if(omegaIdx >= numOfOmega_){
+      throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
+    }
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * kx *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, 0, &(EMatricesVec_[omegaIdx]),
       &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixZInvVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
@@ -697,6 +709,9 @@ namespace MESH{
   =======================================================*/
   void SimulationGrating::setKxIntegral(int points){
     numOfKx_ = points;
+    if(period_[0] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
     kxStart_ = -datum::pi / period_[0];
     kxEnd_ = -kxStart_;
   }
@@ -709,6 +724,9 @@ namespace MESH{
   void SimulationGrating::setKxIntegralSym(int points){
     numOfKx_ = points;
     kxStart_ = 0;
+    if(period_[0] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
     kxEnd_ = datum::pi / period_[0];
     prefactor_ *= 2;
   }
@@ -729,6 +747,9 @@ namespace MESH{
   Implementaion of the class on 2D patterning simulation
   =======================================================*/
   void SimulationPattern::setKxIntegral(int points){
+    if(period_[0] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
     kxStart_ = -datum::pi / period_[0];
     numOfKx_ = points;
     kxEnd_ = -kxStart_;
@@ -742,6 +763,9 @@ namespace MESH{
   void SimulationPattern::setKxIntegralSym(int points){
     kxStart_ = 0;
     numOfKx_ = points;
+    if(period_[0] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
     kxEnd_ = datum::pi / period_[0];
     prefactor_ *= 2;
   }
@@ -753,6 +777,9 @@ namespace MESH{
   end: the upperbound of the integral
   ==============================================*/
   void SimulationPattern::setKyIntegral(int points){
+    if(period_[1] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
     kyStart_ = -datum::pi / period_[1];
     numOfKy_ = points;
     kyEnd_ = -kyStart_;
@@ -766,6 +793,9 @@ namespace MESH{
   void SimulationPattern::setKyIntegralSym(int points){
     kyStart_ = 0;
     numOfKy_ = points;
+    if(period_[1] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
     kyEnd_ = datum::pi / period_[1];
     prefactor_ *= 2;
   }
