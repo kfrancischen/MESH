@@ -313,7 +313,7 @@ namespace SYSTEM{
   start: the start position of the this pattern
   end: the end position of this pattern
   =======================================================*/
-  void Layer::addGratingPattern(Material * material, double start, double end){
+  void Layer::addGratingPattern(Material* material, double start, double end){
     pattern_ = GRATING_;
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(start, end));
