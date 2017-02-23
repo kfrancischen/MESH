@@ -123,7 +123,6 @@ int RCWA::getN(
 * Function computing the sinc function (sin(x) / x)
 @arg:
  x: the input argument
- mask: the matrix denoting the zero positions of x
 ==============================================================*/
 RCWA::RCWAMatrix RCWA::sinc(RCWAMatrix x){
   RCWAMatrix output = sin(x) / x;
