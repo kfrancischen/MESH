@@ -25,6 +25,7 @@
 #define DEGREE 512
 
 using UTILITY::Ptr;
+using UTILITY::PtrInterface;
 enum DIMENSION { NO_, ONE_, TWO_ };
 enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};
