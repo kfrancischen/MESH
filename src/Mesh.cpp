@@ -28,7 +28,12 @@ namespace MESH{
   epsilon: the input epsilon list
   size: the size of omega
   ==============================================*/
-  void fileLoader(std::string fileName, double* omega, dcomplex* epsilon, int size){
+  void fileLoader(
+    const std::string fileName,
+    double* omega,
+    dcomplex* epsilon,
+    const int size
+  ){
     std::ifstream inputFile(fileName);
     if(!inputFile.good()){
       throw UTILITY::FileNotExistException(fileName + " not exists!");
@@ -48,7 +53,7 @@ namespace MESH{
   kx: the kx value (normalized)
   data: wrapper for all the arguments wrapped in wrapper
   ==============================================*/
-  double wrapperFun(double kx, void* data){
+  double wrapperFun(const double kx, void* data){
     ArgWrapper wrapper = *(ArgWrapper*) data;
     return kx * poyntingFlux(
       wrapper.omega,
@@ -80,7 +85,6 @@ namespace MESH{
   }
 
   Simulation::~Simulation(){
-    delete structure_;
     delete[] Phi_;
     delete[] omegaList_;
     delete[] period_;
@@ -102,7 +106,7 @@ namespace MESH{
   @args:
   structure: the structure of the simulation
   ==============================================*/
-  void Simulation::addStructure(Structure* structure){
+  void Simulation::addStructure(const Ptr<Structure> structure){
     structure_ = structure;
     period_ = structure_->getPeriodicity();
   }
@@ -119,7 +123,7 @@ namespace MESH{
   @args:
   Gx: number of positive Gx
   ==============================================*/
-  void Simulation::setGx(int Gx){
+  void Simulation::setGx(const int Gx){
     nGx_ = Gx;
   }
 
@@ -128,7 +132,7 @@ namespace MESH{
   @args:
   Gy: number of positive Gy
   ==============================================*/
-  void Simulation::setGy(int Gy){
+  void Simulation::setGy(const int Gy){
     nGy_ = Gy;
   }
 
@@ -137,7 +141,7 @@ namespace MESH{
   @args:
   index: target layer index
   ==============================================*/
-  void Simulation::setTargetLayerByIndex(int index){
+  void Simulation::setTargetLayerByIndex(const int index){
     if(index >= structure_->getNumOfLayer()){
       throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
     }
@@ -149,7 +153,7 @@ namespace MESH{
   @args:
   index: target layer
   ==============================================*/
-  void Simulation::setTargetLayerByLayer(Layer* layer){
+  void Simulation::setTargetLayerByLayer(const Ptr<Layer> layer){
     for(size_t i = 0; i < structure_->getNumOfLayer(); i++){
       if(structure_->getLayerByIndex(i) == layer){
         targetLayer_ = i;
@@ -175,7 +179,7 @@ namespace MESH{
   /*==============================================
   This function gets the structure
   ==============================================*/
-  Structure* Simulation::getStructure(){
+  Ptr<Structure> Simulation::getStructure(){
     return structure_;
   }
 
@@ -202,7 +206,7 @@ namespace MESH{
   @note
   used by grating and patterning
   ==============================================*/
-  double Simulation::getPhiAtKxKy(int omegaIdx, double kx, double ky){
+  double Simulation::getPhiAtKxKy(const int omegaIdx, const double kx, const double ky){
     if(omegaIdx >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
@@ -249,7 +253,7 @@ namespace MESH{
     RCWAMatricesVec* dielectricMatrixVecTE,
     RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
-    Layer* layer,
+    const Ptr<Layer> layer,
     const dcomplex* epsilonBG,
     const int N
   ){
@@ -312,7 +316,7 @@ namespace MESH{
     RCWAMatricesVec* dielectricMatrixVecTE,
     RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
-    Layer* layer,
+    const Ptr<Layer> layer,
     const dcomplex* epsilonBG,
     const int N
   ){
@@ -383,7 +387,7 @@ namespace MESH{
       RCWAMatricesVec* dielectricMatrixVecTE,
       RCWAMatricesVec* dielectricMatrixVecTM,
       RCWAMatricesVec* dielectricImMatrixVec,
-      Layer* layer,
+      const Ptr<Layer> layer,
       const dcomplex* epsilonBG,
       const int N
     ){
@@ -397,8 +401,8 @@ namespace MESH{
     // essential, get the shared Gx_mat_ and Gy_mat_
     getGMatrices(nGx_, nGy_, period_, &Gx_mat_, &Gy_mat_, dim_);
     // get constants
-    Layer* firstLayer = structure_->getLayerByIndex(0);
-    Material* backGround = firstLayer->getBackGround();
+    Ptr<Layer> firstLayer = structure_->getLayerByIndex(0);
+    Ptr<Material> backGround = firstLayer->getBackGround();
     numOfOmega_ = backGround->getNumOfOmega();
     omegaList_ = backGround->getOmegaList();
     Phi_ = new double[numOfOmega_];
@@ -410,7 +414,7 @@ namespace MESH{
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
     for(size_t i = 0; i < numOfLayer; i++){
-      Layer* layer = structure_->getLayerByIndex(i);
+      Ptr<Layer> layer = structure_->getLayerByIndex(i);
       dcomplex* epsilonBG = (layer->getBackGround())->getEpsilon();
       switch (layer->getPattern()) {
         /*************************************
@@ -617,7 +621,23 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on planar simulation
   =======================================================*/
-  void SimulationPlanar::setKxIntegral(double end, int degree){
+  SimulationPlanar::SimulationPlanar() : Simulation(){
+    dim_ = NO_;
+    degree_ = DEGREE;
+  }
+  /*======================================================
+  This is a thin wrapper for the usage of smart pointer
+  =======================================================*/
+  Ptr<SimulationPlanar> SimulationPlanar::instanceNew(){
+    return new SimulationPlanar();
+  };
+  /*======================================================
+  Function setting the integral over kx
+  @args:
+  end: the end of the integration
+  degree: the degree of gauss_legendre integral, default 512
+  =======================================================*/
+  void SimulationPlanar::setKxIntegral(const double end, const int degree){
     kxStart_ = 0;
     numOfKx_ = 0;
     kxEnd_ = end;
@@ -630,7 +650,7 @@ namespace MESH{
   omegaIndex: the index of omega
   kx: the kx value, normalized
   ==============================================*/
-  double SimulationPlanar::getPhiAtKx(int omegaIdx, double kx){
+  double SimulationPlanar::getPhiAtKx(const int omegaIdx, const double kx){
     if(omegaIdx >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
@@ -703,11 +723,25 @@ namespace MESH{
     MPI_Finalize();
 
   }
-
   /*======================================================
   Implementaion of the class on 1D grating simulation
   =======================================================*/
-  void SimulationGrating::setKxIntegral(int points){
+  SimulationGrating::SimulationGrating() : Simulation(){
+    prefactor_ = 2;
+    dim_ = ONE_;
+  }
+  /*======================================================
+  This is a thin wrapper for the usage of smart pointer
+  =======================================================*/
+  Ptr<SimulationGrating> SimulationGrating::instanceNew(){
+    return new SimulationGrating();
+  }
+  /*======================================================
+  Function setting the integral over kx
+  @args:
+  points: number of points of sampling kx
+  =======================================================*/
+  void SimulationGrating::setKxIntegral(const int points){
     numOfKx_ = points;
     if(period_[0] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
@@ -721,7 +755,7 @@ namespace MESH{
   @args:
   points: number of kx points
   ==============================================*/
-  void SimulationGrating::setKxIntegralSym(int points){
+  void SimulationGrating::setKxIntegralSym(const int points){
     numOfKx_ = points;
     kxStart_ = 0;
     if(period_[0] == 0.0){
@@ -737,7 +771,7 @@ namespace MESH{
   points: number of ky points
   end: the upperbound of the integral
   ==============================================*/
-  void SimulationGrating::setKyIntegral(int points, double end){
+  void SimulationGrating::setKyIntegral(const int points, const double end){
     kyStart_ = 0;
     numOfKy_ = points;
     kyEnd_ = end;
@@ -746,7 +780,23 @@ namespace MESH{
   /*======================================================
   Implementaion of the class on 2D patterning simulation
   =======================================================*/
-  void SimulationPattern::setKxIntegral(int points){
+  SimulationPattern::SimulationPattern() : Simulation(){
+    prefactor_ = 1;
+    dim_ = TWO_;
+  }
+  /*======================================================
+  This is a thin wrapper for the usage of smart pointer
+  =======================================================*/
+  Ptr<SimulationPattern> SimulationPattern::instanceNew(){
+    return new SimulationPattern();
+  }
+
+  /*======================================================
+  Function setting the integral over kx
+  @args:
+  points: number of points of sampling kx
+  =======================================================*/
+  void SimulationPattern::setKxIntegral(const int points){
     if(period_[0] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
     }
@@ -760,7 +810,7 @@ namespace MESH{
   @args:
   points: number of kx points
   ==============================================*/
-  void SimulationPattern::setKxIntegralSym(int points){
+  void SimulationPattern::setKxIntegralSym(const int points){
     kxStart_ = 0;
     numOfKx_ = points;
     if(period_[0] == 0.0){
@@ -776,7 +826,7 @@ namespace MESH{
   points: number of ky points
   end: the upperbound of the integral
   ==============================================*/
-  void SimulationPattern::setKyIntegral(int points){
+  void SimulationPattern::setKyIntegral(const int points){
     if(period_[1] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
     }
@@ -790,7 +840,7 @@ namespace MESH{
   @args:
   points: number of ky points
   ==============================================*/
-  void SimulationPattern::setKyIntegralSym(int points){
+  void SimulationPattern::setKyIntegralSym(const int points){
     kyStart_ = 0;
     numOfKy_ = points;
     if(period_[1] == 0.0){

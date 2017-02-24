@@ -27,16 +27,24 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Material class
   =======================================================*/
-  class Material{
+  class Material : public PtrInterface {
   public:
-    Material(std::string name, double* omegaList, dcomplex* epsilonList,  int numOfOmega);
-    Material(std::string name);
-    Material(const Material& material);
+    static Ptr<Material> instanceNew(
+      const std::string name,
+      const double* omegaList,
+      const dcomplex* epsilonList,
+      const int numOfOmega
+    );
+    static Ptr<Material> instanceNew(
+      const std::string name
+    );
+
+    Material(const Material& material) = delete;
     ~Material();
 
     std::string getName();
     dcomplex* getEpsilon();
-    dcomplex getEpsilonAtIndex(int index);
+    dcomplex getEpsilonAtIndex(const int index);
     int getNumOfOmega();
     double* getOmegaList();
 
@@ -44,14 +52,22 @@ namespace SYSTEM{
     void setOmega(const double* omegaList, int numOfOmega);
     void setEpsilon(const dcomplex* epsilonList, int numOfOmega);
 
-  private:
+  protected:
+    Material(
+      const std::string name,
+      const double* omegaList,
+      const dcomplex* epsilonList,
+      const int numOfOmega
+    );
+    Material(const std::string name);
+
     std::string name_;
     dcomplex* epsilonList_;
     double* omegaList_;
     int numOfOmega_;
   };
 
-  typedef std::vector<Material*> MaterialVec;
+  typedef std::vector< Ptr<Material> > MaterialVec;
   typedef MaterialVec::iterator MaterialIter;
   typedef MaterialVec::const_iterator const_MaterialIter;
 
@@ -62,22 +78,28 @@ namespace SYSTEM{
   typedef LayerPattern::iterator PatternIter;
   typedef LayerPattern::const_iterator const_PatternIter;
 
-  class Layer{
+  class Layer : public PtrInterface{
   public:
-    Layer(Material* material, double thickness);
-    Layer(Material* material);
-    Layer();
+    static Ptr<Layer> instanceNew(
+      const Ptr<Material> material,
+      const double thickness
+    );
+    static Ptr<Layer> instanceNew(
+      const Ptr<Material> material
+    );
+    static Ptr<Layer> instanceNew();
+
     ~Layer();
     Layer(const Layer& layer);
 
-    void setBackGround(Material* material);
-    void setThickness(double thickness);
+    void setBackGround(const Ptr<Material> material);
+    void setThickness(const double thickness);
     void setIsSource();
     void setIsNotSource();
     SOURCE checkIsSource();
 
-    Material* getBackGround();
-    Material* getMaterialByName(std::string name);
+    Ptr<Material> getBackGround();
+    Ptr<Material> getMaterialByName(const std::string name);
     int getNumOfMaterial();
     double getThickness();
     PATTEN getPattern();
@@ -92,14 +114,17 @@ namespace SYSTEM{
     const_PatternIter getArg2End();
 
 
-    void addRectanlgePattern(Material* material, double args1[2], double args2[2]);
-    void addCirclePattern(Material* material, double args[2], double radius);
-    void addGratingPattern(Material* material, double start, double end);
+    void addRectanlgePattern(const Ptr<Material> material, const double args1[2], const double args2[2]);
+    void addCirclePattern(const Ptr<Material> material, const double args[2], const double radius);
+    void addGratingPattern(const Ptr<Material> material, const double start, const double end);
 
   private:
+    Layer(const Ptr<Material> material, const double thickness);
+    Layer(const Ptr<Material> material);
+    Layer();
 
     double thickness_;
-    Material* backGround_;
+    Ptr<Material> backGround_;
     MaterialVec materialVec_;
     PATTEN pattern_;
     LayerPattern args1_;
@@ -107,23 +132,24 @@ namespace SYSTEM{
     SOURCE source_;
   };
 
-  typedef std::map<int, Layer*> LayerMap;
+  typedef std::map<int, Ptr<Layer> > LayerMap;
   typedef LayerMap::iterator LayerIter;
   typedef LayerMap::const_iterator const_LayerIter;
 
   /*======================================================
   Implementaion of the structure class
   =======================================================*/
-  class Structure{
+  class Structure : public PtrInterface{
   public:
-    Structure();
+
+    static Ptr<Structure> instanceNew();
     ~Structure();
 
-    Structure(Structure& structure);
-    void setPeriodicity(double p1, double p2 = 0);
+    Structure(const Structure& structure);
+    void setPeriodicity(const double p1, const double p2 = 0);
 
-    void addLayer(Layer* layer);
-    Layer* getLayerByIndex(int index);
+    void addLayer(const Ptr<Layer> layer);
+    Ptr<Layer> getLayerByIndex(const int index);
     int getNumOfLayer();
     double* getThicknessList();
 
@@ -133,11 +159,10 @@ namespace SYSTEM{
     double* getPeriodicity();
 
   private:
+    Structure();
     LayerMap layerMap_;
     double* period_;
   };
-
-
 
 
 }

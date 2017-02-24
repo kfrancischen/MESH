@@ -47,33 +47,36 @@ typedef struct ARGWEAPPER{
   int targetLayer;
 } ArgWrapper;
 
-void fileLoader(std::string fileName, double* omega, dcomplex* epsilon, int size);
+void fileLoader(
+  const std::string fileName,
+  double* omega,
+  dcomplex* epsilon,
+  const int size);
 /*======================================================
 Implementaion of the parent simulation super class
 =======================================================*/
-class Simulation{
+class Simulation : public PtrInterface{
 public:
-  Simulation();
-  ~Simulation();
-  void addStructure(Structure* structure);
-  void enableMPI(int numOfCore = 1);
+  void addStructure(const Ptr<Structure> structure);
   void resetSimulation();
-  void setTargetLayerByIndex(int index);
-  void setTargetLayerByLayer(Layer* layer);
-  void setGx(int nGx);
-  void setGy(int nGy);
-  void setOutputFile(std::string name);
+  void setTargetLayerByIndex(const int index);
+  void setTargetLayerByLayer(const Ptr<Layer> layer);
+  void setGx(const int nGx);
+  void setGy(const int nGy);
+  void setOutputFile(const std::string name);
 
   double* getOmegaList();
   double* getPeriodicity();
 
-  double getPhiAtKxKy(int omegaIndex, double kx, double ky = 0);
+  double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
 
   void build();
   void run();
 
 protected:
-
+  Simulation();
+  Simulation(const Simulation&) = delete;
+  ~Simulation();
   double* period_;
   double kxStart_;
   double kxEnd_;
@@ -86,7 +89,7 @@ protected:
   int nGx_;
   int nGy_;
   int numOfOmega_;
-  Structure* structure_;
+  Ptr<Structure> structure_;
   double* Phi_;
   double* omegaList_;
   std::string output_;
@@ -101,7 +104,7 @@ protected:
   RCWAVector thicknessListVec_;
   DIMENSION dim_;
 
-  Structure* getStructure();
+  Ptr<Structure> getStructure();
   void saveToFile();
   void transformPlanar(
     RCWAMatricesVec* dielectricMatrixVecTE,
@@ -115,7 +118,7 @@ protected:
     RCWAMatricesVec* dielectricMatrixVecTE,
     RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
-    Layer* layer,
+    const Ptr<Layer> layer,
     const dcomplex* epsilonBG,
     const int N
   );
@@ -124,7 +127,7 @@ protected:
     RCWAMatricesVec* dielectricMatrixVecTE,
     RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
-    Layer* layer,
+    const Ptr<Layer> layer,
     const dcomplex* epsilonBG,
     const int N
   );
@@ -133,7 +136,7 @@ protected:
     RCWAMatricesVec* dielectricMatrixVecTE,
     RCWAMatricesVec* dielectricMatrixVecTM,
     RCWAMatricesVec* dielectricImMatrixVec,
-    Layer* layer,
+    const Ptr<Layer> layer,
     const dcomplex* epsilonBG,
     const int N
   );
@@ -145,21 +148,21 @@ Implementaion of the class on planar simulation
 =======================================================*/
 class SimulationPlanar : public Simulation{
 public:
-  SimulationPlanar() : Simulation(){
-    dim_ = NO_;
-    degree_ = DEGREE;
-  };
-  ~SimulationPlanar();
-
+  static Ptr<SimulationPlanar> instanceNew();
+  SimulationPlanar(const SimulationPlanar&) = delete;
   void setGx() = delete;
   void setGy() = delete;
   double getPhiAtKxKy(int omegaIndex, double kx, double ky) = delete;
 
-  void setKxIntegral(double end, int degree = DEGREE);
+  void setKxIntegral(const double end, const int degree = DEGREE);
   void run();
-  double getPhiAtKx(int omegaIndex, double kx);
+  double getPhiAtKx(const int omegaIndex, const double kx);
+
+protected:
+  ~SimulationPlanar(){};
 
 private:
+  SimulationPlanar();
   int degree_;
 };
 
@@ -168,19 +171,19 @@ Implementaion of the class on 1D grating simulation
 =======================================================*/
 class SimulationGrating : public Simulation{
 public:
-  SimulationGrating() : Simulation(){
-    prefactor_ = 2;
-    dim_ = ONE_;
-  };
-  ~SimulationGrating();
+
+  static Ptr<SimulationGrating> instanceNew();
+  SimulationGrating(const SimulationGrating&) = delete;
+
   void setGy() = delete;
-  void setKxIntegral(int points);
-  void setKxIntegralSym(int points);
+  void setKxIntegral(const int points);
+  void setKxIntegralSym(const int points);
   // for ky integral, from 0 to inf
-  void setKyIntegral(int points, double end);
-
-
+  void setKyIntegral(const int points, const double end);
+protected:
+  ~SimulationGrating(){};
 private:
+  SimulationGrating();
 };
 
 /*======================================================
@@ -188,19 +191,20 @@ Implementaion of the class on 2D patterning simulation
 =======================================================*/
 class SimulationPattern : public Simulation{
 public:
-  SimulationPattern() : Simulation(){
-    prefactor_ = 1;
-    dim_ = TWO_;
-  };
-  ~SimulationPattern();
 
-  void setKxIntegral(int points);
-  void setKxIntegralSym(int points);
-  void setKyIntegral(int points);
-  void setKyIntegralSym(int points);
+  static Ptr<SimulationPattern> instanceNew();
 
+  SimulationPattern(const SimulationPattern&) = delete;
+
+  void setKxIntegral(const int points);
+  void setKxIntegralSym(const int points);
+  void setKyIntegral(const int points);
+  void setKyIntegralSym(const int points);
+protected:
+  ~SimulationPattern(){};
 
 private:
+  SimulationPattern();
 };
 }
 #endif

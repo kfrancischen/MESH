@@ -22,7 +22,11 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Material class
   =======================================================*/
-  Material::Material(std::string name, double* omegaList, dcomplex* epsilonList,  int numOfOmega):
+  Material::Material(
+    const std::string name,
+    const double* omegaList,
+    const dcomplex* epsilonList,
+    const int numOfOmega):
   name_(name), numOfOmega_(numOfOmega){
     epsilonList_ = new dcomplex[numOfOmega_];
     std::copy(epsilonList, epsilonList + numOfOmega_, epsilonList_);
@@ -30,23 +34,31 @@ namespace SYSTEM{
     std::copy(omegaList, omegaList + numOfOmega_, omegaList_);
   }
   /*======================================================
+  This is a thin wrapper for the usage of smart pointer
+  =======================================================*/
+  Ptr<Material> Material::instanceNew(
+    const std::string name,
+    const double* omegaList,
+    const dcomplex* epsilonList,
+    const int numOfOmega
+  ){
+    return new Material(name, omegaList, epsilonList, numOfOmega);
+  }
+
+  /*======================================================
   Material constructor by name
   =======================================================*/
-  Material::Material(std::string name) :
+  Material::Material(const std::string name) :
   name_(name), epsilonList_(nullptr), omegaList_(nullptr), numOfOmega_(0){}
 
   /*======================================================
-  Copy constructor
+  This is a thin wrapper for the usage of smart pointer
   =======================================================*/
-  Material::Material(const Material &material){
-    numOfOmega_ = material.numOfOmega_;
-    name_ = material.name_;
-    epsilonList_ = new dcomplex[numOfOmega_];
-    std::copy(material.epsilonList_, material.epsilonList_ + numOfOmega_, epsilonList_);
-    omegaList_ = new double[numOfOmega_];
-    std::copy(material.omegaList_, material.omegaList_ + numOfOmega_, omegaList_);
+  Ptr<Material> Material::instanceNew(
+    const std::string name
+  ){
+    return new Material(name);
   }
-
   /*======================================================
   destructor
   =======================================================*/
@@ -70,7 +82,7 @@ namespace SYSTEM{
   /*======================================================
   function return the epsilon at a specific index
   =======================================================*/
-  dcomplex Material::getEpsilonAtIndex(int index){
+  dcomplex Material::getEpsilonAtIndex(const int index){
     if(index >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
     }
@@ -123,60 +135,66 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  Layer::Layer(Material* material, double thickness) :
+  Layer::Layer(const Ptr<Material> material, const double thickness) :
     thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
     backGround_ = material;
+  }
+
+  /*======================================================
+  This is a thin wrapper for the usage of smart pointer
+  =======================================================*/
+  Ptr<Layer> Layer::instanceNew(
+    const Ptr<Material> material,
+    const double thickness
+  ){
+    return new Layer(material, thickness);
   }
   /*======================================================
   Layer constructor with back ground material
   =======================================================*/
-  Layer::Layer(Material* material) :
+  Layer::Layer(const Ptr<Material> material) :
     source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
     //backGround_ = new Material(*material);
     backGround_ = material;
+  }
+  /*======================================================
+  This is a thin wrapper for the usage of smart pointer
+  =======================================================*/
+  Ptr<Layer> Layer::instanceNew(
+    const Ptr<Material> material
+  ){
+    return new Layer(material);
   }
   /*======================================================
   Plain layer constructor
   =======================================================*/
   Layer::Layer() :
     backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){}
+
+  /*======================================================
+  This is a thin wrapper for the usage of smart pointer
+  =======================================================*/
+  Ptr<Layer> Layer::instanceNew()
+  {
+    return new Layer();
+  }
+
   /*======================================================
   destructor
   =======================================================*/
   Layer::~Layer(){
-    delete backGround_;
-    for(MaterialIter it = materialVec_.begin(); it != materialVec_.end(); it++){
-      delete(*it);
-    }
   }
   /*======================================================
   copy constructor
   =======================================================*/
   Layer::Layer(const Layer& layer){
-    backGround_ = new Material(*(layer.backGround_));
-    pattern_ = layer.pattern_;
-    source_ = layer.source_;
-    thickness_ = layer.thickness_;
-    for(const_MaterialIter it = layer.materialVec_.cbegin(); it != layer.materialVec_.cend(); it++){
-      Material* material = new Material(*(*it));
-      materialVec_.push_back(material);
-    }
-
-    for(const_PatternIter it = layer.args1_.cbegin(); it != layer.args1_.cend(); it++){
-      args1_.push_back(*it);
-    }
-
-    for(const_PatternIter it = layer.args2_.cbegin(); it != layer.args2_.cend(); it++){
-      args2_.push_back(*it);
-    }
-
   }
   /*======================================================
   set background by material
   @args:
   material: the background material
   =======================================================*/
-  void Layer::setBackGround(Material *material){
+  void Layer::setBackGround(const Ptr<Material> material){
     //backGround_ = new Material(*material);
     backGround_ = material;
   }
@@ -185,7 +203,7 @@ namespace SYSTEM{
   @args:
   thickness: the thickness of the layer
   =======================================================*/
-  void Layer::setThickness(double thickness){
+  void Layer::setThickness(const double thickness){
     thickness_ = thickness;
   }
   /*======================================================
@@ -209,7 +227,7 @@ namespace SYSTEM{
   /*======================================================
   get the background material
   =======================================================*/
-  Material* Layer::getBackGround(){
+  Ptr<Material> Layer::getBackGround(){
     if(backGround_ == nullptr){
       throw UTILITY::NullPointerException("Backgroud not set yet!");
     }
@@ -218,7 +236,7 @@ namespace SYSTEM{
   /*======================================================
   get the material by the name
   =======================================================*/
-  Material* Layer::getMaterialByName(std::string name){
+  Ptr<Material> Layer::getMaterialByName(const std::string name){
     for(const_MaterialIter it = this->getVecBegin(); it != this->getVecEnd(); it++){
       if(name.compare((*it)->getName()) == 0) return *it;
     }
@@ -285,7 +303,11 @@ namespace SYSTEM{
   args1: the position of centers (x,y)
   args2: the widths in x and y directions
   =======================================================*/
-  void Layer::addRectanlgePattern(Material * material, double args1[2], double args2[2]){
+  void Layer::addRectanlgePattern(
+    const Ptr<Material> material,
+    const double args1[2],
+    const double args2[2]
+  ){
     pattern_ = RECTANGLE_;
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args1[0], args1[1]));
@@ -299,7 +321,11 @@ namespace SYSTEM{
   args1: the position of centers (x,y)
   radius: the radius of the circle
   =======================================================*/
-  void Layer::addCirclePattern(Material* material, double args[2], double radius){
+  void Layer::addCirclePattern(
+    const Ptr<Material> material,
+    const double args[2],
+    const double radius
+  ){
     pattern_ = CIRCLE_;
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args[0], radius));
@@ -313,7 +339,11 @@ namespace SYSTEM{
   start: the start position of the this pattern
   end: the end position of this pattern
   =======================================================*/
-  void Layer::addGratingPattern(Material* material, double start, double end){
+  void Layer::addGratingPattern(
+    const Ptr<Material> material,
+    const double start,
+    const double end
+  ){
     pattern_ = GRATING_;
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(start, end));
@@ -328,18 +358,20 @@ namespace SYSTEM{
     period_[1] = 0;
   }
   /*======================================================
+  This is a thin wrapper for the usage of smart pointer
+  =======================================================*/
+  Ptr<Structure> Structure::instanceNew(){
+    return new Structure();
+  }
+  /*======================================================
   destructor
   =======================================================*/
   Structure::~Structure(){
-    for(LayerIter it = layerMap_.begin(); it != layerMap_.end(); it++){
-      delete(it->second);
-    }
-    delete[] period_;
   }
   /*======================================================
   copy constructor
   =======================================================*/
-  Structure::Structure(Structure& structure){
+  Structure::Structure(const Structure& structure){
     for(const_LayerIter it = structure.layerMap_.cbegin(); it != structure.layerMap_.cend(); it++){
       layerMap_.insert(LayerMap::value_type(it->first, it->second));
     }
@@ -350,7 +382,7 @@ namespace SYSTEM{
   p1: periodicity in x direction
   p2: periodicity in y direction, for 1D it is 0
   =======================================================*/
-  void Structure::setPeriodicity(double p1, double p2){
+  void Structure::setPeriodicity(const double p1, const double p2){
     period_[0] = p1;
     period_[1] = p2;
   }
@@ -359,7 +391,7 @@ namespace SYSTEM{
   @args:
   layer: the added layer
   =======================================================*/
-  void Structure::addLayer(Layer* layer){
+  void Structure::addLayer(const Ptr<Layer> layer){
     int size = layerMap_.size();
     layerMap_.insert(LayerMap::value_type(size, layer));
   }
@@ -368,7 +400,7 @@ namespace SYSTEM{
   @args:
   index: the index of the wanted layer
   =======================================================*/
-  Layer* Structure::getLayerByIndex(int index){
+  Ptr<Layer> Structure::getLayerByIndex(const int index){
     if(index >= this->getNumOfLayer()){
       throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
     }
