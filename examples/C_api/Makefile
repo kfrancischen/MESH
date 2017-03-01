@@ -1,7 +1,9 @@
 CFLAGS=-std=c++11 -O3
-INCLUDES=-I../../src -I../../src/utility -I../../src/mathlib
-LIBS=-L../../build -lmesh -larmadillo -lopenblas -llapack
+INSTALLPATH=../../
+INCLUDES=-I$(INSTALLPATH)src -I$(INSTALLPATH)src/utility -I$(INSTALLPATH)src/mathlib
+ARMAINCLUDE=-I$(INSTALLPATH)src/arma -DARMA_DONT_USE_WRAPPER
+LIBS=-L$(INSTALLPATH)build -lmesh -lopenblas -llapack
 CXX=mpic++
 
 all:
-	$(CXX) $(CFLAGS) $(INCLUDES) test.cpp -o test $(LIBS)
+	$(CXX) $(CFLAGS) $(INCLUDES) ${ARMAINCLUDE} test.cpp -o test $(LIBS)
