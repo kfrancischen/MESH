@@ -86,8 +86,9 @@ namespace MESH{
 
   Simulation::~Simulation(){
     delete[] Phi_;
-    delete[] omegaList_;
+    Phi_ = nullptr;
     delete[] period_;
+    period_ = nullptr;
   }
 
   /*==============================================
@@ -494,7 +495,8 @@ namespace MESH{
     }
 
     thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
-    double* thicknessList = structure_->getThicknessList();
+    double thicknessList[numOfLayer];
+    structure_->getThicknessList(thicknessList);
     sourceList_.resize(numOfLayer);
     for(size_t i = 0; i < numOfLayer; i++){
       thicknessListVec_(i) = thicknessList[i];

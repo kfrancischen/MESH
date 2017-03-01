@@ -151,7 +151,7 @@ namespace SYSTEM{
     void addLayer(const Ptr<Layer> layer);
     Ptr<Layer> getLayerByIndex(const int index);
     int getNumOfLayer();
-    double* getThicknessList();
+    void getThicknessList(double* thicknessList);
 
     const_LayerIter getMapBegin();
     const_LayerIter getMapEnd();

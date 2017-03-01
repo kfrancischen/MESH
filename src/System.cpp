@@ -367,6 +367,8 @@ namespace SYSTEM{
   destructor
   =======================================================*/
   Structure::~Structure(){
+    delete[] period_;
+    period_ = nullptr;
   }
   /*======================================================
   copy constructor
@@ -415,15 +417,13 @@ namespace SYSTEM{
   /*======================================================
   function getting the thickness list
   =======================================================*/
-  double* Structure::getThicknessList(){
-    int numOfLayer = this->getNumOfLayer();
-    double* thicknessList = new double[numOfLayer];
+  void Structure::getThicknessList(double* thicknessList){
     int count = 0;
     for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
       thicknessList[count] = (it->second)->getThickness();
       count++;
     }
-    return thicknessList;
+    return;
   }
   /*======================================================
   layer iterator begin
