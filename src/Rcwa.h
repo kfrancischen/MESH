@@ -18,7 +18,8 @@
  */
 #ifndef _RCWA_H
 #define _RCWA_H
-#define ARMA_DONT_USE_WRAPPER
+//#ifndef ARMA_DONT_USE_WRAPPER
+//#define ARMA_DONT_USE_WRAPPER
 #include <armadillo>
 #include <vector>
 #include "Common.h"

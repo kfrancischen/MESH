@@ -19,7 +19,8 @@
 
 #ifndef _MESH_H
 #define _MESH_H
-#define ARMA_DONT_USE_WRAPPER
+//#ifndef ARMA_DONT_USE_WRAPPER
+//#define ARMA_DONT_USE_WRAPPER
 #include "Rcwa.h"
 #include "System.h"
 #include "Common.h"

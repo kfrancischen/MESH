@@ -509,6 +509,7 @@ namespace MESH{
   This function computes the flux
   ==============================================*/
   void Simulation::run(){
+
     double kxList[numOfKx_], kyList[numOfKy_];
     double scalex[numOfOmega_], scaley[numOfOmega_];
     // here dkx is not normalized
@@ -541,8 +542,10 @@ namespace MESH{
         default: break;
       }
     }
+
     int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
-    double resultArray[totalNum];
+    // use dynamic allocation for stack memory problem
+    double* resultArray = new double[totalNum];
     MPI_Status status;
     int rank, numProcs, start, end, startPosition, endPosition;
     MPI_Init(NULL, NULL);
@@ -555,6 +558,7 @@ namespace MESH{
     /*************************************
     // for master node
     *************************************/
+
     if(rank == MASTER){
       for(int thread = 1; thread < numProcs; thread++){
         if(numLeft > 0){
@@ -594,6 +598,7 @@ namespace MESH{
         }
         Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i];
       }
+      std::cout << "here";
       this->saveToFile();
     }
     /*************************************
@@ -617,6 +622,9 @@ namespace MESH{
       MPI_Send(&endPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
       MPI_Send(&resultArray[startPosition], endPosition - startPosition, MPI_DOUBLE, MASTER, RECVTAG, MPI_COMM_WORLD);
     }
+
+    delete[] resultArray;
+    resultArray = nullptr;
     MPI_Finalize();
   }
 
