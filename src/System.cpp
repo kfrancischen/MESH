@@ -64,7 +64,9 @@ namespace SYSTEM{
   =======================================================*/
   Material::~Material(){
     delete[] epsilonList_;
+    epsilonList_ = nullptr;
     delete[] omegaList_;
+    omegaList_ = nullptr;
   }
   /*======================================================
   function return the name of the material
