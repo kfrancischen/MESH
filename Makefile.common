@@ -1,6 +1,6 @@
 CC = mpicc
 CXX = mpic++ -std=c++11
-CPPFLAGS += -Isrc/
+CPPFLAGS += -Isrc/ -Isrc/utility -Isrc/mathlib
 
 #### Compilation targets
 MESH_LIBNAME = libmesh.a
@@ -8,32 +8,30 @@ all: $(OBJDIR)/$(MESH_LIBNAME) $(OBJDIR)/MESH
 
 objdir:
 	mkdir -p $(OBJDIR)
-	mkdir -p $(OBJDIR)/MESHk
+	mkdir -p $(OBJDIR)/MESH_o
 
 MESH_LIBOBJS = \
-	$(OBJDIR)/MESHk/gauss_legendre.o \
-	$(OBJDIR)/MESHk/Rcwa.o \
-	$(OBJDIR)/MESHk/System.o \
-	$(OBJDIR)/MESHk/Mesh.o \
-	$(OBJDIR)/MESHk/grating1.o \
+	$(OBJDIR)/MESH_o/Rcwa.o \
+	$(OBJDIR)/MESH_o/System.o \
+	$(OBJDIR)/MESH_o/Mesh.o \
+	$(OBJDIR)/MESH_o/main_lua.o
 
 $(OBJDIR)/libmesh.a: objdir $(MESH_LIBOBJS)
 	$(AR) crvs $@ $(MESH_LIBOBJS)
-$(OBJDIR)/MESHk/gauss_legendre.o: src/gauss_legendre.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
-$(OBJDIR)/MESHk/Rcwa.o: src/Rcwa.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@ $(LA_LIBS)
-$(OBJDIR)/MESHk/System.o: src/System.cpp
+$(OBJDIR)/MESH_o/Rcwa.o: src/Rcwa.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@ $(LA_LIBS) $(ARMA_LIBS)
+$(OBJDIR)/MESH_o/System.o: src/System.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@
-$(OBJDIR)/MESHk/Mesh.o: src/Mesh.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@ $(LA_LIBS)
-$(OBJDIR)/MESHk/grating2.o: grating1.cpp
-	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/MESH_o/Mesh.o: src/Mesh.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $< -o $@ $(LA_LIBS) $(ARMA_LIBS)
 
 
 #### Build Lua frontend
-$(OBJDIR)/MESH: $(OBJDIR)/MESHk/grating1.o $(OBJDIR)/$(MESH_LIBNAME)
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $< -o $@ -L$(OBJDIR) -lmesh $(LA_LIBS)
+$(OBJDIR)/MESH_o/main_lua.o: src/main_lua.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(LUA_INC) $< -o $@ $(LA_LIBS)
+
+$(OBJDIR)/MESH: $(OBJDIR)/MESH_o/main_lua.o $(OBJDIR)/$(MESH_LIBNAME)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS)　$< -o $@ -L$(OBJDIR) -lmesh $(LA_LIBS) $(LUA_LIB)
 
 #### Python extension
 
