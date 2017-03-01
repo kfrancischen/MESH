@@ -24,7 +24,6 @@
 #include "System.h"
 #include "Common.h"
 #include "config.h"
-#include "gauss_legendre.h"
 #include <fstream>
 #include "mpi.h"
 

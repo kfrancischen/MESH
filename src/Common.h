@@ -17,11 +17,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <complex>
-#include "utility/Utility.h"
 #ifndef _COMMON_H
 #define _COMMON_H
 
+#include <complex>
+#include "Utility.h"
+#include "Mathlib.h"
+#include "config.h"
 #define DEGREE 512
 
 using UTILITY::Ptr;
