@@ -17,7 +17,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "Rcwa.h"
-
 /*============================================================
 * Function similar to meshgrid in matlab
 @arg:
@@ -54,63 +53,67 @@ void RCWA::getSMatrices(
   const int numOfLayer,
   RCWAMatrices* MMatrices,
   RCWAMatrices* FMatrices,
-  RCWAMatrices* SMatrices
+  RCWAMatrices* SMatrices,
+  DIRECTION direction
 ){
   if(MMatrices == nullptr || FMatrices == nullptr){
     throw UTILITY::NullPointerException("M matrices or F matrices is null");
   }
   int r1 = 0, r2 = 2*N -1, r3 = 2*N, r4 = 4*N -1;
 // propogating down
+  if(direction == ALL_ || direction == DOWN_){
+    // propogating down
+    for(size_t i = startLayer; i >=1; i--){
+      RCWAMatrix I = solve((*MMatrices)[i], (*MMatrices)[i-1]);
+      RCWAMatrix leftTop = I(span(r3, r4), span(r3, r4));
+      RCWAMatrix rightTop = I(span(r3, r4), span(r1, r2));
+      RCWAMatrix leftBottom = I(span(r1, r2), span(r3, r4));
+      RCWAMatrix rightBottom = I(span(r1, r2), span(r1, r2));
 
-  for(size_t i = startLayer; i >=1; i--){
+      (*SMatrices)[i-1](span(r1, r2), span(r1, r2)) = solve(
+        leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
+        (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r1,r2))
+      );
 
-    RCWAMatrix I = solve((*MMatrices)[i], (*MMatrices)[i-1]);
-    RCWAMatrix leftTop = I(span(r3, r4), span(r3, r4));
-    RCWAMatrix rightTop = I(span(r3, r4), span(r1, r2));
-    RCWAMatrix leftBottom = I(span(r1, r2), span(r3, r4));
-    RCWAMatrix rightBottom = I(span(r1, r2), span(r1, r2));
+      (*SMatrices)[i-1](span(r1, r2), span(r3, r4)) = solve(
+        leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
+        (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
+      ) * (*FMatrices)[i-1];
 
-    (*SMatrices)[i-1](span(r1, r2), span(r1, r2)) = solve(
-      leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
-      (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r1,r2))
-    );
+      (*SMatrices)[i-1](span(r3,r4), span(r1,r2)) = (*SMatrices)[i](span(r3,r4), span(r1,r2)) +
+        (*SMatrices)[i](span(r3,r4), span(r3,r4)) * leftBottom * (*SMatrices)[i-1](span(r1,r2), span(r1,r2));
 
-    (*SMatrices)[i-1](span(r1, r2), span(r3, r4)) = solve(
-      leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
-      (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
-    ) * (*FMatrices)[i-1];
-
-    (*SMatrices)[i-1](span(r3,r4), span(r1,r2)) = (*SMatrices)[i](span(r3,r4), span(r1,r2)) +
-      (*SMatrices)[i](span(r3,r4), span(r3,r4)) * leftBottom * (*SMatrices)[i-1](span(r1,r2), span(r1,r2));
-
-    (*SMatrices)[i-1](span(r3,r4), span(r3,r4)) = (*SMatrices)[i](span(r3,r4), span(r3,r4)) *
-      (leftBottom * (*SMatrices)[i-1](span(r1,r2), span(r3,r4)) + rightBottom * (*FMatrices)[i-1]);
+      (*SMatrices)[i-1](span(r3,r4), span(r3,r4)) = (*SMatrices)[i](span(r3,r4), span(r3,r4)) *
+        (leftBottom * (*SMatrices)[i-1](span(r1,r2), span(r3,r4)) + rightBottom * (*FMatrices)[i-1]);
+    }
   }
-// propogating up
-  for(size_t i = startLayer; i < numOfLayer - 1; i++){
-    RCWAMatrix I = solve((*MMatrices)[i], (*MMatrices)[i+1]);
+  if(direction == ALL_ || direction == UP_){
+    // propogating up
+    for(size_t i = startLayer; i < numOfLayer - 1; i++){
+      RCWAMatrix I = solve((*MMatrices)[i], (*MMatrices)[i+1]);
+      RCWAMatrix leftTop = I(span(r1, r2), span(r1, r2));
+      RCWAMatrix rightTop = I(span(r1, r2), span(r3, r4));
+      RCWAMatrix leftBottom = I(span(r3, r4), span(r1, r2));
+      RCWAMatrix rightBottom = I(span(r3, r4), span(r3, r4));
 
-    RCWAMatrix leftTop = I(span(r1, r2), span(r1, r2));
-    RCWAMatrix rightTop = I(span(r1, r2), span(r3, r4));
-    RCWAMatrix leftBottom = I(span(r3, r4), span(r1, r2));
-    RCWAMatrix rightBottom = I(span(r3, r4), span(r3, r4));
+      (*SMatrices)[i+1](span(r1, r2), span(r1, r2)) = solve(
+        leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
+        (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r1,r2))
+      );
 
-    (*SMatrices)[i+1](span(r1, r2), span(r1, r2)) = solve(
-      leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
-      (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r1,r2))
-    );
+      (*SMatrices)[i+1](span(r1, r2), span(r3, r4)) = solve(
+        leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
+        (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
+      ) * (*FMatrices)[i+1];
 
-    (*SMatrices)[i+1](span(r1, r2), span(r3, r4)) = solve(
-      leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
-      (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
-    ) * (*FMatrices)[i+1];
+      (*SMatrices)[i+1](span(r3,r4), span(r1,r2)) = (*SMatrices)[i](span(r3,r4), span(r1,r2)) +
+        (*SMatrices)[i](span(r3,r4), span(r3,r4)) * leftBottom * (*SMatrices)[i+1](span(r1,r2), span(r1,r2));
 
-    (*SMatrices)[i+1](span(r3,r4), span(r1,r2)) = (*SMatrices)[i](span(r3,r4), span(r1,r2)) +
-      (*SMatrices)[i](span(r3,r4), span(r3,r4)) * leftBottom * (*SMatrices)[i+1](span(r1,r2), span(r1,r2));
-
-    (*SMatrices)[i+1](span(r3,r4), span(r3,r4)) = (*SMatrices)[i](span(r3,r4), span(r3,r4)) *
-      (leftBottom * (*SMatrices)[i+1](span(r1,r2), span(r3,r4)) + rightBottom * (*FMatrices)[i+1]);
+      (*SMatrices)[i+1](span(r3,r4), span(r3,r4)) = (*SMatrices)[i](span(r3,r4), span(r3,r4)) *
+        (leftBottom * (*SMatrices)[i+1](span(r1,r2), span(r3,r4)) + rightBottom * (*FMatrices)[i+1]);
+    }
   }
+
 }
 
 /*============================================================
@@ -351,7 +354,7 @@ double RCWA::poyntingFlux(
   }
 
   getSMatrices(targetLayer, N, numOfLayer,
-      &MMatrices, &FMatrices, &S_matrices_target);
+      &MMatrices, &FMatrices, &S_matrices_target, UP_);
 
   RCWAMatrix q_R, q_L, targetFields, P1, P2, Q1, Q2, R;
   RCWAMatrix integralSelf, integralMutual, integral, poyntingMat;
@@ -386,7 +389,7 @@ double RCWA::poyntingFlux(
     }
 
     getSMatrices(layerIdx, N, numOfLayer,
-        &MMatrices, &NewFMatrices, &S_matrices);
+        &MMatrices, &NewFMatrices, &S_matrices, ALL_);
 
 
     // solve the source
@@ -409,7 +412,7 @@ double RCWA::poyntingFlux(
     // calculating R
     R = MMatrices[targetLayer] * join_vert(FMatrices[targetLayer] * P1, P2) *
       Q1.i() * join_horiz(onePadding2N, Q2);
-
+    
     // calculating integrands
     if(layerIdx == 0 || layerIdx == numOfLayer - 1){
       integralSelf = 1 / (IMAG_I * (q_L - conj(q_R)));
@@ -436,5 +439,4 @@ double RCWA::poyntingFlux(
   return flux;
 
 }
-
 

@@ -29,6 +29,7 @@
 using UTILITY::Ptr;
 using UTILITY::PtrInterface;
 enum DIMENSION { NO_, ONE_, TWO_ };
+enum DIRECTION {UP_, DOWN_, ALL_};
 enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};
 typedef std::complex<double> dcomplex;

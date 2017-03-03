@@ -61,7 +61,8 @@ namespace RCWA{
     const int numOfLayer,
     RCWAMatrices* MMatrices,
     RCWAMatrices* FMatrices,
-    RCWAMatrices* SMatrices
+    RCWAMatrices* SMatrices,
+    DIRECTION direction
   );
 
   /*============================================================

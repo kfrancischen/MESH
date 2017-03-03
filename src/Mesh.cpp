@@ -18,7 +18,7 @@
  */
 
 #include "Mesh.h"
-
+#include "time.h"
 namespace MESH{
   /*==============================================
   This function loads data from disk
@@ -207,11 +207,10 @@ namespace MESH{
   @note
   used by grating and patterning
   ==============================================*/
-  double Simulation::getPhiAtKxKy(const int omegaIdx, const double kx, const double ky){
+  double Simulation::getPhiAtKxKy(const int omegaIdx, const double kx, const double ky, const int N){
     if(omegaIdx >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
-    int N = getN(nGx_, nGy_);
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, &thicknessListVec_, kx, ky, &(EMatricesVec_[omegaIdx]),
       &(grandImaginaryMatricesVec_[omegaIdx]), &(dielectricMatrixZInvVec_[omegaIdx]), &Gx_mat_, &Gy_mat_,
@@ -280,8 +279,10 @@ namespace MESH{
       count = 0;
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
+
         dielectricMatrix += exp(IMAG_I * G_mat * centerVec(count)) * (epsilon - epsilonBG[i])
           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
+
         dielectricMatrixInv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(1.0, 0) / epsilon - dcomplex(1.0, 0) / epsilonBG[i])
           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
 
@@ -350,10 +351,10 @@ namespace MESH{
       RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInv(N, N, fill::zeros);
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
         dcomplex epsilon = (*it)->getEpsilonAtIndex(i);
+
         dielectricMatrix += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (epsilon - epsilonBG[i])
           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-
         dielectricMatrixInv += widthxVec(count) * widthyVec(count) / (period_[0] * period_[1]) * (dcomplex(1.0,0) / epsilon - dcomplex(1.0,0) / epsilonBG[i])
           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
@@ -495,11 +496,9 @@ namespace MESH{
     }
 
     thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
-    double thicknessList[numOfLayer];
-    structure_->getThicknessList(thicknessList);
     sourceList_.resize(numOfLayer);
     for(size_t i = 0; i < numOfLayer; i++){
-      thicknessListVec_(i) = thicknessList[i];
+      thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness();
       sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
     }
 
@@ -544,6 +543,7 @@ namespace MESH{
     }
 
     int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
+    int N = getN(nGx_, nGy_);
     // use dynamic allocation for stack memory problem
     double* resultArray = new double[totalNum];
     MPI_Status status;
@@ -576,13 +576,14 @@ namespace MESH{
         MPI_Send(&end, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
         MPI_Send(&resultArray[start], end - start, MPI_DOUBLE, thread, SENDTAG, MPI_COMM_WORLD);
       }
+
       for(int i = 0; i < chunkSize; i++){
         int omegaIdx = i / (numOfKx_ * numOfKy_);
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
-        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
-        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx], N);
+        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
       }
 
       // wait for all the slave process finished
@@ -591,19 +592,18 @@ namespace MESH{
         MPI_Recv(&end, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
         MPI_Recv(&resultArray[start], end - start, MPI_DOUBLE, thread, RECVTAG, MPI_COMM_WORLD, &status);
       }
-
       for(size_t i = 0; i < numOfOmega_; i++){
         for(size_t j = 0; j < numOfKx_ * numOfKy_; j++){
           Phi_[i] += resultArray[i * numOfKx_ * numOfKy_ + j];
         }
         Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i];
       }
-      std::cout << "here";
       this->saveToFile();
     }
     /*************************************
     // for slave nodes
     *************************************/
+
     else{
       MPI_Recv(&startPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
       MPI_Recv(&endPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
@@ -614,8 +614,8 @@ namespace MESH{
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
-        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]) << std::endl;
-        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / (omegaList_[omegaIdx] / datum::c_0), kyList[kyIdx]);
+        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx], N);
+        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
       }
 
       MPI_Send(&startPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
@@ -627,7 +627,6 @@ namespace MESH{
     resultArray = nullptr;
     MPI_Finalize();
   }
-
   /*======================================================
   Implementaion of the class on planar simulation
   =======================================================*/
