@@ -206,6 +206,7 @@ namespace MESH{
   ky: the ky value, normalized
   @note
   used by grating and patterning
+  N: the number of total G
   ==============================================*/
   double Simulation::getPhiAtKxKy(const int omegaIdx, const double kx, const double ky, const int N){
     if(omegaIdx >= numOfOmega_){

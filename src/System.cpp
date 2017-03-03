@@ -26,8 +26,8 @@ namespace SYSTEM{
     const std::string name,
     const double* omegaList,
     const dcomplex* epsilonList,
-    const int numOfOmega):
-  name_(name), numOfOmega_(numOfOmega){
+    const int numOfOmega): NamedInterface(name)
+    , numOfOmega_(numOfOmega){
     epsilonList_ = new dcomplex[numOfOmega_];
     std::copy(epsilonList, epsilonList + numOfOmega_, epsilonList_);
     omegaList_ = new double[numOfOmega_];
@@ -49,7 +49,7 @@ namespace SYSTEM{
   Material constructor by name
   =======================================================*/
   Material::Material(const std::string name) :
-  name_(name), epsilonList_(nullptr), omegaList_(nullptr), numOfOmega_(0){}
+  NamedInterface(name), epsilonList_(nullptr), omegaList_(nullptr), numOfOmega_(0){}
 
   /*======================================================
   This is a thin wrapper for the usage of smart pointer
@@ -72,7 +72,7 @@ namespace SYSTEM{
   function return the name of the material
   =======================================================*/
   std::string Material::getName(){
-    return name_;
+    return this->name();
   }
   /*======================================================
   function return the epsilon list of the material
@@ -104,14 +104,6 @@ namespace SYSTEM{
     return numOfOmega_;
   }
   /*======================================================
-  function set the name of the material
-  @args:
-  name: the name of the material
-  =======================================================*/
-  void Material::setName(const std::string name){
-    name_ = name;
-  }
-  /*======================================================
   function set the omega of the material
   @args:
   omegaList: the omegaList of the material
@@ -137,8 +129,8 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  Layer::Layer(const Ptr<Material>& material, const double thickness) :
-    thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
+  Layer::Layer(const string name, const Ptr<Material>& material, const double thickness) :
+    NamedInterface(name), thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
     backGround_ = material;
   }
 
@@ -146,16 +138,17 @@ namespace SYSTEM{
   This is a thin wrapper for the usage of smart pointer
   =======================================================*/
   Ptr<Layer> Layer::instanceNew(
+    const string name,
     const Ptr<Material>& material,
     const double thickness
   ){
-    return new Layer(material, thickness);
+    return new Layer(name, material, thickness);
   }
   /*======================================================
   Layer constructor with back ground material
   =======================================================*/
-  Layer::Layer(const Ptr<Material>& material) :
-    source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
+  Layer::Layer(const string name, const Ptr<Material>& material) :
+    NamedInterface(name), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
     //backGround_ = new Material(*material);
     backGround_ = material;
   }
@@ -163,33 +156,29 @@ namespace SYSTEM{
   This is a thin wrapper for the usage of smart pointer
   =======================================================*/
   Ptr<Layer> Layer::instanceNew(
+    const string name,
     const Ptr<Material>& material
   ){
-    return new Layer(material);
+    return new Layer(name, material);
   }
   /*======================================================
   Plain layer constructor
   =======================================================*/
-  Layer::Layer() :
+  Layer::Layer(const string name) : NamedInterface(name),
     backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){}
 
   /*======================================================
   This is a thin wrapper for the usage of smart pointer
   =======================================================*/
-  Ptr<Layer> Layer::instanceNew()
+  Ptr<Layer> Layer::instanceNew(const string name)
   {
-    return new Layer();
+    return new Layer(name);
   }
 
   /*======================================================
   destructor
   =======================================================*/
   Layer::~Layer(){
-  }
-  /*======================================================
-  copy constructor
-  =======================================================*/
-  Layer::Layer(const Layer& layer){
   }
   /*======================================================
   set background by material
@@ -261,6 +250,12 @@ namespace SYSTEM{
   =======================================================*/
   PATTEN Layer::getPattern(){
     return pattern_;
+  }
+  /*======================================================
+  function return the name of the material
+  =======================================================*/
+  std::string Layer::getName(){
+    return this->name();
   }
   /*======================================================
   material iterator begin

@@ -27,7 +27,7 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Material class
   =======================================================*/
-  class Material : public PtrInterface {
+  class Material : public NamedInterface {
   public:
     static Ptr<Material> instanceNew(
       const std::string name,
@@ -48,7 +48,6 @@ namespace SYSTEM{
     int getNumOfOmega();
     double* getOmegaList();
 
-    void setName(const std::string name);
     void setOmega(const double* omegaList, int numOfOmega);
     void setEpsilon(const dcomplex* epsilonList, int numOfOmega);
 
@@ -61,7 +60,6 @@ namespace SYSTEM{
     );
     Material(const std::string name);
 
-    std::string name_;
     dcomplex* epsilonList_;
     double* omegaList_;
     int numOfOmega_;
@@ -78,19 +76,23 @@ namespace SYSTEM{
   typedef LayerPattern::iterator PatternIter;
   typedef LayerPattern::const_iterator const_PatternIter;
 
-  class Layer : public PtrInterface{
+  class Layer : public NamedInterface{
   public:
     static Ptr<Layer> instanceNew(
+      const string name,
       const Ptr<Material>& material,
       const double thickness
     );
     static Ptr<Layer> instanceNew(
+      const string name,
       const Ptr<Material>& material
     );
-    static Ptr<Layer> instanceNew();
+    static Ptr<Layer> instanceNew(
+      const string name
+    );
 
     ~Layer();
-    Layer(const Layer& layer);
+    Layer(const Layer& layer) = delete;
 
     void setBackGround(const Ptr<Material>& material);
     void setThickness(const double thickness);
@@ -102,6 +104,7 @@ namespace SYSTEM{
     Ptr<Material> getMaterialByName(const std::string name);
     int getNumOfMaterial();
     double getThickness();
+    std::string getName();
     PATTEN getPattern();
 
     const_MaterialIter getVecBegin();
@@ -119,9 +122,9 @@ namespace SYSTEM{
     void addGratingPattern(const Ptr<Material>& material, const double start, const double end);
 
   private:
-    Layer(const Ptr<Material>& material, const double thickness);
-    Layer(const Ptr<Material>& material);
-    Layer();
+    Layer(const string name, const Ptr<Material>& material, const double thickness);
+    Layer(const string name, const Ptr<Material>& material);
+    Layer(const string name);
 
     double thickness_;
     Ptr<Material> backGround_;
