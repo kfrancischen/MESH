@@ -28,6 +28,8 @@
 
 using UTILITY::Ptr;
 using UTILITY::PtrInterface;
+using UTILITY::NamedInterface;
+
 enum DIMENSION { NO_, ONE_, TWO_ };
 enum DIRECTION {UP_, DOWN_, ALL_};
 enum SOURCE {ISSOURCE_, ISNOTSOURCE_};

@@ -16,8 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _HEAT_H
-#define _HEAT_H
+#ifndef _SETUP_H
+#define _SETUP_H
 
 #include "Rcwa.h"
 #include "System.h"

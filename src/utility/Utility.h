@@ -86,6 +86,7 @@ namespace UTILITY {
 
 #   include "utility/Ptr.h"
 #   include "utility/PtrInterface.h"
+#   include "utility/NamedInterface.h"
 #   include "utility/Exception.h"
 
 }
