@@ -17,6 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "Rcwa.h"
+
 /*============================================================
 * Function similar to meshgrid in matlab
 @arg:
@@ -30,7 +31,7 @@ void RCWA::meshGrid(
   RCWAMatrix& qL,
   RCWAMatrix& qR
 ){
-  
+
   qL = repmat(vL.st(), vR.n_rows, 1);
   qR = repmat(vR, 1, vL.n_rows);
 }
@@ -44,6 +45,7 @@ void RCWA::meshGrid(
  MMatrices: matrix corresponding to the propogation in each layer
  FMatrices: matrix corresponding to the phase in each layer
  SMatrices: the S matrix for each layer
+ DIRECTION: the direction of propogation
 ==============================================================*/
 void RCWA::getSMatrices(
   const int startLayer,
@@ -60,7 +62,8 @@ void RCWA::getSMatrices(
   if(direction == ALL_ || direction == DOWN_){
     // propogating down
     for(size_t i = startLayer; i >=1; i--){
-      RCWAMatrix I = solve(MMatrices[i], MMatrices[i-1]);
+      RCWAMatrix I = solve(MMatrices[i], MMatrices[i-1], solve_opts::fast);
+
       RCWAMatrix leftTop = I(span(r3, r4), span(r3, r4));
       RCWAMatrix rightTop = I(span(r3, r4), span(r1, r2));
       RCWAMatrix leftBottom = I(span(r1, r2), span(r3, r4));
@@ -68,12 +71,16 @@ void RCWA::getSMatrices(
 
       SMatrices[i-1](span(r1, r2), span(r1, r2)) = solve(
         leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom,
-        FMatrices[i] * SMatrices[i](span(r1, r2), span(r1,r2))
-      );
+        FMatrices[i],
+        solve_opts::fast
+      ) * SMatrices[i](span(r1, r2), span(r1,r2));
+
+      RCWAMatrix test = leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom;
 
       SMatrices[i-1](span(r1, r2), span(r3, r4)) = solve(
         leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom,
-        FMatrices[i] * SMatrices[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
+        FMatrices[i] * SMatrices[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop,
+        solve_opts::fast
       ) * FMatrices[i-1];
 
       SMatrices[i-1](span(r3,r4), span(r1,r2)) = SMatrices[i](span(r3,r4), span(r1,r2)) +
@@ -86,7 +93,7 @@ void RCWA::getSMatrices(
   if(direction == ALL_ || direction == UP_){
     // propogating up
     for(size_t i = startLayer; i < numOfLayer - 1; i++){
-      RCWAMatrix I = solve(MMatrices[i], MMatrices[i+1]);
+      RCWAMatrix I = solve(MMatrices[i], MMatrices[i+1], solve_opts::fast);
       RCWAMatrix leftTop = I(span(r1, r2), span(r1, r2));
       RCWAMatrix rightTop = I(span(r1, r2), span(r3, r4));
       RCWAMatrix leftBottom = I(span(r3, r4), span(r1, r2));
@@ -94,12 +101,14 @@ void RCWA::getSMatrices(
 
       SMatrices[i+1](span(r1, r2), span(r1, r2)) = solve(
         leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom,
-        FMatrices[i] * SMatrices[i](span(r1, r2), span(r1,r2))
-      );
+        FMatrices[i],
+        solve_opts::fast
+      ) * SMatrices[i](span(r1, r2), span(r1,r2));
 
       SMatrices[i+1](span(r1, r2), span(r3, r4)) = solve(
         leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom,
-        FMatrices[i] * SMatrices[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
+        FMatrices[i] * SMatrices[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop,
+        solve_opts::fast
       ) * FMatrices[i+1];
 
       SMatrices[i+1](span(r3,r4), span(r1,r2)) = SMatrices[i](span(r3,r4), span(r1,r2)) +
@@ -346,7 +355,6 @@ double RCWA::poyntingFlux(
 
   getSMatrices(targetLayer, N, numOfLayer,
       MMatrices, FMatrices, S_matrices_target, UP_);
-
   RCWAMatrix q_R, q_L, targetFields, P1, P2, Q1, Q2, R;
   RCWAMatrix integralSelf, integralMutual, integral, poyntingMat;
   RCWAMatrices S_matrices(numOfLayer), NewFMatrices(numOfLayer);
@@ -384,12 +392,13 @@ double RCWA::poyntingFlux(
 
 
     // solve the source
-    targetFields = solve(MMatrices[layerIdx], source);
+    targetFields = solve(MMatrices[layerIdx], source, solve_opts::fast);
 
     // calculating the P1 and P2
     P1 = solve(
       onePadding2N - S_matrices[targetLayer](span(r1, r2), span(r3, r4)) * S_matrices_target[numOfLayer-1](span(r3, r4), span(r1, r2)),
-      S_matrices[targetLayer](span(r1, r2), span(r1, r2))
+      S_matrices[targetLayer](span(r1, r2), span(r1, r2)),
+      solve_opts::fast
     );
 
     P2 = S_matrices_target[numOfLayer-1](span(r3, r4), span(r1, r2)) * P1;
