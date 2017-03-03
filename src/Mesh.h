@@ -57,10 +57,10 @@ Implementaion of the parent simulation super class
 =======================================================*/
 class Simulation : public PtrInterface{
 public:
-  void addStructure(const Ptr<Structure> structure);
+  void addStructure(const Ptr<Structure>& structure);
   void resetSimulation();
   void setTargetLayerByIndex(const int index);
-  void setTargetLayerByLayer(const Ptr<Layer> layer);
+  void setTargetLayerByLayer(const Ptr<Layer>& layer);
   void setGx(const int nGx);
   void setGy(const int nGy);
   void setOutputFile(const std::string name);
@@ -107,36 +107,36 @@ protected:
   Ptr<Structure> getStructure();
   void saveToFile();
   void transformPlanar(
-    RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
-    RCWAMatricesVec* dielectricImMatrixVec,
+    RCWAMatricesVec& dielectricMatrixVecTE,
+    RCWAMatricesVec& dielectricMatrixVecTM,
+    RCWAMatricesVec& dielectricImMatrixVec,
     const dcomplex* epsilon,
     const int N
   );
 
   void transformGrating(
-    RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
-    RCWAMatricesVec* dielectricImMatrixVec,
-    const Ptr<Layer> layer,
+    RCWAMatricesVec& dielectricMatrixVecTE,
+    RCWAMatricesVec& dielectricMatrixVecTM,
+    RCWAMatricesVec& dielectricImMatrixVec,
+    const Ptr<Layer>& layer,
     const dcomplex* epsilonBG,
     const int N
   );
 
   void transformRectangle(
-    RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
-    RCWAMatricesVec* dielectricImMatrixVec,
-    const Ptr<Layer> layer,
+    RCWAMatricesVec& dielectricMatrixVecTE,
+    RCWAMatricesVec& dielectricMatrixVecTM,
+    RCWAMatricesVec& dielectricImMatrixVec,
+    const Ptr<Layer>& layer,
     const dcomplex* epsilonBG,
     const int N
   );
 
   void transformCircle(
-    RCWAMatricesVec* dielectricMatrixVecTE,
-    RCWAMatricesVec* dielectricMatrixVecTM,
-    RCWAMatricesVec* dielectricImMatrixVec,
-    const Ptr<Layer> layer,
+    RCWAMatricesVec& dielectricMatrixVecTE,
+    RCWAMatricesVec& dielectricMatrixVecTM,
+    RCWAMatricesVec& dielectricImMatrixVec,
+    const Ptr<Layer>& layer,
     const dcomplex* epsilonBG,
     const int N
   );

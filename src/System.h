@@ -81,18 +81,18 @@ namespace SYSTEM{
   class Layer : public PtrInterface{
   public:
     static Ptr<Layer> instanceNew(
-      const Ptr<Material> material,
+      const Ptr<Material>& material,
       const double thickness
     );
     static Ptr<Layer> instanceNew(
-      const Ptr<Material> material
+      const Ptr<Material>& material
     );
     static Ptr<Layer> instanceNew();
 
     ~Layer();
     Layer(const Layer& layer);
 
-    void setBackGround(const Ptr<Material> material);
+    void setBackGround(const Ptr<Material>& material);
     void setThickness(const double thickness);
     void setIsSource();
     void setIsNotSource();
@@ -114,13 +114,13 @@ namespace SYSTEM{
     const_PatternIter getArg2End();
 
 
-    void addRectanlgePattern(const Ptr<Material> material, const double args1[2], const double args2[2]);
-    void addCirclePattern(const Ptr<Material> material, const double args[2], const double radius);
-    void addGratingPattern(const Ptr<Material> material, const double start, const double end);
+    void addRectanlgePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
+    void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
+    void addGratingPattern(const Ptr<Material>& material, const double start, const double end);
 
   private:
-    Layer(const Ptr<Material> material, const double thickness);
-    Layer(const Ptr<Material> material);
+    Layer(const Ptr<Material>& material, const double thickness);
+    Layer(const Ptr<Material>& material);
     Layer();
 
     double thickness_;
@@ -148,7 +148,7 @@ namespace SYSTEM{
     Structure(const Structure& structure);
     void setPeriodicity(const double p1, const double p2 = 0);
 
-    void addLayer(const Ptr<Layer> layer);
+    void addLayer(const Ptr<Layer>& layer);
     Ptr<Layer> getLayerByIndex(const int index);
     int getNumOfLayer();
     void getThicknessList(double* thicknessList);

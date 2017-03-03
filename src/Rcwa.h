@@ -40,10 +40,10 @@ namespace RCWA{
     [qL, qR] = meshgrid(vl, vR)
   ==============================================================*/
   void meshGrid(
-    const RCWAMatrix* vL,
-    const RCWAMatrix* vR,
-    RCWAMatrix* qL,
-    RCWAMatrix* qR
+    const RCWAMatrix& vL,
+    const RCWAMatrix& vR,
+    RCWAMatrix& qL,
+    RCWAMatrix& qR
   );
   /*============================================================
   * Function computing S matrix for each layers
@@ -59,10 +59,10 @@ namespace RCWA{
     const int startLayer,
     const int N,
     const int numOfLayer,
-    RCWAMatrices* MMatrices,
-    RCWAMatrices* FMatrices,
-    RCWAMatrices* SMatrices,
-    DIRECTION direction
+    const RCWAMatrices& MMatrices,
+    const RCWAMatrices& FMatrices,
+    RCWAMatrices& SMatrices,
+    const DIRECTION direction
   );
 
   /*============================================================
@@ -81,7 +81,7 @@ namespace RCWA{
  @arg:
   x: the input argument
  ==============================================================*/
- RCWAMatrix sinc(RCWAMatrix x);
+ RCWAMatrix sinc(const RCWAMatrix x);
   /*============================================================
   * Function computing G matrix for the system
   @arg:
@@ -97,9 +97,9 @@ namespace RCWA{
     const int nGx,
     const int nGy,
     const double period[2],
-    RCWAMatrix* Gx_mat,
-    RCWAMatrix* Gy_mat,
-    DIMENSION d
+    RCWAMatrix& Gx_mat,
+    RCWAMatrix& Gy_mat,
+    const DIMENSION d
   );
 
   /*============================================================
@@ -111,10 +111,10 @@ namespace RCWA{
   N: the number of G
   ==============================================================*/
   void getGrandImaginaryMatrices(
-    RCWAMatrices* grandImaginaryMatrices,
-    RCWAMatrices* dielectricImMatrix,
-    int numOfLayer,
-    int N
+    RCWAMatrices& grandImaginaryMatrices,
+    const RCWAMatrices& dielectricImMatrix,
+    const int numOfLayer,
+    const int N
   );
 
   /*============================================================
@@ -126,11 +126,11 @@ namespace RCWA{
   N: the number of G
   ==============================================================*/
   void getEMatrices(
-    RCWAMatrices* EMatrices,
-    RCWAMatrices* dielectricMatrixTE,
-    RCWAMatrices* dielectricMatrixTM,
-    int numOfLayer,
-    int N
+    RCWAMatrices& EMatrices,
+    const RCWAMatrices& dielectricMatrixTE,
+    const RCWAMatrices& dielectricMatrixTM,
+    const int numOfLayer,
+    const int N
   );
 
   /*============================================================
@@ -151,15 +151,15 @@ namespace RCWA{
   ==============================================================*/
   double poyntingFlux(
     const double omega,
-    const RCWAVector* thicknessList,
+    const RCWAVector& thicknessList,
     double kx,
     double ky,
-    const RCWAMatrices* EMatrices,
-    const RCWAMatrices* grandImaginaryMatrices,
-    const RCWAMatrices* dielectricMatrixTMInv,
-    const RCWAMatrix* Gx_mat,
-    const RCWAMatrix* Gy_mat,
-    const SourceList* sourceList,
+    const RCWAMatrices& EMatrices,
+    const RCWAMatrices& grandImaginaryMatrices,
+    const RCWAMatrices& dielectricMatrixTMInv,
+    const RCWAMatrix& Gx_mat,
+    const RCWAMatrix& Gy_mat,
+    const SourceList& sourceList,
     const int targetLayer,
     const int N
   );

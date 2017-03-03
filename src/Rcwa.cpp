@@ -25,16 +25,14 @@
  [qL, qR] = meshgrid(vl, vR)
 ==============================================================*/
 void RCWA::meshGrid(
-  const RCWAMatrix *vL,
-  const RCWAMatrix *vR,
-  RCWAMatrix *qL,
-  RCWAMatrix *qR
+  const RCWAMatrix& vL,
+  const RCWAMatrix& vR,
+  RCWAMatrix& qL,
+  RCWAMatrix& qR
 ){
-  if(vL == nullptr || vR == nullptr){
-    throw UTILITY::NullPointerException("vL or vR is null");
-  }
-  *qL = repmat((*vL).st(), vR->n_rows, 1);
-  *qR = repmat(*vR, 1, vL->n_rows);
+  
+  qL = repmat(vL.st(), vR.n_rows, 1);
+  qR = repmat(vR, 1, vL.n_rows);
 }
 
 /*============================================================
@@ -51,66 +49,64 @@ void RCWA::getSMatrices(
   const int startLayer,
   const int N,
   const int numOfLayer,
-  RCWAMatrices* MMatrices,
-  RCWAMatrices* FMatrices,
-  RCWAMatrices* SMatrices,
-  DIRECTION direction
+  const RCWAMatrices& MMatrices,
+  const RCWAMatrices& FMatrices,
+  RCWAMatrices& SMatrices,
+  const DIRECTION direction
 ){
-  if(MMatrices == nullptr || FMatrices == nullptr){
-    throw UTILITY::NullPointerException("M matrices or F matrices is null");
-  }
+
   int r1 = 0, r2 = 2*N -1, r3 = 2*N, r4 = 4*N -1;
 // propogating down
   if(direction == ALL_ || direction == DOWN_){
     // propogating down
     for(size_t i = startLayer; i >=1; i--){
-      RCWAMatrix I = solve((*MMatrices)[i], (*MMatrices)[i-1]);
+      RCWAMatrix I = solve(MMatrices[i], MMatrices[i-1]);
       RCWAMatrix leftTop = I(span(r3, r4), span(r3, r4));
       RCWAMatrix rightTop = I(span(r3, r4), span(r1, r2));
       RCWAMatrix leftBottom = I(span(r1, r2), span(r3, r4));
       RCWAMatrix rightBottom = I(span(r1, r2), span(r1, r2));
 
-      (*SMatrices)[i-1](span(r1, r2), span(r1, r2)) = solve(
-        leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
-        (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r1,r2))
+      SMatrices[i-1](span(r1, r2), span(r1, r2)) = solve(
+        leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom,
+        FMatrices[i] * SMatrices[i](span(r1, r2), span(r1,r2))
       );
 
-      (*SMatrices)[i-1](span(r1, r2), span(r3, r4)) = solve(
-        leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
-        (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
-      ) * (*FMatrices)[i-1];
+      SMatrices[i-1](span(r1, r2), span(r3, r4)) = solve(
+        leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom,
+        FMatrices[i] * SMatrices[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
+      ) * FMatrices[i-1];
 
-      (*SMatrices)[i-1](span(r3,r4), span(r1,r2)) = (*SMatrices)[i](span(r3,r4), span(r1,r2)) +
-        (*SMatrices)[i](span(r3,r4), span(r3,r4)) * leftBottom * (*SMatrices)[i-1](span(r1,r2), span(r1,r2));
+      SMatrices[i-1](span(r3,r4), span(r1,r2)) = SMatrices[i](span(r3,r4), span(r1,r2)) +
+        SMatrices[i](span(r3,r4), span(r3,r4)) * leftBottom * SMatrices[i-1](span(r1,r2), span(r1,r2));
 
-      (*SMatrices)[i-1](span(r3,r4), span(r3,r4)) = (*SMatrices)[i](span(r3,r4), span(r3,r4)) *
-        (leftBottom * (*SMatrices)[i-1](span(r1,r2), span(r3,r4)) + rightBottom * (*FMatrices)[i-1]);
+      SMatrices[i-1](span(r3,r4), span(r3,r4)) = SMatrices[i](span(r3,r4), span(r3,r4)) *
+        (leftBottom * SMatrices[i-1](span(r1,r2), span(r3,r4)) + rightBottom * FMatrices[i-1]);
     }
   }
   if(direction == ALL_ || direction == UP_){
     // propogating up
     for(size_t i = startLayer; i < numOfLayer - 1; i++){
-      RCWAMatrix I = solve((*MMatrices)[i], (*MMatrices)[i+1]);
+      RCWAMatrix I = solve(MMatrices[i], MMatrices[i+1]);
       RCWAMatrix leftTop = I(span(r1, r2), span(r1, r2));
       RCWAMatrix rightTop = I(span(r1, r2), span(r3, r4));
       RCWAMatrix leftBottom = I(span(r3, r4), span(r1, r2));
       RCWAMatrix rightBottom = I(span(r3, r4), span(r3, r4));
 
-      (*SMatrices)[i+1](span(r1, r2), span(r1, r2)) = solve(
-        leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
-        (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r1,r2))
+      SMatrices[i+1](span(r1, r2), span(r1, r2)) = solve(
+        leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom,
+        FMatrices[i] * SMatrices[i](span(r1, r2), span(r1,r2))
       );
 
-      (*SMatrices)[i+1](span(r1, r2), span(r3, r4)) = solve(
-        leftTop - (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3, r4)) * leftBottom,
-        (*FMatrices)[i] * (*SMatrices)[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
-      ) * (*FMatrices)[i+1];
+      SMatrices[i+1](span(r1, r2), span(r3, r4)) = solve(
+        leftTop - FMatrices[i] * SMatrices[i](span(r1, r2), span(r3, r4)) * leftBottom,
+        FMatrices[i] * SMatrices[i](span(r1, r2), span(r3,r4)) * rightBottom - rightTop
+      ) * FMatrices[i+1];
 
-      (*SMatrices)[i+1](span(r3,r4), span(r1,r2)) = (*SMatrices)[i](span(r3,r4), span(r1,r2)) +
-        (*SMatrices)[i](span(r3,r4), span(r3,r4)) * leftBottom * (*SMatrices)[i+1](span(r1,r2), span(r1,r2));
+      SMatrices[i+1](span(r3,r4), span(r1,r2)) = SMatrices[i](span(r3,r4), span(r1,r2)) +
+        SMatrices[i](span(r3,r4), span(r3,r4)) * leftBottom * SMatrices[i+1](span(r1,r2), span(r1,r2));
 
-      (*SMatrices)[i+1](span(r3,r4), span(r3,r4)) = (*SMatrices)[i](span(r3,r4), span(r3,r4)) *
-        (leftBottom * (*SMatrices)[i+1](span(r1,r2), span(r3,r4)) + rightBottom * (*FMatrices)[i+1]);
+      SMatrices[i+1](span(r3,r4), span(r3,r4)) = SMatrices[i](span(r3,r4), span(r3,r4)) *
+        (leftBottom * SMatrices[i+1](span(r1,r2), span(r3,r4)) + rightBottom * FMatrices[i+1]);
     }
   }
 
@@ -133,7 +129,7 @@ int RCWA::getN(
 @arg:
  x: the input argument
 ==============================================================*/
-RCWA::RCWAMatrix RCWA::sinc(RCWAMatrix x){
+RCWA::RCWAMatrix RCWA::sinc(const RCWAMatrix x){
   RCWAMatrix output = sin(x) / x;
   output.elem( find(x == 0.0) ).ones();
   return output;
@@ -153,9 +149,9 @@ void RCWA::getGMatrices(
   const int nGx,
   const int nGy,
   const double period[2],
-  RCWAMatrix* Gx_mat,
-  RCWAMatrix* Gy_mat,
-  DIMENSION d
+  RCWAMatrix& Gx_mat,
+  RCWAMatrix& Gy_mat,
+  const DIMENSION d
 )
 {
 
@@ -184,10 +180,10 @@ void RCWA::getGMatrices(
     Gy_list(0, i+nGy) = i * Gy;
   }
 
-  meshGrid(&Gx_list, &Gy_list, Gx_mat, Gy_mat);
+  meshGrid(Gx_list, Gy_list, Gx_mat, Gy_mat);
 
-  Gx_mat->reshape(N, 1);
-  Gy_mat->reshape(N, 1);
+  Gx_mat.reshape(N, 1);
+  Gy_mat.reshape(N, 1);
 }
 
 /*============================================================
@@ -199,21 +195,18 @@ numOfLayer: the number of layer in the system
 N: the number of G
 ==============================================================*/
 void RCWA::getGrandImaginaryMatrices(
-  RCWAMatrices* grandImaginaryMatrices,
-  RCWAMatrices* dielectricImMatrix,
+  RCWAMatrices& grandImaginaryMatrices,
+  const RCWAMatrices& dielectricImMatrix,
   int numOfLayer,
   int N
 )
 {
-  if(dielectricImMatrix == nullptr){
-    throw UTILITY::NullPointerException("imaginary matrix is null");
-  }
   for(size_t i = 0; i < numOfLayer; i++){
     RCWAMatrix grandImaginaryMatrix = zeros<RCWAMatrix>(3*N, 3*N);
-    grandImaginaryMatrix(span(0, N-1), span(0, N-1)) = (*dielectricImMatrix)[i];
-    grandImaginaryMatrix(span(N, 2*N-1), span(N, 2*N-1)) = (*dielectricImMatrix)[i];
-    grandImaginaryMatrix(span(2*N, 3*N-1), span(2*N, 3*N-1)) = (*dielectricImMatrix)[i];
-    grandImaginaryMatrices->push_back(grandImaginaryMatrix);
+    grandImaginaryMatrix(span(0, N-1), span(0, N-1)) = dielectricImMatrix[i];
+    grandImaginaryMatrix(span(N, 2*N-1), span(N, 2*N-1)) = dielectricImMatrix[i];
+    grandImaginaryMatrix(span(2*N, 3*N-1), span(2*N, 3*N-1)) = dielectricImMatrix[i];
+    grandImaginaryMatrices.push_back(grandImaginaryMatrix);
   }
 }
 
@@ -226,22 +219,20 @@ numOfLayer: the number of layer in the system
 N: the number of G
 ==============================================================*/
 void RCWA::getEMatrices(
-  RCWAMatrices* EMatrices,
-  RCWAMatrices* dielectricMatrixTE,
-  RCWAMatrices* dielectricMatrixTM,
-  int numOfLayer,
-  int N
+  RCWAMatrices& EMatrices,
+  const RCWAMatrices& dielectricMatrixTE,
+  const RCWAMatrices& dielectricMatrixTM,
+  const int numOfLayer,
+  const int N
 ){
-  if(dielectricMatrixTE == nullptr || dielectricMatrixTM == nullptr){
-    throw UTILITY::NullPointerException("TE or TM matrices is null");
-  }
+
   RCWAMatrix zeroPadding(N, N, fill::zeros);
   for(size_t i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
-      join_horiz((*dielectricMatrixTE)[i], zeroPadding),
-      join_horiz(zeroPadding, (*dielectricMatrixTM)[i])
+      join_horiz(dielectricMatrixTE[i], zeroPadding),
+      join_horiz(zeroPadding, dielectricMatrixTM[i])
     );
-    EMatrices->push_back(EMatrix);
+    EMatrices.push_back(EMatrix);
   }
 }
 
@@ -264,15 +255,15 @@ void RCWA::getEMatrices(
 ==============================================================*/
 double RCWA::poyntingFlux(
   const double omega,
-  const RCWAVector* thicknessList,
+  const RCWAVector& thicknessList,
   double kx,
   double ky,
-  const RCWAMatrices* EMatrices,
-  const RCWAMatrices* grandImaginaryMatrices,
-  const RCWAMatrices* dielectricMatrixZInv,
-  const RCWAMatrix* Gx_mat,
-  const RCWAMatrix* Gy_mat,
-  const SourceList* sourceList,
+  const RCWAMatrices& EMatrices,
+  const RCWAMatrices& grandImaginaryMatrices,
+  const RCWAMatrices& dielectricMatrixZInv,
+  const RCWAMatrix& Gx_mat,
+  const RCWAMatrix& Gy_mat,
+  const SourceList& sourceList,
   const int targetLayer,
   const int N
 ){
@@ -289,11 +280,11 @@ double RCWA::poyntingFlux(
   RCWAMatrix onePadding1N(N, N, fill::eye);
   RCWAMatrix zeroPadding2N(2*N, 2*N, fill::zeros);
   RCWAMatrix zeroPadding4N(4*N, 4*N, fill::zeros);
-  int numOfLayer = thicknessList->n_elem;
+  int numOfLayer = thicknessList.n_elem;
 
   // populate Gx and Gy matrices
-  RCWAMatrix kxMat = diagmat(kx + *Gx_mat);
-  RCWAMatrix kyMat = diagmat(ky + *Gy_mat);
+  RCWAMatrix kxMat = diagmat(kx + Gx_mat);
+  RCWAMatrix kyMat = diagmat(ky + Gy_mat);
   /*======================================================
   this part initializes structure matrices
   =======================================================*/
@@ -313,10 +304,10 @@ double RCWA::poyntingFlux(
   for(size_t i = 0; i < numOfLayer; i++){
 
     TMatrices[i] = join_vert(
-      join_horiz(kyMat * (*dielectricMatrixZInv)[i] * kyMat, -kyMat * (*dielectricMatrixZInv)[i] * kxMat),
-      join_horiz(-kxMat * (*dielectricMatrixZInv)[i] * kyMat, kxMat * (*dielectricMatrixZInv)[i] * kxMat)
+      join_horiz(kyMat * dielectricMatrixZInv[i] * kyMat, -kyMat * dielectricMatrixZInv[i] * kxMat),
+      join_horiz(-kxMat * dielectricMatrixZInv[i] * kyMat, kxMat * dielectricMatrixZInv[i] * kxMat)
     );
-    RCWAMatrix eigMatrix = (*EMatrices)[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;
+    RCWAMatrix eigMatrix = EMatrices[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;
     cx_vec eigVal;
     // here is the problem
     eig_gen(eigVal, EigenVecMatrices[i], eigMatrix);
@@ -328,7 +319,7 @@ double RCWA::poyntingFlux(
       FMatrices[i] = onePadding2N;
     }
     else{
-      FMatrices[i] = diagmat(exp(-IMAG_I * dcomplex((*thicknessList)(i),0) * eigVal));
+      FMatrices[i] = diagmat(exp(-IMAG_I * dcomplex(thicknessList(i),0) * eigVal));
     }
     MMatrices[i] = zeroPadding4N;
     MMatrices[i](span(r1, r2), span(r1, r2)) = (omega * onePadding2N - TMatrices[i] / omega) *
@@ -354,7 +345,7 @@ double RCWA::poyntingFlux(
   }
 
   getSMatrices(targetLayer, N, numOfLayer,
-      &MMatrices, &FMatrices, &S_matrices_target, UP_);
+      MMatrices, FMatrices, S_matrices_target, UP_);
 
   RCWAMatrix q_R, q_L, targetFields, P1, P2, Q1, Q2, R;
   RCWAMatrix integralSelf, integralMutual, integral, poyntingMat;
@@ -368,15 +359,15 @@ double RCWA::poyntingFlux(
   for(size_t layerIdx = 0; layerIdx < targetLayer; layerIdx++){
 
     // if is not source layer, then continue
-    if((*sourceList)[layerIdx] == ISNOTSOURCE_) continue;
+    if(sourceList[layerIdx] == ISNOTSOURCE_) continue;
 
     // initial steps, propogate S matrix
     RCWAMatrix q(diagvec(EigenValMatrices[layerIdx]));
-    meshGrid(&q, &q, &q_R, &q_L);
+    meshGrid(q, q, q_R, q_L);
 
     // defining source
-    source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * (*dielectricMatrixZInv)[layerIdx] / omega;
-    source(span(N, 2*N-1), span(2*N, 3*N-1)) = kxMat * (*dielectricMatrixZInv)[layerIdx] / omega;
+    source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * dielectricMatrixZInv[layerIdx] / omega;
+    source(span(N, 2*N-1), span(2*N, 3*N-1)) = kxMat * dielectricMatrixZInv[layerIdx] / omega;
     source(span(2*N, 3*N-1), span(N, 2*N-1)) = onePadding1N;
     source(span(3*N, 4*N-1), span(0, N-1)) = -onePadding1N;
 
@@ -389,7 +380,7 @@ double RCWA::poyntingFlux(
     }
 
     getSMatrices(layerIdx, N, numOfLayer,
-        &MMatrices, &NewFMatrices, &S_matrices, ALL_);
+        MMatrices, NewFMatrices, S_matrices, ALL_);
 
 
     // solve the source
@@ -412,16 +403,16 @@ double RCWA::poyntingFlux(
     // calculating R
     R = MMatrices[targetLayer] * join_vert(FMatrices[targetLayer] * P1, P2) *
       Q1.i() * join_horiz(onePadding2N, Q2);
-    
+
     // calculating integrands
     if(layerIdx == 0 || layerIdx == numOfLayer - 1){
       integralSelf = 1 / (IMAG_I * (q_L - conj(q_R)));
       integralMutual = zeroPadding2N;
     }
     else{
-      integralSelf = (1 - exp(-IMAG_I * dcomplex((*thicknessList)[layerIdx], 0) * (q_L - conj(q_R)))) /
+      integralSelf = (1 - exp(-IMAG_I * dcomplex(thicknessList[layerIdx], 0) * (q_L - conj(q_R)))) /
         (IMAG_I * (q_L - conj(q_R)));
-      integralMutual = (exp(IMAG_I * dcomplex((*thicknessList)[layerIdx], 0) * conj(q_R)) - exp(-IMAG_I * dcomplex((*thicknessList)[layerIdx], 0) * q_L)) /
+      integralMutual = (exp(IMAG_I * dcomplex(thicknessList[layerIdx], 0) * conj(q_R)) - exp(-IMAG_I * dcomplex(thicknessList[layerIdx], 0) * q_L)) /
         (IMAG_I * (q_L + conj(q_R)));
     }
 
@@ -431,7 +422,7 @@ double RCWA::poyntingFlux(
     );
 
     // calculating kernel
-    poyntingMat = (targetFields * (*grandImaginaryMatrices)[layerIdx] * targetFields.t()) % integral;
+    poyntingMat = (targetFields * grandImaginaryMatrices[layerIdx] * targetFields.t()) % integral;
 
     poyntingMat = -R * poyntingMat * R.t();
     flux += real(trace(poyntingMat(span(r1, r2), span(r3, r4))));

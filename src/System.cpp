@@ -137,7 +137,7 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  Layer::Layer(const Ptr<Material> material, const double thickness) :
+  Layer::Layer(const Ptr<Material>& material, const double thickness) :
     thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
     backGround_ = material;
   }
@@ -146,7 +146,7 @@ namespace SYSTEM{
   This is a thin wrapper for the usage of smart pointer
   =======================================================*/
   Ptr<Layer> Layer::instanceNew(
-    const Ptr<Material> material,
+    const Ptr<Material>& material,
     const double thickness
   ){
     return new Layer(material, thickness);
@@ -154,7 +154,7 @@ namespace SYSTEM{
   /*======================================================
   Layer constructor with back ground material
   =======================================================*/
-  Layer::Layer(const Ptr<Material> material) :
+  Layer::Layer(const Ptr<Material>& material) :
     source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
     //backGround_ = new Material(*material);
     backGround_ = material;
@@ -163,7 +163,7 @@ namespace SYSTEM{
   This is a thin wrapper for the usage of smart pointer
   =======================================================*/
   Ptr<Layer> Layer::instanceNew(
-    const Ptr<Material> material
+    const Ptr<Material>& material
   ){
     return new Layer(material);
   }
@@ -196,7 +196,7 @@ namespace SYSTEM{
   @args:
   material: the background material
   =======================================================*/
-  void Layer::setBackGround(const Ptr<Material> material){
+  void Layer::setBackGround(const Ptr<Material>& material){
     //backGround_ = new Material(*material);
     backGround_ = material;
   }
@@ -306,7 +306,7 @@ namespace SYSTEM{
   args2: the widths in x and y directions
   =======================================================*/
   void Layer::addRectanlgePattern(
-    const Ptr<Material> material,
+    const Ptr<Material>& material,
     const double args1[2],
     const double args2[2]
   ){
@@ -324,7 +324,7 @@ namespace SYSTEM{
   radius: the radius of the circle
   =======================================================*/
   void Layer::addCirclePattern(
-    const Ptr<Material> material,
+    const Ptr<Material>& material,
     const double args[2],
     const double radius
   ){
@@ -342,7 +342,7 @@ namespace SYSTEM{
   end: the end position of this pattern
   =======================================================*/
   void Layer::addGratingPattern(
-    const Ptr<Material> material,
+    const Ptr<Material>& material,
     const double start,
     const double end
   ){
@@ -395,7 +395,7 @@ namespace SYSTEM{
   @args:
   layer: the added layer
   =======================================================*/
-  void Structure::addLayer(const Ptr<Layer> layer){
+  void Structure::addLayer(const Ptr<Layer>& layer){
     int size = layerMap_.size();
     layerMap_.insert(LayerMap::value_type(size, layer));
   }
