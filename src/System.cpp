@@ -180,6 +180,63 @@ namespace SYSTEM{
   =======================================================*/
   Layer::~Layer(){
   }
+
+  /*======================================================
+  function return a copy of the layer
+  @arg:
+  name: the name of the new layer
+  =======================================================*/
+
+  Ptr<Layer> Layer::layerCopy(const string name){
+    Ptr<Layer> newLayer = Layer::instanceNew(name);
+    newLayer->setBackGround(this->getBackGround());
+    newLayer->setThickness(this->getThickness());
+    switch (this->checkIsSource()) {
+      case ISSOURCE_:{
+        newLayer->setIsSource();
+        break;
+      }
+      case ISNOTSOURCE_:{
+        newLayer->setIsNotSource();
+        break;
+      }
+      default: break;
+    }
+    const_MaterialIter itMat = this->getVecBegin();
+    const_PatternIter itArg1 = this->getArg1Begin();
+    const_PatternIter itArg2 = this->getArg2Begin();
+    switch (this->getPattern()) {
+      case GRATING_:{
+        for(int count = 0; (itMat + count) != this->getVecEnd(); count++){
+          const std::pair<double, double> arg1Pair = *(itArg1 + count);
+          newLayer->addGratingPattern(*(itMat + count), arg1Pair.first, arg1Pair.second);
+        }
+        break;
+      }
+      case RECTANGLE_:{
+        for(int count = 0; (itMat + count) != this->getVecEnd(); count++){
+          const std::pair<double, double> arg1Pair = *(itArg1 + count);
+          const std::pair<double, double> arg2Pair = *(itArg2 + count);
+          const double arg1[2] = {arg1Pair.first, arg1Pair.second};
+          const double arg2[2] = {arg2Pair.first, arg2Pair.second};
+          newLayer->addRectanlgePattern(*(itMat + count), arg1, arg2);
+        }
+        break;
+      }
+      case CIRCLE_:{
+        for(int count = 0; (itMat + count) != this->getVecEnd(); count++){
+          const std::pair<double, double> arg1Pair = *(itArg1 + count);
+          const std::pair<double, double> arg2Pair = *(itArg2 + count);
+          const double arg[2] = {arg1Pair.first, arg2Pair.first};
+          const double radius = arg1Pair.second;
+          newLayer->addCirclePattern(*(itMat + count), arg, radius);
+        }
+        break;
+      }
+      default:break;
+    }
+    return newLayer;
+  }
   /*======================================================
   set background by material
   @args:
@@ -395,6 +452,28 @@ namespace SYSTEM{
     layerMap_.insert(LayerMap::value_type(size, layer));
   }
   /*======================================================
+  function deleting a layer in the structure by its name
+  @args:
+  name: the name of the layer
+  =======================================================*/
+  void Structure::deleteLayerByName(const string name){
+    for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
+      if(!name.compare((it->second)->getName())){
+        this->deleteLayer(it);
+        break;
+      }
+    }
+    this->reorganizeLayers();
+  }
+  /*======================================================
+  function deleting a layer in the structure by its pointer
+  @args:
+  layer: the pointer of the layer
+  =======================================================*/
+  void Structure::deleteLayerByLayer(const Ptr<Layer>& layer){
+    this->deleteLayerByName(layer->getName());
+  }
+  /*======================================================
   function getting a layer by its index
   @args:
   index: the index of the wanted layer
@@ -440,5 +519,23 @@ namespace SYSTEM{
   double* Structure::getPeriodicity(){
     return period_;
   }
-
+  /*======================================================
+  erase one layer of the system
+  @args:
+  it: the iterator of the Layermap
+  =======================================================*/
+  void Structure::deleteLayer(const_LayerIter it){
+    layerMap_.erase(it);
+  }
+  /*======================================================
+  function rehashing the layermap
+  =======================================================*/
+  void Structure::reorganizeLayers(){
+    LayerMap newMap;
+    for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
+      newMap.insert(LayerMap::value_type(newMap.size(), it->second));
+    }
+    layerMap_.clear();
+    layerMap_ = newMap;
+  }
 }

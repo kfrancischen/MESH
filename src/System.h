@@ -94,6 +94,8 @@ namespace SYSTEM{
     ~Layer();
     Layer(const Layer& layer) = delete;
 
+    Ptr<Layer> layerCopy(const string name);
+
     void setBackGround(const Ptr<Material>& material);
     void setThickness(const double thickness);
     void setIsSource();
@@ -152,6 +154,8 @@ namespace SYSTEM{
     void setPeriodicity(const double p1, const double p2 = 0);
 
     void addLayer(const Ptr<Layer>& layer);
+    void deleteLayerByName(const string name);
+    void deleteLayerByLayer(const Ptr<Layer>& layer);
     Ptr<Layer> getLayerByIndex(const int index);
     int getNumOfLayer();
     void getThicknessList(double* thicknessList);
@@ -163,6 +167,8 @@ namespace SYSTEM{
 
   private:
     Structure();
+    void deleteLayer(const_LayerIter it);
+    void reorganizeLayers();
     LayerMap layerMap_;
     double* period_;
   };
