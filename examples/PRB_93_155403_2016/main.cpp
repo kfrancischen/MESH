@@ -3,26 +3,25 @@
 int main(){
 
   // initializing material
-  int numOfOmega = 96;
+  int numOfOmega = 1;
   double omega[numOfOmega];
   dcomplex epsilon[numOfOmega];
   fileLoader("fullGold.txt", omega, epsilon, numOfOmega);
   Ptr<Material> Gold = Material::instanceNew("Au", omega, epsilon, numOfOmega);
   fileLoader("fullVacuum.txt", omega, epsilon, numOfOmega);
   Ptr<Material> Vacuum = Material::instanceNew("Vacuum", omega, epsilon, numOfOmega);
-
   // initializing layer
-  Ptr<Layer> vacLayer = Layer::instanceNew(Vacuum, 0);
-  Ptr<Layer> GoldLayerBottomSub = Layer::instanceNew(Gold, 0.5e-6);
-  Ptr<Layer> GoldLayerBottomGrating = Layer::instanceNew(Gold, 5e-6);
-  GoldLayerBottomSub->setIsSource();
+  Ptr<Layer> vacLayer = Layer::instanceNew("VacLayer", Vacuum, 0);
+  Ptr<Layer> GoldLayerBottomSub = Layer::instanceNew("GoldLayerBottomSub", Gold, 0.5e-6);
+  Ptr<Layer> GoldLayerBottomGrating = Layer::instanceNew("GoldLayerBottomGrating", Gold, 5e-6);
+  //GoldLayerBottomSub->setIsSource();
   GoldLayerBottomGrating->addGratingPattern(Vacuum, 0.4e-6, 0.6e-6);
   GoldLayerBottomGrating->setIsSource();
 
-  Ptr<Layer> vacGap = Layer::instanceNew(Vacuum, 1e-6);
+  Ptr<Layer> vacGap = Layer::instanceNew("VacGap", Vacuum, 1e-6);
 
-  Ptr<Layer> GoldLayerTopSub = Layer::instanceNew(Gold, 0.5e-6);
-  Ptr<Layer> GoldLayerTopGrating = Layer::instanceNew(Gold, 5e-6);
+  Ptr<Layer> GoldLayerTopSub = Layer::instanceNew("GoldLayerTopSub", Gold, 0.5e-6);
+  Ptr<Layer> GoldLayerTopGrating = Layer::instanceNew("GoldLayerTopGrating ", Gold, 5e-6);
   GoldLayerTopGrating->addGratingPattern(Vacuum, 0.4e-6, 0.6e-6);
 
   // initializing structure
@@ -39,14 +38,14 @@ int main(){
   // initializing simulation
   Ptr<SimulationGrating> s = SimulationGrating::instanceNew();
   s->addStructure(structure);
-  s->setGx(0);
+  s->setGx(50);
   s->setTargetLayerByLayer(vacGap);
   s->setOutputFile("gold_to_vac.txt");
-  s->setKxIntegralSym(500);
-  s->setKyIntegral(100, 10);
+  s->setKxIntegralSym(10);
+  s->setKyIntegral(10, 1);
   s->build();
   s->run();
 
-  //std::cout << s->getPhiAtKxKy(0, 0.2, 0.2) << std::endl;
+  //std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
   return 0;
 }
