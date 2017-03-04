@@ -1,11 +1,11 @@
 OBJDIR = build
-SHLIB_EXT = do
+SHLIB_EXT = so
 SHLIB_FLAGS = -fPIC -shared
 
-CFLAGS += -Wall -O3 -ffast-math -march=native -fcx-limited-range -fno-exceptions -fPIC -larmadillo -lopenblas -llapack
-CXXFlAGS += -Wall -O3 -ffast-math -march=native -fcx-limited-range -fno-exceptions -fPIC -larmadillo -lopenblas -llapack
-LA_LIBS = -O3 -ffast-math -lopenblas -llapack
-ARMA_LIBS = -larmadillo
+CFLAGS   += -O3 -ffast-math -march=native -fcx-limited-range -fPIC
+CXXFLAGS += -std=c++11 -O3 -ffast-math -march=native -fcx-limited-range -fPIC
+
+LA_LIBS = -lopenblas -llapack
 
 LUA_INC = -I/usr/local/include
 LUA_LIB = -llua -ldl
