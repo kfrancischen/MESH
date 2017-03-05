@@ -20,39 +20,110 @@
 #include "Mesh.h"
 
 namespace MESH{
-  /*==============================================
-  This function loads data from disk
-  @args:
-  fileName: the name of the input file
-  omega: the input omega list
-  epsilon: the input epsilon list
-  size: the size of omega
-  ==============================================*/
-  void fileLoader(
-    const std::string fileName,
-    double* omega,
-    dcomplex* epsilon,
-    const int size
-  ){
+  /*==============================================*/
+  // Constructor of the FileLoader class
+  /*==============================================*/
+  FileLoader::FileLoader(const int numOfOmega){
+    if(numOfOmega != 0){
+      preSet_ = true;
+      numOfOmega_ = numOfOmega;
+    }
+    else{
+      numOfOmega_ = 0;
+    }
+    omegaList_ = nullptr;
+    epsilonList_ = nullptr;
+  }
+  /*==============================================*/
+  // This is a thin wrapper for the usage of smart pointer
+  /*==============================================*/
+  Ptr<FileLoader> FileLoader::instanceNew(){
+    return new FileLoader();
+  }
+  /*==============================================*/
+  // This is a thin wrapper for the usage of smart pointer
+  /*==============================================*/
+  Ptr<FileLoader> FileLoader::instanceNew(const int numOfOmega){
+    return new FileLoader(numOfOmega);
+  }
+  /*==============================================*/
+  // Function reads a file from disk
+  // @args
+  // fileName: the name of the file
+  /*==============================================*/
+  void FileLoader::load(const std::string fileName){
     std::ifstream inputFile(fileName);
     if(!inputFile.good()){
       throw UTILITY::FileNotExistException(fileName + " not exists!");
     }
     std::string line;
-    double real, imag;
-    for(size_t i = 0; i < size; i++){
-      inputFile >> omega[i] >> real >> imag;
-      epsilon[i] = dcomplex(real, -imag);
+    int count = 0;
+    while(std::getline(inputFile, line)){
+      count++;
     }
     inputFile.close();
+    if(!preSet_){
+      if(numOfOmega_ != 0 && numOfOmega_ != count){
+        throw UTILITY::StorageException(fileName + " wrong length!");
+      }
+      numOfOmega_ = count;
+    }
+    else{
+      if(numOfOmega_ > count){
+        throw UTILITY::RangeException("not enought omega points!");
+      }
+    }
+    
+    if(omegaList_ == nullptr){
+      omegaList_ = new double[numOfOmega_];
+    }
+    if(epsilonList_ == nullptr){
+      epsilonList_ = new dcomplex[numOfOmega_];
+    }
+
+    std::ifstream inputFile2(fileName);
+    double real, imag;
+    for(int i = 0; i < numOfOmega_; i++){
+      inputFile2 >> omegaList_[i] >> real >> imag;
+      epsilonList_[i] = dcomplex(real, -imag);
+    }
+    inputFile2.close();
+
   }
 
-  /*==============================================
-  This function wraps the data for quad_legendre
-  @args:
-  kx: the kx value (normalized)
-  data: wrapper for all the arguments wrapped in wrapper
-  ==============================================*/
+  /*==============================================*/
+  // Function returning the omega values
+  /*==============================================*/
+  double* FileLoader::getOmegaList(){
+    return omegaList_;
+  }
+  /*==============================================*/
+  // Function returning the epsilon values
+  /*==============================================*/
+  dcomplex* FileLoader::getEpsilonList(){
+    return epsilonList_;
+  }
+  /*==============================================*/
+  // Function returning number of omega points
+  /*==============================================*/
+  int FileLoader::getNumOfOmega(){
+    return numOfOmega_;
+  }
+  /*==============================================*/
+  // Class destructor
+  /*==============================================*/
+  FileLoader::~FileLoader(){
+    delete [] omegaList_;
+    omegaList_ = nullptr;
+    delete [] epsilonList_;
+    epsilonList_ = nullptr;
+  }
+  /*==============================================*/
+  // This function wraps the data for quad_legendre
+  // @args:
+  // kx: the kx value (normalized)
+  // data: wrapper for all the arguments wrapped in wrapper
+  /*==============================================*/
   double wrapperFun(const double kx, void* data){
     ArgWrapper wrapper = *(ArgWrapper*) data;
     return kx * poyntingFlux(
@@ -70,9 +141,9 @@ namespace MESH{
       1
     );
   }
-  /*======================================================
-  Implementaion of the parent simulation super class
-  =======================================================*/
+  /*======================================================*/
+  // Implementaion of the parent simulation super class
+  /*=======================================================*/
   Simulation::Simulation() : nGx_(0), nGy_(0), numOfOmega_(0), structure_(nullptr),
   Phi_(nullptr), omegaList_(nullptr), kxStart_(0), kxEnd_(0), kyStart_(0), kyEnd_(0), numOfKx_(0), numOfKy_(0)
   {
@@ -83,7 +154,9 @@ namespace MESH{
     targetLayer_ = -1;
     dim_ = NO_;
   }
-
+  /*==============================================*/
+  // Class destructor
+  /*==============================================*/
   Simulation::~Simulation(){
     delete[] Phi_;
     Phi_ = nullptr;
@@ -91,57 +164,57 @@ namespace MESH{
     period_ = nullptr;
   }
 
-  /*==============================================
-  This function saves data to disk
-  ==============================================*/
+  /*==============================================*/
+  // This function saves data to disk
+  /*==============================================*/
   void Simulation::saveToFile(){
     std::ofstream outputFile(output_);
-    for(size_t i = 0; i < numOfOmega_; i++){
+    for(int i = 0; i < numOfOmega_; i++){
       outputFile << omegaList_[i] << "\t" << Phi_[i] << std::endl;
     }
     outputFile.close();
   }
 
-  /*==============================================
-  This function adds structure to the simulation
-  @args:
-  structure: the structure of the simulation
-  ==============================================*/
+  /*==============================================*/
+  // This function adds structure to the simulation
+  // @args:
+  // structure: the structure of the simulation
+  /*==============================================*/
   void Simulation::addStructure(const Ptr<Structure>& structure){
     structure_ = structure;
     period_ = structure_->getPeriodicity();
   }
-  /*==============================================
-  This function set the output file name
-  @args:
-  name: the output file name
-  ==============================================*/
+  /*==============================================*/
+  // This function set the output file name
+  // @args:
+  // name: the output file name
+  /*==============================================*/
   void Simulation::setOutputFile(std::string name){
     output_ = name;
   }
-  /*==============================================
-  This function sets number of positive Gx
-  @args:
-  Gx: number of positive Gx
-  ==============================================*/
+  /*==============================================*/
+  // This function sets number of positive Gx
+  // @args:
+  // Gx: number of positive Gx
+  /*==============================================*/
   void Simulation::setGx(const int Gx){
     nGx_ = Gx;
   }
 
-  /*==============================================
-  This function sets number of positive Gy
-  @args:
-  Gy: number of positive Gy
-  ==============================================*/
+  /*==============================================*/
+  // This function sets number of positive Gy
+  // @args:
+  // Gy: number of positive Gy
+  /*==============================================*/
   void Simulation::setGy(const int Gy){
     nGy_ = Gy;
   }
 
-  /*==============================================
-  This function sets the target layer by layer index
-  @args:
-  index: target layer index
-  ==============================================*/
+  /*==============================================*/
+  // This function sets the target layer by layer index
+  // @args:
+  // index: target layer index
+  /*==============================================*/
   void Simulation::setTargetLayerByIndex(const int index){
     if(index >= structure_->getNumOfLayer()){
       throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
@@ -149,13 +222,13 @@ namespace MESH{
     targetLayer_ = index;
   }
 
-  /*==============================================
-  This function sets the target layer by layer
-  @args:
-  index: target layer
-  ==============================================*/
+  /*==============================================*/
+  // This function sets the target layer by layer
+  // @args:
+  // index: target layer
+  /*==============================================*/
   void Simulation::setTargetLayerByLayer(const Ptr<Layer>& layer){
-    for(size_t i = 0; i < structure_->getNumOfLayer(); i++){
+    for(int i = 0; i < structure_->getNumOfLayer(); i++){
       if(structure_->getLayerByIndex(i) == layer){
         targetLayer_ = i;
         return;
@@ -163,9 +236,9 @@ namespace MESH{
     }
   }
 
-  /*==============================================
-  This function cleans up the simulation
-  ==============================================*/
+  /*==============================================*/
+  // This function cleans up the simulation
+  /*==============================================*/
   void Simulation::resetSimulation(){
     for(size_t i = 0; i < EMatricesVec_.size(); i++){
       EMatricesVec_[i].clear();
@@ -177,37 +250,37 @@ namespace MESH{
     dielectricMatrixZInvVec_.clear();
   }
 
-  /*==============================================
-  This function gets the structure
-  ==============================================*/
+  /*==============================================*/
+  // This function gets the structure
+  /*==============================================*/
   Ptr<Structure> Simulation::getStructure(){
     return structure_;
   }
 
-  /*==============================================
-  This function gets the omega array
-  ==============================================*/
+  /*==============================================*/
+  // This function gets the omega array
+  /*==============================================*/
   double* Simulation::getOmegaList(){
     return omegaList_;
   }
 
-  /*==============================================
-  This function gets the periodicity
-  ==============================================*/
+  /*==============================================*/
+  // This function gets the periodicity
+  /*==============================================*/
   double* Simulation::getPeriodicity(){
     return period_;
   }
 
-  /*==============================================
-  This function gets the Phi at given kx and ky
-  @args:
-  omegaIndex: the index of omega
-  kx: the kx value, normalized
-  ky: the ky value, normalized
-  @note
-  used by grating and patterning
-  N: the number of total G
-  ==============================================*/
+  /*==============================================*/
+  // This function gets the Phi at given kx and ky
+  // @args:
+  // omegaIndex: the index of omega
+  // kx: the kx value, normalized
+  // ky: the ky value, normalized
+  // @note
+  // used by grating and patterning
+  // N: the number of total G
+  /*==============================================*/
   double Simulation::getPhiAtKxKy(const int omegaIdx, const double kx, const double ky, const int N){
     if(omegaIdx >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
@@ -218,14 +291,14 @@ namespace MESH{
       sourceList_, targetLayer_,N);
   }
 
-  /*==============================================
-  This function computes the Fourier transform for planar
-  @args:
-  dielectricMatrixVecTE: the vector containing dielectric matrices
-  dielectricImMatrixVec: the vector containing imaginary part matrices
-  epsilonBG: the epsilon values for the background
-  N: the number of total G
-  ==============================================*/
+  /*==============================================*/
+  // This function computes the Fourier transform for planar
+  // @args:
+  // dielectricMatrixVecTE: the vector containing dielectric matrices
+  // dielectricImMatrixVec: the vector containing imaginary part matrices
+  // epsilonBG: the epsilon values for the background
+  // N: the number of total G
+  /*==============================================*/
   void Simulation::transformPlanar(
     RCWAMatricesVec& dielectricMatrixVecTE,
     RCWAMatricesVec& dielectricMatrixVecTM,
@@ -234,22 +307,22 @@ namespace MESH{
     const int N
   ){
     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
-    for(size_t i = 0; i < numOfOmega_; i++){
+    for(int i = 0; i < numOfOmega_; i++){
       dielectricMatrixVecTE[i].push_back(onePadding1N * epsilonBG[i]);
       dielectricMatrixVecTM[i].push_back(onePadding1N * epsilonBG[i]);
       dielectricImMatrixVec[i].push_back(onePadding1N * (epsilonBG[i]).imag());
       dielectricMatrixZInvVec_[i].push_back(onePadding1N * dcomplex(1, 0) / epsilonBG[i]);
     }
   }
-  /*==============================================
-  This function computes the Fourier transform for grating
-  @args:
-  dielectricMatrixVecTE: the vector containing dielectric matrices
-  dielectricImMatrixVec: the vector containing imaginary part matrices
-  layer: the current layer
-  epsilonBG: the epsilon values for the background
-  N: the number of total G
-  ==============================================*/
+  /*==============================================*/
+  // This function computes the Fourier transform for grating
+  // @args:
+  // dielectricMatrixVecTE: the vector containing dielectric matrices
+  // dielectricImMatrixVec: the vector containing imaginary part matrices
+  // layer: the current layer
+  // epsilonBG: the epsilon values for the background
+  // N: the number of total G
+  /*==============================================*/
   void Simulation::transformGrating(
     RCWAMatricesVec& dielectricMatrixVecTE,
     RCWAMatricesVec& dielectricMatrixVecTM,
@@ -275,7 +348,7 @@ namespace MESH{
       widthVec(count) = it->second - it->first;
       count++;
     }
-    for (size_t i = 0; i < numOfOmega_; i++) {
+    for (int i = 0; i < numOfOmega_; i++) {
       RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInv(N, N, fill::zeros);
       count = 0;
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
@@ -306,15 +379,15 @@ namespace MESH{
 
   }
 
-  /*==============================================
-  This function computes the Fourier transform for rectangle
-  @args:
-  dielectricMatrixVecTE: the vector containing dielectric matrices
-  dielectricImMatrixVec: the vector containing imaginary part matrices
-  layer: the current layer
-  epsilonBG: the epsilon values for the background
-  N: the number of total G
-  ==============================================*/
+  /*==============================================*/
+  // This function computes the Fourier transform for rectangle
+  // @args:
+  // dielectricMatrixVecTE: the vector containing dielectric matrices
+  // dielectricImMatrixVec: the vector containing imaginary part matrices
+  // layer: the current layer
+  // epsilonBG: the epsilon values for the background
+  // N: the number of total G
+  /*==============================================*/
   void Simulation::transformRectangle(
     RCWAMatricesVec& dielectricMatrixVecTE,
     RCWAMatricesVec& dielectricMatrixVecTM,
@@ -347,7 +420,7 @@ namespace MESH{
       count++;
     }
 
-    for (size_t i = 0; i < numOfOmega_; i++) {
+    for (int i = 0; i < numOfOmega_; i++) {
       count = 0;
       RCWAMatrix dielectricMatrix(N, N, fill::zeros), dielectricImMatrix(N, N, fill::zeros), dielectricMatrixInv(N, N, fill::zeros);
       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
@@ -377,15 +450,15 @@ namespace MESH{
     }
   }
 
-  /*==============================================
-  This function computes the Fourier transform for circle
-  @args:
-  dielectricMatrixVecTE: the vector containing dielectric matrices
-  dielectricImMatrixVec: the vector containing imaginary part matrices
-  layer: the current layer
-  epsilonBG: the epsilon values for the background
-  N: the number of total G
-  ==============================================*/
+  /*==============================================*/
+  // This function computes the Fourier transform for circle
+  // @args:
+  // dielectricMatrixVecTE: the vector containing dielectric matrices
+  // dielectricImMatrixVec: the vector containing imaginary part matrices
+  // layer: the current layer
+  // epsilonBG: the epsilon values for the background
+  // N: the number of total G
+  /*==============================================*/
   void Simulation::transformCircle(
       RCWAMatricesVec& dielectricMatrixVecTE,
       RCWAMatricesVec& dielectricMatrixVecTM,
@@ -397,9 +470,9 @@ namespace MESH{
     // TODO
   }
 
-  /*==============================================
-  This function builds up the matrices
-  ==============================================*/
+  /*==============================================*/
+  // This function builds up the matrices
+  /*==============================================*/
   void Simulation::build(){
     // essential, get the shared Gx_mat_ and Gy_mat_
     getGMatrices(nGx_, nGy_, period_, Gx_mat_, Gy_mat_, dim_);
@@ -416,12 +489,13 @@ namespace MESH{
     RCWAMatricesVec dielectricMatrixVecTE(numOfOmega_), dielectricMatrixVecTM(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
-    for(size_t i = 0; i < numOfLayer; i++){
+    for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
-      dcomplex* epsilonBG = (layer->getBackGround())->getEpsilon();
+      dcomplex* epsilonBG = (layer->getBackGround())->getEpsilonList();
       switch (layer->getPattern()) {
-        /*************************************
-        /* if the pattern is a plane */
+        /*************************************/
+        // if the pattern is a plane
+        /*************************************/
         case PLANAR_:{
           this->transformPlanar(
             dielectricMatrixVecTE,
@@ -432,8 +506,8 @@ namespace MESH{
           );
           break;
         }
-        /*************************************
-        /* if the pattern is a grating (1D) */
+        /*************************************/
+        // if the pattern is a grating (1D)
         /************************************/
         case GRATING_:{
           this->transformGrating(
@@ -447,8 +521,8 @@ namespace MESH{
           break;
         }
 
-        /*************************************
-        /* if the pattern is a rectangle (2D) */
+        /*************************************/
+        // if the pattern is a rectangle (2D)
         /************************************/
         case RECTANGLE_:{
           this->transformRectangle(
@@ -462,8 +536,8 @@ namespace MESH{
           break;
         }
 
-      /*************************************
-      /* if the pattern is a circle (2D) */
+      /*************************************/
+      // if the pattern is a circle (2D)
       /************************************/
         case CIRCLE_:{
           this->transformCircle(
@@ -479,7 +553,7 @@ namespace MESH{
         default: break;
       }
     }
-    for(size_t i = 0; i < numOfOmega_; i++){
+    for(int i = 0; i < numOfOmega_; i++){
       getEMatrices(
         EMatricesVec_[i],
         dielectricMatrixVecTE[i],
@@ -498,16 +572,16 @@ namespace MESH{
 
     thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
     sourceList_.resize(numOfLayer);
-    for(size_t i = 0; i < numOfLayer; i++){
+    for(int i = 0; i < numOfLayer; i++){
       thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness();
       sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
     }
 
   }
 
-  /*==============================================
-  This function computes the flux
-  ==============================================*/
+  /*==============================================*/
+  // This function computes the flux
+  /*==============================================*/
   void Simulation::run(){
 
     double kxList[numOfKx_], kyList[numOfKy_];
@@ -588,13 +662,13 @@ namespace MESH{
       }
 
       // wait for all the slave process finished
-      for(size_t thread = 1; thread < numProcs; thread++){
+      for(int thread = 1; thread < numProcs; thread++){
         MPI_Recv(&start, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
         MPI_Recv(&end, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
         MPI_Recv(&resultArray[start], end - start, MPI_DOUBLE, thread, RECVTAG, MPI_COMM_WORLD, &status);
       }
-      for(size_t i = 0; i < numOfOmega_; i++){
-        for(size_t j = 0; j < numOfKx_ * numOfKy_; j++){
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < numOfKx_ * numOfKy_; j++){
           Phi_[i] += resultArray[i * numOfKx_ * numOfKy_ + j];
         }
         Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i];
@@ -628,25 +702,25 @@ namespace MESH{
     resultArray = nullptr;
     MPI_Finalize();
   }
-  /*======================================================
-  Implementaion of the class on planar simulation
-  =======================================================*/
+  /*==============================================*/
+  // Implementaion of the class on planar simulation
+  /*==============================================*/
   SimulationPlanar::SimulationPlanar() : Simulation(){
     dim_ = NO_;
     degree_ = DEGREE;
   }
-  /*======================================================
-  This is a thin wrapper for the usage of smart pointer
-  =======================================================*/
+  /*==============================================*/
+  // This is a thin wrapper for the usage of smart pointer
+  /*==============================================*/
   Ptr<SimulationPlanar> SimulationPlanar::instanceNew(){
     return new SimulationPlanar();
   };
-  /*======================================================
-  Function setting the integral over kx
-  @args:
-  end: the end of the integration
-  degree: the degree of gauss_legendre integral, default 512
-  =======================================================*/
+  /*==============================================*/
+  // Function setting the integral over kx
+  // @args:
+  // end: the end of the integration
+  // degree: the degree of gauss_legendre integral, default 512
+  /*==============================================*/
   void SimulationPlanar::setKxIntegral(const double end, const int degree){
     kxStart_ = 0;
     numOfKx_ = 0;
@@ -654,12 +728,12 @@ namespace MESH{
     degree_ = degree;
   }
 
-  /*==============================================
-  This function gets the flux at a given kx
-  @args:
-  omegaIndex: the index of omega
-  kx: the kx value, normalized
-  ==============================================*/
+  /*==============================================*/
+  // This function gets the flux at a given kx
+  // @args:
+  // omegaIndex: the index of omega
+  // kx: the kx value, normalized
+  /*==============================================*/
   double SimulationPlanar::getPhiAtKx(const int omegaIdx, const double kx){
     if(omegaIdx >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
@@ -671,11 +745,10 @@ namespace MESH{
   }
 
 
-  /*==============================================
-  This function integrates kx using gauss_legendre method
-  ==============================================*/
+  /*==============================================*/
+  // This function integrates kx using gauss_legendre method
+  /*==============================================*/
   void SimulationPlanar::run(){
-    MPI_Status status;
     int rank, numProcs, start, end;
     int offset = 0;
     MPI_Init(NULL, NULL);
@@ -733,24 +806,24 @@ namespace MESH{
     MPI_Finalize();
 
   }
-  /*======================================================
-  Implementaion of the class on 1D grating simulation
-  =======================================================*/
+  /*==============================================*/
+  // Implementaion of the class on 1D grating simulation
+  /*==============================================*/
   SimulationGrating::SimulationGrating() : Simulation(){
     prefactor_ = 2;
     dim_ = ONE_;
   }
-  /*======================================================
-  This is a thin wrapper for the usage of smart pointer
-  =======================================================*/
+  /*==============================================*/
+  // This is a thin wrapper for the usage of smart pointer
+  /*==============================================*/
   Ptr<SimulationGrating> SimulationGrating::instanceNew(){
     return new SimulationGrating();
   }
-  /*======================================================
-  Function setting the integral over kx
-  @args:
-  points: number of points of sampling kx
-  =======================================================*/
+  /*==============================================*/
+  // Function setting the integral over kx
+  // @args:
+  // points: number of points of sampling kx
+  /*==============================================*/
   void SimulationGrating::setKxIntegral(const int points){
     numOfKx_ = points;
     if(period_[0] == 0.0){
@@ -760,11 +833,11 @@ namespace MESH{
     kxEnd_ = -kxStart_;
   }
 
-  /*==============================================
-  This function set the integral of kx when the system is symmetric in x direction
-  @args:
-  points: number of kx points
-  ==============================================*/
+  /*==============================================*/
+  // This function set the integral of kx when the system is symmetric in x direction
+  // @args:
+  // points: number of kx points
+  /*==============================================*/
   void SimulationGrating::setKxIntegralSym(const int points){
     numOfKx_ = points;
     kxStart_ = 0;
@@ -775,37 +848,37 @@ namespace MESH{
     prefactor_ *= 2;
   }
 
-  /*==============================================
-  This function set the integral of ky
-  @args:
-  points: number of ky points
-  end: the upperbound of the integral
-  ==============================================*/
+  /*==============================================*/
+  // This function set the integral of ky
+  // @args:
+  // points: number of ky points
+  // end: the upperbound of the integral
+  /*==============================================*/
   void SimulationGrating::setKyIntegral(const int points, const double end){
     kyStart_ = 0;
     numOfKy_ = points;
     kyEnd_ = end;
   }
 
-  /*======================================================
-  Implementaion of the class on 2D patterning simulation
-  =======================================================*/
+  /*==============================================*/
+  // Implementaion of the class on 2D patterning simulation
+  /*==============================================*/
   SimulationPattern::SimulationPattern() : Simulation(){
     prefactor_ = 1;
     dim_ = TWO_;
   }
-  /*======================================================
-  This is a thin wrapper for the usage of smart pointer
-  =======================================================*/
+  /*==============================================*/
+  // This is a thin wrapper for the usage of smart pointer
+  /*==============================================*/
   Ptr<SimulationPattern> SimulationPattern::instanceNew(){
     return new SimulationPattern();
   }
 
-  /*======================================================
-  Function setting the integral over kx
-  @args:
-  points: number of points of sampling kx
-  =======================================================*/
+  /*==============================================*/
+  // Function setting the integral over kx
+  // @args:
+  // points: number of points of sampling kx
+  /*==============================================*/
   void SimulationPattern::setKxIntegral(const int points){
     if(period_[0] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
@@ -815,11 +888,11 @@ namespace MESH{
     kxEnd_ = -kxStart_;
   }
 
-  /*==============================================
-  This function set the integral of kx when the system is symmetric in x direction
-  @args:
-  points: number of kx points
-  ==============================================*/
+  /*==============================================*/
+  // This function set the integral of kx when the system is symmetric in x direction
+  // @args:
+  // points: number of kx points
+  /*==============================================*/
   void SimulationPattern::setKxIntegralSym(const int points){
     kxStart_ = 0;
     numOfKx_ = points;
@@ -830,12 +903,12 @@ namespace MESH{
     prefactor_ *= 2;
   }
 
-  /*==============================================
-  This function set the integral of ky
-  @args:
-  points: number of ky points
-  end: the upperbound of the integral
-  ==============================================*/
+  /*==============================================*/
+  // This function set the integral of ky
+  // @args:
+  // points: number of ky points
+  // end: the upperbound of the integral
+  /*==============================================*/
   void SimulationPattern::setKyIntegral(const int points){
     if(period_[1] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
@@ -845,11 +918,11 @@ namespace MESH{
     kyEnd_ = -kyStart_;
   }
 
-  /*==============================================
-  This function set the integral of ky when the system is symmetric in y direction
-  @args:
-  points: number of ky points
-  ==============================================*/
+  /*==============================================*/
+  // This function set the integral of ky when the system is symmetric in y direction
+  // @args:
+  // points: number of ky points
+  /*==============================================*/
   void SimulationPattern::setKyIntegralSym(const int points){
     kyStart_ = 0;
     numOfKy_ = points;

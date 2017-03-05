@@ -47,14 +47,31 @@ typedef struct ARGWEAPPER{
   int targetLayer;
 } ArgWrapper;
 
-void fileLoader(
-  const std::string fileName,
-  double* omega,
-  dcomplex* epsilon,
-  const int size);
-/*======================================================
-Implementaion of the parent simulation super class
-=======================================================*/
+/*======================================================*/
+//  Implementaion of the FileLoader class
+/*=======================================================*/
+class FileLoader : public PtrInterface{
+public:
+  static Ptr<FileLoader> instanceNew();
+  static Ptr<FileLoader> instanceNew(const int numOfOmega);
+  void load(const std::string fileName);
+  double* getOmegaList();
+  dcomplex* getEpsilonList();
+  int getNumOfOmega();
+  FileLoader(const FileLoader&) = delete;
+protected:
+  ~FileLoader();
+private:
+  FileLoader(const int numOfOmega = 0);
+  double* omegaList_;
+  dcomplex* epsilonList_;
+  int numOfOmega_;
+  bool preSet_ = false;
+};
+
+/*======================================================*/
+//  Implementaion of the parent simulation super class
+/*=======================================================*/
 class Simulation : public PtrInterface{
 public:
   void addStructure(const Ptr<Structure>& structure);
@@ -143,9 +160,9 @@ protected:
 };
 
 
-/*======================================================
-Implementaion of the class on planar simulation
-=======================================================*/
+/*======================================================*/
+// Implementaion of the class on planar simulation
+/*=======================================================*/
 class SimulationPlanar : public Simulation{
 public:
   static Ptr<SimulationPlanar> instanceNew();
@@ -166,9 +183,9 @@ private:
   int degree_;
 };
 
-/*======================================================
-Implementaion of the class on 1D grating simulation
-=======================================================*/
+/*======================================================*/
+// Implementaion of the class on 1D grating simulation
+/*=======================================================*/
 class SimulationGrating : public Simulation{
 public:
 
@@ -186,9 +203,9 @@ private:
   SimulationGrating();
 };
 
-/*======================================================
-Implementaion of the class on 2D patterning simulation
-=======================================================*/
+/*======================================================*/
+// Implementaion of the class on 2D patterning simulation
+/*=======================================================*/
 class SimulationPattern : public Simulation{
 public:
 
