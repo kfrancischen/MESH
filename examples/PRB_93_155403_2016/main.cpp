@@ -3,13 +3,11 @@
 int main(){
 
   // initializing material
-  int numOfOmega = 1;
-  double omega[numOfOmega];
-  dcomplex epsilon[numOfOmega];
-  fileLoader("fullGold.txt", omega, epsilon, numOfOmega);
-  Ptr<Material> Gold = Material::instanceNew("Au", omega, epsilon, numOfOmega);
-  fileLoader("fullVacuum.txt", omega, epsilon, numOfOmega);
-  Ptr<Material> Vacuum = Material::instanceNew("Vacuum", omega, epsilon, numOfOmega);
+  Ptr<FileLoader> fileLoader = FileLoader::instanceNew();
+  fileLoader->load("fullGold.txt");
+  Ptr<Material> Gold = Material::instanceNew("Au", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
+  fileLoader->load("fullVacuum.txt");
+  Ptr<Material> Vacuum = Material::instanceNew("Vacuum", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
   // initializing layer
   Ptr<Layer> vacLayer = Layer::instanceNew("VacLayer", Vacuum, 0);
   Ptr<Layer> GoldLayerBottomSub = Layer::instanceNew("GoldLayerBottomSub", Gold, 0.5e-6);
@@ -41,8 +39,8 @@ int main(){
   s->setGx(50);
   s->setTargetLayerByLayer(vacGap);
   s->setOutputFile("gold_to_vac.txt");
-  s->setKxIntegralSym(10);
-  s->setKyIntegral(10, 1);
+  s->setKxIntegralSym(500);
+  s->setKyIntegral(200, 5);
   s->build();
   s->run();
 
