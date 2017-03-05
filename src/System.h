@@ -170,7 +170,7 @@ namespace SYSTEM{
     void deleteLayer(const_LayerIter it);
     void reorganizeLayers();
     LayerMap layerMap_;
-    double* period_;
+    double period_[2];
   };
 
 

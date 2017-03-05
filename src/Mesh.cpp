@@ -73,7 +73,6 @@ namespace MESH{
         throw UTILITY::RangeException("not enought omega points!");
       }
     }
-    
     if(omegaList_ == nullptr){
       omegaList_ = new double[numOfOmega_];
     }
@@ -88,7 +87,6 @@ namespace MESH{
       epsilonList_[i] = dcomplex(real, -imag);
     }
     inputFile2.close();
-
   }
 
   /*==============================================*/
@@ -147,9 +145,6 @@ namespace MESH{
   Simulation::Simulation() : nGx_(0), nGy_(0), numOfOmega_(0), structure_(nullptr),
   Phi_(nullptr), omegaList_(nullptr), kxStart_(0), kxEnd_(0), kyStart_(0), kyEnd_(0), numOfKx_(0), numOfKy_(0)
   {
-    period_ = new double[2];
-    period_[0] = 0;
-    period_[1] = 0;
     output_ = "output.txt";
     targetLayer_ = -1;
     dim_ = NO_;
@@ -160,8 +155,8 @@ namespace MESH{
   Simulation::~Simulation(){
     delete[] Phi_;
     Phi_ = nullptr;
-    delete[] period_;
-    period_ = nullptr;
+    //delete[] period_;
+    //period_ = nullptr;
   }
 
   /*==============================================*/

@@ -407,7 +407,6 @@ namespace SYSTEM{
   // Implementaion of the structure class
   /*==============================================*/
   Structure::Structure(){
-    period_ = new double[2];
     period_[0] = 0;
     period_[1] = 0;
   }
@@ -421,8 +420,8 @@ namespace SYSTEM{
   // destructor
   /*==============================================*/
   Structure::~Structure(){
-    delete[] period_;
-    period_ = nullptr;
+    //delete[] period_;
+    //period_ = nullptr;
   }
   /*==============================================*/
   // copy constructor
