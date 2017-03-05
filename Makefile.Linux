@@ -2,8 +2,8 @@ OBJDIR = build
 SHLIB_EXT = so
 SHLIB_FLAGS = -fPIC -shared
 
-CFLAGS   += -O3 -ffast-math -march=native -fcx-limited-range -fPIC
-CXXFLAGS += -std=c++11 -O3 -ffast-math -march=native -fcx-limited-range -fPIC
+CFLAGS   += -O3 -Wall -ffast-math -march=native -fcx-limited-range -fPIC
+CXXFLAGS += -std=c++11 -O3 -Wall -ffast-math -march=native -fcx-limited-range -fPIC
 
 LA_LIBS = -lopenblas -llapack
 

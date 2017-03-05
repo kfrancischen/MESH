@@ -3,8 +3,8 @@ SHLIB_EXT = so
 SHLIB_FLAGS = -bundle -undefined dynamic_lookup
 
 CFLAGS += -Wall -O3 -ffast-math -march=native
-CXXFlAGS += -Wall -O3 -ffast-math -march=native
+CXXFLAGS += -std=c++11 -Wall -O3 -ffast-math -march=native
 LA_LIBS = -O3 -ffast-math -framework Accelerate
 
 LUA_INC =
-LUA_LIB = 
+LUA_LIB =
