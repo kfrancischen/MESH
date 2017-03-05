@@ -10,27 +10,27 @@ int main(){
   fileLoader->load("PEC.txt");
   Ptr<Material> PEC = Material::instanceNew("PEC", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
 
-
   // initializing layer
   Ptr<Layer> PECLayer = Layer::instanceNew("PECLayer", PEC, 0);
-  Ptr<Layer> GaAsLayer = Layer::instanceNew("GaAsLayer", GaAs, 1e-6);
-  Ptr<Layer> VaccumLayer = Layer::instanceNew("VacuumLayer", Vacuum, 0);
-  GaAsLayer->setIsSource();
+  Ptr<Layer> GaAsBottom = Layer::instanceNew("GaAsBottom", GaAs, 1e-6);
+  Ptr<Layer> VacLayer = Layer::instanceNew("VacLayer", Vacuum, 1e-8);
+  Ptr<Layer> GaAsTop = Layer::instanceNew("GaAsTop", GaAs, 1e-6);
+  GaAsBottom->setIsSource();
 
   // initializing structure
   Ptr<Structure> structure = Structure::instanceNew();
   structure->addLayer(PECLayer);
-  structure->addLayer(GaAsLayer);
-  structure->addLayer(VaccumLayer);
+  structure->addLayer(GaAsBottom);
+  structure->addLayer(VacLayer);
+  structure->addLayer(GaAsTop);
+  structure->addLayer(PECLayer);
 
   // initializing simulation
   Ptr<SimulationPlanar> s = SimulationPlanar::instanceNew();
-
   s->addStructure(structure);
-
-  s->setTargetLayerByLayer(VaccumLayer);
-  s->setKxIntegral(1.0);
-  s->setOutputFile("test_output.txt");
+  s->setTargetLayerByLayer(VacLayer);
+  s->setKxIntegral(10);
+  s->setOutputFile("test.txt");
   s->build();
   s->run();
 
