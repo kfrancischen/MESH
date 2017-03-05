@@ -61,7 +61,7 @@ void RCWA::getSMatrices(
 // propogating down
   if(direction == ALL_ || direction == DOWN_){
     // propogating down
-    for(size_t i = startLayer; i >=1; i--){
+    for(int i = startLayer; i >=1; i--){
       RCWAMatrix I = solve(MMatrices[i], MMatrices[i-1], solve_opts::fast);
 
       RCWAMatrix leftTop = I(span(r3, r4), span(r3, r4));
@@ -92,7 +92,7 @@ void RCWA::getSMatrices(
   }
   if(direction == ALL_ || direction == UP_){
     // propogating up
-    for(size_t i = startLayer; i < numOfLayer - 1; i++){
+    for(int i = startLayer; i < numOfLayer - 1; i++){
       RCWAMatrix I = solve(MMatrices[i], MMatrices[i+1], solve_opts::fast);
       RCWAMatrix leftTop = I(span(r1, r2), span(r1, r2));
       RCWAMatrix rightTop = I(span(r1, r2), span(r3, r4));
@@ -210,7 +210,7 @@ void RCWA::getGrandImaginaryMatrices(
   int N
 )
 {
-  for(size_t i = 0; i < numOfLayer; i++){
+  for(int i = 0; i < numOfLayer; i++){
     RCWAMatrix grandImaginaryMatrix = zeros<RCWAMatrix>(3*N, 3*N);
     grandImaginaryMatrix(span(0, N-1), span(0, N-1)) = dielectricImMatrix[i];
     grandImaginaryMatrix(span(N, 2*N-1), span(N, 2*N-1)) = dielectricImMatrix[i];
@@ -236,10 +236,10 @@ void RCWA::getEMatrices(
 ){
 
   RCWAMatrix zeroPadding(N, N, fill::zeros);
-  for(size_t i = 0; i < numOfLayer; i++){
+  for(int i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
-      join_horiz(dielectricMatrixTE[i], zeroPadding),
-      join_horiz(zeroPadding, dielectricMatrixTM[i])
+      join_horiz(dielectricMatrixTM[i], zeroPadding),
+      join_horiz(zeroPadding, dielectricMatrixTE[i])
     );
     EMatrices.push_back(EMatrix);
   }
@@ -310,7 +310,7 @@ double RCWA::poyntingFlux(
   This part solves RCWA
   e.g initialize M and F matrices, and compute the Eigen value problem
   =======================================================*/
-  for(size_t i = 0; i < numOfLayer; i++){
+  for(int i = 0; i < numOfLayer; i++){
 
     TMatrices[i] = join_vert(
       join_horiz(kyMat * dielectricMatrixZInv[i] * kyMat, -kyMat * dielectricMatrixZInv[i] * kxMat),
@@ -349,7 +349,7 @@ double RCWA::poyntingFlux(
   RCWAMatrices S_matrices_target;
 
 
-  for(size_t i = 0; i < numOfLayer; i++){
+  for(int i = 0; i < numOfLayer; i++){
     S_matrices_target.push_back(onePadding4N);
   }
 
@@ -364,7 +364,7 @@ double RCWA::poyntingFlux(
   This part compute flux by collecting emission from source layers
   =======================================================*/
 
-  for(size_t layerIdx = 0; layerIdx < targetLayer; layerIdx++){
+  for(int layerIdx = 0; layerIdx < targetLayer; layerIdx++){
 
     // if is not source layer, then continue
     if(sourceList[layerIdx] == ISNOTSOURCE_) continue;
@@ -383,7 +383,7 @@ double RCWA::poyntingFlux(
     NewFMatrices = FMatrices;
     NewFMatrices[layerIdx] = onePadding2N;
 
-    for(size_t i = 0; i < numOfLayer; i++){
+    for(int i = 0; i < numOfLayer; i++){
       S_matrices[i] = onePadding4N;
     }
 

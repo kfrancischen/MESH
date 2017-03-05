@@ -43,13 +43,13 @@ namespace SYSTEM{
     ~Material();
 
     std::string getName();
-    dcomplex* getEpsilon();
+    dcomplex* getEpsilonList();
     dcomplex getEpsilonAtIndex(const int index);
     int getNumOfOmega();
     double* getOmegaList();
 
-    void setOmega(const double* omegaList, int numOfOmega);
-    void setEpsilon(const dcomplex* epsilonList, int numOfOmega);
+    void setOmega(const double* omegaList, const int numOfOmega);
+    void setEpsilon(const dcomplex* epsilonList, const int numOfOmega);
 
   protected:
     Material(
