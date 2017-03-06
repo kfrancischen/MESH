@@ -14,14 +14,14 @@ int main(){
   Ptr<Layer> GoldLayerBottomGrating = Layer::instanceNew("GoldLayerBottomGrating", Gold, 4.7e-6);
 
   GoldLayerBottomSub->setIsSource();
-  GoldLayerBottomGrating->addGratingPattern(Vacuum, 0, 0.2e-6);
+  GoldLayerBottomGrating->addGratingPattern(Vacuum, 0.1e-6, 0.2e-6);
   GoldLayerBottomGrating->setIsSource();
 
   Ptr<Layer> vacGap = Layer::instanceNew("vacGap", Vacuum, 1e-6);
 
   Ptr<Layer> GoldLayerTopSub = Layer::instanceNew("GoldLayerTopSub", Gold, 0);
   Ptr<Layer> GoldLayerTopGrating = Layer::instanceNew("GoldLayerTopGrating", Gold, 4.7e-6);
-  GoldLayerTopGrating->addGratingPattern(Vacuum, 0, 0.2e-6);
+  GoldLayerTopGrating->addGratingPattern(Vacuum, 0.1e-6, 0.2e-6);
 
   // initializing structure
   Ptr<Structure> structure = Structure::instanceNew();
