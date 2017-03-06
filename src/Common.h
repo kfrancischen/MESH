@@ -21,8 +21,8 @@
 #define _COMMON_H
 
 #include <complex>
-#include "Utility.h"
-#include "Mathlib.h"
+#include "utility/Utility.h"
+#include "mathlib/Mathlib.h"
 #include "config.h"
 #define DEGREE 512
 
