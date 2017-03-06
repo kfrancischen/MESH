@@ -1,6 +1,6 @@
 CC = mpicc
 CXX = mpic++
-CPPFLAGS += -Isrc/ -Isrc/utility -Isrc/mathlib
+CPPFLAGS += -Isrc/
 ARMAFLAG = -Isrc/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG
 
 #### Compilation targets
