@@ -22,6 +22,7 @@
 
 #include "mathlib/gauss_legendre.h"
 #include "mathlib/bessel_functions.h"
+#include "mathlib/quadpackpp/workspace.hpp"
 
-
-#endif /* FWK_FWK_H */
+using namespace QuadPack;
+#endif
