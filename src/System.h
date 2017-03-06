@@ -121,7 +121,7 @@ namespace SYSTEM{
 
     void addRectanlgePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
     void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
-    void addGratingPattern(const Ptr<Material>& material, const double start, const double end);
+    void addGratingPattern(const Ptr<Material>& material, const double center, const double width);
 
   private:
     Layer(const string name, const Ptr<Material>& material, const double thickness);

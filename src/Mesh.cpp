@@ -339,8 +339,8 @@ namespace MESH{
     RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
     int count = 0;
     for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
-      centerVec(count) = (it->first + it->second) / 2;
-      widthVec(count) = it->second - it->first;
+      centerVec(count) = it->first;
+      widthVec(count) = it->second;
       count++;
     }
     for (int i = 0; i < numOfOmega_; i++) {

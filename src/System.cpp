@@ -395,12 +395,12 @@ namespace SYSTEM{
   /*==============================================*/
   void Layer::addGratingPattern(
     const Ptr<Material>& material,
-    const double start,
-    const double end
+    const double center,
+    const double width
   ){
     pattern_ = GRATING_;
     materialVec_.push_back(material);
-    args1_.push_back(std::make_pair(start, end));
+    args1_.push_back(std::make_pair(center, width));
   }
 
   /*==============================================*/
