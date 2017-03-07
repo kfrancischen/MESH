@@ -277,11 +277,5 @@ static void checkNull(void* const ptr) {
     }
 }
 
-static void checkNull(const void* const ptr) {
-    if (ptr == null) {
-        throw NullPointerException("Null pointer");
-    }
-}
-
 
 #endif /* EXCEPTION_H */
