@@ -117,13 +117,13 @@ namespace MESH{
     epsilonList_ = nullptr;
   }
   /*==============================================*/
-  // This function wraps the data for quad_legendre
+  // This function wraps the data for quad_gaussian_kronrod
   // @args:
   // kx: the kx value (normalized)
-  // data: wrapper for all the arguments wrapped in wrapper
+  // wrapper: wrapper for all the arguments wrapped in wrapper
   /*==============================================*/
-  double wrapperFun(const double kx, void* data){
-    ArgWrapper wrapper = *(ArgWrapper*) data;
+  double wrapperFunQuadgk(const double kx, ArgWrapper* data){
+    ArgWrapper wrapper = *data;
     return kx * poyntingFlux(
       wrapper.omega,
       wrapper.thicknessList,
@@ -138,6 +138,15 @@ namespace MESH{
       wrapper.targetLayer,
       1
     );
+  }
+  /*==============================================*/
+  // This function wraps the data for quad_legendre
+  // @args:
+  // kx: the kx value (normalized)
+  // data: wrapper for all the arguments wrapped in wrapper
+  /*==============================================*/
+  double wrapperFunQuadgl(const double kx, void* data){
+    return wrapperFunQuadgk(kx, (ArgWrapper*) data);
   }
   /*======================================================*/
   // Implementaion of the parent simulation super class
@@ -245,6 +254,13 @@ namespace MESH{
     dielectricMatrixZInvVec_.clear();
   }
 
+  /*==============================================*/
+  // This function rebuilds the simulation
+  /*==============================================*/
+  void Simulation::rebuild(){
+    this->resetSimulation();
+    this->build();
+  }
   /*==============================================*/
   // This function gets the structure
   /*==============================================*/
@@ -614,7 +630,6 @@ namespace MESH{
     }
 
     int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
-    int N = getN(nGx_, nGy_);
     // use dynamic allocation for stack memory problem
     double* resultArray = new double[totalNum];
     MPI_Status status;
@@ -717,11 +732,28 @@ namespace MESH{
   // end: the end of the integration
   // degree: the degree of gauss_legendre integral, default 512
   /*==============================================*/
-  void SimulationPlanar::setKxIntegral(const double end, const int degree){
+  void SimulationPlanar::setKxIntegral(const double end){
     kxStart_ = 0;
     numOfKx_ = 0;
     kxEnd_ = end;
+  }
+  /*==============================================*/
+  // Function setting the integral to be the gauss_legendre
+  // @args:
+  // degree: the degree of gauss_legendre integral, default 512
+  /*==============================================*/
+  void SimulationPlanar::useQuadgl(const int degree){
     degree_ = degree;
+    method_ = GAUSSLEGENDRE_;
+  }
+  /*==============================================*/
+  // Function setting the integral to be the gauss_kronrod
+  // @args:
+  // degree: the refinement integral, default 512
+  /*==============================================*/
+  void SimulationPlanar::useQuadgk(const int degree){
+    degree_ = degree;
+    method_ = GAUSSKRONROD_;
   }
 
   /*==============================================*/
@@ -790,9 +822,27 @@ namespace MESH{
       wrapper.EMatrices = EMatricesVec_[omegaIdx];
       wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
       wrapper.dielectricMatrixZInv = dielectricMatrixZInvVec_[omegaIdx];
-      recvBuf[i] = POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) *
-        gauss_legendre(degree_, wrapperFun, &wrapper, kxStart_, kxEnd_);
+      switch (method_) {
+        case GAUSSLEGENDRE_:{
+          recvBuf[i] = gauss_legendre(degree_, wrapperFunQuadgl, &wrapper, kxStart_, kxEnd_);
+          break;
+        }
+        case GAUSSKRONROD_:{
+          // this part, debug is needed
+          Workspace<double> integrationWork(degree_);
+          Function<double, ArgWrapper> F(wrapperFunQuadgk, &wrapper);
+          double epsabs = integrationWork.get_eps();
+          double abserr, epsrel = 0;
+          integrationWork.qag(F, kxStart_, kxEnd_, epsabs, epsrel, recvBuf[i], abserr);
+          break;
+        }
+        default:{
+          break;
+        }
+      }
+      recvBuf[i] *= POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi);
     }
+
     // gatther the Phi from each processor
     MPI_Gatherv(&recvBuf[0], 1, dtype, &Phi_[0], sendCounts, displs, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
     MPI_Barrier(MPI_COMM_WORLD);

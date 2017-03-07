@@ -75,7 +75,6 @@ private:
 class Simulation : public PtrInterface{
 public:
   void addStructure(const Ptr<Structure>& structure);
-  void resetSimulation();
   void setTargetLayerByIndex(const int index);
   void setTargetLayerByLayer(const Ptr<Layer>& layer);
   void setGx(const int nGx);
@@ -88,12 +87,14 @@ public:
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky);
 
   void build();
+  void rebuild();
   void run();
 
 protected:
   Simulation();
   Simulation(const Simulation&) = delete;
   ~Simulation();
+  void resetSimulation();
   double* period_;
   double kxStart_;
   double kxEnd_;
@@ -169,9 +170,12 @@ public:
   SimulationPlanar(const SimulationPlanar&) = delete;
   void setGx() = delete;
   void setGy() = delete;
-  double getPhiAtKxKy(int omegaIndex, double kx, double ky) = delete;
+  double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky) = delete;
 
-  void setKxIntegral(const double end, const int degree = DEGREE);
+  void setKxIntegral(const double end = 0);
+  void useQuadgl(int degree = DEGREE);
+  void useQuadgk(int degree = DEGREE);
+
   void run();
   double getPhiAtKx(const int omegaIndex, const double kx);
 
@@ -179,8 +183,11 @@ protected:
   ~SimulationPlanar(){};
 
 private:
+  enum INTEGRAL {GAUSSLEGENDRE_, GAUSSKRONROD_};
+
   SimulationPlanar();
-  int degree_;
+  int degree_ = DEGREE;
+  INTEGRAL method_ = GAUSSLEGENDRE_;
 };
 
 /*======================================================*/
