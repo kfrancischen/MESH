@@ -31,15 +31,14 @@ using UTILITY::PtrInterface;
 using UTILITY::NamedInterface;
 
 enum DIMENSION { NO_, ONE_, TWO_ };
-enum DIRECTION {UP_, DOWN_, ALL_};
-enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};
-typedef std::complex<double> dcomplex;
+
 #define POW2(x) pow(x, 2)
 #define POW3(x) pow(x, 3)
 #define SENDTAG 2
 #define RECVTAG 1
 #define MASTER 0
 
-typedef std::vector< SOURCE > SourceList;
+typedef std::complex<double> dcomplex;
+typedef std::vector<bool> SourceList;
 #endif
