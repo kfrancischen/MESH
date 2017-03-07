@@ -191,17 +191,14 @@ namespace SYSTEM{
     Ptr<Layer> newLayer = Layer::instanceNew(name);
     newLayer->setBackGround(this->getBackGround());
     newLayer->setThickness(this->getThickness());
-    switch (this->checkIsSource()) {
-      case ISSOURCE_:{
-        newLayer->setIsSource();
-        break;
-      }
-      case ISNOTSOURCE_:{
-        newLayer->setIsNotSource();
-        break;
-      }
-      default: break;
+    
+    if(this->checkIsSource()){
+      newLayer->setIsSource();
     }
+    else{
+      newLayer->setIsNotSource();
+    }
+
     const_MaterialIter itMat = this->getVecBegin();
     const_PatternIter itArg1 = this->getArg1Begin();
     const_PatternIter itArg2 = this->getArg2Begin();
@@ -269,8 +266,11 @@ namespace SYSTEM{
   /*==============================================*/
   // check whether the layer is a source
   /*==============================================*/
-  SOURCE Layer::checkIsSource(){
-    return source_;
+  bool Layer::checkIsSource(){
+    if(source_ == ISSOURCE_){
+      return true;
+    }
+    return false;
   }
   /*==============================================*/
   // get the background material
@@ -482,6 +482,21 @@ namespace SYSTEM{
       throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
     }
     return layerMap_.at(index);
+  }
+
+  /*==============================================*/
+  // function getting a layer by its name
+  // @args:
+  // name: the name of the wanted layer
+  /*==============================================*/
+  Ptr<Layer> Structure::getLayerByName(const std::string name){
+    for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
+      if(!name.compare((it->second)->getName())){
+        return it->second;
+      }
+    }
+    throw UTILITY::IllegalNameException(name + " does not exist!");
+    return NULL;
   }
   /*==============================================*/
   // function getting the number of layers

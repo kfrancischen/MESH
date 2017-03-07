@@ -367,7 +367,7 @@ double RCWA::poyntingFlux(
   for(int layerIdx = 0; layerIdx < targetLayer; layerIdx++){
 
     // if is not source layer, then continue
-    if(sourceList[layerIdx] == ISNOTSOURCE_) continue;
+    if(sourceList[layerIdx] == false) continue;
 
     // initial steps, propogate S matrix
     RCWAMatrix q(diagvec(EigenValMatrices[layerIdx]));

@@ -100,7 +100,7 @@ namespace SYSTEM{
     void setThickness(const double thickness);
     void setIsSource();
     void setIsNotSource();
-    SOURCE checkIsSource();
+    bool checkIsSource();
 
     Ptr<Material> getBackGround();
     Ptr<Material> getMaterialByName(const std::string name);
@@ -124,6 +124,8 @@ namespace SYSTEM{
     void addGratingPattern(const Ptr<Material>& material, const double center, const double width);
 
   private:
+    enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
+
     Layer(const string name, const Ptr<Material>& material, const double thickness);
     Layer(const string name, const Ptr<Material>& material);
     Layer(const string name);
@@ -157,6 +159,7 @@ namespace SYSTEM{
     void deleteLayerByName(const string name);
     void deleteLayerByLayer(const Ptr<Layer>& layer);
     Ptr<Layer> getLayerByIndex(const int index);
+    Ptr<Layer> getLayerByName(const std::string name);
     int getNumOfLayer();
     void getThicknessList(double* thicknessList);
 

@@ -25,12 +25,11 @@
 #include "Common.h"
 
 namespace RCWA{
-
+  enum DIRECTION {UP_, DOWN_, ALL_};
   using namespace arma;
   typedef cx_mat RCWAMatrix;
   typedef std::vector< RCWAMatrix > RCWAMatrices;
   typedef vec RCWAVector;
-
 
   /*============================================================
   * Function similar to meshgrid in matlab
