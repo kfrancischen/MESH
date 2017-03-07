@@ -519,8 +519,8 @@ template <class Real>
 class GaussKronrod : public Machar<Real>
 {
 private:
-	size_t m_;  // Gauss-Legendre degree
-	size_t n_;  // size of Gauss-Kronrod arrays
+	int m_;  // Gauss-Legendre degree
+	int n_;  // size of Gauss-Kronrod arrays
 	Real*  xgk_;  // Gauss-Kronrod abscissae
 	Real*  wg_;   // Gauss-Legendre weights
 	Real*  wgk_;  // Gauss-Kronrod weights
@@ -544,7 +544,7 @@ private:
 	
 public:
 	//! Initializes class for (2m+1)-point Gauss-Kronrod quadrature.
-	GaussKronrod(size_t m = 10);
+	GaussKronrod(int m = 10);
 	~GaussKronrod();
 	
 	//! Approximates \f$\int_a^b f\,dx\f$ using the Gauss-Kronrod rule.
@@ -552,7 +552,7 @@ public:
 			  Real& result, Real& abserr, Real& resabs, Real& resasc);
 	
 	//! Size of arrays of Gauss-Kronrod abscissae and weights.
-	size_t size() { return n_; };
+	int size() { return n_; };
 	
 	//! Array of Gauss-Kronrod abscissae in (0, 1); QUADPACK convention.
 	Real xgk(int k) 
@@ -574,7 +574,7 @@ public:
 };
 
 template <class Real>
-GaussKronrod<Real>::GaussKronrod(size_t m) : Machar<Real>()
+GaussKronrod<Real>::GaussKronrod(int m) : Machar<Real>()
 {
 	m_ = m;
 	n_ = m_ + 1;
@@ -650,7 +650,7 @@ void GaussKronrod<Real>::legendre_zeros()
 template <class Real>
 void GaussKronrod<Real>::chebyshev_coefs()
 {
-	size_t ell = (m_ + 1)/2;
+	int ell = (m_ + 1)/2;
 	Real* alpha = new Real[ell+1];
 	Real* f = new Real[ell+1];
 	
@@ -704,7 +704,7 @@ void GaussKronrod<Real>::gauss_kronrod_weights()
 	
 	/* Gauss-Kronrod weights:  
 	 */
-	for (size_t k = 0; k < n_; ++k) 
+	for (int k = 0; k < n_; ++k) 
 	{
 		Real x = xgk_[k];
 		if (k % 2 == 0) 
@@ -771,7 +771,7 @@ Real GaussKronrod<Real>::legendre_err(int n, Real x, Real& err)
 		return x;
 	}
 	
-	Real P0 = Real(1), P1 = x, P2;
+	Real P0 = Real(1), P1 = x, P2 = 0;
 	Real E0 = this->eps_; 
 	Real E1 = this->abs(x) * this->eps_; 
 	for (int k = 1; k < n; ++k) 
@@ -1002,9 +1002,9 @@ class Workspace : public GaussKronrod<Real>
 public:
 	Workspace();
 	//! Initialize workspace for \a limit refinement intervals.
-	Workspace(size_t limit);
+	Workspace(int limit);
 	//! Initialize for \a limit refinement intervals and (2m+1)-point quadrature.
-	Workspace(size_t limit, size_t m);
+	Workspace(int limit, int m);
 	~Workspace();
 	
 	/** \brief Implementation of <tt>gsl_integration_qag</tt> using class data.
@@ -1024,20 +1024,20 @@ public:
 			  Real epsabs, Real epsrel, Real& result, Real& abserr);
 	
 private:
-	void	allocate(size_t limit);
+	void	allocate(int limit);
 	
 	/* data from gsl_integration_workspace */
-	size_t limit;
-	size_t size;
-	size_t nrmax;
-	size_t i_work;
-	size_t maximum_level;
+	int limit;
+	int size;
+	int nrmax;
+	int i_work;
+	int maximum_level;
 	Real   *alist;
 	Real   *blist;
 	Real   *rlist;
 	Real   *elist;
-	size_t *order;
-	size_t *level;
+	int *order;
+	int *level;
 	
 	/* auxillary functions for adaptive quadrature */
 	void  append_interval(Real a1, Real b1, Real area1, Real error1);
@@ -1055,14 +1055,14 @@ private:
 
 template <class Real>
 void
-Workspace<Real>::allocate(size_t n)
+Workspace<Real>::allocate(int n)
 {
 	alist = new Real[n];
 	blist = new Real[n];
 	rlist = new Real[n];
 	elist = new Real[n];
-	order = new size_t[n];
-	level = new size_t[n];
+	order = new int[n];
+	level = new int[n];
 	
 	size = 0;
 	limit = n;
@@ -1076,14 +1076,14 @@ Workspace<Real>::Workspace() : GaussKronrod<Real>()
 }
 
 template <class Real>
-Workspace<Real>::Workspace(size_t n) : GaussKronrod<Real>()
+Workspace<Real>::Workspace(int n) : GaussKronrod<Real>()
 {
 	if (n == 0) n = 1;	// ensure that workspace has positive size
 	allocate(n);
 }
 
 template <class Real>
-Workspace<Real>::Workspace(size_t n, size_t m) : GaussKronrod<Real>(m)
+Workspace<Real>::Workspace(int n, int m) : GaussKronrod<Real>(m)
 {
 	if (n == 0) n = 1;	// ensure that workspace has positive size
 	allocate(n);
@@ -1135,18 +1135,18 @@ template <class Real>
 void 
 Workspace<Real>::sort_results ()
 {
-	size_t i;
+	int i;
 	
 	for (i = 0; i < size; i++)
 	{
-      size_t i1 = order[i];
+      int i1 = order[i];
       Real e1 = elist[i1];
-      size_t i_max = i1;
-      size_t j;
+      int i_max = i1;
+      int j;
 		
       for (j = i + 1; j < size; j++)
 		{
-			size_t i2 = order[j];
+			int i2 = order[j];
 			Real e2 = elist[i2];
 			
 			if (e2 >= e1)
@@ -1170,14 +1170,14 @@ template <class Real>
 void
 Workspace<Real>::qpsrt ()
 {
-	const size_t last = size - 1;
+	const int last = size - 1;
 	
 	Real errmax ;
 	Real errmin ;
 	int i, k, top;
 	
-	size_t i_nrmax = nrmax;
-	size_t i_maxerr = order[i_nrmax] ;
+	int i_nrmax = nrmax;
+	int i_maxerr = order[i_nrmax] ;
 	
 	/* Check whether the list contains more than two error estimates */
 	
@@ -1276,7 +1276,7 @@ template <class Real>
 Real
 Workspace<Real>::sum_results ()
 {
-	size_t k;
+	int k;
 	Real result_sum = Real(0);
 	
 	for (k = 0; k < size; k++)
@@ -1303,10 +1303,10 @@ void
 Workspace<Real>::update (Real a1, Real b1, Real area1, Real error1,
 								 Real a2, Real b2, Real area2, Real error2)
 {
-	const size_t i_max = i_work ;
-	const size_t i_new = size ;
+	const int i_max = i_work ;
+	const int i_new = size ;
 	
-	const size_t new_level = level[i_max] + 1;
+	const int new_level = level[i_max] + 1;
 	
 	/* append the newly-created intervals to the list */
 	
@@ -1355,7 +1355,7 @@ int Workspace<Real>::qag(FtnBase<Real>& f, Real a, Real b,
 	Real area, errsum;
 	Real result0, abserr0, resabs0, resasc0;
 	Real tolerance;
-	size_t iteration = 0;
+	int iteration = 0;
 	int roundoff_type1 = 0, roundoff_type2 = 0, error_type = 0;
 	
 	Real round_off;     

@@ -22,7 +22,5 @@
 
 #include "mathlib/gauss_legendre.h"
 #include "mathlib/bessel_functions.h"
-#include "mathlib/quadpackpp/workspace.hpp"
-
-using namespace QuadPack;
+#include "mathlib/gauss_kronrod.h"
 #endif
