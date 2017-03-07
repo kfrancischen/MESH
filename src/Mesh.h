@@ -85,7 +85,7 @@ public:
   double* getOmegaList();
   double* getPeriodicity();
 
-  double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky, const int N);
+  double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky);
 
   void build();
   void run();
