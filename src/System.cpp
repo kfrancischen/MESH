@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "System.h"
-
+#include <iostream>
 namespace SYSTEM{
   /*==============================================*/
   // Implementaion of the Material class
@@ -25,11 +25,19 @@ namespace SYSTEM{
   Material::Material(
     const std::string name,
     const double* omegaList,
-    const dcomplex* epsilonList,
+    const EPSILON& epsilonList,
     const int numOfOmega): NamedInterface(name)
     , numOfOmega_(numOfOmega){
     epsilonList_ = new dcomplex[numOfOmega_];
-    std::copy(epsilonList, epsilonList + numOfOmega_, epsilonList_);
+    if(epsilonList.type_ == SCALAR_){
+      for(int i = 0; i < numOfOmega_; i++){
+        epsilonList_[i] = dcomplex(epsilonList.epsilonVals[i].scalar[0], epsilonList.epsilonVals[i].scalar[1]);
+      }
+      //std::copy(epsilonList.epsilonVals, epsilonList.epsilonVals + numOfOmega_, epsilonList_);
+    }
+    else{
+
+    }
     omegaList_ = new double[numOfOmega_];
     std::copy(omegaList, omegaList + numOfOmega_, omegaList_);
   }
@@ -39,7 +47,7 @@ namespace SYSTEM{
   Ptr<Material> Material::instanceNew(
     const std::string name,
     const double* omegaList,
-    const dcomplex* epsilonList,
+    const EPSILON& epsilonList,
     const int numOfOmega
   ){
     return new Material(name, omegaList, epsilonList, numOfOmega);
@@ -191,7 +199,7 @@ namespace SYSTEM{
     Ptr<Layer> newLayer = Layer::instanceNew(name);
     newLayer->setBackGround(this->getBackGround());
     newLayer->setThickness(this->getThickness());
-    
+
     if(this->checkIsSource()){
       newLayer->setIsSource();
     }

@@ -32,7 +32,7 @@ using UTILITY::NamedInterface;
 
 enum DIMENSION { NO_, ONE_, TWO_ };
 enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};
-
+enum EPSTYPE {SCALAR_, TENSOR_};
 #define POW2(x) pow(x, 2)
 #define POW3(x) pow(x, 3)
 #define SENDTAG 2
@@ -40,5 +40,20 @@ enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};
 #define MASTER 0
 
 typedef std::complex<double> dcomplex;
+
+union EpsilonVal{
+  double scalar[2];
+  double tensor[10];
+};
+
+struct EPSILON
+{
+  EpsilonVal* epsilonVals;
+  ~EPSILON(){
+    //delete [] epsilonVals;
+  }
+  EPSTYPE type_;
+};
+
 typedef std::vector<bool> SourceList;
 #endif

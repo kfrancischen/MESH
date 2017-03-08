@@ -56,7 +56,7 @@ public:
   static Ptr<FileLoader> instanceNew(const int numOfOmega);
   void load(const std::string fileName);
   double* getOmegaList();
-  dcomplex* getEpsilonList();
+  EPSILON getEpsilonList();
   int getNumOfOmega();
   FileLoader(const FileLoader&) = delete;
 protected:
@@ -64,7 +64,7 @@ protected:
 private:
   FileLoader(const int numOfOmega = 0);
   double* omegaList_;
-  dcomplex* epsilonList_;
+  EPSILON epsilonList_;
   int numOfOmega_;
   bool preSet_ = false;
 };
@@ -85,7 +85,6 @@ public:
   double* getPeriodicity();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky);
-
   void build();
   void rebuild();
   void run();
@@ -204,10 +203,14 @@ public:
   void setKxIntegralSym(const int points);
   // for ky integral, from 0 to inf
   void setKyIntegral(const int points, const double end);
+  void useAdaptive();
+  void useNative();
 protected:
   ~SimulationGrating(){};
 private:
+  enum METHOD {NAIVEFMM_, SPATIALADAPTIVE_};
   SimulationGrating();
+  METHOD method_ =  NAIVEFMM_;
 };
 
 /*======================================================*/

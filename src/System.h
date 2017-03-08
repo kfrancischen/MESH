@@ -32,7 +32,7 @@ namespace SYSTEM{
     static Ptr<Material> instanceNew(
       const std::string name,
       const double* omegaList,
-      const dcomplex* epsilonList,
+      const EPSILON& epsilonList,
       const int numOfOmega
     );
     static Ptr<Material> instanceNew(
@@ -55,7 +55,7 @@ namespace SYSTEM{
     Material(
       const std::string name,
       const double* omegaList,
-      const dcomplex* epsilonList,
+      const EPSILON& epsilonList,
       const int numOfOmega
     );
     Material(const std::string name);

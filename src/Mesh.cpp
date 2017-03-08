@@ -32,7 +32,7 @@ namespace MESH{
       numOfOmega_ = 0;
     }
     omegaList_ = nullptr;
-    epsilonList_ = nullptr;
+    //epsilonList_ = nullptr;
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -47,6 +47,19 @@ namespace MESH{
     return new FileLoader(numOfOmega);
   }
   /*==============================================*/
+  // Function checking a line contains more than 3 spaces
+  /*==============================================*/
+  bool CheckTensor(std::string line){
+    int numOfSpace = 0;
+    for(int i = 0; i < line.length(); i++){
+      if(isspace(line.at(i))) numOfSpace++;
+      if(numOfSpace > 2){
+        return true;
+      }
+    }
+    return false;
+  }
+  /*==============================================*/
   // Function reads a file from disk
   // @args
   // fileName: the name of the file
@@ -58,10 +71,15 @@ namespace MESH{
     }
     std::string line;
     int count = 0;
+    bool isTensor = false;
     while(std::getline(inputFile, line)){
       count++;
+      if(isTensor == false and CheckTensor(line) == true){
+        isTensor == true;
+      }
     }
     inputFile.close();
+
     if(!preSet_){
       if(numOfOmega_ != 0 && numOfOmega_ != count){
         throw UTILITY::StorageException(fileName + " wrong length!");
@@ -76,15 +94,38 @@ namespace MESH{
     if(omegaList_ == nullptr){
       omegaList_ = new double[numOfOmega_];
     }
-    if(epsilonList_ == nullptr){
-      epsilonList_ = new dcomplex[numOfOmega_];
-    }
 
+    if(epsilonList_.epsilonVals == nullptr){
+      epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
+      if(isTensor){
+        epsilonList_.type_ = TENSOR_;
+      }
+      else{
+        epsilonList_.type_ = SCALAR_;
+      }
+    }
     std::ifstream inputFile2(fileName);
-    double real, imag;
     for(int i = 0; i < numOfOmega_; i++){
-      inputFile2 >> omegaList_[i] >> real >> imag;
-      epsilonList_[i] = dcomplex(real, -imag);
+      inputFile2 >> omegaList_[i];
+      if(epsilonList_.type_ == SCALAR_){
+        double imag;
+        inputFile2 >> epsilonList_.epsilonVals[i].scalar[0] >> imag;
+        epsilonList_.epsilonVals[i].scalar[1] = -imag;
+      }
+      else{
+        double real1, imag1, real2, imag2, real3, imag3, real4, imag4, real5, imag5;
+        inputFile2 >> real1 >> imag1 >> real2 >> imag2 >> real3 >> imag3 >> real4 >> imag4 >> real5 >> imag5;
+        epsilonList_.epsilonVals[i].tensor[0] = real1;
+        epsilonList_.epsilonVals[i].tensor[1] = -imag1;
+        epsilonList_.epsilonVals[i].tensor[2] = real2;
+        epsilonList_.epsilonVals[i].tensor[3] = -imag2;
+        epsilonList_.epsilonVals[i].tensor[4] = real3;
+        epsilonList_.epsilonVals[i].tensor[5] = -imag3;
+        epsilonList_.epsilonVals[i].tensor[6] = real4;
+        epsilonList_.epsilonVals[i].tensor[7] = -imag4;
+        epsilonList_.epsilonVals[i].tensor[8] = real5;
+        epsilonList_.epsilonVals[i].tensor[9] = -imag5;
+      }
     }
     inputFile2.close();
   }
@@ -98,7 +139,7 @@ namespace MESH{
   /*==============================================*/
   // Function returning the epsilon values
   /*==============================================*/
-  dcomplex* FileLoader::getEpsilonList(){
+  EPSILON FileLoader::getEpsilonList(){
     return epsilonList_;
   }
   /*==============================================*/
@@ -113,8 +154,8 @@ namespace MESH{
   FileLoader::~FileLoader(){
     delete [] omegaList_;
     omegaList_ = nullptr;
-    delete [] epsilonList_;
-    epsilonList_ = nullptr;
+    //delete [] epsilonList_;
+    //epsilonList_ = nullptr;
   }
   /*==============================================*/
   // This function wraps the data for quad_gaussian_kronrod
@@ -679,6 +720,7 @@ namespace MESH{
         MPI_Recv(&resultArray[start], end - start, MPI_DOUBLE, thread, RECVTAG, MPI_COMM_WORLD, &status);
       }
       for(int i = 0; i < numOfOmega_; i++){
+        Phi_[i] = 0;
         for(int j = 0; j < numOfKx_ * numOfKy_; j++){
           Phi_[i] += resultArray[i * numOfKx_ * numOfKy_ + j];
         }
