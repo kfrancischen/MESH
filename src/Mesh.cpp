@@ -154,6 +154,8 @@ namespace MESH{
   FileLoader::~FileLoader(){
     delete [] omegaList_;
     omegaList_ = nullptr;
+    delete [] epsilonList_.epsilonVals;
+    epsilonList_.epsilonVals = nullptr;
     //delete [] epsilonList_;
     //epsilonList_ = nullptr;
   }
@@ -653,7 +655,8 @@ namespace MESH{
     for(int i = 0; i < numOfOmega_; i++){
       switch (dim_) {
         case NO_:{
-          // this function not run
+          scalex[i] = 1;
+          scaley[i] = 1;
           break;
         }
         case ONE_:{
@@ -761,6 +764,7 @@ namespace MESH{
   SimulationPlanar::SimulationPlanar() : Simulation(){
     dim_ = NO_;
     degree_ = DEGREE;
+    prefactor_ = 1;
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -772,12 +776,57 @@ namespace MESH{
   // Function setting the integral over kx
   // @args:
   // end: the end of the integration
-  // degree: the degree of gauss_legendre integral, default 512
   /*==============================================*/
-  void SimulationPlanar::setKxIntegral(const double end){
+  void SimulationPlanar::setKParallelIntegral(const double end){
     kxStart_ = 0;
     numOfKx_ = 0;
     kxEnd_ = end;
+  }
+  /*==============================================*/
+  // Function setting the integral over kx
+  // @args:
+  // points: number of points considered in the integral
+  // end: the end of the integration
+  /*==============================================*/
+  void SimulationPlanar::setKxIntegral(const int points, const double end){
+    kxStart_ = -end;
+    numOfKx_ = points;
+    kxEnd_ = end;
+  }
+  /*==============================================*/
+  // Function setting the integral over kx (symetric)
+  // @args:
+  // points: number of points considered in the integral
+  // end: the end of the integration
+  /*==============================================*/
+  void SimulationPlanar::setKxIntegralSym(const int points, const double end){
+    kxStart_ = 0;
+    numOfKx_ = points;
+    kxEnd_ = end;
+    prefactor_ *= 2;
+  }
+  /*==============================================*/
+  // Function setting the integral over ky
+  // @args:
+  // end: the end of the integration
+  // points: number of points considered in the integral
+  /*==============================================*/
+  void SimulationPlanar::setKyIntegral(const int points, const double end){
+    kxStart_ = -end;
+    numOfKx_ = points;
+    kxEnd_ = end;
+  }
+  /*==============================================*/
+  // Function setting the integral over ky (symetric)
+  // @args:
+  // end: the end of the integration
+  // points: number of points considered in the integral
+  /*==============================================*/
+  void SimulationPlanar::setKyIntegralSym(const int points, const double end){
+    kxStart_ = 0;
+    numOfKx_ = points;
+    kxEnd_ = end;
+    prefactor_ *= 2;
   }
   /*==============================================*/
   // Function setting the integral to be the gauss_legendre
@@ -802,23 +851,33 @@ namespace MESH{
   // This function gets the flux at a given kx
   // @args:
   // omegaIndex: the index of omega
-  // kx: the kx value, normalized
+  // KParallel: the KParallel value, normalized
+  // NOTE:
+  // assuming scalar or
+  //  eps_x,  0,   0
+  //    0  ,eps_x, 0
+  //    0     0,  eps_z
+  // make sure you understand your problem whether can be solved by this function
   /*==============================================*/
-  double SimulationPlanar::getPhiAtKx(const int omegaIdx, const double kx){
+  double SimulationPlanar::getPhiAtKParallel(const int omegaIdx, const double KParallel){
     if(omegaIdx >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
-    return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * kx *
-      poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, kx, 0, EMatricesVec_[omegaIdx],
+    return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
+      poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, KParallel, 0, EMatricesVec_[omegaIdx],
       grandImaginaryMatricesVec_[omegaIdx], dielectricMatrixZInvVec_[omegaIdx], Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,1);
   }
 
 
   /*==============================================*/
-  // This function integrates kx using gauss_legendre method
+  // This function integrates kx assuming scalar or
+  //  eps_x,  0,   0
+  //    0  ,eps_x, 0
+  //    0     0,  eps_z
+  // make sure you understand your problem whether can be solved by this function
   /*==============================================*/
-  void SimulationPlanar::run(){
+  void SimulationPlanar::runNaive(){
     int rank, numProcs, start, end;
     int offset = 0;
     MPI_Init(NULL, NULL);
@@ -898,7 +957,7 @@ namespace MESH{
   // Implementaion of the class on 1D grating simulation
   /*==============================================*/
   SimulationGrating::SimulationGrating() : Simulation(){
-    prefactor_ = 2;
+    prefactor_ = 1;
     dim_ = ONE_;
   }
   /*==============================================*/
@@ -943,11 +1002,22 @@ namespace MESH{
   // end: the upperbound of the integral
   /*==============================================*/
   void SimulationGrating::setKyIntegral(const int points, const double end){
-    kyStart_ = 0;
+    kyStart_ = -end;
     numOfKy_ = points;
     kyEnd_ = end;
   }
-
+  /*==============================================*/
+  // This function set the integral of ky assume y symmetry
+  // @args:
+  // points: number of ky points
+  // end: the upperbound of the integral
+  /*==============================================*/
+  void SimulationGrating::setKyIntegralSym(const int points, const double end){
+    kyStart_ = 0;
+    numOfKy_ = points;
+    kyEnd_ = end;
+    prefactor_ *= 2;
+  }
   /*==============================================*/
   // Implementaion of the class on 2D patterning simulation
   /*==============================================*/

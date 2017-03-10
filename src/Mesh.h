@@ -84,7 +84,7 @@ public:
   double* getOmegaList();
   double* getPeriodicity();
 
-  double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky);
+  double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
   void build();
   void rebuild();
   void run();
@@ -169,14 +169,21 @@ public:
   SimulationPlanar(const SimulationPlanar&) = delete;
   void setGx() = delete;
   void setGy() = delete;
-  double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky) = delete;
 
-  void setKxIntegral(const double end = 0);
+  // this function is used when one knows that the problem is only a kx integral
+  void setKParallelIntegral(const double end);
+
+  // this function is used when one knows that the problem is not a simple kx integral
+  void setKxIntegral(const int points, const double end);
+  void setKxIntegralSym(const int points, const double end);
+  void setKyIntegral(const int points, const double end);
+  void setKyIntegralSym(const int points, const double end);
+
   void useQuadgl(int degree = DEGREE);
   void useQuadgk(int degree = DEGREE);
 
-  void run();
-  double getPhiAtKx(const int omegaIndex, const double kx);
+  void runNaive();
+  double getPhiAtKParallel(const int omegaIndex, const double KParallel);
 
 protected:
   ~SimulationPlanar(){};
@@ -203,6 +210,7 @@ public:
   void setKxIntegralSym(const int points);
   // for ky integral, from 0 to inf
   void setKyIntegral(const int points, const double end);
+  void setKyIntegralSym(const int points, const double end);
   void useAdaptive();
   void useNative();
 protected:

@@ -21,6 +21,7 @@
 #define _COMMON_H
 
 #include <complex>
+#include <vector>
 #include "utility/Utility.h"
 #include "mathlib/Mathlib.h"
 #include "config.h"

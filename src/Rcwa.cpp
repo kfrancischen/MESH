@@ -203,6 +203,7 @@ dielectricImMatrix: the imaginary part matrices
 numOfLayer: the number of layer in the system
 N: the number of G
 ==============================================================*/
+// IMPORTANT: this functoin need to be changed to be compatible with tensor interface
 void RCWA::getGrandImaginaryMatrices(
   RCWAMatrices& grandImaginaryMatrices,
   const RCWAMatrices& dielectricImMatrix,
@@ -227,6 +228,7 @@ dielectricMatrix: the dielectric matrices
 numOfLayer: the number of layer in the system
 N: the number of G
 ==============================================================*/
+// IMPORTANT: this functoin need to be changed to be compatible with tensor interface
 void RCWA::getEMatrices(
   RCWAMatrices& EMatrices,
   const RCWAMatrices& dielectricMatrixTE,
@@ -262,6 +264,7 @@ void RCWA::getEMatrices(
  targetLayer: the targetLayer for the flux measurement
  N: total number of G
 ==============================================================*/
+// IMPORTANT: there is no change in this function even for a tensor
 double RCWA::poyntingFlux(
   const double omega,
   const RCWAVector& thicknessList,
