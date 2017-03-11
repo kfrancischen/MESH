@@ -23,6 +23,7 @@
 //#define ARMA_DONT_USE_WRAPPER
 #include "Rcwa.h"
 #include "System.h"
+#include "Fmm.h"
 #include "Common.h"
 #include "config.h"
 #include <fstream>
@@ -32,8 +33,6 @@ namespace MESH{
 using namespace SYSTEM;
 using namespace RCWA;
 typedef std::vector<RCWAMatrices> RCWAMatricesVec;
-typedef RCWAMatricesVec::iterator RCWAMatricesIter;
-typedef RCWAMatricesVec::const_iterator const_RCWAMatricesIter;
 
 typedef struct ARGWEAPPER{
   double omega;

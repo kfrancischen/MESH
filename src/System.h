@@ -137,6 +137,7 @@ namespace SYSTEM{
     LayerPattern args1_;
     LayerPattern args2_;
     SOURCE source_;
+    bool isTensor_;
   };
 
   typedef std::map<int, Ptr<Layer> > LayerMap;

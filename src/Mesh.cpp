@@ -49,15 +49,20 @@ namespace MESH{
   /*==============================================*/
   // Function checking a line contains more than 3 spaces
   /*==============================================*/
-  bool CheckTensor(std::string line){
+  EPSTYPE checkType(std::string line){
     int numOfSpace = 0;
     for(int i = 0; i < line.length(); i++){
       if(isspace(line.at(i))) numOfSpace++;
-      if(numOfSpace > 2){
-        return true;
+    }
+    switch (numOfSpace) {
+      case 2: return SCALAR_;
+      case 6: return DIAGONAL_;
+      case 10: return TENSOR_;
+      default:{
+        throw UTILITY::UnknownTypeException("Input type wrong!");
       }
     }
-    return false;
+    return SCALAR_;
   }
   /*==============================================*/
   // Function reads a file from disk
@@ -71,12 +76,10 @@ namespace MESH{
     }
     std::string line;
     int count = 0;
-    bool isTensor = false;
+    EPSTYPE type = SCALAR_;
     while(std::getline(inputFile, line)){
       count++;
-      if(isTensor == false and CheckTensor(line) == true){
-        isTensor == true;
-      }
+      type = checkType(line);
     }
     inputFile.close();
 
@@ -97,12 +100,7 @@ namespace MESH{
 
     if(epsilonList_.epsilonVals == nullptr){
       epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
-      if(isTensor){
-        epsilonList_.type_ = TENSOR_;
-      }
-      else{
-        epsilonList_.type_ = SCALAR_;
-      }
+      epsilonList_.type_ = type;
     }
     std::ifstream inputFile2(fileName);
     for(int i = 0; i < numOfOmega_; i++){
@@ -111,6 +109,16 @@ namespace MESH{
         double imag;
         inputFile2 >> epsilonList_.epsilonVals[i].scalar[0] >> imag;
         epsilonList_.epsilonVals[i].scalar[1] = -imag;
+      }
+      else if(epsilonList_.type_ == DIAGONAL_){
+        double real1, imag1, real2, imag2, real3, imag3;
+        inputFile2 >> real1 >> imag1 >> real2 >> imag2 >> real3 >> imag3;
+        epsilonList_.epsilonVals[i].diagonal[0] = real1;
+        epsilonList_.epsilonVals[i].diagonal[1] = -imag1;
+        epsilonList_.epsilonVals[i].diagonal[2] = real2;
+        epsilonList_.epsilonVals[i].diagonal[3] = -imag2;
+        epsilonList_.epsilonVals[i].diagonal[4] = real3;
+        epsilonList_.epsilonVals[i].diagonal[5] = -imag3;
       }
       else{
         double real1, imag1, real2, imag2, real3, imag3, real4, imag4, real5, imag5;
