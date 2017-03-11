@@ -44,6 +44,8 @@ namespace SYSTEM{
 
     std::string getName();
     bool isIsotropic();
+    bool isDiagonal();
+    bool isTensor();
     //dcomplex* getEpsilonList();
     EpsilonVal getEpsilonAtIndex(const int index);
     int getNumOfOmega();
@@ -103,6 +105,7 @@ namespace SYSTEM{
     void setIsSource();
     void setIsNotSource();
     bool checkIsSource();
+    bool hasTensor();
 
     Ptr<Material> getBackGround();
     Ptr<Material> getMaterialByName(const std::string name);

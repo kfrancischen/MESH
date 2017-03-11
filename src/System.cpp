@@ -37,7 +37,7 @@ namespace SYSTEM{
       //std::copy(epsilonList.epsilonVals, epsilonList.epsilonVals + numOfOmega_, epsilonList_);
     }
     else if(epsilonList.type_ == DIAGONAL_){
-      type_ = BIAXIAL_;
+      type_ = ANISOTROPICDIAG_;
       for(int i = 0; i < numOfOmega_; i++){
         for(int j = 0; j < 6; j++){
           epsilonList_.epsilonVals[i].diagonal[i] = epsilonList.epsilonVals[i].diagonal[i];
@@ -45,7 +45,7 @@ namespace SYSTEM{
       }
     }
     else{
-      type_ = ANISOTROPIC_;
+      type_ = ANISOTROPICTENSOR_;
       for(int i = 0; i < numOfOmega_; i++){
         for(int j = 0; j < 10; j++){
           epsilonList_.epsilonVals[i].tensor[i] = epsilonList.epsilonVals[i].tensor[i];
@@ -99,8 +99,20 @@ namespace SYSTEM{
   /*==============================================*/
   // function check whether the given material has a tensor dielectric
   /*==============================================*/
-  bool Material::isIsotropic(){
-    return type_ != ANISOTROPIC_;
+  bool Material::isScalar(){
+    return type_ == ISOTROPIC_;
+  }
+  /*==============================================*/
+  // function check whether the given material has a tensor dielectric
+  /*==============================================*/
+  bool Material::isDiagonal(){
+    return type_ == ANISOTROPICDIAG_;
+  }
+  /*==============================================*/
+  // function check whether the given material has a tensor dielectric
+  /*==============================================*/
+  bool Material::isTensor(){
+    return type_ == ANISOTROPICTENSOR_;
   }
   /*==============================================*/
   // function return the epsilon list of the material
@@ -182,7 +194,7 @@ namespace SYSTEM{
     NamedInterface(name), thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
     backGround_ = material;
     backGround_ = material;
-    if(backGround_->isIsotropic() == false){
+    if(backGround_->isTensor()){
       hasTensor_ = true;
     }
   }
@@ -204,7 +216,7 @@ namespace SYSTEM{
     NamedInterface(name), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
     //backGround_ = new Material(*material);
     backGround_ = material;
-    if(backGround_->isIsotropic() == false){
+    if(backGround_->isTensor()){
       hasTensor_ = true;
     }
   }
@@ -327,6 +339,12 @@ namespace SYSTEM{
       return true;
     }
     return false;
+  }
+  /*==============================================*/
+  // check whether the layer contains a material with tensor dielectric
+  /*==============================================*/
+  void Layer::hasTensor(){
+    return hasTensor_;
   }
   /*==============================================*/
   // get the background material
