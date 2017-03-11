@@ -39,7 +39,7 @@ int main(){
   s->setTargetLayerByLayer(vacGap);
   s->setOutputFile("gold_to_vac.txt");
   s->setKxIntegralSym(500);
-  s->setKyIntegral(200, 5);
+  s->setKyIntegralSym(200, 5);
   s->build();
   s->run();
 

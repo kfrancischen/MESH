@@ -3,7 +3,7 @@
 int main(){
 
   // initializing material
-  Ptr<FileLoader> fileLoader = FileLoader::instanceNew();
+  Ptr<FileLoader> fileLoader = FileLoader::instanceNew(1);
   fileLoader->load("fullGold.txt");
   Ptr<Material> Gold = Material::instanceNew("Au", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
   fileLoader->load("fullVacuum.txt");
@@ -40,7 +40,7 @@ int main(){
   s->setTargetLayerByLayer(vacGap);
   s->setOutputFile("gold_to_vac.txt");
   s->setKxIntegralSym(500);
-  s->setKyIntegral(200, 5);
+  s->setKyIntegralSym(200, 5);
   s->build();
   s->run();
 
