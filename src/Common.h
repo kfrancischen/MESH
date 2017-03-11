@@ -34,6 +34,7 @@ using UTILITY::NamedInterface;
 enum DIMENSION { NO_, ONE_, TWO_ };
 enum PATTEN {PLANAR_, GRATING_, RECTANGLE_, CIRCLE_};
 enum EPSTYPE {SCALAR_, DIAGONAL_, TENSOR_};
+enum MATERIALTYPE {ISOTROPIC_, BIAXIAL_, ANISOTROPIC_};
 #define POW2(x) pow(x, 2)
 #define POW3(x) pow(x, 3)
 #define SENDTAG 2

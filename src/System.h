@@ -43,13 +43,14 @@ namespace SYSTEM{
     ~Material();
 
     std::string getName();
-    dcomplex* getEpsilonList();
-    dcomplex getEpsilonAtIndex(const int index);
+    bool isIsotropic();
+    //dcomplex* getEpsilonList();
+    EpsilonVal getEpsilonAtIndex(const int index);
     int getNumOfOmega();
     double* getOmegaList();
 
     void setOmega(const double* omegaList, const int numOfOmega);
-    void setEpsilon(const dcomplex* epsilonList, const int numOfOmega);
+    void setEpsilon(const EPSILON& epsilonList, const int numOfOmega);
 
   protected:
     Material(
@@ -60,9 +61,10 @@ namespace SYSTEM{
     );
     Material(const std::string name);
 
-    dcomplex* epsilonList_;
+    EPSILON epsilonList_;
     double* omegaList_;
     int numOfOmega_;
+    MATERIALTYPE type_ = ISOTROPIC_;
   };
 
   typedef std::vector< Ptr<Material> > MaterialVec;
@@ -137,7 +139,7 @@ namespace SYSTEM{
     LayerPattern args1_;
     LayerPattern args2_;
     SOURCE source_;
-    bool isTensor_;
+    bool hasTensor_ = false;
   };
 
   typedef std::map<int, Ptr<Layer> > LayerMap;

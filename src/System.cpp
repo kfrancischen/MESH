@@ -28,15 +28,29 @@ namespace SYSTEM{
     const EPSILON& epsilonList,
     const int numOfOmega): NamedInterface(name)
     , numOfOmega_(numOfOmega){
-    epsilonList_ = new dcomplex[numOfOmega_];
+    epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
     if(epsilonList.type_ == SCALAR_){
       for(int i = 0; i < numOfOmega_; i++){
-        epsilonList_[i] = dcomplex(epsilonList.epsilonVals[i].scalar[0], epsilonList.epsilonVals[i].scalar[1]);
+        epsilonList_.epsilonVals[i].scalar[0] = epsilonList.epsilonVals[i].scalar[0];
+        epsilonList_.epsilonVals[i].scalar[1] = epsilonList.epsilonVals[i].scalar[1];
       }
       //std::copy(epsilonList.epsilonVals, epsilonList.epsilonVals + numOfOmega_, epsilonList_);
     }
+    else if(epsilonList.type_ == DIAGONAL_){
+      type_ = BIAXIAL_;
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < 6; j++){
+          epsilonList_.epsilonVals[i].diagonal[i] = epsilonList.epsilonVals[i].diagonal[i];
+        }
+      }
+    }
     else{
-
+      type_ = ANISOTROPIC_;
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < 10; j++){
+          epsilonList_.epsilonVals[i].tensor[i] = epsilonList.epsilonVals[i].tensor[i];
+        }
+      }
     }
     omegaList_ = new double[numOfOmega_];
     std::copy(omegaList, omegaList + numOfOmega_, omegaList_);
@@ -71,8 +85,8 @@ namespace SYSTEM{
   // destructor
   /*==============================================*/
   Material::~Material(){
-    delete[] epsilonList_;
-    epsilonList_ = nullptr;
+    delete[] epsilonList_.epsilonVals;
+    epsilonList_.epsilonVals = nullptr;
     delete[] omegaList_;
     omegaList_ = nullptr;
   }
@@ -83,20 +97,27 @@ namespace SYSTEM{
     return this->name();
   }
   /*==============================================*/
+  // function check whether the given material has a tensor dielectric
+  /*==============================================*/
+  bool Material::isIsotropic(){
+    return type_ != ANISOTROPIC_;
+  }
+  /*==============================================*/
   // function return the epsilon list of the material
   /*==============================================*/
+  /*
   dcomplex* Material::getEpsilonList(){
     return epsilonList_;
   }
-
+  */
   /*==============================================*/
   // function return the epsilon at a specific index
   /*==============================================*/
-  dcomplex Material::getEpsilonAtIndex(const int index){
+  EpsilonVal Material::getEpsilonAtIndex(const int index){
     if(index >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
     }
-    return epsilonList_[index];
+    return epsilonList_.epsilonVals[index];
   }
 
   /*==============================================*/
@@ -130,8 +151,28 @@ namespace SYSTEM{
   /*==============================================*/
   void Material::setEpsilon(const dcomplex* epsilonList, const int numOfOmega){
     numOfOmega_ = numOfOmega;
-    epsilonList_ = new dcomplex[numOfOmega_];
-    std::copy(epsilonList, epsilonList + numOfOmega_, epsilonList_);
+    epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
+    if(epsilonList.type_ == SCALAR_){
+      for(int i = 0; i < numOfOmega_; i++){
+        epsilonList_.epsilonVals[i].scalar[0] = epsilonList.epsilonVals[i].scalar[0];
+        epsilonList_.epsilonVals[i].scalar[1] = epsilonList.epsilonVals[i].scalar[1];
+      }
+      //std::copy(epsilonList.epsilonVals, epsilonList.epsilonVals + numOfOmega_, epsilonList_);
+    }
+    else if(epsilonList.type_ == DIAGONAL_){
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < 6; j++){
+          epsilonList_.epsilonVals[i].diagonal[i] = epsilonList.epsilonVals[i].diagonal[i];
+        }
+      }
+    }
+    else{
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < 10; j++){
+          epsilonList_.epsilonVals[i].tensor[i] = epsilonList.epsilonVals[i].tensor[i];
+        }
+      }
+    }
   }
 
   /*==============================================*/
@@ -140,6 +181,10 @@ namespace SYSTEM{
   Layer::Layer(const string name, const Ptr<Material>& material, const double thickness) :
     NamedInterface(name), thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
     backGround_ = material;
+    backGround_ = material;
+    if(backGround_->isIsotropic() == false){
+      hasTensor_ = true;
+    }
   }
 
   /*==============================================*/
@@ -159,6 +204,9 @@ namespace SYSTEM{
     NamedInterface(name), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
     //backGround_ = new Material(*material);
     backGround_ = material;
+    if(backGround_->isIsotropic() == false){
+      hasTensor_ = true;
+    }
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
