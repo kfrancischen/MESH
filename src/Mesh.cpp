@@ -430,9 +430,9 @@ namespace MESH{
       dielectricMatrix /= period_[0];
       dielectricMatrixInv /= period_[0];
       dielectricImMatrix /= period_[0];
-      dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
-      dielectricMatrixInv += dcomplex(1.0,0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
-      dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
+      dielectricMatrix += epsilonBG[i] * onePadding1N;
+      dielectricMatrixInv += (dcomplex(1.0,0) / epsilonBG[i]) * onePadding1N;
+      dielectricImMatrix += epsilonBG[i].imag() * onePadding1N;
 
       dielectricMatrixVecTE[i].push_back(dielectricMatrix);
       dielectricMatrixVecTM[i].push_back(dielectricMatrixInv.i());
@@ -503,7 +503,7 @@ namespace MESH{
       }
 
       dielectricMatrix += epsilonBG[i] * eye<RCWAMatrix>(N, N);
-      dielectricMatrixInv += dcomplex(1, 0) / epsilonBG[i] * eye<RCWAMatrix>(N, N);
+      dielectricMatrixInv += (dcomplex(1, 0) / epsilonBG[i]) * eye<RCWAMatrix>(N, N);
       dielectricImMatrix += epsilonBG[i].imag() * eye<RCWAMatrix>(N, N);
 
       dielectricMatrixVecTE[i].push_back(dielectricMatrixInv.i());

@@ -240,8 +240,8 @@ void RCWA::getEMatrices(
   RCWAMatrix zeroPadding(N, N, fill::zeros);
   for(int i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
-      join_horiz(dielectricMatrixTM[i], zeroPadding),
-      join_horiz(zeroPadding, dielectricMatrixTE[i])
+      join_horiz(dielectricMatrixTE[i], zeroPadding),
+      join_horiz(zeroPadding, dielectricMatrixTM[i])
     );
     EMatrices.push_back(EMatrix);
   }
@@ -341,7 +341,7 @@ double RCWA::poyntingFlux(
     MMatrices[i](span(r3, r4), span(r1, r2)) = EigenVecMatrices[i];
     MMatrices[i](span(r3, r4), span(r3, r4)) = MMatrices[i](span(r3, r4), span(r1, r2));
     // normalization
-    MMatrices[i] = MMatrices[i] * (diagmat(sqrt(diagvec(MMatrices[i].t() * MMatrices[i])))).i();
+    // MMatrices[i] = MMatrices[i] * (diagmat(sqrt(diagvec(MMatrices[i].t() * MMatrices[i])))).i();
   }
 
   /*======================================================
