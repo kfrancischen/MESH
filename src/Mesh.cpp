@@ -173,7 +173,7 @@ namespace MESH{
   // kx: the kx value (normalized)
   // wrapper: wrapper for all the arguments wrapped in wrapper
   /*==============================================*/
-  double wrapperFunQuadgk(const double kx, ArgWrapper* data){
+  static double wrapperFunQuadgk(const double kx, ArgWrapper* data){
     ArgWrapper wrapper = *data;
     return kx * poyntingFlux(
       wrapper.omega,
@@ -196,7 +196,7 @@ namespace MESH{
   // kx: the kx value (normalized)
   // data: wrapper for all the arguments wrapped in wrapper
   /*==============================================*/
-  double wrapperFunQuadgl(const double kx, void* data){
+  static double wrapperFunQuadgl(const double kx, void* data){
     return wrapperFunQuadgk(kx, (ArgWrapper*) data);
   }
   /*======================================================*/

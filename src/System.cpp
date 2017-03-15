@@ -99,20 +99,8 @@ namespace SYSTEM{
   /*==============================================*/
   // function check whether the given material has a tensor dielectric
   /*==============================================*/
-  bool Material::isScalar(){
-    return type_ == ISOTROPIC_;
-  }
-  /*==============================================*/
-  // function check whether the given material has a tensor dielectric
-  /*==============================================*/
-  bool Material::isDiagonal(){
-    return type_ == ANISOTROPICDIAG_;
-  }
-  /*==============================================*/
-  // function check whether the given material has a tensor dielectric
-  /*==============================================*/
-  bool Material::isTensor(){
-    return type_ == ANISOTROPICTENSOR_;
+  EPSTYPE Material::getType(){
+    return epsilonList_.type_;
   }
   /*==============================================*/
   // function return the epsilon list of the material
@@ -194,7 +182,7 @@ namespace SYSTEM{
     NamedInterface(name), thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
     backGround_ = material;
     backGround_ = material;
-    if(backGround_->isTensor()){
+    if(backGround_->getType() == TENSOR_){
       hasTensor_ = true;
     }
   }
@@ -216,7 +204,7 @@ namespace SYSTEM{
     NamedInterface(name), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
     //backGround_ = new Material(*material);
     backGround_ = material;
-    if(backGround_->isTensor()){
+    if(backGround_->getType() == TENSOR_){
       hasTensor_ = true;
     }
   }

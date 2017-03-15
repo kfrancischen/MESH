@@ -43,9 +43,7 @@ namespace SYSTEM{
     ~Material();
 
     std::string getName();
-    bool isIsotropic();
-    bool isDiagonal();
-    bool isTensor();
+    EPSTYPE getType();
     //dcomplex* getEpsilonList();
     EpsilonVal getEpsilonAtIndex(const int index);
     int getNumOfOmega();

@@ -240,8 +240,8 @@ void RCWA::getEMatrices(
   RCWAMatrix zeroPadding(N, N, fill::zeros);
   for(int i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
-      join_horiz(dielectricMatrixTM[i], zeroPadding),
-      join_horiz(zeroPadding, dielectricMatrixTE[i])
+      join_horiz(dielectricMatrixTE[i], zeroPadding),
+      join_horiz(zeroPadding, dielectricMatrixTM[i])
     );
     EMatrices.push_back(EMatrix);
   }
