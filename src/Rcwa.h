@@ -105,29 +105,42 @@ namespace RCWA{
   * Function computing imaginary dielectric matrix for the system
   @arg:
   grandImaginaryMatrices: the matrices containing the imaginary part matrix
-  dielectricImMatrix: the imaginary part matrices
+  im_eps_xx: the imaginary part of eps_xx
+  im_eps_xy: the imaginary part of eps_xy
+  im_eps_yx: the imaginary part of eps_yx
+  im_eps_yy: the imaginary part of eps_yy
+  im_eps_zz: the imaginary part of eps_zz
   numOfLayer: the number of layer in the system
   N: the number of G
   ==============================================================*/
   void getGrandImaginaryMatrices(
     RCWAMatrices& grandImaginaryMatrices,
-    const RCWAMatrices& dielectricImMatrix,
-    const int numOfLayer,
-    const int N
+    const RCWAMatrices& im_eps_xx,
+    const RCWAMatrices& im_eps_xy,
+    const RCWAMatrices& im_eps_yx,
+    const RCWAMatrices& im_eps_yy,
+    const RCWAMatrices& im_eps_zz,
+    int numOfLayer,
+    int N
   );
 
   /*============================================================
   * Function computing E matrices for the system
   @arg:
   EMatrices: the Ematrices
-  dielectricMatrix: the dielectric matrices
+  eps_xx: the epsilon in xx direction
+  eps_xy: the epsilon in xy direction
+  eps_yx: the epsilon in yx direction
+  eps_yy: the epsilon in yy direction
   numOfLayer: the number of layer in the system
   N: the number of G
   ==============================================================*/
   void getEMatrices(
     RCWAMatrices& EMatrices,
-    const RCWAMatrices& dielectricMatrixTE,
-    const RCWAMatrices& dielectricMatrixTM,
+    const RCWAMatrices& eps_xx,
+    const RCWAMatrices& eps_xy,
+    const RCWAMatrices& eps_yx,
+    const RCWAMatrices& eps_yy,
     const int numOfLayer,
     const int N
   );
@@ -141,7 +154,7 @@ namespace RCWA{
    ky: the y vector at x direction (normalized value)
    EMatrices:  the E matrices for all layers
    grandImaginaryMatrices: collection of all imaginary matrices in all layers
-   dielectricMatrixInverse: the inverse of dielectric matrix
+   eps_zz_inv: the inverse of eps_zz
    Gx_mat: the Gx matrix
    Gy_mat: the Gy matrix
    sourceList: list of 0 or 1 with the same size of thicknessList
@@ -155,7 +168,7 @@ namespace RCWA{
     double ky,
     const RCWAMatrices& EMatrices,
     const RCWAMatrices& grandImaginaryMatrices,
-    const RCWAMatrices& dielectricMatrixTMInv,
+    const RCWAMatrices& eps_zz_inv,
     const RCWAMatrix& Gx_mat,
     const RCWAMatrix& Gy_mat,
     const SourceList& sourceList,

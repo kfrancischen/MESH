@@ -112,16 +112,16 @@
        EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
 
        EpsilonVal epsilonBGTensor = toTensor(epsilonBG, backGround->getType());
-       eps_xx_MatrixVec.push_back(onePadding1N * dcomplex(epsilonBG.tensor[0], epsilonBG.tensor[1]));
-       im_eps_xx_MatrixVec.push_back(onePadding1N * epsilonBG.tensor[1]);
-       eps_xy_MatrixVec.push_back(onePadding1N * dcomplex(epsilonBG.tensor[2], epsilonBG.tensor[3]));
-       im_eps_xy_MatrixVec.push_back(onePadding1N * epsilonBG.tensor[3]);
-       eps_yx_MatrixVec.push_back(onePadding1N * dcomplex(epsilonBG.tensor[4], epsilonBG.tensor[5]));
-       im_eps_yx_MatrixVec.push_back(onePadding1N * epsilonBG.tensor[5]);
-       eps_yy_MatrixVec.push_back(onePadding1N * dcomplex(epsilonBG.tensor[6], epsilonBG.tensor[7]));
-       im_eps_yy_MatrixVec.push_back(onePadding1N * epsilonBG.tensor[7]);
-       eps_zz_MatrixVec.push_back(onePadding1N * dcomplex(1.0, 0) / dcomplex(epsilonBG.tensor[8], epsilonBG.tensor[9]));
-       im_eps_zz_MatrixVec.push_back(onePadding1N * epsilonBG.tensor[9]);
+       eps_xx_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[0], epsilonBG.tensor[1]));
+       im_eps_xx_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[1]);
+       eps_xy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[2], epsilonBG.tensor[3]));
+       im_eps_xy_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[3]);
+       eps_yx_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[4], epsilonBG.tensor[5]));
+       im_eps_yx_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[5]);
+       eps_yy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[6], epsilonBG.tensor[7]));
+       im_eps_yy_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[7]);
+       eps_zz_MatrixVec[i].push_back(onePadding1N * dcomplex(1.0, 0) / dcomplex(epsilonBG.tensor[8], epsilonBG.tensor[9]));
+       im_eps_zz_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[9]);
      }
    }
 
@@ -182,7 +182,7 @@
 
      Ptr<Material> backGround = layer->getBackGround();
      for(int i = 0; i < numOfOmega; i++){
-       RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_inv(N, N, fill::zeros);
+       RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
        RCWAMatrix im_eps_xx(N, N, fill:zeros), im_eps_xy(N, N, fill:zeros), im_eps_yx(N, N, fill:zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
        count = 0; // reset count
        EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
@@ -223,6 +223,7 @@
          eps_zz_Inv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_zz)
            * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
 
+
          im_eps_xx += exp(IMAG_I * G_mat * centerVec(count)) * (epsTensor.tensor[1] - im_eps_BG_xx)
            * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
          im_eps_xy += exp(IMAG_I * G_mat * centerVec(count)) * (epsTensor.tensor[3] - im_eps_BG_xy)
@@ -256,16 +257,16 @@
        im_eps_yy = im_eps_yy / period + im_eps_BG_yy * onePadding1N;
        im_eps_zz = im_eps_zz / period + im_eps_BG_zz * onePadding1N;
 
-       eps_xx_MatrixVec.push_back(eps_xx);
-       eps_xy_MatrixVec.push_back(eps_xy);
-       eps_yx_MatrixVec.push_back(eps_yx);
-       eps_yy_MatrixVec.push_back(eps_yy);
-       eps_zz_Inv_MatrixVec.push_back(eps_zz_Inv);
-       im_eps_xx_MatrixVec.push_back(im_eps_xx);
-       im_eps_xy_MatrixVec.push_back(im_eps_xy);
-       im_eps_yx_MatrixVec.push_back(im_eps_yx);
-       im_eps_yy_MatrixVec.push_back(im_eps_yy);
-       im_eps_zz_MatrixVec.push_back(im_eps_zz);
+       eps_xx_MatrixVec[i].push_back(eps_xx);
+       eps_xy_MatrixVec[i].push_back(eps_xy);
+       eps_yx_MatrixVec[i].push_back(eps_yx);
+       eps_yy_MatrixVec[i].push_back(eps_yy);
+       eps_zz_Inv_MatrixVec[i].push_back(eps_zz_Inv);
+       im_eps_xx_MatrixVec[i].push_back(im_eps_xx);
+       im_eps_xy_MatrixVec[i].push_back(im_eps_xy);
+       im_eps_yx_MatrixVec[i].push_back(im_eps_yx);
+       im_eps_yy_MatrixVec[i].push_back(im_eps_yy);
+       im_eps_zz_MatrixVec[i].push_back(im_eps_zz);
      }
    }
 
@@ -340,7 +341,7 @@
 
      Ptr<Material> backGround = layer->getBackGround();
      for(int i = 0; i < numOfOmega; i++){
-       RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_inv(N, N, fill::zeros);
+       RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
        RCWAMatrix im_eps_xx(N, N, fill:zeros), im_eps_xy(N, N, fill:zeros), im_eps_yx(N, N, fill:zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
        count = 0;
        EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
@@ -423,16 +424,16 @@
        im_eps_yy += im_eps_BG_yy * onePadding1N;
        im_eps_zz += im_eps_BG_zz * onePadding1N;
 
-       eps_xx_MatrixVec.push_back(eps_xx);
-       eps_xy_MatrixVec.push_back(eps_xy);
-       eps_yx_MatrixVec.push_back(eps_yx);
-       eps_yy_MatrixVec.push_back(eps_yy);
-       eps_zz_Inv_MatrixVec.push_back(eps_zz_Inv);
-       im_eps_xx_MatrixVec.push_back(im_eps_xx);
-       im_eps_xy_MatrixVec.push_back(im_eps_xy);
-       im_eps_yx_MatrixVec.push_back(im_eps_yx);
+       eps_xx_MatrixVec[i].push_back(eps_xx);
+       eps_xy_MatrixVec[i].push_back(eps_xy);
+       eps_yx_MatrixVec[i].push_back(eps_yx);
+       eps_yy_MatrixVec[i].push_back(eps_yy);
+       eps_zz_Inv_MatrixVec[i].push_back(eps_zz_Inv);
+       im_eps_xx_MatrixVec[i].push_back(im_eps_xx);
+       im_eps_xy_MatrixVec[i].push_back(im_eps_xy);
+       im_eps_yx_MatrixVec[i].push_back(im_eps_yx);
        im_eps_yy_MatrixVec.push_back(im_eps_yy);
-       im_eps_zz_MatrixVec.push_back(im_eps_zz);
+       im_eps_zz_MatrixVec[i].push_back(im_eps_zz);
 
    }
 
@@ -446,7 +447,7 @@
      Ptr<Layer>& layer,
      const int N
    ){
-
+     // TODO
    }
 
    void transformCircleTensor(
@@ -463,6 +464,6 @@
      Ptr<Layer>& layer,
      const int N
    ){
-
+    // TODO
    }
  }

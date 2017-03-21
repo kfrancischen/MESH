@@ -199,23 +199,33 @@ void RCWA::getGMatrices(
 * Function computing imaginary dielectric matrix for the system
 @arg:
 grandImaginaryMatrices: the matrices containing the imaginary part matrix
-dielectricImMatrix: the imaginary part matrices
+im_eps_xx: the imaginary part of eps_xx
+im_eps_xy: the imaginary part of eps_xy
+im_eps_yx: the imaginary part of eps_yx
+im_eps_yy: the imaginary part of eps_yy
+im_eps_zz: the imaginary part of eps_zz
 numOfLayer: the number of layer in the system
 N: the number of G
 ==============================================================*/
 // IMPORTANT: this functoin need to be changed to be compatible with tensor interface
 void RCWA::getGrandImaginaryMatrices(
   RCWAMatrices& grandImaginaryMatrices,
-  const RCWAMatrices& dielectricImMatrix,
+  const RCWAMatrices& im_eps_xx,
+  const RCWAMatrices& im_eps_xy,
+  const RCWAMatrices& im_eps_yx,
+  const RCWAMatrices& im_eps_yy,
+  const RCWAMatrices& im_eps_zz,
   int numOfLayer,
   int N
 )
 {
   for(int i = 0; i < numOfLayer; i++){
     RCWAMatrix grandImaginaryMatrix = zeros<RCWAMatrix>(3*N, 3*N);
-    grandImaginaryMatrix(span(0, N-1), span(0, N-1)) = dielectricImMatrix[i];
-    grandImaginaryMatrix(span(N, 2*N-1), span(N, 2*N-1)) = dielectricImMatrix[i];
-    grandImaginaryMatrix(span(2*N, 3*N-1), span(2*N, 3*N-1)) = dielectricImMatrix[i];
+    grandImaginaryMatrix(span(0, N-1), span(0, N-1)) = im_eps_xx[i];
+    grandImaginaryMatrix(span(0, N-1), span(N, 2*N-1)) = im_eps_xy[i];
+    grandImaginaryMatrix(span(N, 2*N-1), span(0, N-1)) = im_eps_yx[i]
+    grandImaginaryMatrix(span(N, 2*N-1), span(N, 2*N-1)) = im_eps_yy[i];
+    grandImaginaryMatrix(span(2*N, 3*N-1), span(2*N, 3*N-1)) = im_eps_zz[i];
     grandImaginaryMatrices.push_back(grandImaginaryMatrix);
   }
 }
@@ -224,24 +234,28 @@ void RCWA::getGrandImaginaryMatrices(
 * Function computing E matrices for the system
 @arg:
 EMatrices: the Ematrices
-dielectricMatrix: the dielectric matrices
+eps_xx: the epsilon in xx direction
+eps_xy: the epsilon in xy direction
+eps_yx: the epsilon in yx direction
+eps_yy: the epsilon in yy direction
 numOfLayer: the number of layer in the system
 N: the number of G
 ==============================================================*/
 // IMPORTANT: this functoin need to be changed to be compatible with tensor interface
 void RCWA::getEMatrices(
   RCWAMatrices& EMatrices,
-  const RCWAMatrices& dielectricMatrixTE,
-  const RCWAMatrices& dielectricMatrixTM,
+  const RCWAMatrices& eps_xx,
+  const RCWAMatrices& eps_xy,
+  const RCWAMatrices& eps_yx,
+  const RCWAMatrices& eps_yy,
   const int numOfLayer,
   const int N
 ){
 
-  RCWAMatrix zeroPadding(N, N, fill::zeros);
   for(int i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
-      join_horiz(dielectricMatrixTE[i], zeroPadding),
-      join_horiz(zeroPadding, dielectricMatrixTM[i])
+      join_horiz(eps_yy[i], -eps_yx[i]),
+      join_horiz(eps_xy[i], eps_xx[i])
     );
     EMatrices.push_back(EMatrix);
   }
@@ -251,18 +265,18 @@ void RCWA::getEMatrices(
 /*============================================================
 * Function computing the poynting vector at given (kx, ky)
 @arg:
- omega: the angular frequency (normalized to c)
- thicknessList: the thickness for each layer
- kx: the k vector at x direction (normalized value)
- ky: the y vector at x direction (normalized value)
- EMatrices:  the E matrices for all layers
- grandImaginaryMatrices: collection of all imaginary matrices in all layers
- dielectricMatrixInverse: the inverse of dielectric matrix
- Gx_mat: the Gx matrix
- Gy_mat: the Gy matrix
- sourceList: list of 0 or 1 with the same size of thicknessList
- targetLayer: the targetLayer for the flux measurement
- N: total number of G
+omega: the angular frequency (normalized to c)
+thicknessList: the thickness for each layer
+kx: the k vector at x direction (normalized value)
+ky: the y vector at x direction (normalized value)
+EMatrices:  the E matrices for all layers
+grandImaginaryMatrices: collection of all imaginary matrices in all layers
+eps_zz_inv: the inverse of eps_zz
+Gx_mat: the Gx matrix
+Gy_mat: the Gy matrix
+sourceList: list of 0 or 1 with the same size of thicknessList
+targetLayer: the targetLayer for the flux measurement
+N: total number of G
 ==============================================================*/
 // IMPORTANT: there is no change in this function even for a tensor
 double RCWA::poyntingFlux(
@@ -272,7 +286,7 @@ double RCWA::poyntingFlux(
   double ky,
   const RCWAMatrices& EMatrices,
   const RCWAMatrices& grandImaginaryMatrices,
-  const RCWAMatrices& dielectricMatrixZInv,
+  const RCWAMatrices& eps_zz_inv,
   const RCWAMatrix& Gx_mat,
   const RCWAMatrix& Gy_mat,
   const SourceList& sourceList,
@@ -316,8 +330,8 @@ double RCWA::poyntingFlux(
   for(int i = 0; i < numOfLayer; i++){
 
     TMatrices[i] = join_vert(
-      join_horiz(kyMat * dielectricMatrixZInv[i] * kyMat, -kyMat * dielectricMatrixZInv[i] * kxMat),
-      join_horiz(-kxMat * dielectricMatrixZInv[i] * kyMat, kxMat * dielectricMatrixZInv[i] * kxMat)
+      join_horiz(kyMat * eps_zz_inv[i] * kyMat, -kyMat * eps_zz_inv[i] * kxMat),
+      join_horiz(-kxMat * eps_zz_inv[i] * kyMat, kxMat * eps_zz_inv[i] * kxMat)
     );
     RCWAMatrix eigMatrix = EMatrices[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;
     cx_vec eigVal;
@@ -341,7 +355,8 @@ double RCWA::poyntingFlux(
     MMatrices[i](span(r3, r4), span(r1, r2)) = EigenVecMatrices[i];
     MMatrices[i](span(r3, r4), span(r3, r4)) = MMatrices[i](span(r3, r4), span(r1, r2));
     // normalization
-    MMatrices[i] = MMatrices[i] * (diagmat(sqrt(diagvec(MMatrices[i].t() * MMatrices[i])))).i();
+    MMatrices[i] = normalise(MMatrices[i], 2, 0);
+    // MMatrices[i] = MMatrices[i] * (diagmat(sqrt(diagvec(MMatrices[i].t() * MMatrices[i])))).i();
   }
 
   /*======================================================
@@ -377,8 +392,8 @@ double RCWA::poyntingFlux(
     meshGrid(q, q, q_R, q_L);
 
     // defining source
-    source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * dielectricMatrixZInv[layerIdx] / omega;
-    source(span(N, 2*N-1), span(2*N, 3*N-1)) = kxMat * dielectricMatrixZInv[layerIdx] / omega;
+    source(span(0,N-1), span(2*N, 3*N-1)) = -kyMat * eps_zz_inv[layerIdx] / omega;
+    source(span(N, 2*N-1), span(2*N, 3*N-1)) = kxMat * eps_zz_inv[layerIdx] / omega;
     source(span(2*N, 3*N-1), span(N, 2*N-1)) = onePadding1N;
     source(span(3*N, 4*N-1), span(0, N-1)) = -onePadding1N;
 

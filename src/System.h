@@ -64,7 +64,6 @@ namespace SYSTEM{
     EPSILON epsilonList_;
     double* omegaList_;
     int numOfOmega_;
-    MATERIALTYPE type_ = ISOTROPIC_;
   };
 
   typedef std::vector< Ptr<Material> > MaterialVec;

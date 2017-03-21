@@ -34,12 +34,21 @@ using namespace SYSTEM;
 using namespace RCWA;
 typedef std::vector<RCWAMatrices> RCWAMatricesVec;
 
+enum INTEGRAL {GAUSSLEGENDRE_, GAUSSKRONROD_};
+enum METHOD {NAIVEFMM_, INVERSERULE_, SPATIALADAPTIVE_};
+
+type struct OPTIONS{
+  int FMMRule = NAIVEFMM_;
+  int IntegralMethod = GAUSSKRONROD_;
+} Options;
+
+
 typedef struct ARGWEAPPER{
   double omega;
   RCWAVector thicknessList;
   RCWAMatrices EMatrices;
   RCWAMatrices grandImaginaryMatrices;
-  RCWAMatrices dielectricMatrixZInv;
+  RCWAMatrices eps_zz_Inv;
   RCWAMatrix Gx_mat;
   RCWAMatrix Gy_mat;
   SourceList sourceList;
@@ -111,51 +120,19 @@ protected:
   std::string output_;
   int targetLayer_;
   RCWAMatricesVec EMatricesVec_;
-  RCWAMatricesVec grandImaginaryMatricesVec_;
-  RCWAMatricesVec dielectricMatrixZInvVec_;
+  RCWAMatricesVec grandImaginaryMatrixVec_;
+  RCWAMatricesVec eps_zz_Inv_MatrixVec_;
   RCWAMatrix Gx_mat_;
   RCWAMatrix Gy_mat_;
 
   SourceList sourceList_;
   RCWAVector thicknessListVec_;
   DIMENSION dim_;
+  Options options_;
 
   Ptr<Structure> getStructure();
   void saveToFile();
-  void transformPlanar(
-    RCWAMatricesVec& dielectricMatrixVecTE,
-    RCWAMatricesVec& dielectricMatrixVecTM,
-    RCWAMatricesVec& dielectricImMatrixVec,
-    const dcomplex* epsilon,
-    const int N
-  );
 
-  void transformGrating(
-    RCWAMatricesVec& dielectricMatrixVecTE,
-    RCWAMatricesVec& dielectricMatrixVecTM,
-    RCWAMatricesVec& dielectricImMatrixVec,
-    const Ptr<Layer>& layer,
-    const dcomplex* epsilonBG,
-    const int N
-  );
-
-  void transformRectangle(
-    RCWAMatricesVec& dielectricMatrixVecTE,
-    RCWAMatricesVec& dielectricMatrixVecTM,
-    RCWAMatricesVec& dielectricImMatrixVec,
-    const Ptr<Layer>& layer,
-    const dcomplex* epsilonBG,
-    const int N
-  );
-
-  void transformCircle(
-    RCWAMatricesVec& dielectricMatrixVecTE,
-    RCWAMatricesVec& dielectricMatrixVecTM,
-    RCWAMatricesVec& dielectricImMatrixVec,
-    const Ptr<Layer>& layer,
-    const dcomplex* epsilonBG,
-    const int N
-  );
 };
 
 
@@ -188,11 +165,9 @@ protected:
   ~SimulationPlanar(){};
 
 private:
-  enum INTEGRAL {GAUSSLEGENDRE_, GAUSSKRONROD_};
 
   SimulationPlanar();
   int degree_ = DEGREE;
-  INTEGRAL method_ = GAUSSLEGENDRE_;
 };
 
 /*======================================================*/
@@ -215,9 +190,7 @@ public:
 protected:
   ~SimulationGrating(){};
 private:
-  enum METHOD {NAIVEFMM_, SPATIALADAPTIVE_};
   SimulationGrating();
-  METHOD method_ =  NAIVEFMM_;
 };
 
 /*======================================================*/

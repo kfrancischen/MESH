@@ -37,7 +37,6 @@ namespace SYSTEM{
       //std::copy(epsilonList.epsilonVals, epsilonList.epsilonVals + numOfOmega_, epsilonList_);
     }
     else if(epsilonList.type_ == DIAGONAL_){
-      type_ = ANISOTROPICDIAG_;
       for(int i = 0; i < numOfOmega_; i++){
         for(int j = 0; j < 6; j++){
           epsilonList_.epsilonVals[i].diagonal[i] = epsilonList.epsilonVals[i].diagonal[i];
@@ -45,7 +44,6 @@ namespace SYSTEM{
       }
     }
     else{
-      type_ = ANISOTROPICTENSOR_;
       for(int i = 0; i < numOfOmega_; i++){
         for(int j = 0; j < 10; j++){
           epsilonList_.epsilonVals[i].tensor[i] = epsilonList.epsilonVals[i].tensor[i];
@@ -71,7 +69,9 @@ namespace SYSTEM{
   // Material constructor by name
   /*==============================================*/
   Material::Material(const std::string name) :
-  NamedInterface(name), epsilonList_(nullptr), omegaList_(nullptr), numOfOmega_(0){}
+  NamedInterface(name), omegaList_(nullptr), numOfOmega_(0){
+
+  }
 
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -149,7 +149,7 @@ namespace SYSTEM{
   // epsilonList: the epsilonList of the material
   // numOfOmega: the number of omega points
   /*==============================================*/
-  void Material::setEpsilon(const dcomplex* epsilonList, const int numOfOmega){
+  void Material::setEpsilon(const EPSILON& epsilonList, const int numOfOmega){
     numOfOmega_ = numOfOmega;
     epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
     if(epsilonList.type_ == SCALAR_){
@@ -180,7 +180,6 @@ namespace SYSTEM{
   /*==============================================*/
   Layer::Layer(const string name, const Ptr<Material>& material, const double thickness) :
     NamedInterface(name), thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
-    backGround_ = material;
     backGround_ = material;
     if(backGround_->getType() == TENSOR_){
       hasTensor_ = true;
@@ -298,6 +297,9 @@ namespace SYSTEM{
   void Layer::setBackGround(const Ptr<Material>& material){
     //backGround_ = new Material(*material);
     backGround_ = material;
+    if(backGround_->getType() == TENSOR_){
+      hasTensor_ = true;
+    }
   }
   /*==============================================*/
   // set thickness of the layer
@@ -428,6 +430,9 @@ namespace SYSTEM{
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args1[0], args1[1]));
     args2_.push_back(std::make_pair(args2[0], args2[1]));
+    if(material->getType() == TENSOR_){
+      hasTensor_ = true;
+    }
   }
 
   /*==============================================*/
@@ -446,7 +451,9 @@ namespace SYSTEM{
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args[0], radius));
     args2_.push_back(std::make_pair(args[1], radius));
-
+    if(material->getType() == TENSOR_){
+      hasTensor_ = true;
+    }
   }
   /*==============================================*/
   // add a grating pattern
@@ -463,6 +470,9 @@ namespace SYSTEM{
     pattern_ = GRATING_;
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(center, width));
+    if(material->getType() == TENSOR_){
+      hasTensor_ = true;
+    }
   }
 
   /*==============================================*/
