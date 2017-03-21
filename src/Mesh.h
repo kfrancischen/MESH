@@ -37,7 +37,7 @@ typedef std::vector<RCWAMatrices> RCWAMatricesVec;
 enum INTEGRAL {GAUSSLEGENDRE_, GAUSSKRONROD_};
 enum METHOD {NAIVEFMM_, INVERSERULE_, SPATIALADAPTIVE_};
 
-type struct OPTIONS{
+typedef struct OPTIONS{
   int FMMRule = NAIVEFMM_;
   int IntegralMethod = GAUSSKRONROD_;
 } Options;
@@ -115,15 +115,20 @@ protected:
   int nGy_;
   int numOfOmega_;
   Ptr<Structure> structure_;
+
+
+
   double* Phi_;
   double* omegaList_;
   std::string output_;
   int targetLayer_;
+  
+  RCWAMatrix Gx_mat_;
+  RCWAMatrix Gy_mat_;
+
   RCWAMatricesVec EMatricesVec_;
   RCWAMatricesVec grandImaginaryMatrixVec_;
   RCWAMatricesVec eps_zz_Inv_MatrixVec_;
-  RCWAMatrix Gx_mat_;
-  RCWAMatrix Gy_mat_;
 
   SourceList sourceList_;
   RCWAVector thicknessListVec_;

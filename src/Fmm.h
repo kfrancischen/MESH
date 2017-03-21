@@ -19,15 +19,24 @@
 
 #ifndef _FMM_H
 #define _FMM_H
+#include <armadillo>
 #include "Rcwa.h"
 #include "System.h"
 
 namespace FMM{
+  using namespace arma;
+
   using RCWA::RCWAMatrix;
   using RCWA::RCWAMatrices;
   using RCWA::RCWAVector;
+  using RCWA::sinc;
+  using RCWA::meshGrid;
+
   using SYSTEM::Layer;
   using SYSTEM::Material;
+  using SYSTEM::const_MaterialIter;
+  using SYSTEM::const_PatternIter;
+
   typedef std::vector<RCWAMatrices> RCWAMatricesVec;
 
 
@@ -58,7 +67,7 @@ namespace FMM{
     RCWAMatricesVec& im_eps_yx_MatrixVec,
     RCWAMatricesVec& im_eps_yy_MatrixVec,
     RCWAMatricesVec& im_eps_zz_MatrixVec,
-    Ptr<Layer>& layer,
+    const Ptr<Layer>& layer,
     const int N
   );
 
@@ -91,7 +100,7 @@ namespace FMM{
     RCWAMatricesVec& im_eps_yx_MatrixVec,
     RCWAMatricesVec& im_eps_yy_MatrixVec,
     RCWAMatricesVec& im_eps_zz_MatrixVec,
-    Ptr<Layer>& layer,
+    const Ptr<Layer>& layer,
     const int N,
     const double period,
     bool useInverseRule = true
@@ -115,7 +124,8 @@ namespace FMM{
   // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
   // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
   // Layer: the layer considered
-  // N: the total number of G
+  // nGx: the total number of G in x direction
+  // nGy: the total number of G in y direction
   // period: the periodicity
   // useInverseRule: whether use inverse rule
   /*==============================================*/
@@ -130,8 +140,9 @@ namespace FMM{
     RCWAMatricesVec& im_eps_yx_MatrixVec,
     RCWAMatricesVec& im_eps_yy_MatrixVec,
     RCWAMatricesVec& im_eps_zz_MatrixVec,
-    Ptr<Layer>& layer,
-    const int N,
+    const Ptr<Layer>& layer,
+    const int nGx,
+    const int nGy,
     const double* period,
     bool useInverseRule = true
   );
@@ -143,7 +154,7 @@ namespace FMM{
     RCWAMatricesVec& im_eps_xx_MatrixVec,
     RCWAMatricesVec& im_eps_yy_MatrixVec,
     RCWAMatricesVec& im_eps_zz_MatrixVec,
-    Ptr<Layer>& layer,
+    const Ptr<Layer>& layer,
     const int N,
     const double* period
   );
@@ -159,7 +170,7 @@ namespace FMM{
     RCWAMatricesVec& im_eps_yx_MatrixVec,
     RCWAMatricesVec& im_eps_yy_MatrixVec,
     RCWAMatricesVec& im_eps_zz_MatrixVec,
-    Ptr<Layer>& layer,
+    const Ptr<Layer>& layer,
     const int N,
     const double* period
   );

@@ -333,7 +333,7 @@ namespace SYSTEM{
   /*==============================================*/
   // check whether the layer contains a material with tensor dielectric
   /*==============================================*/
-  void Layer::hasTensor(){
+  bool Layer::hasTensor(){
     return hasTensor_;
   }
   /*==============================================*/

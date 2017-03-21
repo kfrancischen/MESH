@@ -297,11 +297,11 @@ namespace MESH{
   void Simulation::resetSimulation(){
     for(size_t i = 0; i < EMatricesVec_.size(); i++){
       EMatricesVec_[i].clear();
-      grandImaginaryMatricesVec_.clear();
+      grandImaginaryMatrixVec_.clear();
       eps_zz_Inv_MatrixVec_[i].clear();
     }
     EMatricesVec_.clear();
-    grandImaginaryMatricesVec_.clear();
+    grandImaginaryMatrixVec_.clear();
     eps_zz_Inv_MatrixVec_.clear();
   }
 
@@ -350,7 +350,7 @@ namespace MESH{
     int N = getN(nGx_, nGy_);
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, kx, ky, EMatricesVec_[omegaIdx],
-      grandImaginaryMatricesVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
+      grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,N);
   }
 
@@ -359,6 +359,7 @@ namespace MESH{
   // This function builds up the matrices
   /*==============================================*/
   void Simulation::build(){
+
     // essential, get the shared Gx_mat_ and Gy_mat_
     getGMatrices(nGx_, nGy_, period_, Gx_mat_, Gy_mat_, dim_);
     // get constants
@@ -422,9 +423,9 @@ namespace MESH{
               im_eps_zz_MatrixVec,
               layer,
               N,
-              period_,
+              period_[0],
               options_.FMMRule == INVERSERULE_
-            )
+            );
           }
           break;
         }
@@ -445,7 +446,8 @@ namespace MESH{
             im_eps_yy_MatrixVec,
             im_eps_zz_MatrixVec,
             layer,
-            N,
+            nGx_,
+            nGy_,
             period_,
             options_.FMMRule == INVERSERULE_
           );
@@ -490,7 +492,7 @@ namespace MESH{
       );
 
       getGrandImaginaryMatrices(
-        grandImaginaryMatricesVec_[i],
+        grandImaginaryMatrixVec_[i],
         im_eps_xx_MatrixVec[i],
         im_eps_xy_MatrixVec[i],
         im_eps_yx_MatrixVec[i],
@@ -741,7 +743,7 @@ namespace MESH{
     }
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, KParallel, 0, EMatricesVec_[omegaIdx],
-      grandImaginaryMatricesVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
+      grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,1);
   }
 
@@ -797,8 +799,8 @@ namespace MESH{
       int omegaIdx = i + displs[rank];
       wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
       wrapper.EMatrices = EMatricesVec_[omegaIdx];
-      wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
-      wrapper.dielectricMatrixZInv = dielectricMatrixZInvVec_[omegaIdx];
+      wrapper.grandImaginaryMatrices = grandImaginaryMatrixVec_[omegaIdx];
+      wrapper.eps_zz_Inv = eps_zz_Inv_MatrixVec_[omegaIdx];
       switch (options_.IntegralMethod) {
         case GAUSSLEGENDRE_:{
           recvBuf[i] = gauss_legendre(degree_, wrapperFunQuadgl, &wrapper, kxStart_, kxEnd_);

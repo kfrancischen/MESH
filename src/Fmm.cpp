@@ -120,7 +120,7 @@
        im_eps_yx_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[5]);
        eps_yy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[6], epsilonBG.tensor[7]));
        im_eps_yy_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[7]);
-       eps_zz_MatrixVec[i].push_back(onePadding1N * dcomplex(1.0, 0) / dcomplex(epsilonBG.tensor[8], epsilonBG.tensor[9]));
+       eps_zz_Inv_MatrixVec[i].push_back(onePadding1N * dcomplex(1.0, 0) / dcomplex(epsilonBG.tensor[8], epsilonBG.tensor[9]));
        im_eps_zz_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[9]);
      }
    }
@@ -153,7 +153,7 @@
      RCWAMatricesVec& im_eps_yx_MatrixVec,
      RCWAMatricesVec& im_eps_yy_MatrixVec,
      RCWAMatricesVec& im_eps_zz_MatrixVec,
-     Ptr<Layer>& layer,
+     const Ptr<Layer>& layer,
      const int N,
      const double period,
      bool useInverseRule
@@ -165,7 +165,7 @@
      dcomplex IMAG_I = dcomplex(0, 1);
      RCWAMatrix G_row(1, N), G_col(N, 1);
      for(int i = 0; i < N; i++){
-       G_row(0, i) = -i * 2.0 * datum::pi / period_[0];
+       G_row(0, i) = -i * 2.0 * datum::pi / period;
        G_col(i, 0) = -G_row(0, i);
      }
      RCWAMatrix G_mat = toeplitz(G_col, G_row);
@@ -183,7 +183,7 @@
      Ptr<Material> backGround = layer->getBackGround();
      for(int i = 0; i < numOfOmega; i++){
        RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
-       RCWAMatrix im_eps_xx(N, N, fill:zeros), im_eps_xy(N, N, fill:zeros), im_eps_yx(N, N, fill:zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
+       RCWAMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
        count = 0; // reset count
        EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
 
@@ -203,7 +203,7 @@
 
        for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
          EpsilonVal epsilon = (*it)->getEpsilonAtIndex(i);
-         EpsilonVal epsTensor = toTensor(epsTensor. (*it)->getType());
+         EpsilonVal epsTensor = toTensor(epsTensor, (*it)->getType());
 
          if(useInverseRule){
            eps_xx += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(1.0, 0) / dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - dcomplex(1.0, 0) / eps_BG_xx)
@@ -293,7 +293,8 @@
    // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
    // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
    // Layer: the layer considered
-   // N: the total number of G
+   // nGx: the total number of G in x direction
+   // nGy: the total number of G in y direction
    // period: the periodicity
    // useInverseRule: whether use inverse rule
    /*==============================================*/
@@ -308,21 +309,28 @@
         RCWAMatricesVec& im_eps_yx_MatrixVec,
         RCWAMatricesVec& im_eps_yy_MatrixVec,
         RCWAMatricesVec& im_eps_zz_MatrixVec,
-        Ptr<Layer>& layer,
-        const int N,
+        const Ptr<Layer>& layer,
+        const int nGx,
+        const int nGy,
         const double* period,
         bool useInverseRule
   ){
-     if(laye->hasTensor()) useInverseRule = false;
+     if(layer->hasTensor()) useInverseRule = false;
+     int numOfOmega = eps_xx_MatrixVec.size();
+     int N = RCWA::getN(nGx, nGy);
+
+     RCWAMatrix Gx_mat, Gy_mat;
+     RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
 
      dcomplex IMAG_I = dcomplex(0, 1.0);
      RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
-     meshGrid(Gx_mat_, Gx_mat_, Gx_r, Gx_l);
-     meshGrid(Gy_mat_, Gy_mat_, Gy_r, Gy_l);
+     meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
+     meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
 
      RCWAMatrix GxMat = Gx_l - Gx_r;
      RCWAMatrix GyMat = Gy_l - Gy_r;
 
+     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
      int numOfMaterial = layer->getNumOfMaterial();
 
      RCWAVector centerxVec(numOfMaterial), centeryVec(numOfMaterial), widthxVec(numOfMaterial), widthyVec(numOfMaterial);
@@ -342,7 +350,7 @@
      Ptr<Material> backGround = layer->getBackGround();
      for(int i = 0; i < numOfOmega; i++){
        RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
-       RCWAMatrix im_eps_xx(N, N, fill:zeros), im_eps_xy(N, N, fill:zeros), im_eps_yx(N, N, fill:zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
+       RCWAMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
        count = 0;
        EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
        EpsilonVal epsBGTensor = toTensor(epsilonBG, backGround->getType());
@@ -361,7 +369,7 @@
 
        for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
          EpsilonVal epsilon = (*it)->getEpsilonAtIndex(i);
-         EpsilonVal epsTensor = toTensor(epsTensor. (*it)->getType());
+         EpsilonVal epsTensor = toTensor(epsTensor, (*it)->getType());
 
          if(useInverseRule){
            eps_xx += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (dcomplex(1.0, 0) / dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - dcomplex(1.0, 0) / eps_BG_xx)
@@ -432,10 +440,10 @@
        im_eps_xx_MatrixVec[i].push_back(im_eps_xx);
        im_eps_xy_MatrixVec[i].push_back(im_eps_xy);
        im_eps_yx_MatrixVec[i].push_back(im_eps_yx);
-       im_eps_yy_MatrixVec.push_back(im_eps_yy);
+       im_eps_yy_MatrixVec[i].push_back(im_eps_yy);
        im_eps_zz_MatrixVec[i].push_back(im_eps_zz);
-
    }
+ }
 
    void transformCircleDiagonal(
      RCWAMatricesVec& eps_xx_MatrixVec,
@@ -444,8 +452,9 @@
      RCWAMatricesVec& im_eps_xx_MatrixVec,
      RCWAMatricesVec& im_eps_yy_MatrixVec,
      RCWAMatricesVec& im_eps_zz_MatrixVec,
-     Ptr<Layer>& layer,
-     const int N
+     const Ptr<Layer>& layer,
+     const int N,
+     const double* period
    ){
      // TODO
    }
@@ -461,8 +470,9 @@
      RCWAMatricesVec& im_eps_yx_MatrixVec,
      RCWAMatricesVec& im_eps_yy_MatrixVec,
      RCWAMatricesVec& im_eps_zz_MatrixVec,
-     Ptr<Layer>& layer,
-     const int N
+     const Ptr<Layer>& layer,
+     const int N,
+     const double* period
    ){
     // TODO
    }

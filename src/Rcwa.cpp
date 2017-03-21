@@ -223,7 +223,7 @@ void RCWA::getGrandImaginaryMatrices(
     RCWAMatrix grandImaginaryMatrix = zeros<RCWAMatrix>(3*N, 3*N);
     grandImaginaryMatrix(span(0, N-1), span(0, N-1)) = im_eps_xx[i];
     grandImaginaryMatrix(span(0, N-1), span(N, 2*N-1)) = im_eps_xy[i];
-    grandImaginaryMatrix(span(N, 2*N-1), span(0, N-1)) = im_eps_yx[i]
+    grandImaginaryMatrix(span(N, 2*N-1), span(0, N-1)) = im_eps_yx[i];
     grandImaginaryMatrix(span(N, 2*N-1), span(N, 2*N-1)) = im_eps_yy[i];
     grandImaginaryMatrix(span(2*N, 3*N-1), span(2*N, 3*N-1)) = im_eps_zz[i];
     grandImaginaryMatrices.push_back(grandImaginaryMatrix);
