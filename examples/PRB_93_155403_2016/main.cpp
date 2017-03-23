@@ -1,49 +1,36 @@
 #include "setup.h"
 
 int main(){
-
-  // initializing material
-  Ptr<FileLoader> fileLoader = FileLoader::instanceNew(1);
-  fileLoader->load("fullGold.txt");
-  Ptr<Material> Gold = Material::instanceNew("Au", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
-  fileLoader->load("fullVacuum.txt");
-  Ptr<Material> Vacuum = Material::instanceNew("Vacuum", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
-  // initializing layer
-  Ptr<Layer> vacLayer = Layer::instanceNew("VacLayer", Vacuum, 0);
-  Ptr<Layer> GoldLayerBottomSub = Layer::instanceNew("GoldLayerBottomSub", Gold, 0.5e-6);
-  Ptr<Layer> GoldLayerBottomGrating = Layer::instanceNew("GoldLayerBottomGrating", Gold, 5e-6);
-  //GoldLayerBottomSub->setIsSource();
-  GoldLayerBottomGrating->addGratingPattern(Vacuum, 0.5e-6, 0.2e-6);
-  GoldLayerBottomGrating->setIsSource();
-
-  Ptr<Layer> vacGap = Layer::instanceNew("VacGap", Vacuum, 1e-6);
-
-  Ptr<Layer> GoldLayerTopSub = Layer::instanceNew("GoldLayerTopSub", Gold, 0.5e-6);
-  Ptr<Layer> GoldLayerTopGrating = Layer::instanceNew("GoldLayerTopGrating ", Gold, 5e-6);
-  GoldLayerTopGrating->addGratingPattern(Vacuum, 0.5e-6, 0.2e-6);
-
-  // initializing structure
-  Ptr<Structure> structure = Structure::instanceNew();
-  structure->setPeriodicity(1e-6);
-  structure->addLayer(vacLayer);
-  structure->addLayer(GoldLayerBottomSub);
-  structure->addLayer(GoldLayerBottomGrating);
-  structure->addLayer(vacGap);
-  structure->addLayer(GoldLayerTopGrating);
-  structure->addLayer(GoldLayerTopSub);
-  structure->addLayer(vacLayer);
-
-  // initializing simulation
+  // initialize simulation
   Ptr<SimulationGrating> s = SimulationGrating::instanceNew();
-  s->addStructure(structure);
+  s->setPeriodicity(1e-6);
   s->setGx(50);
-  s->setTargetLayerByLayer(vacGap);
+  // initialize materials
+  s->addMaterial("Au", "fullGold.txt");
+  s->addMaterial("Vacuum", "fullVacuum.txt");
+  // initialize layers
+  s->addLayer("BottomAir", 0, "Vacuum");
+  s->addLayer("GoldSubstrateBottom", 0.5e-6, "Au");
+  s->addLayer("GoldGratingBottom", 5e-6,"Au");
+  s->setLayerPatternGrating("GoldGratingBottom", "Vacuum", 0.5e-6, 0.2e-6);
+  
+  s->addLayer("VacGap", 1e-6, "Vacuum");
+  s->addLayerCopy("GoldGratingTop", "GoldGratingBottom");
+  s->addLayerCopy("GoldSubstrateTop", "GoldSubstrateBottom");
+  s->addLayerCopy("TopAir", "BottomAir");
+  // set source and probe
+  s->setSourceLayer("GoldGratingBottom");
+  s->setSourceLayer("GoldSubstrateBottom");
+
+  s->setProbeLayer("VacGap");
+
+  // set output
   s->setOutputFile("gold_to_vac.txt");
   s->setKxIntegralSym(500);
   s->setKyIntegralSym(200, 5);
   s->build();
-  s->run();
+  //s->run();
 
-  //std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
+  // std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
   return 0;
 }

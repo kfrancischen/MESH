@@ -2,37 +2,24 @@
 
 int main(){
   // initializing material
-  Ptr<FileLoader> fileLoader = FileLoader::instanceNew();
-  fileLoader->load("GaAs.txt");
-  Ptr<Material> GaAs = Material::instanceNew("GaAs", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
-  fileLoader->load("Vacuum.txt");
-  Ptr<Material> Vacuum = Material::instanceNew("Vacuum", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
-  fileLoader->load("PEC.txt");
-  Ptr<Material> PEC = Material::instanceNew("PEC", fileLoader->getOmegaList(), fileLoader->getEpsilonList(), fileLoader->getNumOfOmega());
-
-
-  // initializing layer
-  Ptr<Layer> PECLayer = Layer::instanceNew("PECLayer", PEC, 0);
-  Ptr<Layer> GaAsLayer = Layer::instanceNew("GaAsLayer", GaAs, 1e-6);
-  Ptr<Layer> VaccumLayer = Layer::instanceNew("VacuumLayer", Vacuum, 0);
-  GaAsLayer->setIsSource();
-
-  // initializing structure
-  Ptr<Structure> structure = Structure::instanceNew();
-  structure->addLayer(PECLayer);
-  structure->addLayer(GaAsLayer);
-  structure->addLayer(VaccumLayer);
-
-  // initializing simulation
   Ptr<SimulationPlanar> s = SimulationPlanar::instanceNew();
+  s->addMaterial("GaAs", "GaAs.txt");
+  s->addMaterial("Vacuum", "Vacuum.txt");
+  s->addMaterial("PEC", "PEC.txt");
 
-  s->addStructure(structure);
+  // initializing layer, from bottom to top
+  s->addLayer("PECLayer", 0, "PEC");
+  s->addLayer("GaAsLayer", 1e-6, "GaAs");
+  s->addLayer("VacuumLayer", 0, "Vacuum");
 
-  s->setTargetLayerByLayer(VaccumLayer);
-  s->setKxIntegral(1.0);
+  // set source and probe
+  s->setSourceLayer("GaAsLayer");
+  s->setProbeLayer("VacuumLayer");
+
+  s->setKParallelIntegral(1.0);
+  s->useQuadgk();
   s->setOutputFile("test_output.txt");
   s->build();
-  s->run();
-
+  s->runNaive();
   return 0;
 }
