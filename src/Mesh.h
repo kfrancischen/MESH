@@ -134,6 +134,8 @@ public:
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
   void build();
+
+  void getSysInfo();
   void rebuild();
   void run();
 

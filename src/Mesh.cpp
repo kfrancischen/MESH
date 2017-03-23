@@ -778,7 +778,30 @@ namespace MESH{
     }
 
   }
-
+  /*==============================================*/
+  // This function prints out the information of the system
+  /*==============================================*/
+  void Simulation::getSysInfo(){
+    std::cout << "==================================================" << std::endl;
+    std::cout << "The system has in total " << structure_->getNumOfLayer() << " layers." << std::endl;
+    std::cout << "Printing from bottom to up." << std::endl;
+    std::cout << "==================================================" << std::endl;
+    for(const_LayerIter it = structure_->getMapBegin(); it != structure_->getMapEnd(); it++){
+      Ptr<Layer> layer = it->second;
+      std::cout << "Layer index " << it->first << ": " << layer->getName() << std::endl;
+      std::cout << "Thickness: " << layer->getThickness() << std::endl;
+      std::cout << "contains tensor: " << layer->hasTensor() << std::endl;
+      std::cout << "Its pattern is: " << layer->getPattern() << std::endl;
+      std::cout << "Its background is: " << layer->getBackGround()->getName() << std::endl;
+      std::cout << "It has other components:" << std::endl << std::endl;
+      int count = 0;
+      for(const_MaterialIter m_it = layer->getVecBegin(); m_it != layer->getVecEnd(); m_it++){
+        std::cout << "Component " << count << " material: " << (*m_it)->getName() << std::endl;
+        count++;
+      }
+      std::cout << "==================================================" << std::endl;
+    }
+  }
   /*==============================================*/
   // This function computes the flux
   /*==============================================*/
