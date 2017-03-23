@@ -164,8 +164,6 @@ namespace MESH{
     omegaList_ = nullptr;
     delete [] epsilonList_.epsilonVals;
     epsilonList_.epsilonVals = nullptr;
-    //delete [] epsilonList_;
-    //epsilonList_ = nullptr;
   }
   /*==============================================*/
   // This function wraps the data for quad_gaussian_kronrod
@@ -173,7 +171,7 @@ namespace MESH{
   // kx: the kx value (normalized)
   // wrapper: wrapper for all the arguments wrapped in wrapper
   /*==============================================*/
-  double wrapperFunQuadgk(const double kx, ArgWrapper* data){
+  static double wrapperFunQuadgk(const double kx, ArgWrapper* data){
     ArgWrapper wrapper = *data;
     return kx * poyntingFlux(
       wrapper.omega,
@@ -182,7 +180,7 @@ namespace MESH{
       0,
       wrapper.EMatrices,
       wrapper.grandImaginaryMatrices,
-      wrapper.dielectricMatrixZInv,
+      wrapper.eps_zz_Inv,
       wrapper.Gx_mat,
       wrapper.Gy_mat,
       wrapper.sourceList,
@@ -196,7 +194,7 @@ namespace MESH{
   // kx: the kx value (normalized)
   // data: wrapper for all the arguments wrapped in wrapper
   /*==============================================*/
-  double wrapperFunQuadgl(const double kx, void* data){
+  static double wrapperFunQuadgl(const double kx, void* data){
     return wrapperFunQuadgk(kx, (ArgWrapper*) data);
   }
   /*======================================================*/
@@ -208,6 +206,8 @@ namespace MESH{
     output_ = "output.txt";
     targetLayer_ = -1;
     dim_ = NO_;
+    structure_ = Structure::instanceNew();
+    fileLoader_ = FileLoader::instanceNew();
   }
   /*==============================================*/
   // Class destructor
@@ -215,8 +215,6 @@ namespace MESH{
   Simulation::~Simulation(){
     delete[] Phi_;
     Phi_ = nullptr;
-    //delete[] period_;
-    //period_ = nullptr;
   }
 
   /*==============================================*/
@@ -231,21 +229,300 @@ namespace MESH{
   }
 
   /*==============================================*/
-  // This function adds structure to the simulation
-  // @args:
-  // structure: the structure of the simulation
-  /*==============================================*/
-  void Simulation::addStructure(const Ptr<Structure>& structure){
-    structure_ = structure;
-    period_ = structure_->getPeriodicity();
-  }
-  /*==============================================*/
   // This function set the output file name
   // @args:
   // name: the output file name
   /*==============================================*/
   void Simulation::setOutputFile(std::string name){
     output_ = name;
+  }
+  /*==============================================*/
+  // This function set the periodicity
+  // @args:
+  // p1: the periodicity along x direction
+  // p2: the periodicity along x direction
+  /*==============================================*/
+  void Simulation::setPeriodicity(const double p1, const double p2){
+    period_[0] = p1;
+    period_[1] = p2;
+  }
+  /*==============================================*/
+  // This function adds material to the system
+  // @args:
+  // name: the name of the material
+  // infile: the input file containing the properties of the material
+  /*==============================================*/
+  void Simulation::addMaterial(const std::string name, const std::string infile){
+    if(materialInstanceMap_.find(name) != materialInstanceMap_.cend()){
+      throw UTILITY::NameInUseException(name + ": Material already exist!");
+      return;
+    }
+
+    fileLoader_->load(infile);
+    Ptr<Material> material = Material::instanceNew(name,
+     fileLoader_->getOmegaList(), 
+     fileLoader_->getEpsilonList(),
+     fileLoader_->getNumOfOmega()
+    );
+    materialInstanceMap_.insert(MaterialInstanceMap::value_type(name, material));
+  }
+
+  /*==============================================*/
+  // This function reset the dielectric of a material
+  // @args:
+  // name: the name of the material
+  // epsilon: the new epsilon values
+  // type: the type of the epsilon, one of ['scalar', 'diagonal', 'tensor']
+  // Note: the material should have already existed in the system
+  // If type == 'scalar', epsilon should have size [numOfOmega][2]
+  // If type == 'diagonal', epsilon should have size [numOfOmega][6]
+  // If type == 'tensor', epsilon should have size [numOfOmega][10]
+  /*==============================================*/
+  void Simulation::setMaterial(const std::string name, const double** epsilon, const std::string type){
+    if(materialInstanceMap_.find(name) == materialInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(name + ": Material does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(name)->second;
+    int numOfOmega = material->getNumOfOmega();
+    EPSILON newEpsilon;
+    newEpsilon.epsilonVals = new EpsilonVal[numOfOmega];
+    // if a scalar
+    if(type == "scalar"){
+      for(int i = 0; i < numOfOmega; i++){
+        newEpsilon.epsilonVals[i].scalar[0] = epsilon[i][0];
+        newEpsilon.epsilonVals[i].scalar[1] = epsilon[i][1];
+      }
+      newEpsilon.type_ = SCALAR_;
+    }
+    // if a diagonal
+    else if(type == "diagonal"){
+      for(int i = 0; i < numOfOmega; i++){
+        for(int j = 0; j < 6; j++){
+          newEpsilon.epsilonVals[i].scalar[j] = epsilon[i][j];
+        }
+      }
+      newEpsilon.type_ = DIAGONAL_;
+    }
+    // if a tensor
+    else if(type == "tensor"){
+      for(int i = 0; i < numOfOmega; i++){
+        for(int j = 0; j < 10; j++){
+          newEpsilon.epsilonVals[i].scalar[j] = epsilon[i][j];
+        }
+      }
+      newEpsilon.type_ = TENSOR_;
+    }
+    // error
+    else{
+      throw UTILITY::AttributeNotSupportedException("Please choose 'type' from 'scalar', 'diagonal' or 'tensor'!");
+    }
+
+    material->setEpsilon(newEpsilon, numOfOmega);
+    delete [] newEpsilon.epsilonVals;
+    newEpsilon.epsilonVals = nullptr;
+  }
+  /*==============================================*/
+  // This function adds a new layer to the system
+  // @args:
+  // name: the name of the layer
+  // thick: the thickness of the layer
+  // materialName: the name of the material
+  /*==============================================*/
+  void Simulation::addLayer(const std::string name, const double thick, const std::string materialName){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(name) != layerInstanceMap_.cend()){
+      throw UTILITY::NameInUseException(name + ": Layer already exists!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = Layer::instanceNew(name, material, thick);
+    structure_->addLayer(layer);
+    layerInstanceMap_.insert(LayerInstanceMap::value_type(name, layer));
+  }
+  /*==============================================*/
+  // This function change the background material of a layer and its thickness
+  // @args:
+  // name: the name of the layer
+  // thick: the new thickness
+  // materialName: the new background
+  /*==============================================*/
+  void Simulation::setLayer(const std::string name, const double thick, const std::string materialName){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(name + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(name)->second;
+    layer->setBackGround(material);
+    layer->setThickness(thick);
+  }
+  /*==============================================*/
+  // This function change the thickness
+  // @args:
+  // name: the name of the layer
+  // thick: the new thickness
+  /*==============================================*/
+  void Simulation::setLayerThickness(const std::string name, const double thick){
+    if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(name + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Layer> layer = layerInstanceMap_.find(name)->second;
+    layer->setThickness(thick);
+  }
+  /*==============================================*/
+  // This function make a copy of an existing layer
+  // @args:
+  // name: the name of the copied layer
+  // originalName: the name of the original layer
+  /*==============================================*/
+  void Simulation::addLayerCopy(const std::string name, const std::string originalName){
+    if(layerInstanceMap_.find(originalName) == layerInstanceMap_.cend()){
+      throw UTILITY::NameInUseException(originalName + ": Layer does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(name) != layerInstanceMap_.cend()){
+      throw UTILITY::NameInUseException(name + ": cannot add a layer that already exist!");
+      return;
+    }   
+    Ptr<Layer> originalLayer = layerInstanceMap_.find(originalName)->second;
+    Ptr<Layer> newLayer = originalLayer->layerCopy(name);
+    layerInstanceMap_.insert(LayerInstanceMap::value_type(name, newLayer));
+    structure_->addLayer(newLayer);
+  }
+  /*==============================================*/
+  // This function deletes an existing layer
+  // @args:
+  // name: the name of the layer
+  /*==============================================*/
+  void Simulation::deleteLayer(const std::string name){
+    if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      throw UTILITY::NameInUseException(name + ": Layer does not exist!");
+      return;
+    }
+    structure_->deleteLayerByName(name);
+  }
+
+  /*==============================================*/
+  // This function add grating to a layer
+  // @args:
+  // layerName: the name of the layer
+  // materialName: the name of the material
+  // center: the center of the grating
+  // width: the width of the grating
+  /*==============================================*/
+  void Simulation::setLayerPatternGrating(
+    const std::string layerName,
+    const std::string materialName,
+    const double center,
+    const double width
+  ){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
+    layer->addGratingPattern(material, center, width);
+  }
+  /*==============================================*/
+  // This function add rectangle pattern to a layer
+  // @args:
+  // layerName: the name of the layer
+  // materialName: the name of the material
+  // centerx: the center of the rectangle in x direction
+  // centery: the center of the rectangle in y direction
+  // widthx: the width of the rectangle in x direction
+  // widthy: the width of the rectangle in y direction
+  /*==============================================*/  
+  void Simulation::setLayerPatternRectangle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double widthx,
+    const double widthy
+  ){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
+    double arg1[2] = {centerx, centery};
+    double arg2[2] = {widthx, widthy};
+    layer->addRectanlgePattern(material, arg1, arg2);
+  }
+  /*==============================================*/
+  // This function add circle pattern to a layer
+  // @args:
+  // layerName: the name of the layer
+  // materialName: the name of the material
+  // centerx: the center of the circle in x direction
+  // centery: the center of the circle in y direction
+  // radius: the radius of the circle
+  /*==============================================*/ 
+  void Simulation::setLayerPatternCircle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double radius
+  ){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
+    double arg1[2] = {centerx, centery};
+    layer->addCirclePattern(material, arg1, radius);
+  }
+  /*==============================================*/
+  // This function sets a layer as the source
+  // @args:
+  // name: the name of the source layer
+  /*==============================================*/
+  void Simulation::setSourceLayer(const std::string name){
+    if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(name + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Layer> layer = layerInstanceMap_.find(name)->second;
+    layer->setIsSource();
+  }
+  /*==============================================*/
+  // This function sets the probe layer
+  // @args:
+  // name: the name of the probe layer
+  /*==============================================*/
+  void Simulation::setProbeLayer(const std::string name){
+    if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      throw UTILITY::IllegalNameException(name + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Layer> layer = layerInstanceMap_.find(name)->second;
+    this->setTargetLayerByLayer(layer);
   }
   /*==============================================*/
   // This function sets number of positive Gx
@@ -263,18 +540,6 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setGy(const int Gy){
     nGy_ = Gy;
-  }
-
-  /*==============================================*/
-  // This function sets the target layer by layer index
-  // @args:
-  // index: target layer index
-  /*==============================================*/
-  void Simulation::setTargetLayerByIndex(const int index){
-    if(index >= structure_->getNumOfLayer()){
-      throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
-    }
-    targetLayer_ = index;
   }
 
   /*==============================================*/
@@ -297,12 +562,12 @@ namespace MESH{
   void Simulation::resetSimulation(){
     for(size_t i = 0; i < EMatricesVec_.size(); i++){
       EMatricesVec_[i].clear();
-      grandImaginaryMatricesVec_.clear();
-      dielectricMatrixZInvVec_[i].clear();
+      grandImaginaryMatrixVec_.clear();
+      eps_zz_Inv_MatrixVec_[i].clear();
     }
     EMatricesVec_.clear();
-    grandImaginaryMatricesVec_.clear();
-    dielectricMatrixZInvVec_.clear();
+    grandImaginaryMatrixVec_.clear();
+    eps_zz_Inv_MatrixVec_.clear();
   }
 
   /*==============================================*/
@@ -318,21 +583,7 @@ namespace MESH{
   Ptr<Structure> Simulation::getStructure(){
     return structure_;
   }
-
-  /*==============================================*/
-  // This function gets the omega array
-  /*==============================================*/
-  double* Simulation::getOmegaList(){
-    return omegaList_;
-  }
-
-  /*==============================================*/
-  // This function gets the periodicity
-  /*==============================================*/
-  double* Simulation::getPeriodicity(){
-    return period_;
-  }
-
+  
   /*==============================================*/
   // This function gets the Phi at given kx and ky
   // @args:
@@ -350,10 +601,11 @@ namespace MESH{
     int N = getN(nGx_, nGy_);
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, kx, ky, EMatricesVec_[omegaIdx],
-      grandImaginaryMatricesVec_[omegaIdx], dielectricMatrixZInvVec_[omegaIdx], Gx_mat_, Gy_mat_,
+      grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,N);
   }
 
+<<<<<<< HEAD
   /*==============================================*/
   // This function computes the Fourier transform for planar
   // @args:
@@ -532,11 +784,28 @@ namespace MESH{
     ){
     // TODO
   }
+=======
+>>>>>>> dev
 
   /*==============================================*/
   // This function builds up the matrices
   /*==============================================*/
   void Simulation::build(){
+    // check each layer whether a tensor exist
+    for(const_LayerIter it = structure_->getMapBegin(); it != structure_->getMapEnd(); it++){
+      Ptr<Layer> layer = it->second;
+      layer->containTensor(false);
+      if(layer->getBackGround()->getType() == TENSOR_){
+        layer->containTensor(true);
+        break;
+      }
+      for(const_MaterialIter m_it = layer->getVecBegin(); m_it != layer->getVecEnd(); it++){
+        if((*m_it)->getType() == TENSOR_){
+          layer->containTensor(true);
+          break;
+        }
+      }
+    }
     // essential, get the shared Gx_mat_ and Gy_mat_
     getGMatrices(nGx_, nGy_, period_, Gx_mat_, Gy_mat_, dim_);
     // get constants
@@ -544,43 +813,68 @@ namespace MESH{
     Ptr<Material> backGround = firstLayer->getBackGround();
     numOfOmega_ = backGround->getNumOfOmega();
     omegaList_ = backGround->getOmegaList();
+
     Phi_ = new double[numOfOmega_];
     EMatricesVec_.resize(numOfOmega_);
-    grandImaginaryMatricesVec_.resize(numOfOmega_);
-    dielectricMatrixZInvVec_.resize(numOfOmega_);
+    grandImaginaryMatrixVec_.resize(numOfOmega_);
+    eps_zz_Inv_MatrixVec_.resize(numOfOmega_);
 
-    RCWAMatricesVec dielectricMatrixVecTE(numOfOmega_), dielectricMatrixVecTM(numOfOmega_), dielectricImMatrixVec(numOfOmega_);
+    RCWAMatricesVec eps_xx_MatrixVec(numOfOmega_), eps_xy_MatrixVec(numOfOmega_), eps_yx_MatrixVec(numOfOmega_), eps_yy_MatrixVec(numOfOmega_);
+    RCWAMatricesVec im_eps_xx_MatrixVec(numOfOmega_), im_eps_xy_MatrixVec(numOfOmega_), im_eps_yx_MatrixVec(numOfOmega_), im_eps_yy_MatrixVec(numOfOmega_), im_eps_zz_MatrixVec(numOfOmega_);
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
+
     for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
-      dcomplex* epsilonBG = (layer->getBackGround())->getEpsilonList();
       switch (layer->getPattern()) {
         /*************************************/
         // if the pattern is a plane
         /*************************************/
         case PLANAR_:{
-          this->transformPlanar(
-            dielectricMatrixVecTE,
-            dielectricMatrixVecTM,
-            dielectricImMatrixVec,
-            epsilonBG,
+
+          FMM::transformPlanar(
+            eps_xx_MatrixVec,
+            eps_xy_MatrixVec,
+            eps_yx_MatrixVec,
+            eps_yy_MatrixVec,
+            eps_zz_Inv_MatrixVec_,
+            im_eps_xx_MatrixVec,
+            im_eps_xy_MatrixVec,
+            im_eps_yx_MatrixVec,
+            im_eps_yy_MatrixVec,
+            im_eps_zz_MatrixVec,
+            layer,
             N
           );
+
           break;
         }
         /*************************************/
         // if the pattern is a grating (1D)
         /************************************/
         case GRATING_:{
-          this->transformGrating(
-            dielectricMatrixVecTE,
-            dielectricMatrixVecTM,
-            dielectricImMatrixVec,
-            layer,
-            epsilonBG,
-            N
-          );
+          if(options_.FMMRule == SPATIALADAPTIVE_){
+            // to be filled
+          }
+
+          else{
+            FMM::transformGratingNaive(
+              eps_xx_MatrixVec,
+              eps_xy_MatrixVec,
+              eps_yx_MatrixVec,
+              eps_yy_MatrixVec,
+              eps_zz_Inv_MatrixVec_,
+              im_eps_xx_MatrixVec,
+              im_eps_xy_MatrixVec,
+              im_eps_yx_MatrixVec,
+              im_eps_yy_MatrixVec,
+              im_eps_zz_MatrixVec,
+              layer,
+              N,
+              period_[0],
+              options_.FMMRule == INVERSERULE_
+            );
+          }
           break;
         }
 
@@ -588,13 +882,22 @@ namespace MESH{
         // if the pattern is a rectangle (2D)
         /************************************/
         case RECTANGLE_:{
-          this->transformRectangle(
-            dielectricMatrixVecTE,
-            dielectricMatrixVecTM,
-            dielectricImMatrixVec,
+          FMM::transformRectangle(
+            eps_xx_MatrixVec,
+            eps_xy_MatrixVec,
+            eps_yx_MatrixVec,
+            eps_yy_MatrixVec,
+            eps_zz_Inv_MatrixVec_,
+            im_eps_xx_MatrixVec,
+            im_eps_xy_MatrixVec,
+            im_eps_yx_MatrixVec,
+            im_eps_yy_MatrixVec,
+            im_eps_zz_MatrixVec,
             layer,
-            epsilonBG,
-            N
+            nGx_,
+            nGy_,
+            period_,
+            options_.FMMRule == INVERSERULE_
           );
           break;
         }
@@ -603,34 +906,50 @@ namespace MESH{
       // if the pattern is a circle (2D)
       /************************************/
         case CIRCLE_:{
-          this->transformCircle(
-            dielectricMatrixVecTE,
-            dielectricMatrixVecTM,
-            dielectricImMatrixVec,
+          FMM::transformCircleTensor(
+            eps_xx_MatrixVec,
+            eps_xy_MatrixVec,
+            eps_yx_MatrixVec,
+            eps_yy_MatrixVec,
+            eps_zz_Inv_MatrixVec_,
+            im_eps_xx_MatrixVec,
+            im_eps_xy_MatrixVec,
+            im_eps_yx_MatrixVec,
+            im_eps_yy_MatrixVec,
+            im_eps_zz_MatrixVec,
             layer,
-            epsilonBG,
-            N
+            N,
+            period_
           );
           break;
         }
         default: break;
       }
     }
+
+
     for(int i = 0; i < numOfOmega_; i++){
       getEMatrices(
         EMatricesVec_[i],
-        dielectricMatrixVecTE[i],
-        dielectricMatrixVecTM[i],
+        eps_xx_MatrixVec[i],
+        eps_xy_MatrixVec[i],
+        eps_yx_MatrixVec[i],
+        eps_yy_MatrixVec[i],
         numOfLayer,
         N
       );
 
       getGrandImaginaryMatrices(
-        grandImaginaryMatricesVec_[i],
-        dielectricImMatrixVec[i],
+        grandImaginaryMatrixVec_[i],
+        im_eps_xx_MatrixVec[i],
+        im_eps_xy_MatrixVec[i],
+        im_eps_yx_MatrixVec[i],
+        im_eps_yy_MatrixVec[i],
+        im_eps_zz_MatrixVec[i],
         numOfLayer,
         N
       );
+
     }
 
     thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
@@ -843,7 +1162,7 @@ namespace MESH{
   /*==============================================*/
   void SimulationPlanar::useQuadgl(const int degree){
     degree_ = degree;
-    method_ = GAUSSLEGENDRE_;
+    options_.IntegralMethod = GAUSSLEGENDRE_;
   }
   /*==============================================*/
   // Function setting the integral to be the gauss_kronrod
@@ -852,7 +1171,7 @@ namespace MESH{
   /*==============================================*/
   void SimulationPlanar::useQuadgk(const int degree){
     degree_ = degree;
-    method_ = GAUSSKRONROD_;
+    options_.IntegralMethod = GAUSSKRONROD_;
   }
 
   /*==============================================*/
@@ -873,7 +1192,7 @@ namespace MESH{
     }
     return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, KParallel, 0, EMatricesVec_[omegaIdx],
-      grandImaginaryMatricesVec_[omegaIdx], dielectricMatrixZInvVec_[omegaIdx], Gx_mat_, Gy_mat_,
+      grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,1);
   }
 
@@ -894,7 +1213,7 @@ namespace MESH{
     int displs[numProcs], sendCounts[numProcs];
     int chunkSize = numOfOmega_ / numProcs;
     int numLeft = numOfOmega_ - numProcs * chunkSize;
-    double recvBuf[chunkSize + 1];
+    double* recvBuf = new double[chunkSize + 1];
     MPI_Datatype dtype;
     // allocating sizes for each processor
     displs[0] = 0;
@@ -929,9 +1248,10 @@ namespace MESH{
       int omegaIdx = i + displs[rank];
       wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
       wrapper.EMatrices = EMatricesVec_[omegaIdx];
-      wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec_[omegaIdx];
-      wrapper.dielectricMatrixZInv = dielectricMatrixZInvVec_[omegaIdx];
-      switch (method_) {
+
+      wrapper.grandImaginaryMatrices = grandImaginaryMatrixVec_[omegaIdx];
+      wrapper.eps_zz_Inv = eps_zz_Inv_MatrixVec_[omegaIdx];
+      switch (options_.IntegralMethod) {
         case GAUSSLEGENDRE_:{
           recvBuf[i] = gauss_legendre(degree_, wrapperFunQuadgl, &wrapper, kxStart_, kxEnd_);
           break;
@@ -958,8 +1278,10 @@ namespace MESH{
     if(rank == MASTER){
         this->saveToFile();
     }
-    MPI_Finalize();
+    delete[] recvBuf;
+    recvBuf = nullptr;
 
+    MPI_Finalize();
   }
   /*==============================================*/
   // Implementaion of the class on 1D grating simulation

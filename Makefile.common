@@ -14,8 +14,13 @@ objdir:
 MESH_LIBOBJS = \
 	$(OBJDIR)/MESH_o/Rcwa.o \
 	$(OBJDIR)/MESH_o/System.o \
+<<<<<<< HEAD
 	$(OBJDIR)/MESH_o/Mesh.o \
 	$(OBJDIR)/MESH_o/Fmm.o
+=======
+	$(OBJDIR)/MESH_o/Fmm.o \
+	$(OBJDIR)/MESH_o/Mesh.o
+>>>>>>> dev
 
 $(OBJDIR)/libmesh.a: objdir $(MESH_LIBOBJS)
 	$(AR) crvs $@ $(MESH_LIBOBJS)

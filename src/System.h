@@ -35,21 +35,19 @@ namespace SYSTEM{
       const EPSILON& epsilonList,
       const int numOfOmega
     );
-    static Ptr<Material> instanceNew(
-      const std::string name
-    );
 
     Material(const Material& material) = delete;
     ~Material();
 
     std::string getName();
-    dcomplex* getEpsilonList();
-    dcomplex getEpsilonAtIndex(const int index);
+    EPSTYPE getType();
+    //dcomplex* getEpsilonList();
+    EpsilonVal getEpsilonAtIndex(const int index);
     int getNumOfOmega();
     double* getOmegaList();
 
     void setOmega(const double* omegaList, const int numOfOmega);
-    void setEpsilon(const dcomplex* epsilonList, const int numOfOmega);
+    void setEpsilon(const EPSILON& epsilonList, const int numOfOmega);
 
   protected:
     Material(
@@ -58,9 +56,8 @@ namespace SYSTEM{
       const EPSILON& epsilonList,
       const int numOfOmega
     );
-    Material(const std::string name);
 
-    dcomplex* epsilonList_;
+    EPSILON epsilonList_;
     double* omegaList_;
     int numOfOmega_;
   };
@@ -83,10 +80,7 @@ namespace SYSTEM{
       const Ptr<Material>& material,
       const double thickness
     );
-    static Ptr<Layer> instanceNew(
-      const string name,
-      const Ptr<Material>& material
-    );
+
     static Ptr<Layer> instanceNew(
       const string name
     );
@@ -99,8 +93,9 @@ namespace SYSTEM{
     void setBackGround(const Ptr<Material>& material);
     void setThickness(const double thickness);
     void setIsSource();
-    void setIsNotSource();
     bool checkIsSource();
+    void containTensor(bool val);
+    bool hasTensor();
 
     Ptr<Material> getBackGround();
     Ptr<Material> getMaterialByName(const std::string name);
@@ -127,7 +122,6 @@ namespace SYSTEM{
     enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 
     Layer(const string name, const Ptr<Material>& material, const double thickness);
-    Layer(const string name, const Ptr<Material>& material);
     Layer(const string name);
 
     double thickness_;
@@ -137,7 +131,7 @@ namespace SYSTEM{
     LayerPattern args1_;
     LayerPattern args2_;
     SOURCE source_;
-    bool isTensor_;
+    bool hasTensor_ = false;
   };
 
   typedef std::map<int, Ptr<Layer> > LayerMap;
@@ -154,7 +148,6 @@ namespace SYSTEM{
     ~Structure();
 
     Structure(const Structure& structure);
-    void setPeriodicity(const double p1, const double p2 = 0);
 
     void addLayer(const Ptr<Layer>& layer);
     void deleteLayerByName(const string name);
@@ -167,14 +160,11 @@ namespace SYSTEM{
     const_LayerIter getMapBegin();
     const_LayerIter getMapEnd();
 
-    double* getPeriodicity();
-
   private:
     Structure();
     void deleteLayer(const_LayerIter it);
     void reorganizeLayers();
     LayerMap layerMap_;
-    double period_[2];
   };
 
 

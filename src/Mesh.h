@@ -32,14 +32,24 @@
 namespace MESH{
 using namespace SYSTEM;
 using namespace RCWA;
-typedef std::vector<RCWAMatrices> RCWAMatricesVec;
+// using namespace FMM;
+
+
+enum INTEGRAL {GAUSSLEGENDRE_, GAUSSKRONROD_};
+enum METHOD {NAIVEFMM_, INVERSERULE_, SPATIALADAPTIVE_};
+
+typedef struct OPTIONS{
+  int FMMRule = NAIVEFMM_;
+  int IntegralMethod = GAUSSKRONROD_;
+} Options;
+
 
 typedef struct ARGWEAPPER{
   double omega;
   RCWAVector thicknessList;
   RCWAMatrices EMatrices;
   RCWAMatrices grandImaginaryMatrices;
-  RCWAMatrices dielectricMatrixZInv;
+  RCWAMatrices eps_zz_Inv;
   RCWAMatrix Gx_mat;
   RCWAMatrix Gy_mat;
   SourceList sourceList;
@@ -67,21 +77,60 @@ private:
   int numOfOmega_;
   bool preSet_ = false;
 };
+/*======================================================*/
+//  definition of maps used in the simulation
+/*=======================================================*/
+typedef std::map< std::string, Ptr<Layer> > LayerInstanceMap;
+typedef std::map< std::string, Ptr<Material> > MaterialInstanceMap;
 
 /*======================================================*/
 //  Implementaion of the parent simulation super class
 /*=======================================================*/
 class Simulation : public PtrInterface{
 public:
-  void addStructure(const Ptr<Structure>& structure);
-  void setTargetLayerByIndex(const int index);
-  void setTargetLayerByLayer(const Ptr<Layer>& layer);
+
+  // adding new function for the same interface as S4
+
+  void setPeriodicity(const double p1, const double p2 = 0);
+  void addMaterial(const std::string name, const std::string infile);
+  void setMaterial(const std::string name, const double** epsilon, const std::string type);
+
+  void addLayer(const std::string name, const double thick, const std::string materialName);
+  void setLayer(const std::string name, const double thick, const std::string materialName);
+  void setLayerThickness(const std::string name, const double thick);
+  void addLayerCopy(const std::string name, const std::string originalName);
+  void deleteLayer(const std::string name);
+
+  void setLayerPatternGrating(
+    const std::string layerName,
+    const std::string materialName,
+    const double center,
+    const double width
+  );
+
+  void setLayerPatternRectangle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double widthx,
+    const double widthy
+  );
+
+  void setLayerPatternCircle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double radius
+  );
+
+  void setSourceLayer(const std::string name);
+  void setProbeLayer(const std::string name);
+
   void setGx(const int nGx);
   void setGy(const int nGy);
   void setOutputFile(const std::string name);
-
-  double* getOmegaList();
-  double* getPeriodicity();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
   void build();
@@ -93,7 +142,11 @@ protected:
   Simulation(const Simulation&) = delete;
   ~Simulation();
   void resetSimulation();
-  double* period_;
+  void setTargetLayerByLayer(const Ptr<Layer>& layer);
+  Ptr<Structure> getStructure();
+  void saveToFile();
+
+  double period_[2];
   double kxStart_;
   double kxEnd_;
   int numOfKx_;
@@ -105,57 +158,31 @@ protected:
   int nGx_;
   int nGy_;
   int numOfOmega_;
+
+
+  LayerInstanceMap layerInstanceMap_;
+  MaterialInstanceMap materialInstanceMap_;
   Ptr<Structure> structure_;
+  Ptr<FileLoader> fileLoader_;
+
+
   double* Phi_;
   double* omegaList_;
   std::string output_;
   int targetLayer_;
-  RCWAMatricesVec EMatricesVec_;
-  RCWAMatricesVec grandImaginaryMatricesVec_;
-  RCWAMatricesVec dielectricMatrixZInvVec_;
+
   RCWAMatrix Gx_mat_;
   RCWAMatrix Gy_mat_;
+
+  RCWAMatricesVec EMatricesVec_;
+  RCWAMatricesVec grandImaginaryMatrixVec_;
+  RCWAMatricesVec eps_zz_Inv_MatrixVec_;
 
   SourceList sourceList_;
   RCWAVector thicknessListVec_;
   DIMENSION dim_;
+  Options options_;
 
-  Ptr<Structure> getStructure();
-  void saveToFile();
-  void transformPlanar(
-    RCWAMatricesVec& dielectricMatrixVecTE,
-    RCWAMatricesVec& dielectricMatrixVecTM,
-    RCWAMatricesVec& dielectricImMatrixVec,
-    const dcomplex* epsilon,
-    const int N
-  );
-
-  void transformGrating(
-    RCWAMatricesVec& dielectricMatrixVecTE,
-    RCWAMatricesVec& dielectricMatrixVecTM,
-    RCWAMatricesVec& dielectricImMatrixVec,
-    const Ptr<Layer>& layer,
-    const dcomplex* epsilonBG,
-    const int N
-  );
-
-  void transformRectangle(
-    RCWAMatricesVec& dielectricMatrixVecTE,
-    RCWAMatricesVec& dielectricMatrixVecTM,
-    RCWAMatricesVec& dielectricImMatrixVec,
-    const Ptr<Layer>& layer,
-    const dcomplex* epsilonBG,
-    const int N
-  );
-
-  void transformCircle(
-    RCWAMatricesVec& dielectricMatrixVecTE,
-    RCWAMatricesVec& dielectricMatrixVecTM,
-    RCWAMatricesVec& dielectricImMatrixVec,
-    const Ptr<Layer>& layer,
-    const dcomplex* epsilonBG,
-    const int N
-  );
 };
 
 
@@ -188,11 +215,9 @@ protected:
   ~SimulationPlanar(){};
 
 private:
-  enum INTEGRAL {GAUSSLEGENDRE_, GAUSSKRONROD_};
 
   SimulationPlanar();
   int degree_ = DEGREE;
-  INTEGRAL method_ = GAUSSLEGENDRE_;
 };
 
 /*======================================================*/
@@ -215,9 +240,7 @@ public:
 protected:
   ~SimulationGrating(){};
 private:
-  enum METHOD {NAIVEFMM_, SPATIALADAPTIVE_};
   SimulationGrating();
-  METHOD method_ =  NAIVEFMM_;
 };
 
 /*======================================================*/

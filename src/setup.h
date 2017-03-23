@@ -21,9 +21,9 @@
 
 #include "Rcwa.h"
 #include "System.h"
+#include "Fmm.h"
 #include "Mesh.h"
 
-using namespace SYSTEM;
 using namespace MESH;
 
 #endif

@@ -28,19 +28,32 @@ namespace SYSTEM{
     const EPSILON& epsilonList,
     const int numOfOmega): NamedInterface(name)
     , numOfOmega_(numOfOmega){
-    epsilonList_ = new dcomplex[numOfOmega_];
+    epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
     if(epsilonList.type_ == SCALAR_){
       for(int i = 0; i < numOfOmega_; i++){
-        epsilonList_[i] = dcomplex(epsilonList.epsilonVals[i].scalar[0], epsilonList.epsilonVals[i].scalar[1]);
+        epsilonList_.epsilonVals[i].scalar[0] = epsilonList.epsilonVals[i].scalar[0];
+        epsilonList_.epsilonVals[i].scalar[1] = epsilonList.epsilonVals[i].scalar[1];
       }
       //std::copy(epsilonList.epsilonVals, epsilonList.epsilonVals + numOfOmega_, epsilonList_);
     }
+    else if(epsilonList.type_ == DIAGONAL_){
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < 6; j++){
+          epsilonList_.epsilonVals[i].diagonal[i] = epsilonList.epsilonVals[i].diagonal[i];
+        }
+      }
+    }
     else{
-
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < 10; j++){
+          epsilonList_.epsilonVals[i].tensor[i] = epsilonList.epsilonVals[i].tensor[i];
+        }
+      }
     }
     omegaList_ = new double[numOfOmega_];
     std::copy(omegaList, omegaList + numOfOmega_, omegaList_);
   }
+
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
   /*==============================================*/
@@ -54,25 +67,11 @@ namespace SYSTEM{
   }
 
   /*==============================================*/
-  // Material constructor by name
-  /*==============================================*/
-  Material::Material(const std::string name) :
-  NamedInterface(name), epsilonList_(nullptr), omegaList_(nullptr), numOfOmega_(0){}
-
-  /*==============================================*/
-  // This is a thin wrapper for the usage of smart pointer
-  /*==============================================*/
-  Ptr<Material> Material::instanceNew(
-    const std::string name
-  ){
-    return new Material(name);
-  }
-  /*==============================================*/
   // destructor
   /*==============================================*/
   Material::~Material(){
-    delete[] epsilonList_;
-    epsilonList_ = nullptr;
+    delete[] epsilonList_.epsilonVals;
+    epsilonList_.epsilonVals = nullptr;
     delete[] omegaList_;
     omegaList_ = nullptr;
   }
@@ -83,20 +82,20 @@ namespace SYSTEM{
     return this->name();
   }
   /*==============================================*/
-  // function return the epsilon list of the material
+  // function check whether the given material has a tensor dielectric
   /*==============================================*/
-  dcomplex* Material::getEpsilonList(){
-    return epsilonList_;
+  EPSTYPE Material::getType(){
+    return epsilonList_.type_;
   }
 
   /*==============================================*/
   // function return the epsilon at a specific index
   /*==============================================*/
-  dcomplex Material::getEpsilonAtIndex(const int index){
+  EpsilonVal Material::getEpsilonAtIndex(const int index){
     if(index >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
     }
-    return epsilonList_[index];
+    return epsilonList_.epsilonVals[index];
   }
 
   /*==============================================*/
@@ -128,10 +127,30 @@ namespace SYSTEM{
   // epsilonList: the epsilonList of the material
   // numOfOmega: the number of omega points
   /*==============================================*/
-  void Material::setEpsilon(const dcomplex* epsilonList, const int numOfOmega){
+  void Material::setEpsilon(const EPSILON& epsilonList, const int numOfOmega){
     numOfOmega_ = numOfOmega;
-    epsilonList_ = new dcomplex[numOfOmega_];
-    std::copy(epsilonList, epsilonList + numOfOmega_, epsilonList_);
+    epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
+    if(epsilonList.type_ == SCALAR_){
+      for(int i = 0; i < numOfOmega_; i++){
+        epsilonList_.epsilonVals[i].scalar[0] = epsilonList.epsilonVals[i].scalar[0];
+        epsilonList_.epsilonVals[i].scalar[1] = epsilonList.epsilonVals[i].scalar[1];
+      }
+      //std::copy(epsilonList.epsilonVals, epsilonList.epsilonVals + numOfOmega_, epsilonList_);
+    }
+    else if(epsilonList.type_ == DIAGONAL_){
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < 6; j++){
+          epsilonList_.epsilonVals[i].diagonal[i] = epsilonList.epsilonVals[i].diagonal[i];
+        }
+      }
+    }
+    else{
+      for(int i = 0; i < numOfOmega_; i++){
+        for(int j = 0; j < 10; j++){
+          epsilonList_.epsilonVals[i].tensor[i] = epsilonList.epsilonVals[i].tensor[i];
+        }
+      }
+    }
   }
 
   /*==============================================*/
@@ -151,23 +170,6 @@ namespace SYSTEM{
     const double thickness
   ){
     return new Layer(name, material, thickness);
-  }
-  /*==============================================*/
-  // Layer constructor with back ground material
-  /*==============================================*/
-  Layer::Layer(const string name, const Ptr<Material>& material) :
-    NamedInterface(name), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
-    //backGround_ = new Material(*material);
-    backGround_ = material;
-  }
-  /*==============================================*/
-  // This is a thin wrapper for the usage of smart pointer
-  /*==============================================*/
-  Ptr<Layer> Layer::instanceNew(
-    const string name,
-    const Ptr<Material>& material
-  ){
-    return new Layer(name, material);
   }
   /*==============================================*/
   // Plain layer constructor
@@ -199,13 +201,6 @@ namespace SYSTEM{
     Ptr<Layer> newLayer = Layer::instanceNew(name);
     newLayer->setBackGround(this->getBackGround());
     newLayer->setThickness(this->getThickness());
-
-    if(this->checkIsSource()){
-      newLayer->setIsSource();
-    }
-    else{
-      newLayer->setIsNotSource();
-    }
 
     const_MaterialIter itMat = this->getVecBegin();
     const_PatternIter itArg1 = this->getArg1Begin();
@@ -266,12 +261,6 @@ namespace SYSTEM{
     source_ = ISSOURCE_;
   }
   /*==============================================*/
-  // set the layer not to be the source
-  /*==============================================*/
-  void Layer::setIsNotSource(){
-    source_ = ISNOTSOURCE_;
-  }
-  /*==============================================*/
   // check whether the layer is a source
   /*==============================================*/
   bool Layer::checkIsSource(){
@@ -279,6 +268,18 @@ namespace SYSTEM{
       return true;
     }
     return false;
+  }
+  /*==============================================*/
+  // set the layer contains a material with tensor dielectric
+  /*==============================================*/
+  void Layer::containTensor(bool val){
+    hasTensor_ = val;
+  }
+  /*==============================================*/
+  // check whether the layer contains a material with tensor dielectric
+  /*==============================================*/
+  bool Layer::hasTensor(){
+    return hasTensor_;
   }
   /*==============================================*/
   // get the background material
@@ -374,6 +375,7 @@ namespace SYSTEM{
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args1[0], args1[1]));
     args2_.push_back(std::make_pair(args2[0], args2[1]));
+
   }
 
   /*==============================================*/
@@ -392,7 +394,6 @@ namespace SYSTEM{
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args[0], radius));
     args2_.push_back(std::make_pair(args[1], radius));
-
   }
   /*==============================================*/
   // add a grating pattern
@@ -415,8 +416,6 @@ namespace SYSTEM{
   // Implementaion of the structure class
   /*==============================================*/
   Structure::Structure(){
-    period_[0] = 0;
-    period_[1] = 0;
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -439,16 +438,7 @@ namespace SYSTEM{
       layerMap_.insert(LayerMap::value_type(it->first, it->second));
     }
   }
-  /*==============================================*/
-  // set periodicity of the system
-  // @args:
-  // p1: periodicity in x direction
-  // p2: periodicity in y direction, for 1D it is 0
-  /*==============================================*/
-  void Structure::setPeriodicity(const double p1, const double p2){
-    period_[0] = p1;
-    period_[1] = p2;
-  }
+
   /*==============================================*/
   // function adding a layer to the structure
   // @args:
@@ -487,7 +477,7 @@ namespace SYSTEM{
   /*==============================================*/
   Ptr<Layer> Structure::getLayerByIndex(const int index){
     if(index >= this->getNumOfLayer()){
-      throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
+      return NULL;
     }
     return layerMap_.at(index);
   }
@@ -503,7 +493,6 @@ namespace SYSTEM{
         return it->second;
       }
     }
-    throw UTILITY::IllegalNameException(name + " does not exist!");
     return NULL;
   }
   /*==============================================*/
@@ -535,12 +524,7 @@ namespace SYSTEM{
   const_LayerIter Structure::getMapEnd(){
     return layerMap_.cend();
   }
-  /*==============================================*/
-  // get the periodicity of the system
-  /*==============================================*/
-  double* Structure::getPeriodicity(){
-    return period_;
-  }
+
   /*==============================================*/
   // erase one layer of the system
   // @args:
