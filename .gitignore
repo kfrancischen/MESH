@@ -30,3 +30,4 @@
 
 # build files
 /build
+.vscode/
