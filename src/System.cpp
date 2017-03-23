@@ -53,6 +53,7 @@ namespace SYSTEM{
     omegaList_ = new double[numOfOmega_];
     std::copy(omegaList, omegaList + numOfOmega_, omegaList_);
   }
+
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
   /*==============================================*/
@@ -65,22 +66,6 @@ namespace SYSTEM{
     return new Material(name, omegaList, epsilonList, numOfOmega);
   }
 
-  /*==============================================*/
-  // Material constructor by name
-  /*==============================================*/
-  Material::Material(const std::string name) :
-  NamedInterface(name), omegaList_(nullptr), numOfOmega_(0){
-
-  }
-
-  /*==============================================*/
-  // This is a thin wrapper for the usage of smart pointer
-  /*==============================================*/
-  Ptr<Material> Material::instanceNew(
-    const std::string name
-  ){
-    return new Material(name);
-  }
   /*==============================================*/
   // destructor
   /*==============================================*/
@@ -102,14 +87,7 @@ namespace SYSTEM{
   EPSTYPE Material::getType(){
     return epsilonList_.type_;
   }
-  /*==============================================*/
-  // function return the epsilon list of the material
-  /*==============================================*/
-  /*
-  dcomplex* Material::getEpsilonList(){
-    return epsilonList_;
-  }
-  */
+
   /*==============================================*/
   // function return the epsilon at a specific index
   /*==============================================*/
@@ -181,9 +159,6 @@ namespace SYSTEM{
   Layer::Layer(const string name, const Ptr<Material>& material, const double thickness) :
     NamedInterface(name), thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
     backGround_ = material;
-    if(backGround_->getType() == TENSOR_){
-      hasTensor_ = true;
-    }
   }
 
   /*==============================================*/
@@ -195,26 +170,6 @@ namespace SYSTEM{
     const double thickness
   ){
     return new Layer(name, material, thickness);
-  }
-  /*==============================================*/
-  // Layer constructor with back ground material
-  /*==============================================*/
-  Layer::Layer(const string name, const Ptr<Material>& material) :
-    NamedInterface(name), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){
-    //backGround_ = new Material(*material);
-    backGround_ = material;
-    if(backGround_->getType() == TENSOR_){
-      hasTensor_ = true;
-    }
-  }
-  /*==============================================*/
-  // This is a thin wrapper for the usage of smart pointer
-  /*==============================================*/
-  Ptr<Layer> Layer::instanceNew(
-    const string name,
-    const Ptr<Material>& material
-  ){
-    return new Layer(name, material);
   }
   /*==============================================*/
   // Plain layer constructor
@@ -246,13 +201,6 @@ namespace SYSTEM{
     Ptr<Layer> newLayer = Layer::instanceNew(name);
     newLayer->setBackGround(this->getBackGround());
     newLayer->setThickness(this->getThickness());
-
-    if(this->checkIsSource()){
-      newLayer->setIsSource();
-    }
-    else{
-      newLayer->setIsNotSource();
-    }
 
     const_MaterialIter itMat = this->getVecBegin();
     const_PatternIter itArg1 = this->getArg1Begin();
@@ -297,9 +245,6 @@ namespace SYSTEM{
   void Layer::setBackGround(const Ptr<Material>& material){
     //backGround_ = new Material(*material);
     backGround_ = material;
-    if(backGround_->getType() == TENSOR_){
-      hasTensor_ = true;
-    }
   }
   /*==============================================*/
   // set thickness of the layer
@@ -316,12 +261,6 @@ namespace SYSTEM{
     source_ = ISSOURCE_;
   }
   /*==============================================*/
-  // set the layer not to be the source
-  /*==============================================*/
-  void Layer::setIsNotSource(){
-    source_ = ISNOTSOURCE_;
-  }
-  /*==============================================*/
   // check whether the layer is a source
   /*==============================================*/
   bool Layer::checkIsSource(){
@@ -329,6 +268,12 @@ namespace SYSTEM{
       return true;
     }
     return false;
+  }
+  /*==============================================*/
+  // set the layer contains a material with tensor dielectric
+  /*==============================================*/
+  void Layer::containTensor(bool val){
+    hasTensor_ = val;
   }
   /*==============================================*/
   // check whether the layer contains a material with tensor dielectric
@@ -430,9 +375,7 @@ namespace SYSTEM{
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args1[0], args1[1]));
     args2_.push_back(std::make_pair(args2[0], args2[1]));
-    if(material->getType() == TENSOR_){
-      hasTensor_ = true;
-    }
+
   }
 
   /*==============================================*/
@@ -451,9 +394,6 @@ namespace SYSTEM{
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(args[0], radius));
     args2_.push_back(std::make_pair(args[1], radius));
-    if(material->getType() == TENSOR_){
-      hasTensor_ = true;
-    }
   }
   /*==============================================*/
   // add a grating pattern
@@ -470,17 +410,12 @@ namespace SYSTEM{
     pattern_ = GRATING_;
     materialVec_.push_back(material);
     args1_.push_back(std::make_pair(center, width));
-    if(material->getType() == TENSOR_){
-      hasTensor_ = true;
-    }
   }
 
   /*==============================================*/
   // Implementaion of the structure class
   /*==============================================*/
   Structure::Structure(){
-    period_[0] = 0;
-    period_[1] = 0;
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -503,16 +438,7 @@ namespace SYSTEM{
       layerMap_.insert(LayerMap::value_type(it->first, it->second));
     }
   }
-  /*==============================================*/
-  // set periodicity of the system
-  // @args:
-  // p1: periodicity in x direction
-  // p2: periodicity in y direction, for 1D it is 0
-  /*==============================================*/
-  void Structure::setPeriodicity(const double p1, const double p2){
-    period_[0] = p1;
-    period_[1] = p2;
-  }
+
   /*==============================================*/
   // function adding a layer to the structure
   // @args:
@@ -551,7 +477,7 @@ namespace SYSTEM{
   /*==============================================*/
   Ptr<Layer> Structure::getLayerByIndex(const int index){
     if(index >= this->getNumOfLayer()){
-      throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
+      return NULL;
     }
     return layerMap_.at(index);
   }
@@ -567,7 +493,6 @@ namespace SYSTEM{
         return it->second;
       }
     }
-    throw UTILITY::IllegalNameException(name + " does not exist!");
     return NULL;
   }
   /*==============================================*/
@@ -599,12 +524,7 @@ namespace SYSTEM{
   const_LayerIter Structure::getMapEnd(){
     return layerMap_.cend();
   }
-  /*==============================================*/
-  // get the periodicity of the system
-  /*==============================================*/
-  double* Structure::getPeriodicity(){
-    return period_;
-  }
+
   /*==============================================*/
   // erase one layer of the system
   // @args:

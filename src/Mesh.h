@@ -77,21 +77,60 @@ private:
   int numOfOmega_;
   bool preSet_ = false;
 };
+/*======================================================*/
+//  definition of maps used in the simulation
+/*=======================================================*/
+typedef std::map< std::string, Ptr<Layer> > LayerInstanceMap;
+typedef std::map< std::string, Ptr<Material> > MaterialInstanceMap;
 
 /*======================================================*/
 //  Implementaion of the parent simulation super class
 /*=======================================================*/
 class Simulation : public PtrInterface{
 public:
-  void addStructure(const Ptr<Structure>& structure);
-  void setTargetLayerByIndex(const int index);
-  void setTargetLayerByLayer(const Ptr<Layer>& layer);
+
+  // adding new function for the same interface as S4
+
+  void setPeriodicity(const double p1, const double p2 = 0);
+  void addMaterial(const std::string name, const std::string infile);
+  void setMaterial(const std::string name, const double** epsilon, const std::string type);
+
+  void addLayer(const std::string name, const double thick, const std::string materialName);
+  void setLayer(const std::string name, const double thick, const std::string materialName);
+  void setLayerThickness(const std::string name, const double thick);
+  void addLayerCopy(const std::string name, const std::string originalName);
+  void deleteLayer(const std::string name);
+
+  void setLayerPatternGrating(
+    const std::string layerName,
+    const std::string materialName,
+    const double center,
+    const double width
+  );
+
+  void setLayerPatternRectangle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double widthx,
+    const double widthy
+  );
+
+  void setLayerPatternCircle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double radius
+  );
+
+  void setSourceLayer(const std::string name);
+  void setProbeLayer(const std::string name);
+
   void setGx(const int nGx);
   void setGy(const int nGy);
   void setOutputFile(const std::string name);
-
-  double* getOmegaList();
-  double* getPeriodicity();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
   void build();
@@ -103,7 +142,11 @@ protected:
   Simulation(const Simulation&) = delete;
   ~Simulation();
   void resetSimulation();
-  double* period_;
+  void setTargetLayerByLayer(const Ptr<Layer>& layer);
+  Ptr<Structure> getStructure();
+  void saveToFile();
+
+  double period_[2];
   double kxStart_;
   double kxEnd_;
   int numOfKx_;
@@ -115,8 +158,12 @@ protected:
   int nGx_;
   int nGy_;
   int numOfOmega_;
-  Ptr<Structure> structure_;
 
+
+  LayerInstanceMap layerInstanceMap_;
+  MaterialInstanceMap materialInstanceMap_;
+  Ptr<Structure> structure_;
+  Ptr<FileLoader> fileLoader_;
 
 
   double* Phi_;
@@ -135,9 +182,6 @@ protected:
   RCWAVector thicknessListVec_;
   DIMENSION dim_;
   Options options_;
-
-  Ptr<Structure> getStructure();
-  void saveToFile();
 
 };
 

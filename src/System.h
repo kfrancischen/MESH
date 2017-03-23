@@ -35,9 +35,6 @@ namespace SYSTEM{
       const EPSILON& epsilonList,
       const int numOfOmega
     );
-    static Ptr<Material> instanceNew(
-      const std::string name
-    );
 
     Material(const Material& material) = delete;
     ~Material();
@@ -59,7 +56,6 @@ namespace SYSTEM{
       const EPSILON& epsilonList,
       const int numOfOmega
     );
-    Material(const std::string name);
 
     EPSILON epsilonList_;
     double* omegaList_;
@@ -84,10 +80,7 @@ namespace SYSTEM{
       const Ptr<Material>& material,
       const double thickness
     );
-    static Ptr<Layer> instanceNew(
-      const string name,
-      const Ptr<Material>& material
-    );
+
     static Ptr<Layer> instanceNew(
       const string name
     );
@@ -100,8 +93,8 @@ namespace SYSTEM{
     void setBackGround(const Ptr<Material>& material);
     void setThickness(const double thickness);
     void setIsSource();
-    void setIsNotSource();
     bool checkIsSource();
+    void containTensor(bool val);
     bool hasTensor();
 
     Ptr<Material> getBackGround();
@@ -129,7 +122,6 @@ namespace SYSTEM{
     enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 
     Layer(const string name, const Ptr<Material>& material, const double thickness);
-    Layer(const string name, const Ptr<Material>& material);
     Layer(const string name);
 
     double thickness_;
@@ -156,7 +148,6 @@ namespace SYSTEM{
     ~Structure();
 
     Structure(const Structure& structure);
-    void setPeriodicity(const double p1, const double p2 = 0);
 
     void addLayer(const Ptr<Layer>& layer);
     void deleteLayerByName(const string name);
@@ -169,14 +160,11 @@ namespace SYSTEM{
     const_LayerIter getMapBegin();
     const_LayerIter getMapEnd();
 
-    double* getPeriodicity();
-
   private:
     Structure();
     void deleteLayer(const_LayerIter it);
     void reorganizeLayers();
     LayerMap layerMap_;
-    double period_[2];
   };
 
 

@@ -24,7 +24,6 @@
 #include "Fmm.h"
 #include "Mesh.h"
 
-using namespace SYSTEM;
 using namespace MESH;
 
 #endif
