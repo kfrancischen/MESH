@@ -32,7 +32,8 @@
 namespace MESH{
 using namespace SYSTEM;
 using namespace RCWA;
-typedef std::vector<RCWAMatrices> RCWAMatricesVec;
+// using namespace FMM;
+
 
 enum INTEGRAL {GAUSSLEGENDRE_, GAUSSKRONROD_};
 enum METHOD {NAIVEFMM_, INVERSERULE_, SPATIALADAPTIVE_};
@@ -122,7 +123,7 @@ protected:
   double* omegaList_;
   std::string output_;
   int targetLayer_;
-  
+
   RCWAMatrix Gx_mat_;
   RCWAMatrix Gy_mat_;
 

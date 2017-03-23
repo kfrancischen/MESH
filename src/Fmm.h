@@ -28,6 +28,7 @@ namespace FMM{
 
   using RCWA::RCWAMatrix;
   using RCWA::RCWAMatrices;
+  using RCWA::RCWAMatricesVec;
   using RCWA::RCWAVector;
   using RCWA::sinc;
   using RCWA::meshGrid;
@@ -37,7 +38,6 @@ namespace FMM{
   using SYSTEM::const_MaterialIter;
   using SYSTEM::const_PatternIter;
 
-  typedef std::vector<RCWAMatrices> RCWAMatricesVec;
 
 
   /*==============================================*/

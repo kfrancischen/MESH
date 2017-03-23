@@ -49,6 +49,8 @@
      result.tensor[7] = epsilon.diagonal[3];
      result.tensor[8] = epsilon.diagonal[4];
      result.tensor[9] = epsilon.diagonal[5];
+
+     return result;
    }
    /*==============================================*/
    // helper function to change a scalar dielectric to a tensor
@@ -56,7 +58,7 @@
    // epsilon: scalar field
    /*==============================================*/
    static EpsilonVal fromScalarToTensor(EpsilonVal epsilon){
-     EpsilonVal diag = fromScalarToTensor(epsilon);
+     EpsilonVal diag = fromScalarToDiagonal(epsilon);
      return fromDiagonalToTensor(diag);
    }
 
@@ -101,7 +103,7 @@
      RCWAMatricesVec& im_eps_yx_MatrixVec,
      RCWAMatricesVec& im_eps_yy_MatrixVec,
      RCWAMatricesVec& im_eps_zz_MatrixVec,
-     Ptr<Layer>& layer,
+     const Ptr<Layer>& layer,
      const int N
    ){
      int numOfOmega = eps_xx_MatrixVec.size();
@@ -110,18 +112,18 @@
 
      for(int i = 0; i < numOfOmega; i++){
        EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
-
        EpsilonVal epsilonBGTensor = toTensor(epsilonBG, backGround->getType());
-       eps_xx_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[0], epsilonBG.tensor[1]));
-       im_eps_xx_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[1]);
-       eps_xy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[2], epsilonBG.tensor[3]));
-       im_eps_xy_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[3]);
-       eps_yx_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[4], epsilonBG.tensor[5]));
-       im_eps_yx_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[5]);
-       eps_yy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBG.tensor[6], epsilonBG.tensor[7]));
-       im_eps_yy_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[7]);
-       eps_zz_Inv_MatrixVec[i].push_back(onePadding1N * dcomplex(1.0, 0) / dcomplex(epsilonBG.tensor[8], epsilonBG.tensor[9]));
-       im_eps_zz_MatrixVec[i].push_back(onePadding1N * epsilonBG.tensor[9]);
+       eps_xx_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBGTensor.tensor[0], epsilonBGTensor.tensor[1]));
+       im_eps_xx_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[1]);
+       eps_xy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBGTensor.tensor[2], epsilonBGTensor.tensor[3]));
+       im_eps_xy_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[3]);
+       eps_yx_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBGTensor.tensor[4], epsilonBGTensor.tensor[5]));
+       im_eps_yx_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[5]);
+       eps_yy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBGTensor.tensor[6], epsilonBGTensor.tensor[7]));
+       im_eps_yy_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[7]);
+       eps_zz_Inv_MatrixVec[i].push_back(onePadding1N * dcomplex(1.0, 0) / dcomplex(epsilonBGTensor.tensor[8], epsilonBGTensor.tensor[9]));
+       im_eps_zz_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[9]);
+
      }
    }
 

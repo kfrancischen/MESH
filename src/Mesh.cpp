@@ -385,6 +385,7 @@ namespace MESH{
         // if the pattern is a plane
         /*************************************/
         case PLANAR_:{
+
           FMM::transformPlanar(
             eps_xx_MatrixVec,
             eps_xy_MatrixVec,
@@ -399,6 +400,7 @@ namespace MESH{
             layer,
             N
           );
+
           break;
         }
         /*************************************/
@@ -501,6 +503,7 @@ namespace MESH{
         numOfLayer,
         N
       );
+
     }
 
     thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
@@ -764,7 +767,7 @@ namespace MESH{
     int displs[numProcs], sendCounts[numProcs];
     int chunkSize = numOfOmega_ / numProcs;
     int numLeft = numOfOmega_ - numProcs * chunkSize;
-    double recvBuf[chunkSize + 1];
+    double* recvBuf = new double[chunkSize + 1];
     MPI_Datatype dtype;
     // allocating sizes for each processor
     displs[0] = 0;
@@ -799,6 +802,7 @@ namespace MESH{
       int omegaIdx = i + displs[rank];
       wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
       wrapper.EMatrices = EMatricesVec_[omegaIdx];
+
       wrapper.grandImaginaryMatrices = grandImaginaryMatrixVec_[omegaIdx];
       wrapper.eps_zz_Inv = eps_zz_Inv_MatrixVec_[omegaIdx];
       switch (options_.IntegralMethod) {
@@ -828,8 +832,10 @@ namespace MESH{
     if(rank == MASTER){
         this->saveToFile();
     }
-    MPI_Finalize();
+    delete[] recvBuf;
+    recvBuf = nullptr;
 
+    MPI_Finalize();
   }
   /*==============================================*/
   // Implementaion of the class on 1D grating simulation
