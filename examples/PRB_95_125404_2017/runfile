@@ -1,0 +1,11 @@
+#!/bin/bash
+#SBATCH -p compute
+#SBATCH -N 60
+#SBATCH -n 1440
+#SBATCH --time 48:00:00
+#SBATCH --mail-user=kfrancischen@gmail.com
+#SBATCH --mail-type=begin
+#SBATCH --mail-type=end
+
+cd ~/MESH/examples/ArXiv_1612_05516/
+ibrun -np 1440 ./main

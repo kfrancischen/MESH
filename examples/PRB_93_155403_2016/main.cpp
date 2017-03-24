@@ -28,9 +28,10 @@ int main(){
   s->setOutputFile("gold_to_vac.txt");
   s->setKxIntegralSym(500);
   s->setKyIntegralSym(200, 5);
+  //s->useInverseRule();
+  s->getSysInfo();
   s->build();
-  //s->run();
-
+  s->run();
   // std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
   return 0;
 }
