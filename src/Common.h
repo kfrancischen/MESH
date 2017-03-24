@@ -41,7 +41,8 @@ enum EPSTYPE {SCALAR_, DIAGONAL_, TENSOR_};
 #define MASTER 0
 
 typedef std::complex<double> dcomplex;
-
+const dcomplex IMAG_I = dcomplex(0.0, 1.0);
+const dcomplex REAL_I = dcomplex(1.0, 0.0);
 union EpsilonVal{
   double scalar[2];
   double diagonal[6];

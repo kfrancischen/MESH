@@ -300,7 +300,7 @@ double RCWA::poyntingFlux(
   kx = kx * omega;
   ky = ky * omega;
   int r1 = 0, r2 = 2 * N -1, r3 = 2 * N, r4 = 4 * N -1;
-  dcomplex IMAG_I = dcomplex(0, 1);
+  // dcomplex IMAG_I = dcomplex(0, 1);
   RCWAMatrix onePadding4N(4*N, 4*N, fill::eye);
   RCWAMatrix onePadding2N(2*N, 2*N, fill::eye);
   RCWAMatrix onePadding1N(N, N, fill::eye);
@@ -339,6 +339,7 @@ double RCWA::poyntingFlux(
     eig_gen(eigVal, EigenVecMatrices[i], eigMatrix);
 
     eigVal = sqrt(eigVal);
+
     eigVal = -eigVal % sign(imag(eigVal));
     EigenValMatrices[i] = diagmat(eigVal);
     if(i == 0 || i == numOfLayer - 1){
@@ -355,7 +356,7 @@ double RCWA::poyntingFlux(
     MMatrices[i](span(r3, r4), span(r1, r2)) = EigenVecMatrices[i];
     MMatrices[i](span(r3, r4), span(r3, r4)) = MMatrices[i](span(r3, r4), span(r1, r2));
     // normalization
-    MMatrices[i] = normalise(MMatrices[i], 2, 0);
+    // MMatrices[i] = normalise(MMatrices[i], 2, 0);
     // MMatrices[i] = MMatrices[i] * (diagmat(sqrt(diagvec(MMatrices[i].t() * MMatrices[i])))).i();
   }
 
@@ -426,7 +427,7 @@ double RCWA::poyntingFlux(
       FMatrices[layerIdx] * S_matrices[numOfLayer-1](span(r3, r4), span(r1, r2));
 
     Q2 = -FMatrices[layerIdx] * S_matrices[0](span(r3, r4), span(r1, r2));
-
+    
     // calculating R
     R = MMatrices[targetLayer] * join_vert(FMatrices[targetLayer] * P1, P2) *
       Q1.i() * join_horiz(onePadding2N, Q2);

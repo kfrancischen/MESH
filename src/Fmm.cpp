@@ -19,13 +19,14 @@
 
  #include "Fmm.h"
  #include "Common.h"
+
  namespace FMM{
    /*==============================================*/
    // helper function to change a scalar dielectric to a tensor
    // @args:
    // epsilon: scalar field
    /*==============================================*/
-   static EpsilonVal fromScalarToDiagonal(EpsilonVal epsilon){
+   static EpsilonVal fromScalarToDiagonal(const EpsilonVal epsilon){
      EpsilonVal result;
      for(int i = 0; i < 3; i++){
        result.diagonal[2*i] = epsilon.scalar[0];
@@ -38,7 +39,7 @@
    // @args:
    // epsilon: diagonal field
    /*==============================================*/
-   static EpsilonVal fromDiagonalToTensor(EpsilonVal epsilon){
+   static EpsilonVal fromDiagonalToTensor(const EpsilonVal epsilon){
      EpsilonVal result;
      for(int i = 0; i < 10; i++){
        result.tensor[i] = 0;
@@ -57,18 +58,30 @@
    // @args:
    // epsilon: scalar field
    /*==============================================*/
-   static EpsilonVal fromScalarToTensor(EpsilonVal epsilon){
+   static EpsilonVal fromScalarToTensor(const EpsilonVal epsilon){
      EpsilonVal diag = fromScalarToDiagonal(epsilon);
      return fromDiagonalToTensor(diag);
    }
-
+   /*==============================================*/
+   // helper function to change a random dielectric to a diagonal
+   // @args:
+   // epsilon: field
+   // type: the type of the dielectric
+   /*==============================================*/
+   static EpsilonVal toDiagonal(const EpsilonVal epsilon, const EPSTYPE type){
+    switch(type){
+      case SCALAR_: return fromScalarToDiagonal(epsilon);
+      case DIAGONAL_: return epsilon;
+      default: throw UTILITY::AttributeNotSupportedException("Cannot convert tensor to diagonal");
+    }
+   }
    /*==============================================*/
    // helper function to change a random dielectric to a tensor
    // @args:
    // epsilon: field
    // type: the type of the dielectric
    /*==============================================*/
-   static EpsilonVal toTensor(EpsilonVal epsilon, EPSTYPE type){
+   static EpsilonVal toTensor(const EpsilonVal epsilon, const EPSTYPE type){
      switch (type) {
        case SCALAR_: return fromScalarToTensor(epsilon);
        case DIAGONAL_: return fromDiagonalToTensor(epsilon);
@@ -76,6 +89,63 @@
      }
    }
 
+  /*==============================================*/
+   // helper function to do fourier transform for one value
+   // @args:
+   // epsVal: the value need to be transformed
+   // N: the total number of G
+   /*==============================================*/
+   static RCWAMatrix transformPlanarElement(const dcomplex epsVal, const int N){
+     return epsVal * eye<RCWAMatrix>(N, N);
+   }
+
+  /*==============================================*/
+   // helper function to do fourier transform for one value
+   // @args:
+   // epsVal: the value need to be transformed
+   // epsBG: the background value need to be transformed
+   // G_mat: the G_mat for grating
+   // center: the center position
+   // width: the width of the grating
+   /*==============================================*/
+   static RCWAMatrix transformGratingElement(
+     const dcomplex epsVal, 
+     const dcomplex epsBG,
+     const RCWAMatrix& G_mat, 
+     const double center, 
+     const double width, 
+     const int N
+   ){
+    return exp(IMAG_I * G_mat * center) * (epsVal - epsBG)
+             * width % sinc(G_mat / 2 * width);
+   }
+
+  /*==============================================*/
+   // helper function to do fourier transform for one value
+   // @args:
+   // epsVal: the value need to be transformed
+   // epsBG: the background value need to be transformed
+   // G_mat: the G_mat for grating
+   // centerx: the center position in x direction
+   // centery: the center position in y direction
+   // widthx: the width of the rectangle in x direction
+   // widthy: the width of the rectangle in y direction
+   /*==============================================*/
+   static RCWAMatrix transformRectangleElement(
+     const dcomplex epsVal,
+     const dcomplex epsBG,
+     const RCWAMatrix& GxMat,
+     const RCWAMatrix& GyMat,
+     const double centerx,
+     const double centery,
+     const double widthx,
+     const double widthy,
+     const int N
+   ){
+     return widthx * widthy * (epsVal - epsBG)
+             * exp(IMAG_I * (GxMat * centerx + GyMat * centery))
+             % sinc(GxMat * widthx / 2) % sinc(GyMat * widthy / 2);
+   }
    /*==============================================*/
    // This function computes the Fourier transform for planar geometry for tensor case
    // @args:
@@ -113,17 +183,26 @@
      for(int i = 0; i < numOfOmega; i++){
        EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
        EpsilonVal epsilonBGTensor = toTensor(epsilonBG, backGround->getType());
-       eps_xx_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBGTensor.tensor[0], epsilonBGTensor.tensor[1]));
-       im_eps_xx_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[1]);
-       eps_xy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBGTensor.tensor[2], epsilonBGTensor.tensor[3]));
-       im_eps_xy_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[3]);
-       eps_yx_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBGTensor.tensor[4], epsilonBGTensor.tensor[5]));
-       im_eps_yx_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[5]);
-       eps_yy_MatrixVec[i].push_back(onePadding1N * dcomplex(epsilonBGTensor.tensor[6], epsilonBGTensor.tensor[7]));
-       im_eps_yy_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[7]);
-       eps_zz_Inv_MatrixVec[i].push_back(onePadding1N * dcomplex(1.0, 0) / dcomplex(epsilonBGTensor.tensor[8], epsilonBGTensor.tensor[9]));
-       im_eps_zz_MatrixVec[i].push_back(onePadding1N * epsilonBGTensor.tensor[9]);
 
+       eps_xx_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[0], epsilonBGTensor.tensor[1]), N) );
+       im_eps_xx_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[1], 0), N) );
+       eps_yy_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[6], epsilonBGTensor.tensor[7]), N) );
+       im_eps_yy_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[7], 0), N) );
+       eps_zz_Inv_MatrixVec[i].push_back( transformPlanarElement(REAL_I / dcomplex(epsilonBGTensor.tensor[8], epsilonBGTensor.tensor[9]), N) );
+       im_eps_zz_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[9], 0), N) );
+       
+       if(layer->hasTensor()){
+         eps_xy_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[2], epsilonBGTensor.tensor[3]), N) );
+         im_eps_xy_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[3], 0), N) );
+         eps_yx_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[4], epsilonBGTensor.tensor[5]), N) );
+         im_eps_yx_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[5], 0), N) );
+       }
+       else{
+         eps_xy_MatrixVec[i].push_back(zeros<RCWAMatrix>(N, N));
+         im_eps_xy_MatrixVec[i].push_back(zeros<RCWAMatrix>(N, N));
+         eps_yx_MatrixVec[i].push_back(zeros<RCWAMatrix>(N, N));
+         im_eps_yx_MatrixVec[i].push_back(zeros<RCWAMatrix>(N, N));
+       }
      }
    }
 
@@ -164,7 +243,7 @@
      if(layer->hasTensor()) useInverseRule = false;
             
      int numOfOmega = eps_xx_MatrixVec.size();
-     dcomplex IMAG_I = dcomplex(0, 1);
+     // dcomplex IMAG_I = dcomplex(0, 1);
      RCWAMatrix G_row(1, N), G_col(N, 1);
      for(int i = 0; i < N; i++){
        G_row(0, i) = -i * 2.0 * datum::pi / period;
@@ -188,7 +267,6 @@
        RCWAMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
        count = 0; // reset count
        EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
-
        EpsilonVal epsBGTensor = toTensor(epsilonBG, backGround->getType());
 
        dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
@@ -206,58 +284,50 @@
          EpsilonVal epsilon = (*it)->getEpsilonAtIndex(i);
          EpsilonVal epsTensor = toTensor(epsilon, (*it)->getType());
    
-         if(useInverseRule){
-           eps_xx += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(1.0, 0) / dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - dcomplex(1.0, 0) / eps_BG_xx)
-             * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         }
-         else{
-           eps_xx += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_xx)
-             * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         }
+         eps_xx += transformGratingElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]),
+            eps_BG_xx, G_mat, centerVec(count), widthVec(count), N);
+         im_eps_xx += transformGratingElement(dcomplex(epsTensor.tensor[1], 0),
+            im_eps_BG_xx, G_mat, centerVec(count), widthVec(count), N);
 
-         eps_xy += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - eps_BG_xy)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         eps_yx += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         eps_yy += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]) - eps_BG_yy)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         eps_zz_Inv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]) - eps_BG_zz)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
+         eps_yy += transformGratingElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]),
+            eps_BG_yy, G_mat, centerVec(count), widthVec(count), N);
+         im_eps_yy += transformGratingElement(dcomplex(epsTensor.tensor[7], 0),
+            im_eps_BG_yy, G_mat, centerVec(count), widthVec(count), N);
 
+         eps_zz_Inv += transformGratingElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]),
+            eps_BG_zz, G_mat, centerVec(count), widthVec(count), N);
+         im_eps_zz += transformGratingElement(dcomplex(epsTensor.tensor[9], 0),
+            im_eps_BG_zz, G_mat, centerVec(count), widthVec(count), N);
 
-         im_eps_xx += exp(IMAG_I * G_mat * centerVec(count)) * (epsTensor.tensor[1] - im_eps_BG_xx)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         im_eps_xy += exp(IMAG_I * G_mat * centerVec(count)) * (epsTensor.tensor[3] - im_eps_BG_xy)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         im_eps_yx += exp(IMAG_I * G_mat * centerVec(count)) * (epsTensor.tensor[5] - im_eps_BG_yx)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         im_eps_yy += exp(IMAG_I * G_mat * centerVec(count)) * (epsTensor.tensor[7] - im_eps_BG_yy)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         im_eps_zz += exp(IMAG_I * G_mat * centerVec(count)) * (epsTensor.tensor[9] - im_eps_BG_zz)
-           * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-
+        if(layer->hasTensor()){
+          eps_xy += transformGratingElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]),
+            eps_BG_xy, G_mat, centerVec(count), widthVec(count), N);
+          eps_yx += transformGratingElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]),
+            eps_BG_yx, G_mat, centerVec(count), widthVec(count), N);
+          im_eps_xy += transformGratingElement(dcomplex(epsTensor.tensor[3], 0),
+            im_eps_BG_xy, G_mat, centerVec(count), widthVec(count), N);
+          im_eps_yx += transformGratingElement(dcomplex(epsTensor.tensor[5], 0),
+            im_eps_BG_yx, G_mat, centerVec(count), widthVec(count), N);
+        }
          count += 1;
        }
 
-       if(useInverseRule){
-         eps_xx = eps_xx / period + dcomplex(1.0, 0) / eps_BG_xx * onePadding1N;
-         eps_xx = eps_xx.i();
-       }
-       else{
-         eps_xx = eps_xx / period + eps_BG_xx * onePadding1N;
-       }
-       eps_xy = eps_xy / period + eps_BG_xy * onePadding1N;
-       eps_yx = eps_yx / period + eps_BG_yx * onePadding1N;
-       eps_yy = eps_yy / period + eps_BG_yy * onePadding1N;
-       eps_zz_Inv = eps_zz_Inv / period + eps_BG_zz * onePadding1N;
-
-       eps_zz_Inv = eps_zz_Inv.i();
-
+       eps_xx = eps_xx / period + eps_BG_xx * onePadding1N;
        im_eps_xx = im_eps_xx / period + im_eps_BG_xx * onePadding1N;
-       im_eps_xy = im_eps_xy / period + im_eps_BG_xy * onePadding1N;
-       im_eps_yx = im_eps_yx / period + im_eps_BG_yx * onePadding1N;
+
+       eps_yy = eps_yy / period + eps_BG_yy * onePadding1N;
        im_eps_yy = im_eps_yy / period + im_eps_BG_yy * onePadding1N;
+
+       eps_zz_Inv = eps_zz_Inv / period + eps_BG_zz * onePadding1N;
+       eps_zz_Inv = eps_zz_Inv.i();
        im_eps_zz = im_eps_zz / period + im_eps_BG_zz * onePadding1N;
+
+       if(layer->hasTensor()){
+        eps_xy = eps_xy / period + eps_BG_xy * onePadding1N;
+        eps_yx = eps_yx / period + eps_BG_yx * onePadding1N;
+        im_eps_xy = im_eps_xy / period + im_eps_BG_xy * onePadding1N;
+        im_eps_yx = im_eps_yx / period + im_eps_BG_yx * onePadding1N;
+       }
 
        eps_xx_MatrixVec[i].push_back(eps_xx);
        eps_xy_MatrixVec[i].push_back(eps_xy);
@@ -324,7 +394,7 @@
      RCWAMatrix Gx_mat, Gy_mat;
      RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
 
-     dcomplex IMAG_I = dcomplex(0, 1.0);
+     // dcomplex IMAG_I = dcomplex(0, 1.0);
      RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
      meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
      meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
@@ -373,66 +443,54 @@
          EpsilonVal epsilon = (*it)->getEpsilonAtIndex(i);
          EpsilonVal epsTensor = toTensor(epsilon, (*it)->getType());
 
-         if(useInverseRule){
-           eps_xx += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (dcomplex(1.0, 0) / dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - dcomplex(1.0, 0) / eps_BG_xx)
-             * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-             % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
+         eps_xx += transformRectangleElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+         im_eps_xx += transformRectangleElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+
+         eps_yy += transformRectangleElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+         im_eps_yy += transformRectangleElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+
+         eps_zz_Inv += transformRectangleElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+         im_eps_zz += transformRectangleElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N); 
+        
+
+         
+
+         if(layer->hasTensor()){
+            eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+            eps_yx += transformRectangleElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+
+            im_eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+            im_eps_yx += transformRectangleElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
+            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
          }
-         else{
-           eps_xx += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_xx)
-             * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-             % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-         }
-
-         eps_xy += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - eps_BG_xy)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-         eps_yx += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-         eps_yy += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]) - eps_BG_yy)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-         eps_zz_Inv += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]) - eps_BG_zz)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-
-         im_eps_xx += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (epsTensor.tensor[1] - im_eps_BG_xx)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-         im_eps_xy += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (epsTensor.tensor[3] - im_eps_BG_xy)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-         im_eps_yx += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (epsTensor.tensor[5] - im_eps_BG_yx)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-         im_eps_yy += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (epsTensor.tensor[7] - im_eps_BG_yy)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-         im_eps_zz += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (epsTensor.tensor[9] - im_eps_BG_zz)
-           * exp(IMAG_I * (GxMat * centerxVec(count) + GyMat * centeryVec(count)))
-           % sinc(GxMat * widthxVec(count) / 2) % sinc(GyMat * widthyVec(count) / 2);
-
          count += 1;
        }
-       if(useInverseRule){
-         eps_xx += dcomplex(1.0, 0) / eps_BG_xx * onePadding1N;
-         eps_xx = eps_xx.i();
-       }
-       else{
-         eps_xx += eps_BG_xx * onePadding1N;
-       }
-       eps_xy += eps_BG_xy * onePadding1N;
-       eps_yx += eps_BG_yx * onePadding1N;
-       eps_yy += eps_BG_yy * onePadding1N;
-       eps_zz_Inv += eps_BG_zz * onePadding1N;
-       eps_zz_Inv = eps_zz_Inv.i();
 
-       im_eps_xx += im_eps_BG_xx * onePadding1N;
-       im_eps_xy += im_eps_BG_xy * onePadding1N;
-       im_eps_yx += im_eps_BG_yx * onePadding1N;
-       im_eps_yy += im_eps_BG_yy * onePadding1N;
-       im_eps_zz += im_eps_BG_zz * onePadding1N;
+       eps_xx = eps_xx / (period[0] * period[1]) + eps_BG_xx * onePadding1N;
+       im_eps_xx = im_eps_xx / (period[0] * period[1]) + im_eps_BG_xx * onePadding1N;
+
+       eps_yy = eps_yy / (period[0] * period[1]) + eps_BG_yy * onePadding1N;
+       im_eps_yy = im_eps_yy / (period[0] * period[1]) + im_eps_BG_yy * onePadding1N;
+
+       eps_zz_Inv = eps_zz_Inv / (period[0] * period[1]) + eps_BG_zz * onePadding1N;
+       eps_zz_Inv = eps_zz_Inv.i();
+       im_eps_zz = im_eps_zz / (period[0] * period[1]) + im_eps_BG_zz * onePadding1N;
+
+       if(layer->hasTensor()){
+          eps_xy = eps_xy / (period[0] * period[1]) + eps_BG_xy * onePadding1N;
+          eps_yx = eps_yx / (period[0] * period[1]) + eps_BG_yx * onePadding1N;
+          im_eps_xy = im_eps_xy / (period[0] * period[1]) + im_eps_BG_xy * onePadding1N;
+          im_eps_yx = im_eps_yx / (period[0] * period[1]) + im_eps_BG_yx * onePadding1N;
+       }
 
        eps_xx_MatrixVec[i].push_back(eps_xx);
        eps_xy_MatrixVec[i].push_back(eps_xy);

@@ -100,8 +100,8 @@ namespace MESH{
 
     if(epsilonList_.epsilonVals == nullptr){
       epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
-      epsilonList_.type_ = type;
     }
+    epsilonList_.type_ = type;
     std::ifstream inputFile2(fileName);
     for(int i = 0; i < numOfOmega_; i++){
       inputFile2 >> omegaList_[i];
@@ -386,7 +386,7 @@ namespace MESH{
   /*==============================================*/
   void Simulation::addLayerCopy(const std::string name, const std::string originalName){
     if(layerInstanceMap_.find(originalName) == layerInstanceMap_.cend()){
-      throw UTILITY::NameInUseException(originalName + ": Layer does not exist!");
+      throw UTILITY::IllegalNameException(originalName + ": Layer does not exist!");
       return;
     }
     if(layerInstanceMap_.find(name) != layerInstanceMap_.cend()){

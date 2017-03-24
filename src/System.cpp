@@ -29,6 +29,7 @@ namespace SYSTEM{
     const int numOfOmega): NamedInterface(name)
     , numOfOmega_(numOfOmega){
     epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
+    epsilonList_.type_ = epsilonList.type_;
     if(epsilonList.type_ == SCALAR_){
       for(int i = 0; i < numOfOmega_; i++){
         epsilonList_.epsilonVals[i].scalar[0] = epsilonList.epsilonVals[i].scalar[0];
@@ -39,14 +40,14 @@ namespace SYSTEM{
     else if(epsilonList.type_ == DIAGONAL_){
       for(int i = 0; i < numOfOmega_; i++){
         for(int j = 0; j < 6; j++){
-          epsilonList_.epsilonVals[i].diagonal[i] = epsilonList.epsilonVals[i].diagonal[i];
+          epsilonList_.epsilonVals[i].diagonal[j] = epsilonList.epsilonVals[i].diagonal[j];
         }
       }
     }
     else{
       for(int i = 0; i < numOfOmega_; i++){
         for(int j = 0; j < 10; j++){
-          epsilonList_.epsilonVals[i].tensor[i] = epsilonList.epsilonVals[i].tensor[i];
+          epsilonList_.epsilonVals[i].tensor[j] = epsilonList.epsilonVals[i].tensor[j];
         }
       }
     }
