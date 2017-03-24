@@ -162,7 +162,7 @@
    ){
      // if exists a tensor, no inverser rule
      if(layer->hasTensor()) useInverseRule = false;
-
+            
      int numOfOmega = eps_xx_MatrixVec.size();
      dcomplex IMAG_I = dcomplex(0, 1);
      RCWAMatrix G_row(1, N), G_col(N, 1);
@@ -181,7 +181,7 @@
        widthVec(count) = it->second;
        count++;
      }
-
+     
      Ptr<Material> backGround = layer->getBackGround();
      for(int i = 0; i < numOfOmega; i++){
        RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
@@ -196,17 +196,16 @@
        dcomplex eps_BG_yx = dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]);
        dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
        dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
-       dcomplex im_eps_BG_xx = dcomplex(0, epsBGTensor.tensor[1]);
-       dcomplex im_eps_BG_xy = dcomplex(0, epsBGTensor.tensor[3]);
-       dcomplex im_eps_BG_yx = dcomplex(0, epsBGTensor.tensor[5]);
-       dcomplex im_eps_BG_yy = dcomplex(0, epsBGTensor.tensor[7]);
-       dcomplex im_eps_BG_zz = dcomplex(0, epsBGTensor.tensor[9]);
-
+       dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
+       dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+       dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+       dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
+       dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
        for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
          EpsilonVal epsilon = (*it)->getEpsilonAtIndex(i);
-         EpsilonVal epsTensor = toTensor(epsTensor, (*it)->getType());
-
+         EpsilonVal epsTensor = toTensor(epsilon, (*it)->getType());
+   
          if(useInverseRule){
            eps_xx += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(1.0, 0) / dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - dcomplex(1.0, 0) / eps_BG_xx)
              * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
@@ -222,7 +221,7 @@
            * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
          eps_yy += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]) - eps_BG_yy)
            * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
-         eps_zz_Inv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_zz)
+         eps_zz_Inv += exp(IMAG_I * G_mat * centerVec(count)) * (dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]) - eps_BG_zz)
            * widthVec(count) % sinc(G_mat / 2 * widthVec(count));
 
 
@@ -251,6 +250,7 @@
        eps_yx = eps_yx / period + eps_BG_yx * onePadding1N;
        eps_yy = eps_yy / period + eps_BG_yy * onePadding1N;
        eps_zz_Inv = eps_zz_Inv / period + eps_BG_zz * onePadding1N;
+
        eps_zz_Inv = eps_zz_Inv.i();
 
        im_eps_xx = im_eps_xx / period + im_eps_BG_xx * onePadding1N;
@@ -362,16 +362,16 @@
        dcomplex eps_BG_yx = dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]);
        dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
        dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
-       dcomplex im_eps_BG_xx = dcomplex(0, epsBGTensor.tensor[1]);
-       dcomplex im_eps_BG_xy = dcomplex(0, epsBGTensor.tensor[3]);
-       dcomplex im_eps_BG_yx = dcomplex(0, epsBGTensor.tensor[5]);
-       dcomplex im_eps_BG_yy = dcomplex(0, epsBGTensor.tensor[7]);
-       dcomplex im_eps_BG_zz = dcomplex(0, epsBGTensor.tensor[9]);
+       dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
+       dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+       dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+       dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
+       dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
 
        for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
          EpsilonVal epsilon = (*it)->getEpsilonAtIndex(i);
-         EpsilonVal epsTensor = toTensor(epsTensor, (*it)->getType());
+         EpsilonVal epsTensor = toTensor(epsilon, (*it)->getType());
 
          if(useInverseRule){
            eps_xx += widthxVec(count) * widthyVec(count) / (period[0] * period[1]) * (dcomplex(1.0, 0) / dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - dcomplex(1.0, 0) / eps_BG_xx)

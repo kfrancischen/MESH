@@ -617,7 +617,7 @@ namespace MESH{
         layer->containTensor(true);
         break;
       }
-      for(const_MaterialIter m_it = layer->getVecBegin(); m_it != layer->getVecEnd(); it++){
+      for(const_MaterialIter m_it = layer->getVecBegin(); m_it != layer->getVecEnd(); m_it++){
         if((*m_it)->getType() == TENSOR_){
           layer->containTensor(true);
           break;
@@ -801,6 +801,18 @@ namespace MESH{
       }
       std::cout << "==================================================" << std::endl;
     }
+  }
+  /*==============================================*/
+  // function using naive implementaion
+  /*==============================================*/
+  void Simulation::useNaiveRule(){
+    options_.FMMRule = NAIVEFMM_;
+  }
+  /*==============================================*/
+  // function using inverse rule
+  /*==============================================*/
+  void Simulation::useInverseRule(){
+    options_.FMMRule = INVERSERULE_;
   }
   /*==============================================*/
   // This function computes the flux
@@ -1189,6 +1201,10 @@ namespace MESH{
     kyEnd_ = end;
     prefactor_ *= 2;
   }
+  /*==============================================*/
+  // function using adaptive resolution algorithm
+  /*==============================================*/
+
   /*==============================================*/
   // Implementaion of the class on 2D patterning simulation
   /*==============================================*/

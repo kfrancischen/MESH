@@ -255,7 +255,7 @@ void RCWA::getEMatrices(
   for(int i = 0; i < numOfLayer; i++){
     RCWAMatrix EMatrix = join_vert(
       join_horiz(eps_yy[i], -eps_yx[i]),
-      join_horiz(eps_xy[i], eps_xx[i])
+      join_horiz(-eps_xy[i], eps_xx[i])
     );
     EMatrices.push_back(EMatrix);
   }

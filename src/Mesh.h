@@ -136,6 +136,10 @@ public:
   void build();
 
   void getSysInfo();
+
+  void useInverseRule();
+  void useNaiveRule();
+
   void rebuild();
   void run();
 
@@ -195,6 +199,7 @@ class SimulationPlanar : public Simulation{
 public:
   static Ptr<SimulationPlanar> instanceNew();
   SimulationPlanar(const SimulationPlanar&) = delete;
+  void useInverseRule() = delete;
   void setGx() = delete;
   void setGy() = delete;
 
@@ -237,8 +242,8 @@ public:
   // for ky integral, from 0 to inf
   void setKyIntegral(const int points, const double end);
   void setKyIntegralSym(const int points, const double end);
+
   void useAdaptive();
-  void useNative();
 protected:
   ~SimulationGrating(){};
 private:
