@@ -22,6 +22,7 @@
 //#ifndef ARMA_DONT_USE_WRAPPER
 //#define ARMA_DONT_USE_WRAPPER
 #include "Rcwa.h"
+#include "Cubature.h"
 #include "System.h"
 #include "Fmm.h"
 #include "Common.h"
@@ -213,7 +214,7 @@ public:
   void setKyIntegralSym(const int points, const double end);
 
   void useQuadgl(int degree = DEGREE);
-  void useQuadgk(int degree = DEGREE);
+  void useQuadgk();
 
   void runNaive();
   double getPhiAtKParallel(const int omegaIndex, const double KParallel);

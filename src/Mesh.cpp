@@ -171,12 +171,17 @@ namespace MESH{
   // kx: the kx value (normalized)
   // wrapper: wrapper for all the arguments wrapped in wrapper
   /*==============================================*/
-  static double wrapperFunQuadgk(const double kx, ArgWrapper* data){
-    ArgWrapper wrapper = *data;
-    return kx * poyntingFlux(
+  static void wrapperFunQuadgk(unsigned ndim, 
+    const double *kx, 
+    void* data,
+    unsigned fdim,
+    double *fval
+    ){
+    ArgWrapper wrapper = *(ArgWrapper*)data;
+    fval[0] = kx[0] * poyntingFlux(
       wrapper.omega,
       wrapper.thicknessList,
-      kx,
+      kx[0],
       0,
       wrapper.EMatrices,
       wrapper.grandImaginaryMatrices,
@@ -195,7 +200,21 @@ namespace MESH{
   // data: wrapper for all the arguments wrapped in wrapper
   /*==============================================*/
   static double wrapperFunQuadgl(const double kx, void* data){
-    return wrapperFunQuadgk(kx, (ArgWrapper*) data);
+    ArgWrapper wrapper = *(ArgWrapper*) data;
+    return kx * poyntingFlux(
+      wrapper.omega,
+      wrapper.thicknessList,
+      kx,
+      0,
+      wrapper.EMatrices,
+      wrapper.grandImaginaryMatrices,
+      wrapper.eps_zz_Inv,
+      wrapper.Gx_mat,
+      wrapper.Gy_mat,
+      wrapper.sourceList,
+      wrapper.targetLayer,
+      1
+    );
   }
   /*======================================================*/
   // Implementaion of the parent simulation super class
@@ -724,7 +743,7 @@ namespace MESH{
       // if the pattern is a circle (2D)
       /************************************/
         case CIRCLE_:{
-          FMM::transformCircleTensor(
+          FMM::transformCircle(
             eps_xx_MatrixVec,
             eps_xy_MatrixVec,
             eps_yx_MatrixVec,
@@ -736,7 +755,8 @@ namespace MESH{
             im_eps_yy_MatrixVec,
             im_eps_zz_MatrixVec,
             layer,
-            N,
+            nGx_,
+            nGy_,
             period_
           );
           break;
@@ -1011,7 +1031,7 @@ namespace MESH{
   /*==============================================*/
   // Function setting the integral to be the gauss_legendre
   // @args:
-  // degree: the degree of gauss_legendre integral, default 512
+  // degree: the degree of gauss_legendre integral, default 1024
   /*==============================================*/
   void SimulationPlanar::useQuadgl(const int degree){
     degree_ = degree;
@@ -1019,11 +1039,8 @@ namespace MESH{
   }
   /*==============================================*/
   // Function setting the integral to be the gauss_kronrod
-  // @args:
-  // degree: the refinement integral, default 512
   /*==============================================*/
-  void SimulationPlanar::useQuadgk(const int degree){
-    degree_ = degree;
+  void SimulationPlanar::useQuadgk(){
     options_.IntegralMethod = GAUSSKRONROD_;
   }
 
@@ -1110,12 +1127,8 @@ namespace MESH{
           break;
         }
         case GAUSSKRONROD_:{
-          // this part, debug is needed
-          Workspace<double> integrationWork(degree_);
-          Function<double, ArgWrapper> F(wrapperFunQuadgk, &wrapper);
-          double epsabs = integrationWork.get_eps();
-          double abserr, epsrel = 0;
-          integrationWork.qag(F, kxStart_, kxEnd_, epsabs, epsrel, recvBuf[i], abserr);
+          double err;
+          adapt_integrate(1, wrapperFunQuadgk, &wrapper, 1, &kxStart_, &kxEnd_, 0, ABSERROR, RELERROR, &recvBuf[i], &err);
           break;
         }
         default:{

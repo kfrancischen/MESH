@@ -25,7 +25,7 @@
 #include "utility/Utility.h"
 #include "mathlib/Mathlib.h"
 #include "config.h"
-#define DEGREE 512
+#define DEGREE 1024
 
 using UTILITY::Ptr;
 using UTILITY::PtrInterface;
@@ -39,6 +39,8 @@ enum EPSTYPE {SCALAR_, DIAGONAL_, TENSOR_};
 #define SENDTAG 2
 #define RECVTAG 1
 #define MASTER 0
+#define ABSERROR 1e-10
+#define RELERROR 1e-10
 
 typedef std::complex<double> dcomplex;
 const dcomplex IMAG_I = dcomplex(0.0, 1.0);
