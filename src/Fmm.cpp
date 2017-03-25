@@ -207,7 +207,7 @@
    }
 
    /*==============================================*/
-   // This function computes the Fourier transform for planar geometry for tensor case
+   // This function computes the Fourier transform for grating geometry
    // @args:
    // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
    // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
@@ -347,12 +347,8 @@
 
    }
 
-   void ransformGratingTensorAdaptive(){
-
-   }
-
    /*==============================================*/
-   // This function computes the Fourier transform for planar geometry for tensor case
+   // This function computes the Fourier transform for rectangle case
    // @args:
    // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
    // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
@@ -459,8 +455,6 @@
             GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N); 
         
 
-         
-
          if(layer->hasTensor()){
             eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
             GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
@@ -502,37 +496,42 @@
        im_eps_yx_MatrixVec[i].push_back(im_eps_yx);
        im_eps_yy_MatrixVec[i].push_back(im_eps_yy);
        im_eps_zz_MatrixVec[i].push_back(im_eps_zz);
-   }
- }
+    }
+  }
 
-   void transformCircleDiagonal(
-     RCWAMatricesVec& eps_xx_MatrixVec,
-     RCWAMatricesVec& eps_yy_MatrixVec,
-     RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-     RCWAMatricesVec& im_eps_xx_MatrixVec,
-     RCWAMatricesVec& im_eps_yy_MatrixVec,
-     RCWAMatricesVec& im_eps_zz_MatrixVec,
-     const Ptr<Layer>& layer,
-     const int N,
-     const double* period
-   ){
-     // TODO
-   }
-
-   void transformCircleTensor(
-     RCWAMatricesVec& eps_xx_MatrixVec,
-     RCWAMatricesVec& eps_xy_MatrixVec,
-     RCWAMatricesVec& eps_yx_MatrixVec,
-     RCWAMatricesVec& eps_yy_MatrixVec,
-     RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-     RCWAMatricesVec& im_eps_xx_MatrixVec,
-     RCWAMatricesVec& im_eps_xy_MatrixVec,
-     RCWAMatricesVec& im_eps_yx_MatrixVec,
-     RCWAMatricesVec& im_eps_yy_MatrixVec,
-     RCWAMatricesVec& im_eps_zz_MatrixVec,
-     const Ptr<Layer>& layer,
-     const int N,
-     const double* period
+   /*==============================================*/
+   // This function computes the Fourier transform for circular case
+   // @args:
+   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
+   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
+   // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
+   // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
+   // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
+   // Layer: the layer considered
+   // nGx: the total number of G in x direction
+   // nGy: the total number of G in y direction
+   // period: the periodicity
+   /*==============================================*/
+   void transformCircle(
+    RCWAMatricesVec& eps_xx_MatrixVec,
+    RCWAMatricesVec& eps_xy_MatrixVec,
+    RCWAMatricesVec& eps_yx_MatrixVec,
+    RCWAMatricesVec& eps_yy_MatrixVec,
+    RCWAMatricesVec& eps_zz_Inv_MatrixVec,
+    RCWAMatricesVec& im_eps_xx_MatrixVec,
+    RCWAMatricesVec& im_eps_xy_MatrixVec,
+    RCWAMatricesVec& im_eps_yx_MatrixVec,
+    RCWAMatricesVec& im_eps_yy_MatrixVec,
+    RCWAMatricesVec& im_eps_zz_MatrixVec,
+    const Ptr<Layer>& layer,
+    const int nGx,
+    const int nGy,
+    const double* period
    ){
     // TODO
    }

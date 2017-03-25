@@ -41,7 +41,7 @@ namespace FMM{
 
 
   /*==============================================*/
-  // This function computes the Fourier transform for planar geometry for tensor case
+  // This function computes the Fourier transform for planar geometry
   // @args:
   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
@@ -73,7 +73,7 @@ namespace FMM{
 
 
   /*==============================================*/
-  // This function computes the Fourier transform for planar geometry for tensor case
+  // This function computes the Fourier transform for Grating geometry
   // @args:
   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
@@ -108,10 +108,8 @@ namespace FMM{
 
   void transformGratingDiagonalAdaptive();
 
-  void transformGratingTensorAdaptive();
-
   /*==============================================*/
-  // This function computes the Fourier transform for planar geometry for tensor case
+  // This function computes the Fourier transform for rectangle case
   // @args:
   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
@@ -147,19 +145,25 @@ namespace FMM{
     bool useInverseRule = true
   );
 
-  void transformCircleDiagonal(
-    RCWAMatricesVec& eps_xx_MatrixVec,
-    RCWAMatricesVec& eps_yy_MatrixVec,
-    RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-    RCWAMatricesVec& im_eps_xx_MatrixVec,
-    RCWAMatricesVec& im_eps_yy_MatrixVec,
-    RCWAMatricesVec& im_eps_zz_MatrixVec,
-    const Ptr<Layer>& layer,
-    const int N,
-    const double* period
-  );
-
-  void transformCircleTensor(
+   /*==============================================*/
+   // This function computes the Fourier transform for circular case
+   // @args:
+   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
+   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
+   // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
+   // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
+   // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
+   // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
+   // Layer: the layer considered
+   // nGx: the total number of G in x direction
+   // nGy: the total number of G in y direction
+   // period: the periodicity
+   /*==============================================*/
+  void transformCircle(
     RCWAMatricesVec& eps_xx_MatrixVec,
     RCWAMatricesVec& eps_xy_MatrixVec,
     RCWAMatricesVec& eps_yx_MatrixVec,
@@ -171,9 +175,11 @@ namespace FMM{
     RCWAMatricesVec& im_eps_yy_MatrixVec,
     RCWAMatricesVec& im_eps_zz_MatrixVec,
     const Ptr<Layer>& layer,
-    const int N,
+    const int nGx,
+    const int nGy,
     const double* period
   );
+
 
 }
 
