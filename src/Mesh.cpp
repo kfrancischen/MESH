@@ -234,6 +234,10 @@ namespace MESH{
   Simulation::~Simulation(){
     delete[] Phi_;
     Phi_ = nullptr;
+    MPI_Finalized(&MPI_Finalized_);
+    if (!MPI_Finalized_){
+      MPI_Finalize();
+    }
   }
 
   /*==============================================*/
@@ -879,7 +883,10 @@ namespace MESH{
     double* resultArray = new double[totalNum];
     MPI_Status status;
     int rank, numProcs, start, end, startPosition, endPosition;
-    MPI_Init(NULL, NULL);
+    MPI_Initialized(&MPI_Initialized_);
+    if (!MPI_Initialized_){
+      MPI_Init(NULL, NULL);
+    }
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
     int offset = 0;
@@ -961,7 +968,7 @@ namespace MESH{
 
     delete[] resultArray;
     resultArray = nullptr;
-    MPI_Finalize();
+    // MPI_Finalize();
   }
   /*==============================================*/
   // Implementaion of the class on planar simulation
@@ -1082,7 +1089,10 @@ namespace MESH{
   void SimulationPlanar::runNaive(){
     int rank, numProcs, start, end;
     int offset = 0;
-    MPI_Init(NULL, NULL);
+    MPI_Initialized(&MPI_Initialized_);
+    if (!MPI_Initialized_){
+      MPI_Init(NULL, NULL);
+    }
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
     int displs[numProcs], sendCounts[numProcs];
@@ -1152,7 +1162,7 @@ namespace MESH{
     delete[] recvBuf;
     recvBuf = nullptr;
 
-    MPI_Finalize();
+    // MPI_Finalize();
   }
   /*==============================================*/
   // Implementaion of the class on 1D grating simulation

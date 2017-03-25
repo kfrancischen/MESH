@@ -190,6 +190,7 @@ protected:
   DIMENSION dim_;
   Options options_;
 
+  int MPI_Initialized_, MPI_Finalized_;
 };
 
 
@@ -220,7 +221,6 @@ public:
   double getPhiAtKParallel(const int omegaIndex, const double KParallel);
 
 protected:
-  ~SimulationPlanar(){};
 
 private:
 
@@ -246,7 +246,7 @@ public:
 
   void useAdaptive();
 protected:
-  ~SimulationGrating(){};
+
 private:
   SimulationGrating();
 };
@@ -266,7 +266,6 @@ public:
   void setKyIntegral(const int points);
   void setKyIntegralSym(const int points);
 protected:
-  ~SimulationPattern(){};
 
 private:
   SimulationPattern();
