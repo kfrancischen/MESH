@@ -22,5 +22,4 @@
 
 #include "mathlib/gauss_legendre.h"
 #include "mathlib/bessel_functions.h"
-#include "mathlib/gauss_kronrod.h"
 #endif
