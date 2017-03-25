@@ -42,6 +42,7 @@ enum METHOD {NAIVEFMM_, INVERSERULE_, SPATIALADAPTIVE_};
 typedef struct OPTIONS{
   int FMMRule = NAIVEFMM_;
   int IntegralMethod = GAUSSKRONROD_;
+  bool PrintIntermediate = false;
 } Options;
 
 
@@ -140,8 +141,7 @@ public:
 
   void useInverseRule();
   void useNaiveRule();
-
-  void rebuild();
+  void printIntermediate();
   void run();
 
 protected:

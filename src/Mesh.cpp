@@ -590,13 +590,6 @@ namespace MESH{
   }
 
   /*==============================================*/
-  // This function rebuilds the simulation
-  /*==============================================*/
-  void Simulation::rebuild(){
-    this->resetSimulation();
-    this->build();
-  }
-  /*==============================================*/
   // This function gets the structure
   /*==============================================*/
   Ptr<Structure> Simulation::getStructure(){
@@ -628,6 +621,8 @@ namespace MESH{
   // This function builds up the matrices
   /*==============================================*/
   void Simulation::build(){
+    // reset simulation first
+    this->resetSimulation();
     // check each layer whether a tensor exist
     for(const_LayerIter it = structure_->getMapBegin(); it != structure_->getMapEnd(); it++){
       Ptr<Layer> layer = it->second;
@@ -835,6 +830,12 @@ namespace MESH{
     options_.FMMRule = INVERSERULE_;
   }
   /*==============================================*/
+  // function print intermediate results
+  /*==============================================*/
+  void Simulation::printIntermediate(){
+    options_.PrintIntermediate = true;
+  }
+  /*==============================================*/
   // This function computes the flux
   /*==============================================*/
   void Simulation::run(){
@@ -913,7 +914,9 @@ namespace MESH{
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
-        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+        if(options_.PrintIntermediate){
+          std::cout << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+        }
       }
 
       // wait for all the slave process finished
@@ -946,7 +949,9 @@ namespace MESH{
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
-        std::cout << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+        if(options_.PrintIntermediate){
+          std::cout << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+        }
       }
 
       MPI_Send(&startPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
