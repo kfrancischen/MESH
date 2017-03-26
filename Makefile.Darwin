@@ -6,5 +6,5 @@ CFLAGS += -Wall -O3 -ffast-math -march=native -fopenmp
 CXXFLAGS += -std=c++11 -Wall -O3 -ffast-math -march=native -fopenmp
 LA_LIBS = -O3 -ffast-math -framework Accelerate
 
-LUA_INC =
-LUA_LIB =
+LUA_INC = -I/usr/local/include
+LUA_LIB = -L/usr/local/bin -llua

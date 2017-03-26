@@ -5,7 +5,7 @@ ARMAFLAG = -Isrc/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG
 
 #### Compilation targets
 MESH_LIBNAME = libmesh.a
-all: $(OBJDIR)/$(MESH_LIBNAME)
+all: $(OBJDIR)/$(MESH_LIBNAME)  $(OBJDIR)/mesh
 
 objdir:
 	mkdir -p $(OBJDIR)
@@ -34,6 +34,10 @@ $(OBJDIR)/MESH_o/Mesh.o: src/Mesh.cpp
 
 #### Build Lua frontend
 
+$(OBJDIR)/MESH_o/main_lua.o: src/main_lua.cpp objdir
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/mesh: $(OBJDIR)/MESH_o/main_lua.o $(OBJDIR)/$(MESH_LIBNAME)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ -L$(OBJDIR) -lmesh $(LA_LIBS) $(LUA_LIB)
 #### Python extension
 
 clean:

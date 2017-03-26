@@ -22,58 +22,6 @@
 #include "luawrapper/luawrapper.hpp"
 
 using namespace MESH;
-using namespace SYSTEM;
-
-Ptr<Material> MESH_MaterialNew(lua_State *L){
-  const char* name = luaL_checkstring(L, 1);
-  return  Material::instanceNew(name);
-}
-
-static int MESH_SetOmega(lua_State* L){
-  Ptr<Material> material = luaW_check<Material>(L, 1);
-  int n = lua_rawlen(L, 2);
-  double omegaList[n];
-  for(int i = 0; i < n; i++){
-    lua_pushinteger(L, i+1);
-    lua_gettable(L, 2);
-    lua_rawgeti(L, -1, 1);
-    omegaList[i] = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-  }
-  material->setOmega(omegaList, n);
-  return 0;
-}
-
-static int MESH_SetEpsilon(lua_State* L){
-  Ptr<Material> material = luaW_check<Material>(L, 1);
-  int n = lua_rawlen(L, 2);
-  dcomplex epsilonList[n];
-  for(int i = 0; i < n; i++){
-    lua_pushinteger(L, i+1);
-    lua_gettable(L, 2);
-    lua_rawgeti(L, -1, 1);
-
-    lua_rawgeti(L, -1, 1);
-    double real = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    double imag = lua_tonumber(L, -1);
-    lua_pop(L, 1);
-    epsilonList[i] = dcomplex(real, imag);
-  }
-
-  material->setEpsilon(epsilonList, n);
-  return 0;
-}
-
-int luaopen_MESH(lua_State* L){
-
-  return 1;
-}
-
-lua_State* new_MESH_lua_state(){
-  lua_State* L = luaL_newstate();
-
-}
 
 void usage(){
 	std::cout << "MESH [input-file]" << std::endl;
@@ -94,7 +42,7 @@ int main(int argc, char *argv[]){
     return 0;
   }
    lua_State *L;
-   L = new_MESH_lua_state();
+
    return 0;
 
 }
