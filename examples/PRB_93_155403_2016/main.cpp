@@ -25,13 +25,16 @@ int main(){
   s->setProbeLayer("VacGap");
 
   // set output
-  s->setOutputFile("gold_to_vac.txt");
+  
   s->setKxIntegralSym(500);
   s->setKyIntegralSym(200, 5);
   //s->useInverseRule();
   s->getSysInfo();
+  s->printIntermediate();
+  s->setThread(4);
   s->build();
   s->run();
+  s->saveToFile("gold_to_vac.txt");
   // std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
   return 0;
 }

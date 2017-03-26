@@ -22,10 +22,9 @@ int main(){
   // set simulation
   s->setKParallelIntegral(100);
   s->useQuadgk();
-  s->setOutputFile("output.txt");
+  s->setThread(4);
   s->build();
-
   s->runNaive();
-
+  s->saveToFile("output.txt");
   return 0;
 }

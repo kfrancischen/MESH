@@ -222,7 +222,6 @@ namespace MESH{
   Simulation::Simulation() : nGx_(0), nGy_(0), numOfOmega_(0), structure_(nullptr),
   Phi_(nullptr), omegaList_(nullptr), kxStart_(0), kxEnd_(0), kyStart_(0), kyEnd_(0), numOfKx_(0), numOfKy_(0)
   {
-    output_ = "output.txt";
     targetLayer_ = -1;
     dim_ = NO_;
     structure_ = Structure::instanceNew();
@@ -234,17 +233,13 @@ namespace MESH{
   Simulation::~Simulation(){
     delete[] Phi_;
     Phi_ = nullptr;
-    MPI_Finalized(&MPI_Finalized_);
-    if (!MPI_Finalized_){
-      MPI_Finalize();
-    }
   }
 
   /*==============================================*/
   // This function saves data to disk
   /*==============================================*/
-  void Simulation::saveToFile(){
-    std::ofstream outputFile(output_);
+  void Simulation::saveToFile(const std::string fileName){
+    std::ofstream outputFile(fileName);
     for(int i = 0; i < numOfOmega_; i++){
       outputFile << omegaList_[i] << "\t" << Phi_[i] << std::endl;
     }
@@ -252,12 +247,23 @@ namespace MESH{
   }
 
   /*==============================================*/
-  // This function set the output file name
-  // @args:
-  // name: the output file name
+  // This function return the Phi value
   /*==============================================*/
-  void Simulation::setOutputFile(std::string name){
-    output_ = name;
+  double* Simulation::getPhi(){
+    return Phi_;
+  }
+
+  /*==============================================*/
+  // This function return the omega values
+  /*==============================================*/
+  double* Simulation::getOmega(){
+    return omegaList_;
+  }
+  /*==============================================*/
+  // This function return the number of omega
+  /*==============================================*/
+  int Simulation::getNumOfOmega(){
+    return numOfOmega_;
   }
   /*==============================================*/
   // This function set the periodicity
@@ -839,6 +845,17 @@ namespace MESH{
   void Simulation::printIntermediate(){
     options_.PrintIntermediate = true;
   }
+
+  /*==============================================*/
+  // function print intermediate results
+  /*==============================================*/
+  void Simulation::setThread(const int thread){
+    if(thread <= 0){
+      throw UTILITY::RangeException("Number of thread should >= 1!");
+    }
+    numOfThread_ = std::min(thread, omp_get_max_threads());
+  }
+
   /*==============================================*/
   // This function computes the flux
   /*==============================================*/
@@ -879,43 +896,12 @@ namespace MESH{
     }
 
     int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
+
     // use dynamic allocation for stack memory problem
     double* resultArray = new double[totalNum];
-    MPI_Status status;
-    int rank, numProcs, start, end, startPosition, endPosition;
-    MPI_Initialized(&MPI_Initialized_);
-    if (!MPI_Initialized_){
-      MPI_Init(NULL, NULL);
-    }
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
-    int offset = 0;
-    int chunkSize = totalNum / numProcs;
-    int numLeft = totalNum - numProcs * chunkSize;
 
-    /*************************************
-    // for master node
-    *************************************/
-
-    if(rank == MASTER){
-      for(int thread = 1; thread < numProcs; thread++){
-        if(numLeft > 0){
-          start = thread * chunkSize + offset;
-          end = (thread + 1) * chunkSize + offset + 1;
-          offset++;
-          numLeft--;
-        }
-        else{
-          start = thread * chunkSize + offset;
-          end = (thread + 1) * chunkSize + offset;
-        }
-        if(thread == numProcs - 1) end = totalNum;
-        MPI_Send(&start, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
-        MPI_Send(&end, 1, MPI_INT, thread, SENDTAG, MPI_COMM_WORLD);
-        MPI_Send(&resultArray[start], end - start, MPI_DOUBLE, thread, SENDTAG, MPI_COMM_WORLD);
-      }
-
-      for(int i = 0; i < chunkSize; i++){
+    #pragma omp parallel for num_threads(numOfThread_)
+    for(int i = 0; i < totalNum; i++){
         int omegaIdx = i / (numOfKx_ * numOfKy_);
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
@@ -924,51 +910,17 @@ namespace MESH{
         if(options_.PrintIntermediate){
           std::cout << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
         }
-      }
-
-      // wait for all the slave process finished
-      for(int thread = 1; thread < numProcs; thread++){
-        MPI_Recv(&start, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
-        MPI_Recv(&end, 1, MPI_INT, thread, RECVTAG, MPI_COMM_WORLD, &status);
-        MPI_Recv(&resultArray[start], end - start, MPI_DOUBLE, thread, RECVTAG, MPI_COMM_WORLD, &status);
-      }
-      for(int i = 0; i < numOfOmega_; i++){
+    }
+    for(int i = 0; i < numOfOmega_; i++){
         Phi_[i] = 0;
         for(int j = 0; j < numOfKx_ * numOfKy_; j++){
           Phi_[i] += resultArray[i * numOfKx_ * numOfKy_ + j];
         }
         Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i];
-      }
-      this->saveToFile();
-    }
-    /*************************************
-    // for slave nodes
-    *************************************/
-
-    else{
-      MPI_Recv(&startPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
-      MPI_Recv(&endPosition, 1, MPI_INT, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
-      MPI_Recv(&resultArray[startPosition], endPosition - startPosition, MPI_DOUBLE, MASTER, SENDTAG, MPI_COMM_WORLD, &status);
-
-      for(int i = startPosition; i < endPosition; i++){
-        int omegaIdx = i / (numOfKx_ * numOfKy_);
-        int residue = i % (numOfKx_ * numOfKy_);
-        int kxIdx = residue / numOfKy_;
-        int kyIdx = residue % numOfKy_;
-        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
-        if(options_.PrintIntermediate){
-          std::cout << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
-        }
-      }
-
-      MPI_Send(&startPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
-      MPI_Send(&endPosition, 1, MPI_INT, MASTER, RECVTAG, MPI_COMM_WORLD);
-      MPI_Send(&resultArray[startPosition], endPosition - startPosition, MPI_DOUBLE, MASTER, RECVTAG, MPI_COMM_WORLD);
     }
 
     delete[] resultArray;
     resultArray = nullptr;
-    // MPI_Finalize();
   }
   /*==============================================*/
   // Implementaion of the class on planar simulation
@@ -1087,82 +1039,36 @@ namespace MESH{
   // make sure you understand your problem whether can be solved by this function
   /*==============================================*/
   void SimulationPlanar::runNaive(){
-    int rank, numProcs, start, end;
-    int offset = 0;
-    MPI_Initialized(&MPI_Initialized_);
-    if (!MPI_Initialized_){
-      MPI_Init(NULL, NULL);
-    }
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);
-    int displs[numProcs], sendCounts[numProcs];
-    int chunkSize = numOfOmega_ / numProcs;
-    int numLeft = numOfOmega_ - numProcs * chunkSize;
-    double* recvBuf = new double[chunkSize + 1];
-    MPI_Datatype dtype;
-    // allocating sizes for each processor
-    displs[0] = 0;
-    sendCounts[0] = chunkSize;
-    for(int thread = 1; thread < numProcs; thread++){
-      if(numLeft > 0){
-        start = thread * chunkSize + offset;
-        end = (thread + 1) * chunkSize + offset + 1;
-        offset++;
-        numLeft--;
-      }
-      else{
-        start = thread * chunkSize + offset;
-        end = (thread + 1) * chunkSize + offset;
-      }
-      if(thread == numProcs - 1) end = numOfOmega_;
-      displs[thread] = start;
-      sendCounts[thread] = end - start;
-    }
-    MPI_Type_contiguous(sendCounts[rank], MPI_DOUBLE, &dtype);
-    MPI_Type_commit(&dtype);
-    // scattering the Phi to each processor
-    MPI_Scatterv(&Phi_[0], sendCounts, displs, MPI_DOUBLE, &recvBuf[0], 1, dtype, MASTER, MPI_COMM_WORLD);
-    ArgWrapper wrapper;
-    wrapper.thicknessList = thicknessListVec_;
-    wrapper.Gx_mat = Gx_mat_;
-    wrapper.Gy_mat = Gy_mat_;
-    wrapper.sourceList = sourceList_;
-    wrapper.targetLayer = targetLayer_;
 
-    for(int i = 0; i < sendCounts[rank]; i++){
-      int omegaIdx = i + displs[rank];
-      wrapper.omega = omegaList_[omegaIdx] / datum::c_0;
-      wrapper.EMatrices = EMatricesVec_[omegaIdx];
+    #pragma omp parallel for num_threads(numOfThread_)
+    for(int i = 0; i < numOfOmega_; i++){
+      ArgWrapper wrapper;
+      wrapper.thicknessList = thicknessListVec_;
+      wrapper.Gx_mat = Gx_mat_;
+      wrapper.Gy_mat = Gy_mat_;
+      wrapper.sourceList = sourceList_;
+      wrapper.targetLayer = targetLayer_;
+      wrapper.omega = omegaList_[i] / datum::c_0;
+      wrapper.EMatrices = EMatricesVec_[i];
 
-      wrapper.grandImaginaryMatrices = grandImaginaryMatrixVec_[omegaIdx];
-      wrapper.eps_zz_Inv = eps_zz_Inv_MatrixVec_[omegaIdx];
+      wrapper.grandImaginaryMatrices = grandImaginaryMatrixVec_[i];
+      wrapper.eps_zz_Inv = eps_zz_Inv_MatrixVec_[i];
       switch (options_.IntegralMethod) {
         case GAUSSLEGENDRE_:{
-          recvBuf[i] = gauss_legendre(degree_, wrapperFunQuadgl, &wrapper, kxStart_, kxEnd_);
+          Phi_[i] = gauss_legendre(degree_, wrapperFunQuadgl, &wrapper, kxStart_, kxEnd_);
           break;
         }
         case GAUSSKRONROD_:{
           double err;
-          adapt_integrate(1, wrapperFunQuadgk, &wrapper, 1, &kxStart_, &kxEnd_, 0, ABSERROR, RELERROR, &recvBuf[i], &err);
+          adapt_integrate(1, wrapperFunQuadgk, &wrapper, 1, &kxStart_, &kxEnd_, 0, ABSERROR, RELERROR, &Phi_[i], &err);
           break;
         }
         default:{
           break;
         }
       }
-      recvBuf[i] *= POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi);
+      Phi_[i] *= POW3(omegaList_[i] / datum::c_0) / POW2(datum::pi);
     }
-
-    // gatther the Phi from each processor
-    MPI_Gatherv(&recvBuf[0], 1, dtype, &Phi_[0], sendCounts, displs, MPI_DOUBLE, MASTER, MPI_COMM_WORLD);
-    MPI_Barrier(MPI_COMM_WORLD);
-    if(rank == MASTER){
-        this->saveToFile();
-    }
-    delete[] recvBuf;
-    recvBuf = nullptr;
-
-    // MPI_Finalize();
   }
   /*==============================================*/
   // Implementaion of the class on 1D grating simulation

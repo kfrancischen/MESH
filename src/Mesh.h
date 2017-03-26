@@ -28,7 +28,7 @@
 #include "Common.h"
 #include "config.h"
 #include <fstream>
-#include "mpi.h"
+#include <omp.h>
 
 namespace MESH{
 using namespace SYSTEM;
@@ -132,7 +132,10 @@ public:
 
   void setGx(const int nGx);
   void setGy(const int nGy);
-  void setOutputFile(const std::string name);
+  void saveToFile(const std::string fileName);
+  double* getPhi();
+  double* getOmega();
+  int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
   void build();
@@ -142,6 +145,7 @@ public:
   void useInverseRule();
   void useNaiveRule();
   void printIntermediate();
+  void setThread(const int numThread);
   void run();
 
 protected:
@@ -151,7 +155,6 @@ protected:
   void resetSimulation();
   void setTargetLayerByLayer(const Ptr<Layer>& layer);
   Ptr<Structure> getStructure();
-  void saveToFile();
 
   double period_[2];
   double kxStart_;
@@ -175,7 +178,6 @@ protected:
 
   double* Phi_;
   double* omegaList_;
-  std::string output_;
   int targetLayer_;
 
   RCWAMatrix Gx_mat_;
@@ -191,6 +193,7 @@ protected:
   Options options_;
 
   int MPI_Initialized_, MPI_Finalized_;
+  int numOfThread_ = 1;
 };
 
 

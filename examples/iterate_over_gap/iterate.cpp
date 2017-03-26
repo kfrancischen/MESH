@@ -20,12 +20,13 @@ int main(){
   // set simulation
   s->setKParallelIntegral(500);
   s->useQuadgk();
+  s->setThread(4);
   // this function will interate the gap from 10-100 nm
   for(int i = 10; i < 100; i += 10){
     s->setLayerThickness("VacGap", i * 1e-9);
-    s->setOutputFile("test" + std::to_string(i) + ".txt");
     s->build();
     s->runNaive();
+    s->saveToFile("test" + std::to_string(i) + ".txt");
   }
   return 0;
 }

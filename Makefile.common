@@ -1,5 +1,5 @@
-CC = mpicc
-CXX = mpic++
+CC = gcc
+CXX = g++
 CPPFLAGS += -Isrc/
 ARMAFLAG = -Isrc/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG
 

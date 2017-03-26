@@ -18,8 +18,9 @@ int main(){
 
   s->setKParallelIntegral(1.0);
   s->useQuadgk();
-  s->setOutputFile("test_output.txt");
+  s->setThread(4);
   s->build();
   s->runNaive();
+  s->saveToFile("test_output.txt");
   return 0;
 }
