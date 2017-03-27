@@ -850,7 +850,8 @@ namespace MESH{
     else if(dim_ == TWO_){
       std::cout << "Periodicity in x, y directions are " << period_[0] << ", " << period_[1] << std::endl;
     }
-    std::cout << std::endl << "Printing from bottom to up." << std::endl;
+    std::cout << "==================================================" << std::endl;
+    std::cout << "Printing from bottom to up." << std::endl;
     std::cout << "==================================================" << std::endl;
     for(const_LayerIter it = structure_->getLayersBegin(); it != structure_->getLayersEnd(); it++){
       Ptr<Layer> layer = it->second;

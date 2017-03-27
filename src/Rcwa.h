@@ -88,7 +88,7 @@ namespace RCWA{
   x: the input argument
  ==============================================================*/
  double jinc(const double x);
-  /*============================================================
+ /*============================================================
   * Function computing G matrix for the system
   @arg:
    startLayer: the starting layer for the propogation

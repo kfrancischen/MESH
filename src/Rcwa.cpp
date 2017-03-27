@@ -148,7 +148,7 @@ RCWA::RCWAMatrix RCWA::sinc(const RCWAMatrix x){
 @arg:
  x: the input argument
 ==============================================================*/
-double jinc(const double x){
+double RCWA::jinc(const double x){
   if(x == 0.0) return 1;
   double j1 = 0;
   double j0, y0, y1, j0p, j1p, y0p, y1p;
