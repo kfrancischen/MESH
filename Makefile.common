@@ -1,5 +1,13 @@
-CC = gcc
-CXX = g++
+### The following must be defined already:
+#   CC
+#   CXX
+#   LUA_INC
+#   LUA_LIB
+#   LA_LIBS
+#   OBJDIR
+#   SHLIB_EXT (so, dll)
+#   SHLIB_FLAGS
+
 CPPFLAGS += -Isrc/
 ARMAFLAG = -Isrc/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG
 

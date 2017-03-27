@@ -9,3 +9,8 @@ LA_LIBS = -lopenblas -llapack
 
 LUA_INC = -I/usr/local/include
 LUA_LIB = -llua -ldl
+
+
+#### change to proper compilers
+CC = gcc
+CXX = g++
