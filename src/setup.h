@@ -27,4 +27,19 @@
 
 using namespace MESH;
 
+typedef struct CONSTANT{
+  double pi = datum::pi;
+  double k_B = datum::k;
+  double eps_0 = datum::eps_0;
+  double m_e = datum::m_e;
+  double eV = datum::eV;
+  double mu_0 = datum::mu_0;
+  double h = datum::h;
+  double h_bar = datum::h_bar;
+  double c_0 = datum::c_0;
+  double q = datum::ec;
+  double sigma = datum::sigma;
+} Constant;
+
+const Constant constant;
 #endif

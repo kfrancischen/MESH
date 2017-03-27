@@ -17,7 +17,7 @@ int main(){
   s->setProbeLayer("VacuumLayer");
 
   s->setKParallelIntegral(1.0);
-  s->useQuadgk();
+  s->optUseQuadgk();
   s->setThread(4);
   s->build();
   s->runNaive();

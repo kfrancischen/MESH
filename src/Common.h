@@ -61,4 +61,5 @@ struct EPSILON
 };
 
 typedef std::vector<bool> SourceList;
+
 #endif

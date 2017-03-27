@@ -19,7 +19,7 @@ int main(){
   s->setProbeLayer("VacGap");
   // set simulation
   s->setKParallelIntegral(500);
-  s->useQuadgk();
+  s->optUseQuadgk();
   s->setThread(4);
   // this function will interate the gap from 10-100 nm
   for(int i = 10; i < 100; i += 10){

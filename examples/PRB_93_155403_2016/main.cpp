@@ -13,7 +13,7 @@ int main(){
   s->addLayer("GoldSubstrateBottom", 0.5e-6, "Au");
   s->addLayer("GoldGratingBottom", 5e-6,"Au");
   s->setLayerPatternGrating("GoldGratingBottom", "Vacuum", 0.5e-6, 0.2e-6);
-  
+
   s->addLayer("VacGap", 1e-6, "Vacuum");
   s->addLayerCopy("GoldGratingTop", "GoldGratingBottom");
   s->addLayerCopy("GoldSubstrateTop", "GoldSubstrateBottom");
@@ -25,12 +25,12 @@ int main(){
   s->setProbeLayer("VacGap");
 
   // set output
-  
+
   s->setKxIntegralSym(500);
   s->setKyIntegralSym(200, 5);
   //s->useInverseRule();
   s->getSysInfo();
-  s->printIntermediate();
+  s->optPrintIntermediate();
   s->setThread(4);
   s->build();
   s->run();

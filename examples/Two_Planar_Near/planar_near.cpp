@@ -20,14 +20,13 @@ int main(){
 
   // set simulation
   s->setKParallelIntegral(10);
-  s->useQuadgk();
+  s->optUseQuadgk();
   s->build();
   s->setThread(4);
   s->runNaive();
   s->saveToFile("test.txt");
-  double* Phi = s->getPhi();
   for(int i = 0; i < s->getNumOfOmega(); i++){
-    std::cout << Phi[i] << std::endl;
+    std::cout << s->getPhiAtIndex(i) << std::endl;
   }
   return 0;
 }

@@ -132,8 +132,8 @@ public:
   void setGx(const int nGx);
   void setGy(const int nGy);
   void saveToFile(const std::string fileName);
-  double* getPhi();
-  double* getOmega();
+  double getPhiAtIndex(const int index);
+  double getOmegaAtIndex(const int index);
   int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
@@ -141,9 +141,9 @@ public:
 
   void getSysInfo();
 
-  void useInverseRule();
-  void useNaiveRule();
-  void printIntermediate();
+  void optUseInverseRule();
+  void optUseNaiveRule();
+  void optPrintIntermediate();
   void setThread(const int numThread);
   void run();
 
@@ -155,19 +155,22 @@ protected:
   void setTargetLayerByLayer(const Ptr<Layer>& layer);
   Ptr<Structure> getStructure();
 
-  double period_[2];
-  double kxStart_;
-  double kxEnd_;
-  int numOfKx_;
 
-  double kyStart_;
-  double kyEnd_;
-  int numOfKy_;
-  int prefactor_;
   int nGx_;
   int nGy_;
   int numOfOmega_;
+  double* Phi_;
+  double* omegaList_;
+  double kxStart_;
+  double kxEnd_;
+  double kyStart_;
+  double kyEnd_;
 
+  int numOfKx_;
+  int numOfKy_;
+
+  double period_[2];
+  int prefactor_;
 
   LayerInstanceMap layerInstanceMap_;
   MaterialInstanceMap materialInstanceMap_;
@@ -175,8 +178,7 @@ protected:
   Ptr<FileLoader> fileLoader_;
 
 
-  double* Phi_;
-  double* omegaList_;
+
   int targetLayer_;
 
   RCWAMatrix Gx_mat_;
@@ -216,8 +218,8 @@ public:
   void setKyIntegral(const int points, const double end);
   void setKyIntegralSym(const int points, const double end);
 
-  void useQuadgl(int degree = DEGREE);
-  void useQuadgk();
+  void optUseQuadgl(int degree = DEGREE);
+  void optUseQuadgk();
 
   void runNaive();
   double getPhiAtKParallel(const int omegaIndex, const double KParallel);
@@ -246,7 +248,7 @@ public:
   void setKyIntegral(const int points, const double end);
   void setKyIntegralSym(const int points, const double end);
 
-  void useAdaptive();
+  void optUseAdaptive();
 protected:
 
 private:

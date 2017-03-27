@@ -24,12 +24,19 @@
 //
 #ifndef PTR_H
 #define PTR_H
+#include "Exception.h"
 
+static void checkNull(void* const ptr) {
+    if (ptr == null) {
+        throw NullPointerException("Null pointer");
+    }
+}
 
-static void checkNull(void* const ptr);
-
-static void checkNull(const void* const ptr);
-
+static void checkNull(const void* const ptr) {
+    if (ptr == null) {
+        throw NullPointerException("Null pointer");
+    }
+}
 
 template <class T>
 class Ptr {

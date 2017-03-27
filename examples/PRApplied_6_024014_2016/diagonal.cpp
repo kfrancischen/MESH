@@ -7,7 +7,7 @@ int main(){
   s->addMaterial("MCT", "MCT.txt");
   s->addMaterial("Vacuum", "Vacuum.txt");
   s->addMaterial("PEC", "PEC.txt");
- 
+
   // add layer from bottom to the top
   s->addLayer("PECBottom", 0, "PEC");
   s->addLayer("hBNLayer", 5e-6, "hBN");
@@ -21,7 +21,7 @@ int main(){
 
   // set simulation
   s->setKParallelIntegral(100);
-  s->useQuadgk();
+  s->optUseQuadgk();
   s->setThread(4);
   s->build();
   s->runNaive();

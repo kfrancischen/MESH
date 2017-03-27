@@ -37,7 +37,7 @@ namespace MESH{
   /*==============================================*/
   EPSTYPE checkType(std::string line){
     int numOfSpace = 0;
-    for(int i = 0; i < line.length(); i++){
+    for(size_t i = 0; i < line.length(); i++){
       if(isspace(line.at(i))) numOfSpace++;
     }
     switch (numOfSpace) {
@@ -157,8 +157,8 @@ namespace MESH{
   // kx: the kx value (normalized)
   // wrapper: wrapper for all the arguments wrapped in wrapper
   /*==============================================*/
-  static void wrapperFunQuadgk(unsigned ndim, 
-    const double *kx, 
+  static void wrapperFunQuadgk(unsigned ndim,
+    const double *kx,
     void* data,
     unsigned fdim,
     double *fval
@@ -205,8 +205,8 @@ namespace MESH{
   /*======================================================*/
   // Implementaion of the parent simulation super class
   /*=======================================================*/
-  Simulation::Simulation() : nGx_(0), nGy_(0), numOfOmega_(0), structure_(nullptr),
-  Phi_(nullptr), omegaList_(nullptr), kxStart_(0), kxEnd_(0), kyStart_(0), kyEnd_(0), numOfKx_(0), numOfKy_(0)
+  Simulation::Simulation() : nGx_(0), nGy_(0), numOfOmega_(0), Phi_(nullptr), omegaList_(nullptr),
+   kxStart_(0), kxEnd_(0), kyStart_(0), kyEnd_(0), numOfKx_(0), numOfKy_(0)
   {
     targetLayer_ = -1;
     dim_ = NO_;
@@ -235,15 +235,21 @@ namespace MESH{
   /*==============================================*/
   // This function return the Phi value
   /*==============================================*/
-  double* Simulation::getPhi(){
-    return Phi_;
+  double Simulation::getPhiAtIndex(const int index){
+    if(index < 0 || index > numOfOmega_){
+      throw UTILITY::RangeException(std::to_string(index) + " out of range!");
+    }
+    return Phi_[index];
   }
 
   /*==============================================*/
-  // This function return the omega values
+  // This function return the omega value
   /*==============================================*/
-  double* Simulation::getOmega(){
-    return omegaList_;
+  double Simulation::getOmegaAtIndex(const int index){
+    if(index < 0 || index > numOfOmega_){
+      throw UTILITY::RangeException(std::to_string(index) + " out of range!");
+    }
+    return omegaList_[index];
   }
   /*==============================================*/
   // This function return the number of omega
@@ -275,7 +281,7 @@ namespace MESH{
 
     fileLoader_->load(infile);
     Ptr<Material> material = Material::instanceNew(name,
-     fileLoader_->getOmegaList(), 
+     fileLoader_->getOmegaList(),
      fileLoader_->getEpsilonList(),
      fileLoader_->getNumOfOmega()
     );
@@ -407,7 +413,7 @@ namespace MESH{
     if(layerInstanceMap_.find(name) != layerInstanceMap_.cend()){
       throw UTILITY::NameInUseException(name + ": cannot add a layer that already exist!");
       return;
-    }   
+    }
     Ptr<Layer> originalLayer = layerInstanceMap_.find(originalName)->second;
     Ptr<Layer> newLayer = originalLayer->layerCopy(name);
     layerInstanceMap_.insert(LayerInstanceMap::value_type(name, newLayer));
@@ -461,7 +467,7 @@ namespace MESH{
   // centery: the center of the rectangle in y direction
   // widthx: the width of the rectangle in x direction
   // widthy: the width of the rectangle in y direction
-  /*==============================================*/  
+  /*==============================================*/
   void Simulation::setLayerPatternRectangle(
     const std::string layerName,
     const std::string materialName,
@@ -492,7 +498,7 @@ namespace MESH{
   // centerx: the center of the circle in x direction
   // centery: the center of the circle in y direction
   // radius: the radius of the circle
-  /*==============================================*/ 
+  /*==============================================*/
   void Simulation::setLayerPatternCircle(
     const std::string layerName,
     const std::string materialName,
@@ -591,7 +597,7 @@ namespace MESH{
   Ptr<Structure> Simulation::getStructure(){
     return structure_;
   }
-  
+
   /*==============================================*/
   // This function gets the Phi at given kx and ky
   // @args:
@@ -663,7 +669,7 @@ namespace MESH{
       for(int j = 0; j < numOfOmega_; j++){
         RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
         RCWAMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
-        
+
         EpsilonVal epsBG = backGround->getEpsilonAtIndex(j);
         EpsilonVal epsBGTensor = FMM::toTensor(epsBG, backGround->getType());
 
@@ -838,7 +844,13 @@ namespace MESH{
   void Simulation::getSysInfo(){
     std::cout << "==================================================" << std::endl;
     std::cout << "The system has in total " << structure_->getNumOfLayer() << " layers." << std::endl;
-    std::cout << "Printing from bottom to up." << std::endl;
+    if(dim_ == ONE_){
+      std::cout << "Periodicity in x direction is " << period_[0] << std::endl;
+    }
+    else if(dim_ == TWO_){
+      std::cout << "Periodicity in x, y directions are " << period_[0] << ", " << period_[1] << std::endl;
+    }
+    std::cout << std::endl << "Printing from bottom to up." << std::endl;
     std::cout << "==================================================" << std::endl;
     for(const_LayerIter it = structure_->getLayersBegin(); it != structure_->getLayersEnd(); it++){
       Ptr<Layer> layer = it->second;
@@ -854,8 +866,8 @@ namespace MESH{
         std::cout << "It has other components:" << std::endl << std::endl;
         int count = 0;
         const_MaterialIter m_it = layer->getMaterialsBegin();
-        for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){ 
-          std::cout << "Material for pattern " << count + 1 << ": " << (*(m_it + count))->getName() << std::endl; 
+        for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){
+          std::cout << "Material for pattern " << count + 1 << ": " << (*(m_it + count))->getName() << std::endl;
           std::cout << "Pattern " << count + 1 << " is: ";
           switch((*it).type_){
             case GRATING_:{
@@ -886,19 +898,19 @@ namespace MESH{
   /*==============================================*/
   // function using naive implementaion
   /*==============================================*/
-  void Simulation::useNaiveRule(){
+  void Simulation::optUseNaiveRule(){
     options_.FMMRule = NAIVEFMM_;
   }
   /*==============================================*/
   // function using inverse rule
   /*==============================================*/
-  void Simulation::useInverseRule(){
+  void Simulation::optUseInverseRule(){
     options_.FMMRule = INVERSERULE_;
   }
   /*==============================================*/
   // function print intermediate results
   /*==============================================*/
-  void Simulation::printIntermediate(){
+  void Simulation::optPrintIntermediate(){
     options_.PrintIntermediate = true;
   }
 
@@ -1053,14 +1065,14 @@ namespace MESH{
   // @args:
   // degree: the degree of gauss_legendre integral, default 1024
   /*==============================================*/
-  void SimulationPlanar::useQuadgl(const int degree){
+  void SimulationPlanar::optUseQuadgl(const int degree){
     degree_ = degree;
     options_.IntegralMethod = GAUSSLEGENDRE_;
   }
   /*==============================================*/
   // Function setting the integral to be the gauss_kronrod
   /*==============================================*/
-  void SimulationPlanar::useQuadgk(){
+  void SimulationPlanar::optUseQuadgk(){
     options_.IntegralMethod = GAUSSKRONROD_;
   }
 
@@ -1194,7 +1206,9 @@ namespace MESH{
   /*==============================================*/
   // function using adaptive resolution algorithm
   /*==============================================*/
-
+  void SimulationGrating::optUseAdaptive(){
+    options_.FMMRule = SPATIALADAPTIVE_;
+  }
   /*==============================================*/
   // Implementaion of the class on 2D patterning simulation
   /*==============================================*/
@@ -1242,7 +1256,6 @@ namespace MESH{
   // This function set the integral of ky
   // @args:
   // points: number of ky points
-  // end: the upperbound of the integral
   /*==============================================*/
   void SimulationPattern::setKyIntegral(const int points){
     if(period_[1] == 0.0){

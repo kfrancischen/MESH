@@ -411,7 +411,7 @@ inline int bessjyna(int n,double x,int &nm,double *jn,double *yn,
     double *jnp,double *ynp)
 {
     double bj0,bj1,f,f0,f1,f2,cs;
-    int i,k,m,ecode;
+    int i,k,m;
 
     nm = n;
     if ((x < 0.0) || (n < 0)) return 1;
@@ -426,7 +426,7 @@ inline int bessjyna(int n,double x,int &nm,double *jn,double *yn,
         jnp[1] = 0.5;
         return 0;
     }
-    ecode = bessjy01a(x,jn[0],jn[1],yn[0],yn[1],jnp[0],jnp[1],ynp[0],ynp[1]);
+    // ecode = bessjy01a(x,jn[0],jn[1],yn[0],yn[1],jnp[0],jnp[1],ynp[0],ynp[1]);
     if (n < 2) return 0;
     bj0 = jn[0];
     bj1 = jn[1];
@@ -478,7 +478,7 @@ inline int bessjyna(int n,double x,int &nm,double *jn,double *yn,
 inline int bessjynb(int n,double x,int &nm,double *jn,double *yn,
     double *jnp,double *ynp)
 {
-    double t1,t2,f,f0,f1,f2,bj0,bj1,bjk,by0,by1,cu,s0,su,sv;
+    double t1,t2,f,f1,f2,bj0,bj1,bjk,by0,by1,cu,s0,su,sv;
     double ec,bs,byk,p0,p1,q0,q1;
     static double a[] = {
         -0.7031250000000000e-1,
@@ -609,7 +609,7 @@ inline int bessjyv(double v,double x,double &vm,double *jv,double *yv,
 {
     double v0,vl,vg,vv,a,a0,r,x2,bjv0,bjv1,bjvl,f,f0,f1,f2;
     double r0,r1,ck,cs,cs0,cs1,sk,qx,px,byv0,byv1,rp,xk,rq;
-    double b,ec,w0,w1,bjy0,bjy1,bju0,bju1,pv0,pv1,byvk;
+    double b,ec,w0,w1,bju0,bju1,pv0,pv1,byvk;
     int j,k,l,m,n,kz;
 
     x2 = x*x;
@@ -962,7 +962,7 @@ inline int bessikna(int n,double x,int &nm,double *in,double *kn,
     double *inp,double *knp)
 {
     double bi0,bi1,bk0,bk1,g,g0,g1,f,f0,f1,h,h0,h1,s0;
-    int k,m,ecode;
+    int k,m;
 
     if ((x < 0.0) || (n < 0)) return 1;
     if (x < eps) {
@@ -977,7 +977,7 @@ inline int bessikna(int n,double x,int &nm,double *in,double *kn,
         return 0;
     }
     nm = n;
-    ecode = bessik01a(x,in[0],in[1],kn[0],kn[1],inp[0],inp[1],knp[0],knp[1]);
+    // ecode = bessik01a(x,in[0],in[1],kn[0],kn[1],inp[0],inp[1],knp[0],knp[1]);
     if (n < 2) return 0;
     bi0 = in[0];
     bi1 = in[1];
@@ -1113,7 +1113,7 @@ inline int bessikv(double v,double x,double &vm,double *iv,double *kv,
     double *ivp,double *kvp)
 {
     double x2,v0,piv,vt,a1,v0p,gap,r,bi0,ca,sum;
-    double f,f0,f1,f2,ct,cs,wa,gan,ww,w0,v0n;
+    double f,f1,f2,ct,cs,wa,gan,ww,w0,v0n;
     double r1,r2,bk0,bk1,bk2,a2,cb;
     int n,k,kz,m;
 
@@ -1430,7 +1430,7 @@ inline int cbessjyna(int n,complex<double> z,int &nm,complex<double> *cj,
     complex<double> cs,cg0,cg1,cyk,cyl1,cyl2,cylk,cp11,cp12,cp21,cp22;
     complex<double> ch0,ch1,ch2;
     double a0,yak,ya1,ya0,wa;
-    int m,k,kz,lb,lb0;
+    int m,k,lb,lb0;
 
     if (n < 0) return 1;
     a0 = abs(z);
@@ -1832,7 +1832,7 @@ inline int cbessikna(int n,complex<double> z,int &nm,complex<double> *ci,
 {
     complex<double> ci0,ci1,ck0,ck1,ckk,cf,cf1,cf2,cs;
     double a0;
-    int k,m,ecode;
+    int k,m;
     a0 = abs(z);
     nm = n;
     if (a0 < 1.0e-100) {
@@ -1846,7 +1846,7 @@ inline int cbessikna(int n,complex<double> z,int &nm,complex<double> *ci,
         cip[1] = complex<double>(0.5,0.0);
         return 0;
     }
-    ecode = cbessik01(z,ci[0],ci[1],ck[0],ck[1],cip[0],cip[1],ckp[0],ckp[1]);
+    // ecode = cbessik01(z,ci[0],ci[1],ck[0],ck[1],cip[0],cip[1],ckp[0],ckp[1]);
     if (n < 2) return 0;
     ci0 = ci[0];
     ci1 = ci[1];

@@ -176,7 +176,7 @@ namespace SYSTEM{
   // Plain layer constructor
   /*==============================================*/
   Layer::Layer(const string name) : NamedInterface(name),
-    backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0){}
+    thickness_(0), backGround_(nullptr), source_(ISNOTSOURCE_){}
 
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
