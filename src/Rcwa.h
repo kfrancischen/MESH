@@ -82,6 +82,12 @@ namespace RCWA{
   x: the input argument
  ==============================================================*/
  RCWAMatrix sinc(const RCWAMatrix x);
+ /*============================================================
+ * Function computing the jinc function (J1(x) / x)
+ @arg:
+  x: the input argument
+ ==============================================================*/
+ double jinc(const double x);
   /*============================================================
   * Function computing G matrix for the system
   @arg:

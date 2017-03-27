@@ -144,6 +144,18 @@ RCWA::RCWAMatrix RCWA::sinc(const RCWAMatrix x){
   return output;
 }
 /*============================================================
+* Function computing the jinc function (J1(x) / x)
+@arg:
+ x: the input argument
+==============================================================*/
+double jinc(const double x){
+  if(x == 0.0) return 1;
+  double j1 = 0;
+  double j0, y0, y1, j0p, j1p, y0p, y1p;
+  bessjy01a(x, j0, j1, y0, y1, j0p, j1p, y0p, y1p);
+  return j1 / x;
+}
+/*============================================================
 * Function computing G matrix for the system
 @arg:
  startLayer: the starting layer for the propogation
@@ -427,7 +439,7 @@ double RCWA::poyntingFlux(
       FMatrices[layerIdx] * S_matrices[numOfLayer-1](span(r3, r4), span(r1, r2));
 
     Q2 = -FMatrices[layerIdx] * S_matrices[0](span(r3, r4), span(r1, r2));
-    
+
     // calculating R
     R = MMatrices[targetLayer] * join_vert(FMatrices[targetLayer] * P1, P2) *
       Q1.i() * join_horiz(onePadding2N, Q2);

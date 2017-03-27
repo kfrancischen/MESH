@@ -28,6 +28,7 @@ namespace FMM{
   using RCWA::RCWAMatrix;
   using RCWA::RCWAVector;
   using RCWA::sinc;
+  using RCWA::jinc;
   using RCWA::meshGrid;
 
   /*==============================================*/

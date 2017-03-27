@@ -87,12 +87,11 @@
    // width: the width of the grating
    /*==============================================*/
    static RCWAMatrix transformGratingElement(
-     const dcomplex epsVal, 
+     const dcomplex epsVal,
      const dcomplex epsBG,
-     const RCWAMatrix& G_mat, 
-     const double center, 
-     const double width, 
-     const int N
+     const RCWAMatrix& G_mat,
+     const double center,
+     const double width
    ){
     return exp(IMAG_I * G_mat * center) * (epsVal - epsBG)
              * width % sinc(G_mat / 2 * width);
@@ -117,14 +116,51 @@
      const double centerx,
      const double centery,
      const double widthx,
-     const double widthy,
-     const int N
+     const double widthy
    ){
      return widthx * widthy * (epsVal - epsBG)
              * exp(IMAG_I * (GxMat * centerx + GyMat * centery))
              % sinc(GxMat * widthx / 2) % sinc(GyMat * widthy / 2);
    }
 
+   /*==============================================*/
+   // helper function to do fourier transform for one value
+   // @args:
+   // epsVal: the value need to be transformed
+   // epsBG: the background value need to be transformed
+   // G_mat: the G_mat for grating
+   // centerx: the center position in x direction
+   // centery: the center position in y direction
+   // radius: the radius of the circle
+   /*==============================================*/
+   static RCWAMatrix transformCircleElement(
+     const dcomplex epsVal,
+     const dcomplex epsBG,
+     const RCWAMatrix& GxMat,
+     const RCWAMatrix& GyMat,
+     const double centerx,
+     const double centery,
+     const double radius
+   ){
+     arma::mat rho = sqrt(square(real(GxMat)) + square(real(GyMat))) * 2 * datum::pi * radius;
+     arma::mat jincMat = zeros<arma::mat>( size(rho) );
+
+     mat::iterator jincMat_it = jincMat.begin();
+     int count = 0;
+     for(mat::const_iterator it = rho.begin(); it != rho.end(); it++){
+       if(*it == 0.0){
+         *(jincMat_it + count) = 1;
+       }
+       else{
+         *(jincMat_it + count) = jinc(*it);
+       }
+       count++;
+     }
+
+     return (epsVal - epsBG) * exp(IMAG_I * (GxMat * centerx + GyMat * centery))
+            * 2 * datum::pi * POW2(radius) % jincMat;
+
+   }
    /*==============================================*/
    // This function computes the Fourier transform for grating geometry
    // @args:
@@ -186,31 +222,31 @@
      dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
      EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
-   
+
      eps_xx += transformGratingElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]),
-         eps_BG_xx, G_mat, center, width, N) / period;
+         eps_BG_xx, G_mat, center, width) / period;
      im_eps_xx += transformGratingElement(dcomplex(epsTensor.tensor[1], 0),
-         im_eps_BG_xx, G_mat, center, width, N) / period;
+         im_eps_BG_xx, G_mat, center, width) / period;
 
      eps_yy += transformGratingElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]),
-         eps_BG_yy, G_mat, center, width, N) / period;
+         eps_BG_yy, G_mat, center, width) / period;
      im_eps_yy += transformGratingElement(dcomplex(epsTensor.tensor[7], 0),
-         im_eps_BG_yy, G_mat, center, width, N) / period;
+         im_eps_BG_yy, G_mat, center, width) / period;
 
      eps_zz_Inv += transformGratingElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]),
-         eps_BG_zz, G_mat, center, width, N) / period;
+         eps_BG_zz, G_mat, center, width) / period;
      im_eps_zz += transformGratingElement(dcomplex(epsTensor.tensor[9], 0),
-         im_eps_BG_zz, G_mat, center, width, N) / period;
+         im_eps_BG_zz, G_mat, center, width) / period;
 
      if(hasTensor){
          eps_xy += transformGratingElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]),
-           eps_BG_xy, G_mat, center, width, N) / period;
+           eps_BG_xy, G_mat, center, width) / period;
          eps_yx += transformGratingElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]),
-           eps_BG_yx, G_mat, center, width, N) / period;
+           eps_BG_yx, G_mat, center, width) / period;
          im_eps_xy += transformGratingElement(dcomplex(epsTensor.tensor[3], 0),
-           im_eps_BG_xy, G_mat, center, width, N) / period;
+           im_eps_BG_xy, G_mat, center, width) / period;
          im_eps_yx += transformGratingElement(dcomplex(epsTensor.tensor[5], 0),
-           im_eps_BG_yx, G_mat, center, width, N) / period;
+           im_eps_BG_yx, G_mat, center, width) / period;
      }
    }
 
@@ -259,7 +295,7 @@
 
      int N = RCWA::getN(nGx, nGy);
      double area = period[0] * period[1];
-  
+
      RCWAMatrix Gx_mat, Gy_mat;
      RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
      // dcomplex IMAG_I = dcomplex(0, 1.0);
@@ -271,7 +307,7 @@
      RCWAMatrix GyMat = Gy_l - Gy_r;
 
      RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
-     
+
      dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
      dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
      dcomplex eps_BG_yx = dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]);
@@ -286,34 +322,34 @@
      EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
 
      eps_xx += transformRectangleElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
-         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
      im_eps_xx += transformRectangleElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
-         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
 
      eps_yy += transformRectangleElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
-         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
      im_eps_yy += transformRectangleElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
-         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
 
      eps_zz_Inv += transformRectangleElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
-         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
      im_eps_zz += transformRectangleElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
-         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area; 
-        
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
+
 
      if(hasTensor){
         eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
-           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
         eps_yx += transformRectangleElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
-           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
 
         im_eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
-           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
         im_eps_yx += transformRectangleElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
-           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1]) / area;
      }
    }
-  
+
    /*==============================================*/
    // This function computes the Fourier transform for circle geometry
    // @args:
@@ -356,6 +392,60 @@
     const double period[2],
     const bool hasTensor
    ){
+     int N = RCWA::getN(nGx, nGy);
+     double area = period[0] * period[1];
 
+     RCWAMatrix Gx_mat, Gy_mat;
+     RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
+     // dcomplex IMAG_I = dcomplex(0, 1.0);
+     RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
+     meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
+     meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
+
+     RCWAMatrix GxMat = Gx_l - Gx_r;
+     RCWAMatrix GyMat = Gy_l - Gy_r;
+
+     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
+
+     dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
+     dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
+     dcomplex eps_BG_yx = dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]);
+     dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
+     dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
+     dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
+     dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+     dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
+     dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
+
+     EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
+
+     eps_xx += transformCircleElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
+         GxMat, GyMat, centers[0], centers[1], radius) / area;
+     im_eps_xx += transformCircleElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
+         GxMat, GyMat, centers[0], centers[1], radius) / area;
+
+     eps_yy += transformCircleElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
+         GxMat, GyMat, centers[0], centers[1], radius) / area;
+     im_eps_yy += transformCircleElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
+         GxMat, GyMat, centers[0], centers[1], radius) / area;
+
+     eps_zz_Inv += transformCircleElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
+         GxMat, GyMat, centers[0], centers[1], radius) / area;
+     im_eps_zz += transformCircleElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
+         GxMat, GyMat, centers[0], centers[1], radius) / area;
+
+
+     if(hasTensor){
+        eps_xy += transformCircleElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
+           GxMat, GyMat, centers[0], centers[1], radius) / area;
+        eps_yx += transformCircleElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
+           GxMat, GyMat, centers[0], centers[1], radius) / area;
+
+        im_eps_xy += transformCircleElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
+           GxMat, GyMat, centers[0], centers[1], radius) / area;
+        im_eps_yx += transformCircleElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
+           GxMat, GyMat, centers[0], centers[1], radius) / area;
+     }
     }
  }
