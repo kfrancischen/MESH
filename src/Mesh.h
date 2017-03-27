@@ -64,7 +64,6 @@ typedef struct ARGWEAPPER{
 class FileLoader : public PtrInterface{
 public:
   static Ptr<FileLoader> instanceNew();
-  static Ptr<FileLoader> instanceNew(const int numOfOmega);
   void load(const std::string fileName);
   double* getOmegaList();
   EPSILON getEpsilonList();
@@ -73,7 +72,7 @@ public:
 protected:
   ~FileLoader();
 private:
-  FileLoader(const int numOfOmega = 0);
+  FileLoader();
   double* omegaList_;
   EPSILON epsilonList_;
   int numOfOmega_;

@@ -69,9 +69,15 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  typedef std::vector< std::pair<double, double> > LayerPattern;
-  typedef LayerPattern::iterator PatternIter;
-  typedef LayerPattern::const_iterator const_PatternIter;
+  typedef std::pair<double, double> LayerPattern;
+  typedef struct PATTERNWRAPPER{
+    LayerPattern arg1_;
+    LayerPattern arg2_;
+    PATTERN type_;
+  } Pattern;
+  typedef std::vector< Pattern > PatternVec;
+  typedef PatternVec::iterator PatternIter;
+  typedef PatternVec::const_iterator const_PatternIter;
 
   class Layer : public NamedInterface{
   public:
@@ -102,16 +108,12 @@ namespace SYSTEM{
     int getNumOfMaterial();
     double getThickness();
     std::string getName();
-    PATTEN getPattern();
 
-    const_MaterialIter getVecBegin();
-    const_MaterialIter getVecEnd();
+    const_MaterialIter getMaterialsBegin();
+    const_MaterialIter getMaterialsEnd();
 
-    const_PatternIter getArg1Begin();
-    const_PatternIter getArg2Begin();
-
-    const_PatternIter getArg1End();
-    const_PatternIter getArg2End();
+    const_PatternIter getPatternsBegin();
+    const_PatternIter getPatternsEnd();
 
 
     void addRectanlgePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
@@ -127,9 +129,7 @@ namespace SYSTEM{
     double thickness_;
     Ptr<Material> backGround_;
     MaterialVec materialVec_;
-    PATTEN pattern_;
-    LayerPattern args1_;
-    LayerPattern args2_;
+    PatternVec patternVec_;
     SOURCE source_;
     bool hasTensor_ = false;
   };
@@ -157,8 +157,8 @@ namespace SYSTEM{
     int getNumOfLayer();
     void getThicknessList(double* thicknessList);
 
-    const_LayerIter getMapBegin();
-    const_LayerIter getMapEnd();
+    const_LayerIter getLayersBegin();
+    const_LayerIter getLayersEnd();
 
   private:
     Structure();

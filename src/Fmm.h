@@ -20,164 +20,149 @@
 #ifndef _FMM_H
 #define _FMM_H
 #include <armadillo>
+#include "Common.h"
 #include "Rcwa.h"
-#include "System.h"
 
 namespace FMM{
   using namespace arma;
-
   using RCWA::RCWAMatrix;
-  using RCWA::RCWAMatrices;
-  using RCWA::RCWAMatricesVec;
   using RCWA::RCWAVector;
   using RCWA::sinc;
   using RCWA::meshGrid;
 
-  using SYSTEM::Layer;
-  using SYSTEM::Material;
-  using SYSTEM::const_MaterialIter;
-  using SYSTEM::const_PatternIter;
-
-
-
   /*==============================================*/
-  // This function computes the Fourier transform for planar geometry
+  // helper function to change a random dielectric to a tensor
   // @args:
-  // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
-  // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
-  // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
-  // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
-  // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
-  // Layer: the layer considered
-  // N: the total number of G
+  // epsilon: field
+  // type: the type of the dielectric
   /*==============================================*/
-  void transformPlanar(
-    RCWAMatricesVec& eps_xx_MatrixVec,
-    RCWAMatricesVec& eps_xy_MatrixVec,
-    RCWAMatricesVec& eps_yx_MatrixVec,
-    RCWAMatricesVec& eps_yy_MatrixVec,
-    RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-    RCWAMatricesVec& im_eps_xx_MatrixVec,
-    RCWAMatricesVec& im_eps_xy_MatrixVec,
-    RCWAMatricesVec& im_eps_yx_MatrixVec,
-    RCWAMatricesVec& im_eps_yy_MatrixVec,
-    RCWAMatricesVec& im_eps_zz_MatrixVec,
-    const Ptr<Layer>& layer,
-    const int N
-  );
-
+  EpsilonVal toTensor(const EpsilonVal epsilon, const EPSTYPE type);
 
   /*==============================================*/
-  // This function computes the Fourier transform for Grating geometry
+  // This function computes the Fourier transform for grating geometry
   // @args:
-  // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
-  // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
-  // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
-  // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
-  // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
-  // Layer: the layer considered
+  // eps_xx: the Fourier trainsform for eps_xx
+  // eps_xy: the Fourier trainsform for eps_xy
+  // eps_zx: the Fourier trainsform for eps_yx
+  // eps_yy: the Fourier trainsform for eps_yy
+  // eps_zz_Inv: the inverse of Fourier transform of eps_zz
+  // im_eps_xx: the Fourier trainsform for imaginary part
+  // im_eps_xy: the Fourier trainsform for imaginary part
+  // im_eps_yx: the Fourier trainsform for imaginary part
+  // im_eps_yy: the Fourier trainsform for imaginary part
+  // im_eps_zz: the Fourier trainsform for imaginary part
+  // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
   // N: the total number of G
+  // center: the center of the grating
+  // width: the width of the grating
   // period: the periodicity
+  // whether this layer contains tensor
   /*==============================================*/
-  void transformGratingNaive(
-    RCWAMatricesVec& eps_xx_MatrixVec,
-    RCWAMatricesVec& eps_xy_MatrixVec,
-    RCWAMatricesVec& eps_yx_MatrixVec,
-    RCWAMatricesVec& eps_yy_MatrixVec,
-    RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-    RCWAMatricesVec& im_eps_xx_MatrixVec,
-    RCWAMatricesVec& im_eps_xy_MatrixVec,
-    RCWAMatricesVec& im_eps_yx_MatrixVec,
-    RCWAMatricesVec& im_eps_yy_MatrixVec,
-    RCWAMatricesVec& im_eps_zz_MatrixVec,
-    const Ptr<Layer>& layer,
+  void transformGrating(
+    RCWAMatrix& eps_xx,
+    RCWAMatrix& eps_xy,
+    RCWAMatrix& eps_yx,
+    RCWAMatrix& eps_yy,
+    RCWAMatrix& eps_zz_Inv,
+    RCWAMatrix& im_eps_xx,
+    RCWAMatrix& im_eps_xy,
+    RCWAMatrix& im_eps_yx,
+    RCWAMatrix& im_eps_yy,
+    RCWAMatrix& im_eps_zz,
+    const EpsilonVal& epsilonBGTensor,
+    const EpsilonVal& epsilon,
+    const EPSTYPE epsilonType,
     const int N,
+    const double center,
+    const double width,
     const double period,
-    bool useInverseRule = true
+    bool hasTensor
   );
 
-  void transformGratingDiagonalAdaptive();
-
   /*==============================================*/
-  // This function computes the Fourier transform for rectangle case
+  // This function computes the Fourier transform for rectangle geometry
   // @args:
-  // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
-  // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
-  // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
-  // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
-  // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
-  // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
-  // Layer: the layer considered
-  // nGx: the total number of G in x direction
-  // nGy: the total number of G in y direction
+  // eps_xx: the Fourier trainsform for eps_xx
+  // eps_xy: the Fourier trainsform for eps_xy
+  // eps_zx: the Fourier trainsform for eps_yx
+  // eps_yy: the Fourier trainsform for eps_yy
+  // eps_zz_Inv: the inverse of Fourier transform of eps_zz
+  // im_eps_xx: the Fourier trainsform for imaginary part
+  // im_eps_xy: the Fourier trainsform for imaginary part
+  // im_eps_yx: the Fourier trainsform for imaginary part
+  // im_eps_yy: the Fourier trainsform for imaginary part
+  // im_eps_zz: the Fourier trainsform for imaginary part
+  // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
+  // nG_x: the total number of G in x direction
+  // nG_y: the total number of G in y direction
+  // centers: the centers of the rectangle
+  // widths: the widths of the rectangle
   // period: the periodicity
-  // useInverseRule: whether use inverse rule
+  // whether this layer contains tensor
   /*==============================================*/
   void transformRectangle(
-    RCWAMatricesVec& eps_xx_MatrixVec,
-    RCWAMatricesVec& eps_xy_MatrixVec,
-    RCWAMatricesVec& eps_yx_MatrixVec,
-    RCWAMatricesVec& eps_yy_MatrixVec,
-    RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-    RCWAMatricesVec& im_eps_xx_MatrixVec,
-    RCWAMatricesVec& im_eps_xy_MatrixVec,
-    RCWAMatricesVec& im_eps_yx_MatrixVec,
-    RCWAMatricesVec& im_eps_yy_MatrixVec,
-    RCWAMatricesVec& im_eps_zz_MatrixVec,
-    const Ptr<Layer>& layer,
+    RCWAMatrix& eps_xx,
+    RCWAMatrix& eps_xy,
+    RCWAMatrix& eps_yx,
+    RCWAMatrix& eps_yy,
+    RCWAMatrix& eps_zz_Inv,
+    RCWAMatrix& im_eps_xx,
+    RCWAMatrix& im_eps_xy,
+    RCWAMatrix& im_eps_yx,
+    RCWAMatrix& im_eps_yy,
+    RCWAMatrix& im_eps_zz,
+    const EpsilonVal& epsBGTensor,
+    const EpsilonVal& epsilon,
+    const EPSTYPE epsilonType,
     const int nGx,
     const int nGy,
-    const double* period,
-    bool useInverseRule = true
+    const double centers[2],
+    const double widths[2],
+    const double period[2],
+    const bool hasTensor
   );
 
-   /*==============================================*/
-   // This function computes the Fourier transform for circular case
-   // @args:
-   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
-   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
-   // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
-   // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
-   // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
-   // Layer: the layer considered
-   // nGx: the total number of G in x direction
-   // nGy: the total number of G in y direction
-   // period: the periodicity
-   /*==============================================*/
+  /*==============================================*/
+  // This function computes the Fourier transform for circle geometry
+  // @args:
+  // eps_xx: the Fourier trainsform for eps_xx
+  // eps_xy: the Fourier trainsform for eps_xy
+  // eps_zx: the Fourier trainsform for eps_yx
+  // eps_yy: the Fourier trainsform for eps_yy
+  // eps_zz_Inv: the inverse of Fourier transform of eps_zz
+  // im_eps_xx: the Fourier trainsform for imaginary part
+  // im_eps_xy: the Fourier trainsform for imaginary part
+  // im_eps_yx: the Fourier trainsform for imaginary part
+  // im_eps_yy: the Fourier trainsform for imaginary part
+  // im_eps_zz: the Fourier trainsform for imaginary part
+  // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
+  // nG_x: the total number of G in x direction
+  // nG_y: the total number of G in y direction
+  // centers: the centers of the circle
+  // radius: the radius of the circle
+  // period: the periodicity
+  // whether this layer contains tensor
+  /*==============================================*/
   void transformCircle(
-    RCWAMatricesVec& eps_xx_MatrixVec,
-    RCWAMatricesVec& eps_xy_MatrixVec,
-    RCWAMatricesVec& eps_yx_MatrixVec,
-    RCWAMatricesVec& eps_yy_MatrixVec,
-    RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-    RCWAMatricesVec& im_eps_xx_MatrixVec,
-    RCWAMatricesVec& im_eps_xy_MatrixVec,
-    RCWAMatricesVec& im_eps_yx_MatrixVec,
-    RCWAMatricesVec& im_eps_yy_MatrixVec,
-    RCWAMatricesVec& im_eps_zz_MatrixVec,
-    const Ptr<Layer>& layer,
+    RCWAMatrix& eps_xx,
+    RCWAMatrix& eps_xy,
+    RCWAMatrix& eps_yx,
+    RCWAMatrix& eps_yy,
+    RCWAMatrix& eps_zz_Inv,
+    RCWAMatrix& im_eps_xx,
+    RCWAMatrix& im_eps_xy,
+    RCWAMatrix& im_eps_yx,
+    RCWAMatrix& im_eps_yy,
+    RCWAMatrix& im_eps_zz,
+    const EpsilonVal& epsBGTensor,
+    const EpsilonVal& epsilon,
+    const EPSTYPE epsilonType,
     const int nGx,
     const int nGy,
-    const double* period
+    const double centers[2],
+    const double radius,
+    const double period[2],
+    const bool hasTensor
   );
 
 

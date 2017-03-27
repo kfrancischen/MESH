@@ -23,16 +23,7 @@ namespace MESH{
   /*==============================================*/
   // Constructor of the FileLoader class
   /*==============================================*/
-  FileLoader::FileLoader(const int numOfOmega){
-    if(numOfOmega != 0){
-      preSet_ = true;
-      numOfOmega_ = numOfOmega;
-    }
-    else{
-      numOfOmega_ = 0;
-    }
-    omegaList_ = nullptr;
-    //epsilonList_ = nullptr;
+  FileLoader::FileLoader(){
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -40,12 +31,7 @@ namespace MESH{
   Ptr<FileLoader> FileLoader::instanceNew(){
     return new FileLoader();
   }
-  /*==============================================*/
-  // This is a thin wrapper for the usage of smart pointer
-  /*==============================================*/
-  Ptr<FileLoader> FileLoader::instanceNew(const int numOfOmega){
-    return new FileLoader(numOfOmega);
-  }
+
   /*==============================================*/
   // Function checking a line contains more than 3 spaces
   /*==============================================*/
@@ -634,16 +620,18 @@ namespace MESH{
     // reset simulation first
     this->resetSimulation();
     // check each layer whether a tensor exist
-    for(const_LayerIter it = structure_->getMapBegin(); it != structure_->getMapEnd(); it++){
+    for(const_LayerIter it = structure_->getLayersBegin(); it != structure_->getLayersEnd(); it++){
       Ptr<Layer> layer = it->second;
       layer->containTensor(false);
       if(layer->getBackGround()->getType() == TENSOR_){
         layer->containTensor(true);
+        options_.FMMRule = NAIVEFMM_;
         break;
       }
-      for(const_MaterialIter m_it = layer->getVecBegin(); m_it != layer->getVecEnd(); m_it++){
+      for(const_MaterialIter m_it = layer->getMaterialsBegin(); m_it != layer->getMaterialsEnd(); m_it++){
         if((*m_it)->getType() == TENSOR_){
           layer->containTensor(true);
+          options_.FMMRule = NAIVEFMM_;
           break;
         }
       }
@@ -656,6 +644,7 @@ namespace MESH{
     numOfOmega_ = backGround->getNumOfOmega();
     omegaList_ = backGround->getOmegaList();
 
+
     Phi_ = new double[numOfOmega_];
     EMatricesVec_.resize(numOfOmega_);
     grandImaginaryMatrixVec_.resize(numOfOmega_);
@@ -665,111 +654,151 @@ namespace MESH{
     RCWAMatricesVec im_eps_xx_MatrixVec(numOfOmega_), im_eps_xy_MatrixVec(numOfOmega_), im_eps_yx_MatrixVec(numOfOmega_), im_eps_yy_MatrixVec(numOfOmega_), im_eps_zz_MatrixVec(numOfOmega_);
     int numOfLayer = structure_->getNumOfLayer();
     int N = getN(nGx_, nGy_);
+    RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
 
     for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
-      switch (layer->getPattern()) {
-        /*************************************/
-        // if the pattern is a plane
-        /*************************************/
-        case PLANAR_:{
+      Ptr<Material> backGround = layer->getBackGround();
 
-          FMM::transformPlanar(
-            eps_xx_MatrixVec,
-            eps_xy_MatrixVec,
-            eps_yx_MatrixVec,
-            eps_yy_MatrixVec,
-            eps_zz_Inv_MatrixVec_,
-            im_eps_xx_MatrixVec,
-            im_eps_xy_MatrixVec,
-            im_eps_yx_MatrixVec,
-            im_eps_yy_MatrixVec,
-            im_eps_zz_MatrixVec,
-            layer,
-            N
-          );
+      for(int j = 0; j < numOfOmega_; j++){
+        RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
+        RCWAMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
+        
+        EpsilonVal epsBG = backGround->getEpsilonAtIndex(j);
+        EpsilonVal epsBGTensor = FMM::toTensor(epsBG, backGround->getType());
 
-          break;
-        }
-        /*************************************/
-        // if the pattern is a grating (1D)
-        /************************************/
-        case GRATING_:{
-          if(options_.FMMRule == SPATIALADAPTIVE_){
-            // to be filled
+        const_MaterialIter m_it = layer->getMaterialsBegin();
+        int count = 0;
+        for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){
+          Pattern pattern = *it;
+          Ptr<Material> material = *(m_it + count);
+          EpsilonVal epsilon = material->getEpsilonAtIndex(j);
+          count++;
+
+          switch(pattern.type_){
+            /*************************************/
+            // if the pattern is a grating (1D)
+            /************************************/
+            case GRATING_:{
+              double center = pattern.arg1_.first;
+              double width = pattern.arg1_.second;
+              FMM::transformGrating(
+                eps_xx,
+                eps_xy,
+                eps_yx,
+                eps_yy,
+                eps_zz_Inv,
+                im_eps_xx,
+                im_eps_xy,
+                im_eps_yx,
+                im_eps_yy,
+                im_eps_zz,
+                epsBGTensor,
+                epsilon,
+                material->getType(),
+                N,
+                center,
+                width,
+                period_[0],
+                layer->hasTensor()
+              );
+              break;
+            }
+
+            /*************************************/
+            // if the pattern is a rectangle (2D)
+            /************************************/
+            case RECTANGLE_:{
+              double centers[2] = {pattern.arg1_.first, pattern.arg1_.second};
+              double widths[2] = {pattern.arg2_.first, pattern.arg2_.second};
+              FMM::transformRectangle(
+                eps_xx,
+                eps_xy,
+                eps_yx,
+                eps_yy,
+                eps_zz_Inv,
+                im_eps_xx,
+                im_eps_xy,
+                im_eps_yx,
+                im_eps_yy,
+                im_eps_zz,
+                epsBGTensor,
+                epsilon,
+                material->getType(),
+                nGx_,
+                nGy_,
+                centers,
+                widths,
+                period_,
+                layer->hasTensor()
+              );
+              break;
+            }
+            /*************************************/
+            // if the pattern is a circle (2D)
+            /************************************/
+            case CIRCLE_:{
+              double centers[2] = {pattern.arg1_.first, pattern.arg2_.first};
+              double radius = pattern.arg1_.second;
+              FMM::transformCircle(
+                eps_xx,
+                eps_xy,
+                eps_yx,
+                eps_yy,
+                eps_zz_Inv,
+                im_eps_xx,
+                im_eps_xy,
+                im_eps_yx,
+                im_eps_yy,
+                im_eps_zz,
+                epsBGTensor,
+                epsilon,
+                material->getType(),
+                nGx_,
+                nGy_,
+                centers,
+                radius,
+                period_,
+                layer->hasTensor()
+              );
+              break;
+            }
+            default: break;
           }
-
-          else{
-            FMM::transformGratingNaive(
-              eps_xx_MatrixVec,
-              eps_xy_MatrixVec,
-              eps_yx_MatrixVec,
-              eps_yy_MatrixVec,
-              eps_zz_Inv_MatrixVec_,
-              im_eps_xx_MatrixVec,
-              im_eps_xy_MatrixVec,
-              im_eps_yx_MatrixVec,
-              im_eps_yy_MatrixVec,
-              im_eps_zz_MatrixVec,
-              layer,
-              N,
-              period_[0],
-              options_.FMMRule == INVERSERULE_
-            );
-          }
-          break;
         }
-
         /*************************************/
-        // if the pattern is a rectangle (2D)
+        // collection information from the background
         /************************************/
-        case RECTANGLE_:{
-          FMM::transformRectangle(
-            eps_xx_MatrixVec,
-            eps_xy_MatrixVec,
-            eps_yx_MatrixVec,
-            eps_yy_MatrixVec,
-            eps_zz_Inv_MatrixVec_,
-            im_eps_xx_MatrixVec,
-            im_eps_xy_MatrixVec,
-            im_eps_yx_MatrixVec,
-            im_eps_yy_MatrixVec,
-            im_eps_zz_MatrixVec,
-            layer,
-            nGx_,
-            nGy_,
-            period_,
-            options_.FMMRule == INVERSERULE_
-          );
-          break;
+        eps_xx += dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]) * onePadding1N;
+        im_eps_xx += epsBGTensor.tensor[1] * onePadding1N;
+
+        eps_yy += dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]) * onePadding1N;
+        im_eps_yy += epsBGTensor.tensor[7] * onePadding1N;
+
+        eps_zz_Inv += dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]) * onePadding1N;
+        eps_zz_Inv = eps_zz_Inv.i();
+
+        im_eps_zz += epsBGTensor.tensor[9] * onePadding1N;
+
+        if(layer->hasTensor()){
+          eps_xy += dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]) * onePadding1N;
+          eps_yx += dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]) * onePadding1N;
+          im_eps_xy += epsBGTensor.tensor[3] * onePadding1N;
+          im_eps_yx += epsBGTensor.tensor[5] * onePadding1N;
         }
 
-      /*************************************/
-      // if the pattern is a circle (2D)
-      /************************************/
-        case CIRCLE_:{
-          FMM::transformCircle(
-            eps_xx_MatrixVec,
-            eps_xy_MatrixVec,
-            eps_yx_MatrixVec,
-            eps_yy_MatrixVec,
-            eps_zz_Inv_MatrixVec_,
-            im_eps_xx_MatrixVec,
-            im_eps_xy_MatrixVec,
-            im_eps_yx_MatrixVec,
-            im_eps_yy_MatrixVec,
-            im_eps_zz_MatrixVec,
-            layer,
-            nGx_,
-            nGy_,
-            period_
-          );
-          break;
-        }
-        default: break;
+        eps_xx_MatrixVec[j].push_back(eps_xx);
+        eps_xy_MatrixVec[j].push_back(eps_xy);
+        eps_yx_MatrixVec[j].push_back(eps_yx);
+        eps_yy_MatrixVec[j].push_back(eps_yy);
+        eps_zz_Inv_MatrixVec_[j].push_back(eps_zz_Inv);
+        im_eps_xx_MatrixVec[j].push_back(im_eps_xx);
+        im_eps_xy_MatrixVec[j].push_back(im_eps_xy);
+        im_eps_yx_MatrixVec[j].push_back(im_eps_yx);
+        im_eps_yy_MatrixVec[j].push_back(im_eps_yy);
+        im_eps_zz_MatrixVec[j].push_back(im_eps_zz);
       }
     }
-
 
     for(int i = 0; i < numOfOmega_; i++){
       getEMatrices(
@@ -811,18 +840,45 @@ namespace MESH{
     std::cout << "The system has in total " << structure_->getNumOfLayer() << " layers." << std::endl;
     std::cout << "Printing from bottom to up." << std::endl;
     std::cout << "==================================================" << std::endl;
-    for(const_LayerIter it = structure_->getMapBegin(); it != structure_->getMapEnd(); it++){
+    for(const_LayerIter it = structure_->getLayersBegin(); it != structure_->getLayersEnd(); it++){
       Ptr<Layer> layer = it->second;
       std::cout << "Layer index " << it->first << ": " << layer->getName() << std::endl;
       std::cout << "Thickness: " << layer->getThickness() << std::endl;
-      std::cout << "contains tensor: " << layer->hasTensor() << std::endl;
-      std::cout << "Its pattern is: " << layer->getPattern() << std::endl;
+      std::cout << "contains tensor: ";
+
+      if(layer->hasTensor()) std::cout << "YES" << std::endl;
+      else std::cout << "NO" << std::endl;
+
       std::cout << "Its background is: " << layer->getBackGround()->getName() << std::endl;
-      std::cout << "It has other components:" << std::endl << std::endl;
-      int count = 0;
-      for(const_MaterialIter m_it = layer->getVecBegin(); m_it != layer->getVecEnd(); m_it++){
-        std::cout << "Component " << count << " material: " << (*m_it)->getName() << std::endl;
-        count++;
+      if(layer->getNumOfMaterial() != 0){
+        std::cout << "It has other components:" << std::endl << std::endl;
+        int count = 0;
+        const_MaterialIter m_it = layer->getMaterialsBegin();
+        for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){ 
+          std::cout << "Material for pattern " << count + 1 << ": " << (*(m_it + count))->getName() << std::endl; 
+          std::cout << "Pattern " << count + 1 << " is: ";
+          switch((*it).type_){
+            case GRATING_:{
+              std::cout << "grating, ";
+              std::cout << "(c, w) = (" << (*it).arg1_.first << ", " << (*it).arg1_.second << ")\n";
+              break;
+            }
+            case RECTANGLE_:{
+              std::cout << "rectangle, ";
+              std::cout << "(c_x, w_x) = (" << (*it).arg1_.first << ", " << (*it).arg1_.second <<"), ";
+              std::cout << "(c_y, w_y) = (" << (*it).arg2_.first << ", " << (*it).arg2_.second <<")\n";
+              break;
+            }
+            case CIRCLE_:{
+              std::cout << "circle";
+              std::cout << "(c, w) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first << "), ";
+              std::cout << "r = " << (*it).arg1_.second << std::endl;
+              break;
+            }
+            default: break;
+          }
+          count++;
+        }
       }
       std::cout << "==================================================" << std::endl;
     }

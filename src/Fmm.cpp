@@ -62,41 +62,19 @@
      EpsilonVal diag = fromScalarToDiagonal(epsilon);
      return fromDiagonalToTensor(diag);
    }
-   /*==============================================*/
-   // helper function to change a random dielectric to a diagonal
-   // @args:
-   // epsilon: field
-   // type: the type of the dielectric
-   /*==============================================*/
-   static EpsilonVal toDiagonal(const EpsilonVal epsilon, const EPSTYPE type){
-    switch(type){
-      case SCALAR_: return fromScalarToDiagonal(epsilon);
-      case DIAGONAL_: return epsilon;
-      default: throw UTILITY::AttributeNotSupportedException("Cannot convert tensor to diagonal");
-    }
-   }
+
    /*==============================================*/
    // helper function to change a random dielectric to a tensor
    // @args:
    // epsilon: field
    // type: the type of the dielectric
    /*==============================================*/
-   static EpsilonVal toTensor(const EpsilonVal epsilon, const EPSTYPE type){
+  EpsilonVal toTensor(const EpsilonVal epsilon, const EPSTYPE type){
      switch (type) {
        case SCALAR_: return fromScalarToTensor(epsilon);
        case DIAGONAL_: return fromDiagonalToTensor(epsilon);
        default: return epsilon;
      }
-   }
-
-  /*==============================================*/
-   // helper function to do fourier transform for one value
-   // @args:
-   // epsVal: the value need to be transformed
-   // N: the total number of G
-   /*==============================================*/
-   static RCWAMatrix transformPlanarElement(const dcomplex epsVal, const int N){
-     return epsVal * eye<RCWAMatrix>(N, N);
    }
 
   /*==============================================*/
@@ -120,7 +98,7 @@
              * width % sinc(G_mat / 2 * width);
    }
 
-  /*==============================================*/
+   /*==============================================*/
    // helper function to do fourier transform for one value
    // @args:
    // epsVal: the value need to be transformed
@@ -146,250 +124,144 @@
              * exp(IMAG_I * (GxMat * centerx + GyMat * centery))
              % sinc(GxMat * widthx / 2) % sinc(GyMat * widthy / 2);
    }
-   /*==============================================*/
-   // This function computes the Fourier transform for planar geometry for tensor case
-   // @args:
-   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
-   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
-   // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
-   // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
-   // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
-   // Layer: the layer considered
-   // N: the total number of G
-   /*==============================================*/
-   void transformPlanar(
-     RCWAMatricesVec& eps_xx_MatrixVec,
-     RCWAMatricesVec& eps_xy_MatrixVec,
-     RCWAMatricesVec& eps_yx_MatrixVec,
-     RCWAMatricesVec& eps_yy_MatrixVec,
-     RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-     RCWAMatricesVec& im_eps_xx_MatrixVec,
-     RCWAMatricesVec& im_eps_xy_MatrixVec,
-     RCWAMatricesVec& im_eps_yx_MatrixVec,
-     RCWAMatricesVec& im_eps_yy_MatrixVec,
-     RCWAMatricesVec& im_eps_zz_MatrixVec,
-     const Ptr<Layer>& layer,
-     const int N
-   ){
-     int numOfOmega = eps_xx_MatrixVec.size();
-     Ptr<Material> backGround = layer->getBackGround();
-     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
-
-     for(int i = 0; i < numOfOmega; i++){
-       EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
-       EpsilonVal epsilonBGTensor = toTensor(epsilonBG, backGround->getType());
-
-       eps_xx_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[0], epsilonBGTensor.tensor[1]), N) );
-       im_eps_xx_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[1], 0), N) );
-       eps_yy_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[6], epsilonBGTensor.tensor[7]), N) );
-       im_eps_yy_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[7], 0), N) );
-       eps_zz_Inv_MatrixVec[i].push_back( transformPlanarElement(REAL_I / dcomplex(epsilonBGTensor.tensor[8], epsilonBGTensor.tensor[9]), N) );
-       im_eps_zz_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[9], 0), N) );
-       
-       if(layer->hasTensor()){
-         eps_xy_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[2], epsilonBGTensor.tensor[3]), N) );
-         im_eps_xy_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[3], 0), N) );
-         eps_yx_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[4], epsilonBGTensor.tensor[5]), N) );
-         im_eps_yx_MatrixVec[i].push_back( transformPlanarElement(dcomplex(epsilonBGTensor.tensor[5], 0), N) );
-       }
-       else{
-         eps_xy_MatrixVec[i].push_back(zeros<RCWAMatrix>(N, N));
-         im_eps_xy_MatrixVec[i].push_back(zeros<RCWAMatrix>(N, N));
-         eps_yx_MatrixVec[i].push_back(zeros<RCWAMatrix>(N, N));
-         im_eps_yx_MatrixVec[i].push_back(zeros<RCWAMatrix>(N, N));
-       }
-     }
-   }
 
    /*==============================================*/
    // This function computes the Fourier transform for grating geometry
    // @args:
-   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
-   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
-   // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
-   // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
-   // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
-   // Layer: the layer considered
+   // eps_xx: the Fourier trainsform for eps_xx
+   // eps_xy: the Fourier trainsform for eps_xy
+   // eps_zx: the Fourier trainsform for eps_yx
+   // eps_yy: the Fourier trainsform for eps_yy
+   // eps_zz_Inv: the inverse of Fourier transform of eps_zz
+   // im_eps_xx: the Fourier trainsform for imaginary part
+   // im_eps_xy: the Fourier trainsform for imaginary part
+   // im_eps_yx: the Fourier trainsform for imaginary part
+   // im_eps_yy: the Fourier trainsform for imaginary part
+   // im_eps_zz: the Fourier trainsform for imaginary part
+   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
    // N: the total number of G
+   // center: the center of the grating
+   // width: the width of the grating
    // period: the periodicity
+   // whether this layer contains tensor
    /*==============================================*/
-   void transformGratingNaive(
-     RCWAMatricesVec& eps_xx_MatrixVec,
-     RCWAMatricesVec& eps_xy_MatrixVec,
-     RCWAMatricesVec& eps_yx_MatrixVec,
-     RCWAMatricesVec& eps_yy_MatrixVec,
-     RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-     RCWAMatricesVec& im_eps_xx_MatrixVec,
-     RCWAMatricesVec& im_eps_xy_MatrixVec,
-     RCWAMatricesVec& im_eps_yx_MatrixVec,
-     RCWAMatricesVec& im_eps_yy_MatrixVec,
-     RCWAMatricesVec& im_eps_zz_MatrixVec,
-     const Ptr<Layer>& layer,
-     const int N,
-     const double period,
-     bool useInverseRule
+   void transformGrating(
+    RCWAMatrix& eps_xx,
+    RCWAMatrix& eps_xy,
+    RCWAMatrix& eps_yx,
+    RCWAMatrix& eps_yy,
+    RCWAMatrix& eps_zz_Inv,
+    RCWAMatrix& im_eps_xx,
+    RCWAMatrix& im_eps_xy,
+    RCWAMatrix& im_eps_yx,
+    RCWAMatrix& im_eps_yy,
+    RCWAMatrix& im_eps_zz,
+    const EpsilonVal& epsBGTensor,
+    const EpsilonVal& epsilon,
+    const EPSTYPE epsilonType,
+    const int N,
+    const double center,
+    const double width,
+    const double period,
+    bool hasTensor
    ){
-     // if exists a tensor, no inverser rule
-     if(layer->hasTensor()) useInverseRule = false;
-            
-     int numOfOmega = eps_xx_MatrixVec.size();
-     // dcomplex IMAG_I = dcomplex(0, 1);
      RCWAMatrix G_row(1, N), G_col(N, 1);
      for(int i = 0; i < N; i++){
        G_row(0, i) = -i * 2.0 * datum::pi / period;
        G_col(i, 0) = -G_row(0, i);
      }
+
      RCWAMatrix G_mat = toeplitz(G_col, G_row);
-
      RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
-     int numOfMaterial = layer->getNumOfMaterial();
-     RCWAVector centerVec(numOfMaterial), widthVec(numOfMaterial);
-     int count = 0;
-     for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
-       centerVec(count) = it->first;
-       widthVec(count) = it->second;
-       count++;
-     }
-     
-     Ptr<Material> backGround = layer->getBackGround();
-     for(int i = 0; i < numOfOmega; i++){
-       RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
-       RCWAMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
-       count = 0; // reset count
-       EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
-       EpsilonVal epsBGTensor = toTensor(epsilonBG, backGround->getType());
 
-       dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
-       dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
-       dcomplex eps_BG_yx = dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]);
-       dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
-       dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
-       dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
-       dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
-       dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
-       dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
-       dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
+     dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
+     dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
+     dcomplex eps_BG_yx = dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]);
+     dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
+     dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
+     dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
+     dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+     dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
+     dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
-       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
-         EpsilonVal epsilon = (*it)->getEpsilonAtIndex(i);
-         EpsilonVal epsTensor = toTensor(epsilon, (*it)->getType());
+     EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
    
-         eps_xx += transformGratingElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]),
-            eps_BG_xx, G_mat, centerVec(count), widthVec(count), N);
-         im_eps_xx += transformGratingElement(dcomplex(epsTensor.tensor[1], 0),
-            im_eps_BG_xx, G_mat, centerVec(count), widthVec(count), N);
+     eps_xx += transformGratingElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]),
+         eps_BG_xx, G_mat, center, width, N) / period;
+     im_eps_xx += transformGratingElement(dcomplex(epsTensor.tensor[1], 0),
+         im_eps_BG_xx, G_mat, center, width, N) / period;
 
-         eps_yy += transformGratingElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]),
-            eps_BG_yy, G_mat, centerVec(count), widthVec(count), N);
-         im_eps_yy += transformGratingElement(dcomplex(epsTensor.tensor[7], 0),
-            im_eps_BG_yy, G_mat, centerVec(count), widthVec(count), N);
+     eps_yy += transformGratingElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]),
+         eps_BG_yy, G_mat, center, width, N) / period;
+     im_eps_yy += transformGratingElement(dcomplex(epsTensor.tensor[7], 0),
+         im_eps_BG_yy, G_mat, center, width, N) / period;
 
-         eps_zz_Inv += transformGratingElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]),
-            eps_BG_zz, G_mat, centerVec(count), widthVec(count), N);
-         im_eps_zz += transformGratingElement(dcomplex(epsTensor.tensor[9], 0),
-            im_eps_BG_zz, G_mat, centerVec(count), widthVec(count), N);
+     eps_zz_Inv += transformGratingElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]),
+         eps_BG_zz, G_mat, center, width, N) / period;
+     im_eps_zz += transformGratingElement(dcomplex(epsTensor.tensor[9], 0),
+         im_eps_BG_zz, G_mat, center, width, N) / period;
 
-        if(layer->hasTensor()){
-          eps_xy += transformGratingElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]),
-            eps_BG_xy, G_mat, centerVec(count), widthVec(count), N);
-          eps_yx += transformGratingElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]),
-            eps_BG_yx, G_mat, centerVec(count), widthVec(count), N);
-          im_eps_xy += transformGratingElement(dcomplex(epsTensor.tensor[3], 0),
-            im_eps_BG_xy, G_mat, centerVec(count), widthVec(count), N);
-          im_eps_yx += transformGratingElement(dcomplex(epsTensor.tensor[5], 0),
-            im_eps_BG_yx, G_mat, centerVec(count), widthVec(count), N);
-        }
-         count += 1;
-       }
-
-       eps_xx = eps_xx / period + eps_BG_xx * onePadding1N;
-       im_eps_xx = im_eps_xx / period + im_eps_BG_xx * onePadding1N;
-
-       eps_yy = eps_yy / period + eps_BG_yy * onePadding1N;
-       im_eps_yy = im_eps_yy / period + im_eps_BG_yy * onePadding1N;
-
-       eps_zz_Inv = eps_zz_Inv / period + eps_BG_zz * onePadding1N;
-       eps_zz_Inv = eps_zz_Inv.i();
-       im_eps_zz = im_eps_zz / period + im_eps_BG_zz * onePadding1N;
-
-       if(layer->hasTensor()){
-        eps_xy = eps_xy / period + eps_BG_xy * onePadding1N;
-        eps_yx = eps_yx / period + eps_BG_yx * onePadding1N;
-        im_eps_xy = im_eps_xy / period + im_eps_BG_xy * onePadding1N;
-        im_eps_yx = im_eps_yx / period + im_eps_BG_yx * onePadding1N;
-       }
-
-       eps_xx_MatrixVec[i].push_back(eps_xx);
-       eps_xy_MatrixVec[i].push_back(eps_xy);
-       eps_yx_MatrixVec[i].push_back(eps_yx);
-       eps_yy_MatrixVec[i].push_back(eps_yy);
-       eps_zz_Inv_MatrixVec[i].push_back(eps_zz_Inv);
-       im_eps_xx_MatrixVec[i].push_back(im_eps_xx);
-       im_eps_xy_MatrixVec[i].push_back(im_eps_xy);
-       im_eps_yx_MatrixVec[i].push_back(im_eps_yx);
-       im_eps_yy_MatrixVec[i].push_back(im_eps_yy);
-       im_eps_zz_MatrixVec[i].push_back(im_eps_zz);
+     if(hasTensor){
+         eps_xy += transformGratingElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]),
+           eps_BG_xy, G_mat, center, width, N) / period;
+         eps_yx += transformGratingElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]),
+           eps_BG_yx, G_mat, center, width, N) / period;
+         im_eps_xy += transformGratingElement(dcomplex(epsTensor.tensor[3], 0),
+           im_eps_BG_xy, G_mat, center, width, N) / period;
+         im_eps_yx += transformGratingElement(dcomplex(epsTensor.tensor[5], 0),
+           im_eps_BG_yx, G_mat, center, width, N) / period;
      }
-   }
-
-
-   void transformGratingDiagonalAdaptive(){
-
    }
 
    /*==============================================*/
-   // This function computes the Fourier transform for rectangle case
+   // This function computes the Fourier transform for rectangle geometry
    // @args:
-   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
-   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
-   // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
-   // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
-   // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
-   // Layer: the layer considered
+   // eps_xx: the Fourier trainsform for eps_xx
+   // eps_xy: the Fourier trainsform for eps_xy
+   // eps_zx: the Fourier trainsform for eps_yx
+   // eps_yy: the Fourier trainsform for eps_yy
+   // eps_zz_Inv: the inverse of Fourier transform of eps_zz
+   // im_eps_xx: the Fourier trainsform for imaginary part
+   // im_eps_xy: the Fourier trainsform for imaginary part
+   // im_eps_yx: the Fourier trainsform for imaginary part
+   // im_eps_yy: the Fourier trainsform for imaginary part
+   // im_eps_zz: the Fourier trainsform for imaginary part
+   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
    // nGx: the total number of G in x direction
    // nGy: the total number of G in y direction
+   // centers: the centers of the rectangle
+   // widths: the widths of the rectangle
    // period: the periodicity
-   // useInverseRule: whether use inverse rule
+   // whether this layer contains tensor
    /*==============================================*/
    void transformRectangle(
-        RCWAMatricesVec& eps_xx_MatrixVec,
-        RCWAMatricesVec& eps_xy_MatrixVec,
-        RCWAMatricesVec& eps_yx_MatrixVec,
-        RCWAMatricesVec& eps_yy_MatrixVec,
-        RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-        RCWAMatricesVec& im_eps_xx_MatrixVec,
-        RCWAMatricesVec& im_eps_xy_MatrixVec,
-        RCWAMatricesVec& im_eps_yx_MatrixVec,
-        RCWAMatricesVec& im_eps_yy_MatrixVec,
-        RCWAMatricesVec& im_eps_zz_MatrixVec,
-        const Ptr<Layer>& layer,
-        const int nGx,
-        const int nGy,
-        const double* period,
-        bool useInverseRule
-  ){
-     if(layer->hasTensor()) useInverseRule = false;
-     int numOfOmega = eps_xx_MatrixVec.size();
-     int N = RCWA::getN(nGx, nGy);
+    RCWAMatrix& eps_xx,
+    RCWAMatrix& eps_xy,
+    RCWAMatrix& eps_yx,
+    RCWAMatrix& eps_yy,
+    RCWAMatrix& eps_zz_Inv,
+    RCWAMatrix& im_eps_xx,
+    RCWAMatrix& im_eps_xy,
+    RCWAMatrix& im_eps_yx,
+    RCWAMatrix& im_eps_yy,
+    RCWAMatrix& im_eps_zz,
+    const EpsilonVal& epsBGTensor,
+    const EpsilonVal& epsilon,
+    const EPSTYPE epsilonType,
+    const int nGx,
+    const int nGy,
+    const double centers[2],
+    const double widths[2],
+    const double period[2],
+    const bool hasTensor
+   ){
 
+     int N = RCWA::getN(nGx, nGy);
+     double area = period[0] * period[1];
+  
      RCWAMatrix Gx_mat, Gy_mat;
      RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
-
      // dcomplex IMAG_I = dcomplex(0, 1.0);
      RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
      meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
@@ -399,140 +271,91 @@
      RCWAMatrix GyMat = Gy_l - Gy_r;
 
      RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
-     int numOfMaterial = layer->getNumOfMaterial();
+     
+     dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
+     dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
+     dcomplex eps_BG_yx = dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]);
+     dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
+     dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
+     dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
+     dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+     dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
+     dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
-     RCWAVector centerxVec(numOfMaterial), centeryVec(numOfMaterial), widthxVec(numOfMaterial), widthyVec(numOfMaterial);
-     int count = 0;// reset count
-     for(const_PatternIter it = layer->getArg1Begin(); it != layer->getArg1End(); it++){
-       centerxVec(count) = it->first;
-       centeryVec(count) = it->second;
-       count++;
-     }
-     count = 0;
-     for(const_PatternIter it = layer->getArg2Begin(); it != layer->getArg2End(); it++){
-       widthxVec(count) = it->first;
-       widthyVec(count) = it->second;
-       count++;
-     }
+     EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
 
-     Ptr<Material> backGround = layer->getBackGround();
-     for(int i = 0; i < numOfOmega; i++){
-       RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
-       RCWAMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
-       count = 0;
-       EpsilonVal epsilonBG = backGround->getEpsilonAtIndex(i);
-       EpsilonVal epsBGTensor = toTensor(epsilonBG, backGround->getType());
+     eps_xx += transformRectangleElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+     im_eps_xx += transformRectangleElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
 
-       dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
-       dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
-       dcomplex eps_BG_yx = dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]);
-       dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
-       dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
-       dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
-       dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
-       dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
-       dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
-       dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
+     eps_yy += transformRectangleElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+     im_eps_yy += transformRectangleElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
 
-
-       for(const_MaterialIter it = layer->getVecBegin(); it != layer->getVecEnd(); it++){
-         EpsilonVal epsilon = (*it)->getEpsilonAtIndex(i);
-         EpsilonVal epsTensor = toTensor(epsilon, (*it)->getType());
-
-         eps_xx += transformRectangleElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
-         im_eps_xx += transformRectangleElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
-
-         eps_yy += transformRectangleElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
-         im_eps_yy += transformRectangleElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
-
-         eps_zz_Inv += transformRectangleElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
-         im_eps_zz += transformRectangleElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N); 
+     eps_zz_Inv += transformRectangleElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+     im_eps_zz += transformRectangleElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
+         GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area; 
         
 
-         if(layer->hasTensor()){
-            eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
-            eps_yx += transformRectangleElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
+     if(hasTensor){
+        eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
+           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+        eps_yx += transformRectangleElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
+           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
 
-            im_eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
-            im_eps_yx += transformRectangleElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
-            GxMat, GyMat, centerxVec(count), centeryVec(count), widthxVec(count), widthyVec(count), N);
-         }
-         count += 1;
-       }
-
-       eps_xx = eps_xx / (period[0] * period[1]) + eps_BG_xx * onePadding1N;
-       im_eps_xx = im_eps_xx / (period[0] * period[1]) + im_eps_BG_xx * onePadding1N;
-
-       eps_yy = eps_yy / (period[0] * period[1]) + eps_BG_yy * onePadding1N;
-       im_eps_yy = im_eps_yy / (period[0] * period[1]) + im_eps_BG_yy * onePadding1N;
-
-       eps_zz_Inv = eps_zz_Inv / (period[0] * period[1]) + eps_BG_zz * onePadding1N;
-       eps_zz_Inv = eps_zz_Inv.i();
-       im_eps_zz = im_eps_zz / (period[0] * period[1]) + im_eps_BG_zz * onePadding1N;
-
-       if(layer->hasTensor()){
-          eps_xy = eps_xy / (period[0] * period[1]) + eps_BG_xy * onePadding1N;
-          eps_yx = eps_yx / (period[0] * period[1]) + eps_BG_yx * onePadding1N;
-          im_eps_xy = im_eps_xy / (period[0] * period[1]) + im_eps_BG_xy * onePadding1N;
-          im_eps_yx = im_eps_yx / (period[0] * period[1]) + im_eps_BG_yx * onePadding1N;
-       }
-
-       eps_xx_MatrixVec[i].push_back(eps_xx);
-       eps_xy_MatrixVec[i].push_back(eps_xy);
-       eps_yx_MatrixVec[i].push_back(eps_yx);
-       eps_yy_MatrixVec[i].push_back(eps_yy);
-       eps_zz_Inv_MatrixVec[i].push_back(eps_zz_Inv);
-       im_eps_xx_MatrixVec[i].push_back(im_eps_xx);
-       im_eps_xy_MatrixVec[i].push_back(im_eps_xy);
-       im_eps_yx_MatrixVec[i].push_back(im_eps_yx);
-       im_eps_yy_MatrixVec[i].push_back(im_eps_yy);
-       im_eps_zz_MatrixVec[i].push_back(im_eps_zz);
-    }
-  }
-
+        im_eps_xy += transformRectangleElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
+           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+        im_eps_yx += transformRectangleElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
+           GxMat, GyMat, centers[0], centers[1], widths[0], widths[1], N) / area;
+     }
+   }
+  
    /*==============================================*/
-   // This function computes the Fourier transform for circular case
+   // This function computes the Fourier transform for circle geometry
    // @args:
-   // eps_xx_MatrixVec: the Fourier trainsform for eps_xx for all omega
-   // eps_xy_MatrixVec: the Fourier trainsform for eps_xy for all omega
-   // eps_zx_MatrixVec: the Fourier trainsform for eps_yx for all omega
-   // eps_yy_MatrixVec: the Fourier trainsform for eps_yy for all omega
-   // im_eps_xx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_xy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yx_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_yy_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // im_eps_zz_MatrixVec: the Fourier trainsform for imaginary part for all omega
-   // eps_zz_Inv_MatrixVec: the inverse of Fourier transform of eps_zz
-   // Layer: the layer considered
-   // nGx: the total number of G in x direction
-   // nGy: the total number of G in y direction
+   // eps_xx: the Fourier trainsform for eps_xx
+   // eps_xy: the Fourier trainsform for eps_xy
+   // eps_zx: the Fourier trainsform for eps_yx
+   // eps_yy: the Fourier trainsform for eps_yy
+   // eps_zz_Inv: the inverse of Fourier transform of eps_zz
+   // im_eps_xx: the Fourier trainsform for imaginary part
+   // im_eps_xy: the Fourier trainsform for imaginary part
+   // im_eps_yx: the Fourier trainsform for imaginary part
+   // im_eps_yy: the Fourier trainsform for imaginary part
+   // im_eps_zz: the Fourier trainsform for imaginary part
+   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
+   // nG_x: the total number of G in x direction
+   // nG_y: the total number of G in y direction
+   // centers: the centers of the circle
+   // radius: the radius of the circle
    // period: the periodicity
+   // whether this layer contains tensor
    /*==============================================*/
    void transformCircle(
-    RCWAMatricesVec& eps_xx_MatrixVec,
-    RCWAMatricesVec& eps_xy_MatrixVec,
-    RCWAMatricesVec& eps_yx_MatrixVec,
-    RCWAMatricesVec& eps_yy_MatrixVec,
-    RCWAMatricesVec& eps_zz_Inv_MatrixVec,
-    RCWAMatricesVec& im_eps_xx_MatrixVec,
-    RCWAMatricesVec& im_eps_xy_MatrixVec,
-    RCWAMatricesVec& im_eps_yx_MatrixVec,
-    RCWAMatricesVec& im_eps_yy_MatrixVec,
-    RCWAMatricesVec& im_eps_zz_MatrixVec,
-    const Ptr<Layer>& layer,
+    RCWAMatrix& eps_xx,
+    RCWAMatrix& eps_xy,
+    RCWAMatrix& eps_yx,
+    RCWAMatrix& eps_yy,
+    RCWAMatrix& eps_zz_Inv,
+    RCWAMatrix& im_eps_xx,
+    RCWAMatrix& im_eps_xy,
+    RCWAMatrix& im_eps_yx,
+    RCWAMatrix& im_eps_yy,
+    RCWAMatrix& im_eps_zz,
+    const EpsilonVal& epsBGTensor,
+    const EpsilonVal& epsilon,
+    const EPSTYPE epsilonType,
     const int nGx,
     const int nGy,
-    const double* period
+    const double centers[2],
+    const double radius,
+    const double period[2],
+    const bool hasTensor
    ){
-    // TODO
-   }
+
+    }
  }

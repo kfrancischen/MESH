@@ -141,14 +141,14 @@ namespace SYSTEM{
     else if(epsilonList.type_ == DIAGONAL_){
       for(int i = 0; i < numOfOmega_; i++){
         for(int j = 0; j < 6; j++){
-          epsilonList_.epsilonVals[i].diagonal[i] = epsilonList.epsilonVals[i].diagonal[i];
+          epsilonList_.epsilonVals[i].diagonal[j] = epsilonList.epsilonVals[i].diagonal[j];
         }
       }
     }
     else{
       for(int i = 0; i < numOfOmega_; i++){
         for(int j = 0; j < 10; j++){
-          epsilonList_.epsilonVals[i].tensor[i] = epsilonList.epsilonVals[i].tensor[i];
+          epsilonList_.epsilonVals[i].tensor[j] = epsilonList.epsilonVals[i].tensor[j];
         }
       }
     }
@@ -158,7 +158,7 @@ namespace SYSTEM{
   // Implementaion of the Layer class
   /*==============================================*/
   Layer::Layer(const string name, const Ptr<Material>& material, const double thickness) :
-    NamedInterface(name), thickness_(thickness), pattern_(PLANAR_), source_(ISNOTSOURCE_){
+    NamedInterface(name), thickness_(thickness), source_(ISNOTSOURCE_){
     backGround_ = material;
   }
 
@@ -176,7 +176,7 @@ namespace SYSTEM{
   // Plain layer constructor
   /*==============================================*/
   Layer::Layer(const string name) : NamedInterface(name),
-    backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0), pattern_(PLANAR_){}
+    backGround_(nullptr), source_(ISNOTSOURCE_), thickness_(0){}
 
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -203,38 +203,28 @@ namespace SYSTEM{
     newLayer->setBackGround(this->getBackGround());
     newLayer->setThickness(this->getThickness());
 
-    const_MaterialIter itMat = this->getVecBegin();
-    const_PatternIter itArg1 = this->getArg1Begin();
-    const_PatternIter itArg2 = this->getArg2Begin();
-    switch (this->getPattern()) {
-      case GRATING_:{
-        for(int count = 0; (itMat + count) != this->getVecEnd(); count++){
-          const std::pair<double, double> arg1Pair = *(itArg1 + count);
-          newLayer->addGratingPattern(*(itMat + count), arg1Pair.first, arg1Pair.second);
+    const_MaterialIter itMat = this->getMaterialsBegin();
+    const_PatternIter itPattern = this->getPatternsBegin();
+    for(int count = 0; (itMat + count) != this->getMaterialsEnd(); count++){
+      Pattern pattern = *(itPattern + count);
+      switch(pattern.type_){
+        case GRATING_:{
+          newLayer->addGratingPattern(*(itMat + count), pattern.arg1_.first, pattern.arg1_.second);
+          break;
         }
-        break;
-      }
-      case RECTANGLE_:{
-        for(int count = 0; (itMat + count) != this->getVecEnd(); count++){
-          const std::pair<double, double> arg1Pair = *(itArg1 + count);
-          const std::pair<double, double> arg2Pair = *(itArg2 + count);
-          const double arg1[2] = {arg1Pair.first, arg1Pair.second};
-          const double arg2[2] = {arg2Pair.first, arg2Pair.second};
+        case RECTANGLE_:{
+          const double arg1[2] = {pattern.arg1_.first, pattern.arg1_.second};
+          const double arg2[2] = {pattern.arg2_.first, pattern.arg2_.second};
           newLayer->addRectanlgePattern(*(itMat + count), arg1, arg2);
+          break;
         }
-        break;
-      }
-      case CIRCLE_:{
-        for(int count = 0; (itMat + count) != this->getVecEnd(); count++){
-          const std::pair<double, double> arg1Pair = *(itArg1 + count);
-          const std::pair<double, double> arg2Pair = *(itArg2 + count);
-          const double arg[2] = {arg1Pair.first, arg2Pair.first};
-          const double radius = arg1Pair.second;
+        case CIRCLE_:{
+          const double arg[2] = {pattern.arg1_.first, pattern.arg2_.first};
+          const double radius = pattern.arg1_.second;
           newLayer->addCirclePattern(*(itMat + count), arg, radius);
         }
-        break;
+        default: break;
       }
-      default:break;
     }
     return newLayer;
   }
@@ -295,7 +285,7 @@ namespace SYSTEM{
   // get the material by the name
   /*==============================================*/
   Ptr<Material> Layer::getMaterialByName(const std::string name){
-    for(const_MaterialIter it = this->getVecBegin(); it != this->getVecEnd(); it++){
+    for(const_MaterialIter it = this->getMaterialsBegin(); it != this->getMaterialsEnd(); it++){
       if(name.compare((*it)->getName()) == 0) return *it;
     }
     return NULL;
@@ -313,12 +303,6 @@ namespace SYSTEM{
     return thickness_;
   }
   /*==============================================*/
-  // set the pattern of the layer
-  /*==============================================*/
-  PATTEN Layer::getPattern(){
-    return pattern_;
-  }
-  /*==============================================*/
   // function return the name of the material
   /*==============================================*/
   std::string Layer::getName(){
@@ -327,38 +311,26 @@ namespace SYSTEM{
   /*==============================================*/
   // material iterator begin
   /*==============================================*/
-  const_MaterialIter Layer::getVecBegin(){
+  const_MaterialIter Layer::getMaterialsBegin(){
     return materialVec_.cbegin();
   }
   /*==============================================*/
   // material iterator end
   /*==============================================*/
-  const_MaterialIter Layer::getVecEnd(){
+  const_MaterialIter Layer::getMaterialsEnd(){
     return materialVec_.cend();
   }
   /*==============================================*/
   // pattern parameter iterator begin
   /*==============================================*/
-  const_PatternIter Layer::getArg1Begin(){
-    return args1_.cbegin();
+  const_PatternIter Layer::getPatternsBegin(){
+    return patternVec_.cbegin();
   }
   /*==============================================*/
   // pattern parameter iterator end
   /*==============================================*/
-  const_PatternIter Layer::getArg2Begin(){
-    return args2_.cbegin();
-  }
-  /*==============================================*/
-  // pattern parameter iterator begin
-  /*==============================================*/
-  const_PatternIter Layer::getArg1End(){
-    return args1_.cend();
-  }
-  /*==============================================*/
-  // pattern parameter iterator end
-  /*==============================================*/
-  const_PatternIter Layer::getArg2End(){
-    return args2_.cend();
+  const_PatternIter Layer::getPatternsEnd(){
+    return patternVec_.cend();
   }
   /*==============================================*/
   // add a rectangle pattern
@@ -372,11 +344,14 @@ namespace SYSTEM{
     const double args1[2],
     const double args2[2]
   ){
-    pattern_ = RECTANGLE_;
-    materialVec_.push_back(material);
-    args1_.push_back(std::make_pair(args1[0], args1[1]));
-    args2_.push_back(std::make_pair(args2[0], args2[1]));
 
+    materialVec_.push_back(material);
+
+    Pattern pattern;
+    pattern.arg1_ = std::make_pair(args1[0], args1[1]);
+    pattern.arg2_ = std::make_pair(args2[0], args2[1]);
+    pattern.type_ = RECTANGLE_;
+    patternVec_.push_back(pattern);
   }
 
   /*==============================================*/
@@ -391,10 +366,13 @@ namespace SYSTEM{
     const double args[2],
     const double radius
   ){
-    pattern_ = CIRCLE_;
     materialVec_.push_back(material);
-    args1_.push_back(std::make_pair(args[0], radius));
-    args2_.push_back(std::make_pair(args[1], radius));
+
+    Pattern pattern;
+    pattern.arg1_ = std::make_pair(args[0], radius);
+    pattern.arg2_ = std::make_pair(args[1], radius);
+    pattern.type_ = CIRCLE_;
+    patternVec_.push_back(pattern);
   }
   /*==============================================*/
   // add a grating pattern
@@ -408,9 +386,12 @@ namespace SYSTEM{
     const double center,
     const double width
   ){
-    pattern_ = GRATING_;
     materialVec_.push_back(material);
-    args1_.push_back(std::make_pair(center, width));
+
+    Pattern pattern;
+    pattern.arg1_ = std::make_pair(center, width);
+    pattern.type_ = GRATING_;
+    patternVec_.push_back(pattern);
   }
 
   /*==============================================*/
@@ -455,7 +436,7 @@ namespace SYSTEM{
   // name: the name of the layer
   /*==============================================*/
   void Structure::deleteLayerByName(const string name){
-    for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
+    for(const_LayerIter it = this->getLayersBegin(); it != this->getLayersEnd(); it++){
       if(!name.compare((it->second)->getName())){
         this->deleteLayer(it);
         break;
@@ -489,7 +470,7 @@ namespace SYSTEM{
   // name: the name of the wanted layer
   /*==============================================*/
   Ptr<Layer> Structure::getLayerByName(const std::string name){
-    for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
+    for(const_LayerIter it = this->getLayersBegin(); it != this->getLayersEnd(); it++){
       if(!name.compare((it->second)->getName())){
         return it->second;
       }
@@ -507,7 +488,7 @@ namespace SYSTEM{
   /*==============================================*/
   void Structure::getThicknessList(double* thicknessList){
     int count = 0;
-    for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
+    for(const_LayerIter it = this->getLayersBegin(); it != this->getLayersEnd(); it++){
       thicknessList[count] = (it->second)->getThickness();
       count++;
     }
@@ -516,13 +497,13 @@ namespace SYSTEM{
   /*==============================================*/
   // layer iterator begin
   /*==============================================*/
-  const_LayerIter Structure::getMapBegin(){
+  const_LayerIter Structure::getLayersBegin(){
     return layerMap_.cbegin();
   }
   /*==============================================*/
   // layer iterator end
   /*==============================================*/
-  const_LayerIter Structure::getMapEnd(){
+  const_LayerIter Structure::getLayersEnd(){
     return layerMap_.cend();
   }
 
@@ -539,7 +520,7 @@ namespace SYSTEM{
   /*==============================================*/
   void Structure::reorganizeLayers(){
     LayerMap newMap;
-    for(const_LayerIter it = this->getMapBegin(); it != this->getMapEnd(); it++){
+    for(const_LayerIter it = this->getLayersBegin(); it != this->getLayersEnd(); it++){
       newMap.insert(LayerMap::value_type(newMap.size(), it->second));
     }
     layerMap_.clear();
