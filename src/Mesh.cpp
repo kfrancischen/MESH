@@ -1073,7 +1073,7 @@ namespace MESH{
           break;
         }
         case ONE_:{
-          if(options_.kyIntegralPreset) scalex[i] = 1;
+          if(options_.kxIntegralPreset) scalex[i] = 1;
           else scalex[i] = omegaList_[i] / datum::c_0;
           scaley[i] = 1;
           break;

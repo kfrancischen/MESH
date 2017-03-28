@@ -25,8 +25,10 @@ int main(){
   s->setThread(4);
   s->integrateKParallel();
   s->saveToFile("test.txt");
+  double* phi = s->getPhi();
+  double* omega = s->getOmega();
   for(int i = 0; i < s->getNumOfOmega(); i++){
-    std::cout << s->getPhiAtIndex(i) << std::endl;
+    std::cout << omega[i] << "\t" << phi[i] << std::endl;
   }
   return 0;
 }
