@@ -23,8 +23,8 @@ int main(){
   s->setKParallelIntegral(100);
   s->optUseQuadgk();
   s->setThread(4);
-  s->build();
-  s->runNaive();
+  s->buildRCWA();
+  s->integrateKParallel();
   s->saveToFile("output.txt");
   return 0;
 }

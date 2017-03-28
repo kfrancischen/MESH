@@ -21,9 +21,9 @@ int main(){
   // set simulation
   s->setKParallelIntegral(10);
   s->optUseQuadgk();
-  s->build();
+  s->buildRCWA();
   s->setThread(4);
-  s->runNaive();
+  s->integrateKParallel();
   s->saveToFile("test.txt");
   for(int i = 0; i < s->getNumOfOmega(); i++){
     std::cout << s->getPhiAtIndex(i) << std::endl;

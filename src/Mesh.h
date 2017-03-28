@@ -43,6 +43,7 @@ typedef struct OPTIONS{
   int FMMRule = NAIVEFMM_;
   int IntegralMethod = GAUSSKRONROD_;
   bool PrintIntermediate = false;
+  bool IntegrateKParallel = true;
 } Options;
 
 
@@ -137,7 +138,7 @@ public:
   int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
-  void build();
+  void buildRCWA();
 
   void getSysInfo();
 
@@ -145,7 +146,7 @@ public:
   void optUseNaiveRule();
   void optPrintIntermediate();
   void setThread(const int numThread);
-  void run();
+  void integrateKxKy();
 
 protected:
   Simulation();
@@ -221,7 +222,7 @@ public:
   void optUseQuadgl(int degree = DEGREE);
   void optUseQuadgk();
 
-  void runNaive();
+  void integrateKParallel();
   double getPhiAtKParallel(const int omegaIndex, const double KParallel);
 
 protected:

@@ -32,8 +32,8 @@ int main(){
   s->getSysInfo();
   s->optPrintIntermediate();
   s->setThread(4);
-  s->build();
-  s->run();
+  s->buildRCWA();
+  s->integrateKxKy();
   s->saveToFile("gold_to_vac.txt");
   // std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
   return 0;

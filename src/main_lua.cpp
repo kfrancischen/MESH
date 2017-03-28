@@ -17,14 +17,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #define LUA_COMPAT_MODULE
-#include "Mesh.h"
-#include "System.h"
+#include "setup.h"
 #include "luawrapper/luawrapper.hpp"
 
 using namespace MESH;
 
 void usage(){
-	std::cout << "MESH [input-file]" << std::endl;
+	std::cout << "mesh [input-file]" << std::endl;
 }
 void version(){
 	std::cout << "Multilayer Electromagnetic Solver for Heat transfer (MESH)" << std::endl;
@@ -41,8 +40,8 @@ int main(int argc, char *argv[]){
     throw UTILITY::UnknownArgException("Please only read in one file a time!");
     return 0;
   }
-   lua_State *L;
+   //lua_State *L;
 
-   return 0;
+  return 0;
 
 }

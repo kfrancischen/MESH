@@ -613,7 +613,7 @@ namespace MESH{
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
     int N = getN(nGx_, nGy_);
-    return POW3(omegaList_[omegaIdx] / datum::c_0) / POW3(datum::pi) / 2.0 *
+    return omegaList_[omegaIdx] / datum::c_0 / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, kx, ky, EMatricesVec_[omegaIdx],
       grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,N);
@@ -622,7 +622,7 @@ namespace MESH{
   /*==============================================*/
   // This function builds up the matrices
   /*==============================================*/
-  void Simulation::build(){
+  void Simulation::buildRCWA(){
     // reset simulation first
     this->resetSimulation();
     // check each layer whether a tensor exist
@@ -928,7 +928,7 @@ namespace MESH{
   /*==============================================*/
   // This function computes the flux
   /*==============================================*/
-  void Simulation::run(){
+  void Simulation::integrateKxKy(){
 
     double kxList[numOfKx_], kyList[numOfKy_];
     double scalex[numOfOmega_], scaley[numOfOmega_];
@@ -985,7 +985,7 @@ namespace MESH{
         for(int j = 0; j < numOfKx_ * numOfKy_; j++){
           Phi_[i] += resultArray[i * numOfKx_ * numOfKy_ + j];
         }
-        Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i];
+        Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i] * POW2(omegaList_[i] / datum::c_0);
     }
 
     delete[] resultArray;
@@ -1014,6 +1014,7 @@ namespace MESH{
     kxStart_ = 0;
     numOfKx_ = 0;
     kxEnd_ = end;
+    options_.IntegrateKParallel = true;
   }
   /*==============================================*/
   // Function setting the integral over kx
@@ -1025,6 +1026,7 @@ namespace MESH{
     kxStart_ = -end;
     numOfKx_ = points;
     kxEnd_ = end;
+    options_.IntegrateKParallel = false;
   }
   /*==============================================*/
   // Function setting the integral over kx (symetric)
@@ -1037,6 +1039,7 @@ namespace MESH{
     numOfKx_ = points;
     kxEnd_ = end;
     prefactor_ *= 2;
+    options_.IntegrateKParallel = false;
   }
   /*==============================================*/
   // Function setting the integral over ky
@@ -1048,6 +1051,7 @@ namespace MESH{
     kxStart_ = -end;
     numOfKx_ = points;
     kxEnd_ = end;
+    options_.IntegrateKParallel = false;
   }
   /*==============================================*/
   // Function setting the integral over ky (symetric)
@@ -1060,6 +1064,7 @@ namespace MESH{
     numOfKx_ = points;
     kxEnd_ = end;
     prefactor_ *= 2;
+    options_.IntegrateKParallel = false;
   }
   /*==============================================*/
   // Function setting the integral to be the gauss_legendre
@@ -1090,10 +1095,13 @@ namespace MESH{
   // make sure you understand your problem whether can be solved by this function
   /*==============================================*/
   double SimulationPlanar::getPhiAtKParallel(const int omegaIdx, const double KParallel){
+    if(options_.IntegrateKParallel == false){
+      throw UTILITY::InternalException("Cannot use kparallel integral here!");
+    }
     if(omegaIdx >= numOfOmega_){
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
-    return POW3(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
+    return POW2(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, KParallel, 0, EMatricesVec_[omegaIdx],
       grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,1);
@@ -1107,8 +1115,10 @@ namespace MESH{
   //    0     0,  eps_z
   // make sure you understand your problem whether can be solved by this function
   /*==============================================*/
-  void SimulationPlanar::runNaive(){
-
+  void SimulationPlanar::integrateKParallel(){
+    if(options_.IntegrateKParallel == false){
+      throw UTILITY::InternalException("Cannot use kparallel integral here!");
+    }
     #pragma omp parallel for num_threads(numOfThread_)
     for(int i = 0; i < numOfOmega_; i++){
       ArgWrapper wrapper;

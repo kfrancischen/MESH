@@ -19,8 +19,8 @@ int main(){
   s->setKParallelIntegral(1.0);
   s->optUseQuadgk();
   s->setThread(4);
-  s->build();
-  s->runNaive();
+  s->buildRCWA();
+  s->integrateKParallel();
   s->saveToFile("test_output.txt");
   return 0;
 }

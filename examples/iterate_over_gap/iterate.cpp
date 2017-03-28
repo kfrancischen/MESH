@@ -24,8 +24,8 @@ int main(){
   // this function will interate the gap from 10-100 nm
   for(int i = 10; i < 100; i += 10){
     s->setLayerThickness("VacGap", i * 1e-9);
-    s->build();
-    s->runNaive();
+    s->buildRCWA();
+    s->integrateKParallel();
     s->saveToFile("test" + std::to_string(i) + ".txt");
   }
   return 0;
