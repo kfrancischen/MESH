@@ -44,6 +44,8 @@ typedef struct OPTIONS{
   int IntegralMethod = GAUSSKRONROD_;
   bool PrintIntermediate = false;
   bool IntegrateKParallel = true;
+  bool kxIntegralPreset = false;
+  bool kyIntegralPreset = false;
 } Options;
 
 
@@ -146,6 +148,12 @@ public:
   void optUseNaiveRule();
   void optPrintIntermediate();
   void setThread(const int numThread);
+
+  void setKxIntegral(const int points, const double end = 0);
+  void setKxIntegralSym(const int points, const double end = 0);
+  void setKyIntegral(const int points, const double end = 0);
+  void setKyIntegralSym(const int points, const double end = 0);
+
   void integrateKxKy();
 
 protected:
@@ -213,12 +221,6 @@ public:
   // this function is used when one knows that the problem is only a kx integral
   void setKParallelIntegral(const double end);
 
-  // this function is used when one knows that the problem is not a simple kx integral
-  void setKxIntegral(const int points, const double end);
-  void setKxIntegralSym(const int points, const double end);
-  void setKyIntegral(const int points, const double end);
-  void setKyIntegralSym(const int points, const double end);
-
   void optUseQuadgl(int degree = DEGREE);
   void optUseQuadgk();
 
@@ -243,11 +245,6 @@ public:
   SimulationGrating(const SimulationGrating&) = delete;
 
   void setGy() = delete;
-  void setKxIntegral(const int points);
-  void setKxIntegralSym(const int points);
-  // for ky integral, from 0 to inf
-  void setKyIntegral(const int points, const double end);
-  void setKyIntegralSym(const int points, const double end);
 
   void optUseAdaptive();
 protected:
@@ -266,10 +263,6 @@ public:
 
   SimulationPattern(const SimulationPattern&) = delete;
 
-  void setKxIntegral(const int points);
-  void setKxIntegralSym(const int points);
-  void setKyIntegral(const int points);
-  void setKyIntegralSym(const int points);
 protected:
 
 private:

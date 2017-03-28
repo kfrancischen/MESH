@@ -889,8 +889,8 @@ namespace MESH{
             }
             case RECTANGLE_:{
               std::cout << "rectangle, ";
-              std::cout << "(c_x, w_x) = (" << (*it).arg1_.first << ", " << (*it).arg1_.second <<"), ";
-              std::cout << "(c_y, w_y) = (" << (*it).arg2_.first << ", " << (*it).arg2_.second <<")\n";
+              std::cout << "(c_x, w_x) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first <<"), ";
+              std::cout << "(c_y, w_y) = (" << (*it).arg1_.second << ", " << (*it).arg2_.second <<")\n";
               break;
             }
             case CIRCLE_:{
@@ -935,7 +935,118 @@ namespace MESH{
     }
     numOfThread_ = std::min(thread, omp_get_max_threads());
   }
+  /*==============================================*/
+  // Function setting the integral over kx
+  // @args:
+  // points: number of points of sampling kx
+  // end: the upperbound of the integral
+  /*==============================================*/
+  void Simulation::setKxIntegral(const int points, const double end){
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
+    numOfKx_ = points;
+    if(dim_ != NO_ && period_[0] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
+    if(dim_ == NO_ && end == 0.0){
+      throw UTILITY::ValueException("integral upper bound cannot be zero!");
+    }
+    if(end != 0){
+      kxEnd_ = end;
+      options_.kxIntegralPreset = true;
+    }
+    else{
+      kxEnd_ = datum::pi / period_[0];
+      options_.kxIntegralPreset = false;
+    }
+    kxStart_ = -kxEnd_;
+  }
 
+  /*==============================================*/
+  // This function set the integral of kx when the system is symmetric in x direction
+  // @args:
+  // points: number of kx points
+  // end: the upperbound of the integral
+  /*==============================================*/
+  void Simulation::setKxIntegralSym(const int points, const double end){
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
+    numOfKx_ = points;
+    if(dim_ != NO_ && period_[0] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
+    if(dim_ == NO_ && end == 0.0){
+      throw UTILITY::ValueException("integral upper bound cannot be zero!");
+    }
+    if(end != 0){
+      kxEnd_ = end;
+      options_.kxIntegralPreset = true;
+    }
+    else{
+      kxEnd_ = datum::pi / period_[0];
+      options_.kxIntegralPreset = false;
+    }
+    kxStart_ = 0;
+    prefactor_ *= 2;
+  }
+
+  /*==============================================*/
+  // This function set the integral of ky
+  // @args:
+  // points: number of ky points
+  // end: the upperbound of the integral
+  /*==============================================*/
+  void Simulation::setKyIntegral(const int points, const double end){
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
+    numOfKy_ = points;
+    if(dim_ == TWO_ && period_[1] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
+    if((dim_ == NO_ || dim_ == ONE_) && end == 0.0){
+      throw UTILITY::ValueException("integral upper bound cannot be zero!");
+    }
+    if(end != 0){
+      kyEnd_ = end;
+      options_.kyIntegralPreset = true;
+    }
+    else{
+      kyEnd_ = datum::pi / period_[1];
+      options_.kyIntegralPreset = false;
+    }
+    kxStart_ = -kxEnd_;
+  }
+  /*==============================================*/
+  // This function set the integral of ky assume y symmetry
+  // @args:
+  // points: number of ky points
+  // end: the upperbound of the integral
+  /*==============================================*/
+  void Simulation::setKyIntegralSym(const int points, const double end){
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
+    numOfKy_ = points;
+    if(dim_ == TWO_ && period_[1] == 0.0){
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
+    if((dim_ == NO_ || dim_ == ONE_) && end == 0.0){
+      throw UTILITY::ValueException("integral upper bound cannot be zero!");
+    }
+    if(end != 0){
+      kyEnd_ = end;
+      options_.kyIntegralPreset = true;
+    }
+    else{
+      kyEnd_ = datum::pi / period_[1];
+      options_.kyIntegralPreset = false;
+    }
+    kyStart_ = 0;
+    prefactor_ *= 2;
+  }
   /*==============================================*/
   // This function computes the flux
   /*==============================================*/
@@ -962,13 +1073,16 @@ namespace MESH{
           break;
         }
         case ONE_:{
-          scalex[i] = omegaList_[i] / datum::c_0;
+          if(options_.kyIntegralPreset) scalex[i] = 1;
+          else scalex[i] = omegaList_[i] / datum::c_0;
           scaley[i] = 1;
           break;
         }
         case TWO_:{
-          scalex[i] = omegaList_[i] / datum::c_0;
-          scaley[i] = scalex[i];
+          if(options_.kxIntegralPreset) scalex[i] = 1;
+          else scalex[i] = omegaList_[i] / datum::c_0;
+          if(options_.kyIntegralPreset) scaley[i] = 1;
+          else scaley[i] = omegaList_[i] / datum::c_0;
           break;
         }
         default: break;
@@ -1026,68 +1140,6 @@ namespace MESH{
     numOfKx_ = 0;
     kxEnd_ = end;
     options_.IntegrateKParallel = true;
-  }
-  /*==============================================*/
-  // Function setting the integral over kx
-  // @args:
-  // points: number of points considered in the integral
-  // end: the end of the integration
-  /*==============================================*/
-  void SimulationPlanar::setKxIntegral(const int points, const double end){
-    kxStart_ = -end;
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKx_ = points;
-    kxEnd_ = end;
-    options_.IntegrateKParallel = false;
-  }
-  /*==============================================*/
-  // Function setting the integral over kx (symetric)
-  // @args:
-  // points: number of points considered in the integral
-  // end: the end of the integration
-  /*==============================================*/
-  void SimulationPlanar::setKxIntegralSym(const int points, const double end){
-    kxStart_ = 0;
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKx_ = points;
-    kxEnd_ = end;
-    prefactor_ *= 2;
-    options_.IntegrateKParallel = false;
-  }
-  /*==============================================*/
-  // Function setting the integral over ky
-  // @args:
-  // end: the end of the integration
-  // points: number of points considered in the integral
-  /*==============================================*/
-  void SimulationPlanar::setKyIntegral(const int points, const double end){
-    kxStart_ = -end;
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKx_ = points;
-    kxEnd_ = end;
-    options_.IntegrateKParallel = false;
-  }
-  /*==============================================*/
-  // Function setting the integral over ky (symetric)
-  // @args:
-  // end: the end of the integration
-  // points: number of points considered in the integral
-  /*==============================================*/
-  void SimulationPlanar::setKyIntegralSym(const int points, const double end){
-    kxStart_ = 0;
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKx_ = points;
-    kxEnd_ = end;
-    prefactor_ *= 2;
-    options_.IntegrateKParallel = false;
   }
   /*==============================================*/
   // Function setting the integral to be the gauss_legendre
@@ -1185,70 +1237,7 @@ namespace MESH{
   Ptr<SimulationGrating> SimulationGrating::instanceNew(){
     return new SimulationGrating();
   }
-  /*==============================================*/
-  // Function setting the integral over kx
-  // @args:
-  // points: number of points of sampling kx
-  /*==============================================*/
-  void SimulationGrating::setKxIntegral(const int points){
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKx_ = points;
-    if(period_[0] == 0.0){
-      throw UTILITY::ValueException("Periodicity not set!");
-    }
-    kxStart_ = -datum::pi / period_[0];
-    kxEnd_ = -kxStart_;
-  }
 
-  /*==============================================*/
-  // This function set the integral of kx when the system is symmetric in x direction
-  // @args:
-  // points: number of kx points
-  /*==============================================*/
-  void SimulationGrating::setKxIntegralSym(const int points){
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKx_ = points;
-    kxStart_ = 0;
-    if(period_[0] == 0.0){
-      throw UTILITY::ValueException("Periodicity not set!");
-    }
-    kxEnd_ = datum::pi / period_[0];
-    prefactor_ *= 2;
-  }
-
-  /*==============================================*/
-  // This function set the integral of ky
-  // @args:
-  // points: number of ky points
-  // end: the upperbound of the integral
-  /*==============================================*/
-  void SimulationGrating::setKyIntegral(const int points, const double end){
-    kyStart_ = -end;
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKy_ = points;
-    kyEnd_ = end;
-  }
-  /*==============================================*/
-  // This function set the integral of ky assume y symmetry
-  // @args:
-  // points: number of ky points
-  // end: the upperbound of the integral
-  /*==============================================*/
-  void SimulationGrating::setKyIntegralSym(const int points, const double end){
-    kyStart_ = 0;
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKy_ = points;
-    kyEnd_ = end;
-    prefactor_ *= 2;
-  }
   /*==============================================*/
   // function using adaptive resolution algorithm
   /*==============================================*/
@@ -1267,76 +1256,6 @@ namespace MESH{
   /*==============================================*/
   Ptr<SimulationPattern> SimulationPattern::instanceNew(){
     return new SimulationPattern();
-  }
-
-  /*==============================================*/
-  // Function setting the integral over kx
-  // @args:
-  // points: number of points of sampling kx
-  /*==============================================*/
-  void SimulationPattern::setKxIntegral(const int points){
-    if(period_[0] == 0.0){
-      throw UTILITY::ValueException("Periodicity not set!");
-    }
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    kxStart_ = -datum::pi / period_[0];
-    numOfKx_ = points;
-    kxEnd_ = -kxStart_;
-  }
-
-  /*==============================================*/
-  // This function set the integral of kx when the system is symmetric in x direction
-  // @args:
-  // points: number of kx points
-  /*==============================================*/
-  void SimulationPattern::setKxIntegralSym(const int points){
-    kxStart_ = 0;
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKx_ = points;
-    if(period_[0] == 0.0){
-      throw UTILITY::ValueException("Periodicity not set!");
-    }
-    kxEnd_ = datum::pi / period_[0];
-    prefactor_ *= 2;
-  }
-
-  /*==============================================*/
-  // This function set the integral of ky
-  // @args:
-  // points: number of ky points
-  /*==============================================*/
-  void SimulationPattern::setKyIntegral(const int points){
-    if(period_[1] == 0.0){
-      throw UTILITY::ValueException("Periodicity not set!");
-    }
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    kyStart_ = -datum::pi / period_[1];
-    numOfKy_ = points;
-    kyEnd_ = -kyStart_;
-  }
-
-  /*==============================================*/
-  // This function set the integral of ky when the system is symmetric in y direction
-  // @args:
-  // points: number of ky points
-  /*==============================================*/
-  void SimulationPattern::setKyIntegralSym(const int points){
-    kyStart_ = 0;
-    if(points < 2){
-      throw UTILITY::ValueException("Needs no less than 2 points!");
-    }
-    numOfKy_ = points;
-    if(period_[1] == 0.0){
-      throw UTILITY::ValueException("Periodicity not set!");
-    }
-    kyEnd_ = datum::pi / period_[1];
-    prefactor_ *= 2;
   }
 
 }
