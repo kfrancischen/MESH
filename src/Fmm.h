@@ -57,7 +57,8 @@ namespace FMM{
   // center: the center of the grating
   // width: the width of the grating
   // period: the periodicity
-  // whether this layer contains tensor
+  // hasTensor: whether this layer contains tensor
+  // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformGrating(
     RCWAMatrix& eps_xx,
@@ -77,7 +78,8 @@ namespace FMM{
     const double center,
     const double width,
     const double period,
-    bool hasTensor
+    const bool hasTensor,
+    const bool useInverse
   );
 
   /*==============================================*/
@@ -99,7 +101,8 @@ namespace FMM{
   // centers: the centers of the rectangle
   // widths: the widths of the rectangle
   // period: the periodicity
-  // whether this layer contains tensor
+  // hasTensor: whether this layer contains tensor
+  // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformRectangle(
     RCWAMatrix& eps_xx,
@@ -120,7 +123,8 @@ namespace FMM{
     const double centers[2],
     const double widths[2],
     const double period[2],
-    const bool hasTensor
+    const bool hasTensor,
+    const bool useInverse
   );
 
   /*==============================================*/
@@ -142,7 +146,8 @@ namespace FMM{
   // centers: the centers of the circle
   // radius: the radius of the circle
   // period: the periodicity
-  // whether this layer contains tensor
+  // hasTensor: whether this layer contains tensor
+  // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformCircle(
     RCWAMatrix& eps_xx,
@@ -163,7 +168,8 @@ namespace FMM{
     const double centers[2],
     const double radius,
     const double period[2],
-    const bool hasTensor
+    const bool hasTensor,
+    const bool useInverse
   );
 
 

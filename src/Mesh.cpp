@@ -235,21 +235,21 @@ namespace MESH{
   /*==============================================*/
   // This function return the Phi value
   /*==============================================*/
-  double Simulation::getPhiAtIndex(const int index){
-    if(index < 0 || index > numOfOmega_){
-      throw UTILITY::RangeException(std::to_string(index) + " out of range!");
+  double* Simulation::getPhi(){
+    if(Phi_ == nullptr){
+      throw UTILITY::MemoryException("Phi does not exist!");
     }
-    return Phi_[index];
+    return Phi_;
   }
 
   /*==============================================*/
   // This function return the omega value
   /*==============================================*/
-  double Simulation::getOmegaAtIndex(const int index){
-    if(index < 0 || index > numOfOmega_){
-      throw UTILITY::RangeException(std::to_string(index) + " out of range!");
+  double* Simulation::getOmega(){
+    if(omegaList_ == nullptr){
+      throw UTILITY::MemoryException("omega does not exist!");
     }
-    return omegaList_[index];
+    return omegaList_;
   }
   /*==============================================*/
   // This function return the number of omega
@@ -429,6 +429,7 @@ namespace MESH{
       throw UTILITY::NameInUseException(name + ": Layer does not exist!");
       return;
     }
+    layerInstanceMap_.erase(name);
     structure_->deleteLayerByName(name);
   }
 
@@ -649,7 +650,17 @@ namespace MESH{
     Ptr<Material> backGround = firstLayer->getBackGround();
     numOfOmega_ = backGround->getNumOfOmega();
     omegaList_ = backGround->getOmegaList();
+    int numOfLayer = structure_->getNumOfLayer();
 
+    thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
+    sourceList_.resize(numOfLayer);
+    for(int i = 0; i < numOfLayer; i++){
+      thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness();
+      sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
+      if(sourceList_[i] && i >= targetLayer_){
+        throw UTILITY::RangeException("Target Layer needs to be above source layer!");
+      }
+    }
 
     Phi_ = new double[numOfOmega_];
     EMatricesVec_.resize(numOfOmega_);
@@ -658,7 +669,7 @@ namespace MESH{
 
     RCWAMatricesVec eps_xx_MatrixVec(numOfOmega_), eps_xy_MatrixVec(numOfOmega_), eps_yx_MatrixVec(numOfOmega_), eps_yy_MatrixVec(numOfOmega_);
     RCWAMatricesVec im_eps_xx_MatrixVec(numOfOmega_), im_eps_xy_MatrixVec(numOfOmega_), im_eps_yx_MatrixVec(numOfOmega_), im_eps_yy_MatrixVec(numOfOmega_), im_eps_zz_MatrixVec(numOfOmega_);
-    int numOfLayer = structure_->getNumOfLayer();
+
     int N = getN(nGx_, nGy_);
     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
 
@@ -706,7 +717,8 @@ namespace MESH{
                 center,
                 width,
                 period_[0],
-                layer->hasTensor()
+                layer->hasTensor(),
+                options_.FMMRule == INVERSERULE_
               );
               break;
             }
@@ -736,7 +748,8 @@ namespace MESH{
                 centers,
                 widths,
                 period_,
-                layer->hasTensor()
+                layer->hasTensor(),
+                options_.FMMRule == INVERSERULE_
               );
               break;
             }
@@ -765,7 +778,8 @@ namespace MESH{
                 centers,
                 radius,
                 period_,
-                layer->hasTensor()
+                layer->hasTensor(),
+                options_.FMMRule == INVERSERULE_
               );
               break;
             }
@@ -830,13 +844,6 @@ namespace MESH{
 
     }
 
-    thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
-    sourceList_.resize(numOfLayer);
-    for(int i = 0; i < numOfLayer; i++){
-      thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness();
-      sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
-    }
-
   }
   /*==============================================*/
   // This function prints out the information of the system
@@ -857,9 +864,13 @@ namespace MESH{
       Ptr<Layer> layer = it->second;
       std::cout << "Layer index " << it->first << ": " << layer->getName() << std::endl;
       std::cout << "Thickness: " << layer->getThickness() << std::endl;
-      std::cout << "contains tensor: ";
 
+      std::cout << "contains tensor: ";
       if(layer->hasTensor()) std::cout << "YES" << std::endl;
+      else std::cout << "NO" << std::endl;
+
+      std::cout << "Is source: ";
+      if(layer->checkIsSource()) std::cout << "YES" << std::endl;
       else std::cout << "NO" << std::endl;
 
       std::cout << "Its background is: " << layer->getBackGround()->getName() << std::endl;
@@ -1024,6 +1035,9 @@ namespace MESH{
   /*==============================================*/
   void SimulationPlanar::setKxIntegral(const int points, const double end){
     kxStart_ = -end;
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKx_ = points;
     kxEnd_ = end;
     options_.IntegrateKParallel = false;
@@ -1036,6 +1050,9 @@ namespace MESH{
   /*==============================================*/
   void SimulationPlanar::setKxIntegralSym(const int points, const double end){
     kxStart_ = 0;
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKx_ = points;
     kxEnd_ = end;
     prefactor_ *= 2;
@@ -1049,6 +1066,9 @@ namespace MESH{
   /*==============================================*/
   void SimulationPlanar::setKyIntegral(const int points, const double end){
     kxStart_ = -end;
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKx_ = points;
     kxEnd_ = end;
     options_.IntegrateKParallel = false;
@@ -1061,6 +1081,9 @@ namespace MESH{
   /*==============================================*/
   void SimulationPlanar::setKyIntegralSym(const int points, const double end){
     kxStart_ = 0;
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKx_ = points;
     kxEnd_ = end;
     prefactor_ *= 2;
@@ -1168,6 +1191,9 @@ namespace MESH{
   // points: number of points of sampling kx
   /*==============================================*/
   void SimulationGrating::setKxIntegral(const int points){
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKx_ = points;
     if(period_[0] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
@@ -1182,6 +1208,9 @@ namespace MESH{
   // points: number of kx points
   /*==============================================*/
   void SimulationGrating::setKxIntegralSym(const int points){
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKx_ = points;
     kxStart_ = 0;
     if(period_[0] == 0.0){
@@ -1199,6 +1228,9 @@ namespace MESH{
   /*==============================================*/
   void SimulationGrating::setKyIntegral(const int points, const double end){
     kyStart_ = -end;
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKy_ = points;
     kyEnd_ = end;
   }
@@ -1210,6 +1242,9 @@ namespace MESH{
   /*==============================================*/
   void SimulationGrating::setKyIntegralSym(const int points, const double end){
     kyStart_ = 0;
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKy_ = points;
     kyEnd_ = end;
     prefactor_ *= 2;
@@ -1243,6 +1278,9 @@ namespace MESH{
     if(period_[0] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
     }
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     kxStart_ = -datum::pi / period_[0];
     numOfKx_ = points;
     kxEnd_ = -kxStart_;
@@ -1255,6 +1293,9 @@ namespace MESH{
   /*==============================================*/
   void SimulationPattern::setKxIntegralSym(const int points){
     kxStart_ = 0;
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKx_ = points;
     if(period_[0] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
@@ -1272,6 +1313,9 @@ namespace MESH{
     if(period_[1] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");
     }
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     kyStart_ = -datum::pi / period_[1];
     numOfKy_ = points;
     kyEnd_ = -kyStart_;
@@ -1284,6 +1328,9 @@ namespace MESH{
   /*==============================================*/
   void SimulationPattern::setKyIntegralSym(const int points){
     kyStart_ = 0;
+    if(points < 2){
+      throw UTILITY::ValueException("Needs no less than 2 points!");
+    }
     numOfKy_ = points;
     if(period_[1] == 0.0){
       throw UTILITY::ValueException("Periodicity not set!");

@@ -133,8 +133,8 @@ public:
   void setGx(const int nGx);
   void setGy(const int nGy);
   void saveToFile(const std::string fileName);
-  double getPhiAtIndex(const int index);
-  double getOmegaAtIndex(const int index);
+  double* getPhi();
+  double* getOmega();
   int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);

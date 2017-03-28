@@ -179,7 +179,8 @@
    // center: the center of the grating
    // width: the width of the grating
    // period: the periodicity
-   // whether this layer contains tensor
+   // hasTensor: whether this layer contains tensor
+   // userInverse: whether to use inverse rule
    /*==============================================*/
    void transformGrating(
     RCWAMatrix& eps_xx,
@@ -199,7 +200,8 @@
     const double center,
     const double width,
     const double period,
-    bool hasTensor
+    const bool hasTensor,
+    const bool useInverse
    ){
      RCWAMatrix G_row(1, N), G_col(N, 1);
      for(int i = 0; i < N; i++){
@@ -269,7 +271,8 @@
    // centers: the centers of the rectangle
    // widths: the widths of the rectangle
    // period: the periodicity
-   // whether this layer contains tensor
+   // hasTensor: whether this layer contains tensor
+   // userInverse: whether to use inverse rule
    /*==============================================*/
    void transformRectangle(
     RCWAMatrix& eps_xx,
@@ -290,7 +293,8 @@
     const double centers[2],
     const double widths[2],
     const double period[2],
-    const bool hasTensor
+    const bool hasTensor,
+    const bool useInverse
    ){
 
      int N = RCWA::getN(nGx, nGy);
@@ -369,7 +373,8 @@
    // centers: the centers of the circle
    // radius: the radius of the circle
    // period: the periodicity
-   // whether this layer contains tensor
+   // hasTensor: whether this layer contains tensor
+   // userInverse: whether to use inverse rule
    /*==============================================*/
    void transformCircle(
     RCWAMatrix& eps_xx,
@@ -390,7 +395,8 @@
     const double centers[2],
     const double radius,
     const double period[2],
-    const bool hasTensor
+    const bool hasTensor,
+    const bool useInverse
    ){
      int N = RCWA::getN(nGx, nGy);
      double area = period[0] * period[1];
