@@ -102,6 +102,7 @@ namespace SYSTEM{
     bool checkIsSource();
     void containTensor(bool val);
     bool hasTensor();
+    bool hasMaterial(const Ptr<Material>& material);
 
     Ptr<Material> getBackGround();
     Ptr<Material> getMaterialByName(const std::string name);
@@ -131,7 +132,7 @@ namespace SYSTEM{
     MaterialVec materialVec_;
     PatternVec patternVec_;
     SOURCE source_;
-    bool hasTensor_ = false;
+    int hasTensor_ = 0;
   };
 
   typedef std::map<int, Ptr<Layer> > LayerMap;

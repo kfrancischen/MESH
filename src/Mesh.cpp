@@ -299,6 +299,7 @@ namespace MESH{
       return;
     }
     Ptr<Material> material = materialInstanceMap_.find(name)->second;
+    EPSTYPE originalType = material->getType();
     int numOfOmega = material->getNumOfOmega();
     EPSILON newEpsilon;
     newEpsilon.epsilonVals = new EpsilonVal[numOfOmega];
@@ -336,6 +337,21 @@ namespace MESH{
     material->setEpsilon(newEpsilon, numOfOmega);
     delete [] newEpsilon.epsilonVals;
     newEpsilon.epsilonVals = nullptr;
+
+    for(const_LayerInstanceIter it = layerInstanceMap_.cbegin(); it != layerInstanceMap_.cend(); it++){
+      Ptr<Layer> layer = it->second;
+      if(layer->hasMaterial(material)){
+
+        if(originalType != TENSOR_ && type == "tensor"){
+          layer->containTensor(true);
+        }
+        if(originalType == TENSOR_ && type != "tensor"){
+          layer->containTensor(false);
+        }
+
+      }
+    }
+
   }
   /*==============================================*/
   // This function adds a new layer to the system
@@ -376,6 +392,12 @@ namespace MESH{
     }
     Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
     Ptr<Layer> layer = layerInstanceMap_.find(name)->second;
+    if(material->getType() == TENSOR_ && !layer->hasMaterial(material)){
+      layer->containTensor(true);
+    }
+    if((layer->getBackGround())->getType() == TENSOR_ && material->getType() != TENSOR_){
+      layer->containTensor(false);
+    }
     layer->setBackGround(material);
     layer->setThickness(thick);
   }
@@ -620,23 +642,6 @@ namespace MESH{
   void Simulation::buildRCWA(){
     // reset simulation first
     this->resetSimulation();
-    // check each layer whether a tensor exist
-    for(const_LayerIter it = structure_->getLayersBegin(); it != structure_->getLayersEnd(); it++){
-      Ptr<Layer> layer = it->second;
-      layer->containTensor(false);
-      if(layer->getBackGround()->getType() == TENSOR_){
-        layer->containTensor(true);
-        options_.FMMRule = NAIVEFMM_;
-        break;
-      }
-      for(const_MaterialIter m_it = layer->getMaterialsBegin(); m_it != layer->getMaterialsEnd(); m_it++){
-        if((*m_it)->getType() == TENSOR_){
-          layer->containTensor(true);
-          options_.FMMRule = NAIVEFMM_;
-          break;
-        }
-      }
-    }
     // essential, get the shared Gx_mat_ and Gy_mat_
     getGMatrices(nGx_, nGy_, period_, Gx_mat_, Gy_mat_, dim_);
     // get constants
@@ -1096,7 +1101,6 @@ namespace MESH{
         int kyIdx = residue % numOfKy_;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
         if(options_.PrintIntermediate){
-          #pragma omp atomic
           std::cout << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
         }
     }

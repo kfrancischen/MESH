@@ -85,6 +85,7 @@ private:
 //  definition of maps used in the simulation
 /*=======================================================*/
 typedef std::map< std::string, Ptr<Layer> > LayerInstanceMap;
+typedef LayerInstanceMap::const_iterator const_LayerInstanceIter;
 typedef std::map< std::string, Ptr<Material> > MaterialInstanceMap;
 
 /*======================================================*/

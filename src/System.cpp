@@ -236,6 +236,7 @@ namespace SYSTEM{
   void Layer::setBackGround(const Ptr<Material>& material){
     //backGround_ = new Material(*material);
     backGround_ = material;
+    if(material->getType() == TENSOR_) hasTensor_++;
   }
   /*==============================================*/
   // set thickness of the layer
@@ -264,13 +265,24 @@ namespace SYSTEM{
   // set the layer contains a material with tensor dielectric
   /*==============================================*/
   void Layer::containTensor(bool val){
-    hasTensor_ = val;
+    if(val) hasTensor_++;
+    else hasTensor_--;
   }
   /*==============================================*/
   // check whether the layer contains a material with tensor dielectric
   /*==============================================*/
   bool Layer::hasTensor(){
-    return hasTensor_;
+    return hasTensor_ != 0;
+  }
+  /*==============================================*/
+  // check whether the layer contains a given material
+  /*==============================================*/
+  bool Layer::hasMaterial(const Ptr<Material>& material){
+    if((backGround_->name()).compare(material->getName())) return true;
+    for(const_MaterialIter it = this->getMaterialsBegin(); it != this->getMaterialsEnd(); it++){
+      if(*it == material) return true;
+    }
+    return false;
   }
   /*==============================================*/
   // get the background material
@@ -346,7 +358,7 @@ namespace SYSTEM{
   ){
 
     materialVec_.push_back(material);
-
+    if(material->getType() == TENSOR_) hasTensor_++;
     Pattern pattern;
     pattern.arg1_ = std::make_pair(args1[0], args1[1]);
     pattern.arg2_ = std::make_pair(args2[0], args2[1]);
@@ -367,7 +379,7 @@ namespace SYSTEM{
     const double radius
   ){
     materialVec_.push_back(material);
-
+    if(material->getType() == TENSOR_) hasTensor_++;
     Pattern pattern;
     pattern.arg1_ = std::make_pair(args[0], radius);
     pattern.arg2_ = std::make_pair(args[1], radius);
@@ -387,7 +399,7 @@ namespace SYSTEM{
     const double width
   ){
     materialVec_.push_back(material);
-
+    if(material->getType() == TENSOR_) hasTensor_++;
     Pattern pattern;
     pattern.arg1_ = std::make_pair(center, width);
     pattern.type_ = GRATING_;
