@@ -18,7 +18,7 @@
 #define LUAWRAPPERUTILS_HPP_
 
 #include "luawrapper.hpp"
-
+#include "../utility/Utility.h"
 #ifndef LUAW_NO_CXX11
 #include <type_traits>
 #endif
@@ -26,7 +26,7 @@
 #ifndef LUAW_STD
 #define LUAW_STD std
 #endif
-
+using UTILITY::Ptr;
 ////////////////////////////////////////////////////////////////////////////////
 //
 // A set of templated luaL_check and lua_push functions for use in the getters
@@ -147,6 +147,16 @@ struct luaU_Impl<T*, typename LUAW_STD::enable_if<LUAW_STD::is_class<T>::value>:
     static void luaU_push ( lua_State* L, T*& value) {        luaW_push <T>(L, value); }
     static void luaU_push ( lua_State* L, T*  value) {        luaW_push <T>(L, value); }
 };
+
+template<typename T>
+struct luaU_Impl<Ptr<T>, typename LUAW_STD::enable_if<LUAW_STD::is_class<T>::value>::type>
+{
+    static Ptr<T>   luaU_check( lua_State* L, int index) { return luaW_check<T>(L, index); }
+    static Ptr<T>   luaU_to   ( lua_State* L, int index) { return luaW_to   <T>(L, index); }
+    static void luaU_push ( lua_State* L, Ptr<T>& value) {        luaW_push <T>(L, value); }
+    static void luaU_push ( lua_State* L, Ptr<T>  value) {        luaW_push <T>(L, value); }
+};
+
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

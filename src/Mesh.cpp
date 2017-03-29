@@ -70,23 +70,17 @@ namespace MESH{
     inputFile.close();
 
     if(!preSet_){
-      if(numOfOmega_ != 0 && numOfOmega_ != count){
-        throw UTILITY::StorageException(fileName + " wrong length!");
-      }
       numOfOmega_ = count;
-    }
-    else{
-      if(numOfOmega_ > count){
-        throw UTILITY::RangeException("not enought omega points!");
-      }
-    }
-    if(omegaList_ == nullptr){
+      preSet_ = true;
       omegaList_ = new double[numOfOmega_];
-    }
-
-    if(epsilonList_.epsilonVals == nullptr){
       epsilonList_.epsilonVals = new EpsilonVal[numOfOmega_];
     }
+    else{
+      if(numOfOmega_ != count){
+        throw UTILITY::RangeException("wrong omega points!");
+      }
+    }
+
     epsilonList_.type_ = type;
     std::ifstream inputFile2(fileName);
     for(int i = 0; i < numOfOmega_; i++){
@@ -1073,7 +1067,7 @@ namespace MESH{
           break;
         }
         case ONE_:{
-          if(options_.kxIntegralPreset) scalex[i] = 1;
+          if(options_.kyIntegralPreset) scalex[i] = 1;
           else scalex[i] = omegaList_[i] / datum::c_0;
           scaley[i] = 1;
           break;
@@ -1102,6 +1096,7 @@ namespace MESH{
         int kyIdx = residue % numOfKy_;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
         if(options_.PrintIntermediate){
+          #pragma omp atomic
           std::cout << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
         }
     }

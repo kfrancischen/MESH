@@ -5,6 +5,14 @@
 #include <math.h>
 #define eps 1e-15
 #define el 0.5772156649015329
+#if defined(_WIN32)
+// define following constants for windows compilation
+#define M_PI 3.14159265358979323846
+#define M_PI_2 1.57079632679489661923
+#define M_PI_4 0.785398163397448309616
+#define M_1_PI 0.318309886183790671538
+#define M_2_PI 0.636619772367581343076
+#endif
 //  gammaFun.cpp -- computation of gammaFun function.
 //      Algorithms and coefficient values from "Computation of Special
 //      Functions", Zhang and Jin, John Wiley and Sons, 1996.

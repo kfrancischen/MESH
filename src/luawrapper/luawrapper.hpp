@@ -41,6 +41,7 @@ extern "C"
 #endif // LUAW_NO_EXTERN_C
 
 #include "lua.h"
+#include "lualib.h"
 #include "lauxlib.h"
     
 #ifndef LUAW_NO_EXTERN_C
@@ -485,7 +486,7 @@ int luaW_gc(lua_State* L)
 inline void luaW_registerfuncs(lua_State* L, const luaL_Reg defaulttable[], const luaL_Reg table[])
 {
     // ... T
-#if LUA_VERSION_NUM == 502
+#if LUA_VERSION_NUM >= 502
     if (defaulttable)
         luaL_setfuncs(L, defaulttable, 0); // ... T
     if (table)

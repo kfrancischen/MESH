@@ -155,11 +155,11 @@ public:
   void setKyIntegralSym(const int points, const double end = 0);
 
   void integrateKxKy();
-
+  ~Simulation();
 protected:
   Simulation();
   Simulation(const Simulation&) = delete;
-  ~Simulation();
+
   void resetSimulation();
   void setTargetLayerByLayer(const Ptr<Layer>& layer);
   Ptr<Structure> getStructure();
@@ -227,11 +227,11 @@ public:
   void integrateKParallel();
   double getPhiAtKParallel(const int omegaIndex, const double KParallel);
 
+  SimulationPlanar();
 protected:
 
 private:
 
-  SimulationPlanar();
   int degree_ = DEGREE;
 };
 
@@ -247,10 +247,10 @@ public:
   void setGy() = delete;
 
   void optUseAdaptive();
+  SimulationGrating();
 protected:
 
 private:
-  SimulationGrating();
 };
 
 /*======================================================*/
@@ -260,13 +260,12 @@ class SimulationPattern : public Simulation{
 public:
 
   static Ptr<SimulationPattern> instanceNew();
-
+  SimulationPattern();
   SimulationPattern(const SimulationPattern&) = delete;
 
 protected:
 
 private:
-  SimulationPattern();
 };
 }
 #endif
