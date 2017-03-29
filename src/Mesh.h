@@ -28,7 +28,9 @@
 #include "Common.h"
 #include "config.h"
 #include <fstream>
-#include <omp.h>
+#if defined(_OPENMP)
+  #include <omp.h>
+#endif
 
 namespace MESH{
 using namespace SYSTEM;

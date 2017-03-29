@@ -932,7 +932,9 @@ namespace MESH{
     if(thread <= 0){
       throw UTILITY::RangeException("Number of thread should >= 1!");
     }
-    numOfThread_ = std::min(thread, omp_get_max_threads());
+    #if defined(_OPENMP)
+      numOfThread_ = std::min(thread, omp_get_max_threads());
+    #endif
   }
   /*==============================================*/
   // Function setting the integral over kx
@@ -1092,8 +1094,9 @@ namespace MESH{
 
     // use dynamic allocation for stack memory problem
     double* resultArray = new double[totalNum];
-
-    #pragma omp parallel for num_threads(numOfThread_)
+    #if defined(_OPENMP)
+      #pragma omp parallel for num_threads(numOfThread_)
+    #endif
     for(int i = 0; i < totalNum; i++){
         int omegaIdx = i / (numOfKx_ * numOfKy_);
         int residue = i % (numOfKx_ * numOfKy_);
@@ -1193,7 +1196,9 @@ namespace MESH{
     if(options_.IntegrateKParallel == false){
       throw UTILITY::InternalException("Cannot use kparallel integral here!");
     }
-    #pragma omp parallel for num_threads(numOfThread_)
+    #if defined(_OPENMP)
+      #pragma omp parallel for num_threads(numOfThread_)
+    #endif
     for(int i = 0; i < numOfOmega_; i++){
       ArgWrapper wrapper;
       wrapper.thicknessList = thicknessListVec_;
