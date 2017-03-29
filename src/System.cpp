@@ -509,6 +509,40 @@ namespace SYSTEM{
     return;
   }
   /*==============================================*/
+  // function saving the structure to a POVRay file
+  // @args:
+  // outfile: the output file name, should end with .pov
+  /*==============================================*/
+  void Structure::getPOVRay(const std::string outfile){
+    // TODO
+  }
+
+  /*==============================================*/
+  // function returning the POV for one pattern
+  // @args:
+  // type: the type of the pattern
+  /*==============================================*/
+  std::string Structure::getPOVRayForPattern(const PATTERN type){
+    std::string output;
+    switch (type) {
+      case GRATING_:{
+        //TODO
+        break;
+      }
+      case RECTANGLE_:{
+        //TODO
+        break;
+      }
+      case CIRCLE_:{
+        //TODO
+        break;
+      }
+      default: break;
+    }
+    return output;
+  }
+
+  /*==============================================*/
   // layer iterator begin
   /*==============================================*/
   const_LayerIter Structure::getLayersBegin(){

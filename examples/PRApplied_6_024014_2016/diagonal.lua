@@ -20,4 +20,4 @@ s:OptUseQuadgk();
 s:BuildRCWA();
 s:IntegrateKParallel();
 
-s:SaveToFile("output_lua.txt");
+s:OutputPhi("output_lua.txt");

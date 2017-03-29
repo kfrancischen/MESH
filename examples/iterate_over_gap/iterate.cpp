@@ -26,7 +26,7 @@ int main(){
     s->setLayerThickness("VacGap", i * 1e-9);
     s->buildRCWA();
     s->integrateKParallel();
-    s->saveToFile("test" + std::to_string(i) + ".txt");
+    s->outputPhi("test" + std::to_string(i) + ".txt");
   }
   return 0;
 }

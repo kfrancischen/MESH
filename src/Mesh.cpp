@@ -221,7 +221,7 @@ namespace MESH{
   /*==============================================*/
   // This function saves data to disk
   /*==============================================*/
-  void Simulation::saveToFile(const std::string fileName){
+  void Simulation::outputPhi(const std::string fileName){
     std::ofstream outputFile(fileName);
     for(int i = 0; i < numOfOmega_; i++){
       outputFile << omegaList_[i] << "\t" << Phi_[i] << std::endl;
@@ -1101,8 +1101,10 @@ namespace MESH{
   /*==============================================*/
   void Simulation::integrateKxKy(){
 
-    double kxList[numOfKx_], kyList[numOfKy_];
-    double scalex[numOfOmega_], scaley[numOfOmega_];
+    double* kxList = new double[numOfKx_];
+    double* kyList = new double[numOfKy_];
+    double* scalex = new double[numOfOmega_];
+    double* scaley = new double[numOfOmega_];
     // here dkx is not normalized
     double dkx = (kxEnd_ - kxStart_) / (numOfKx_ - 1);
     // here kyEnd_ is normalized for 1D case
@@ -1167,6 +1169,22 @@ namespace MESH{
 
     delete[] resultArray;
     resultArray = nullptr;
+    delete[] kxList;
+    kxList = nullptr;
+    delete[] kyList;
+    kyList = nullptr;
+    delete[] scalex;
+    scalex = nullptr;
+    delete[] scaley;
+    scaley = nullptr;
+  }
+  /*==============================================*/
+  // function saving the structure to a POVRay file
+  // @args:
+  // outfile: the output file name, should end with .pov
+  /*==============================================*/
+  void Simulation::outputStructurePOVRay(const std::string outfile){
+    structure_->getPOVRay(outfile);
   }
   /*==============================================*/
   // Implementaion of the class on planar simulation

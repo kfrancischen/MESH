@@ -21,7 +21,7 @@ for i = 10, 100, 10 do
   s:SetLayerThickness("VacGap", i * 1e-9);
   s:BuildRCWA();
   s:IntegrateKParallel();
-  s:SaveToFile("test_lua"..tostring(i)..".txt");
+  s:OutputPhi("test_lua"..tostring(i)..".txt");
 end
 
 

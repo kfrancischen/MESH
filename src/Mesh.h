@@ -138,7 +138,7 @@ public:
 
   void setGx(const int nGx);
   void setGy(const int nGy);
-  void saveToFile(const std::string fileName);
+  void outputPhi(const std::string fileName);
   double* getPhi();
   double* getOmega();
   int getNumOfOmega();
@@ -159,6 +159,8 @@ public:
   void setKyIntegralSym(const int points, const double end = 0);
 
   void integrateKxKy();
+  void outputStructurePOVRay(const std::string outfile);
+
   ~Simulation();
 protected:
   Simulation();

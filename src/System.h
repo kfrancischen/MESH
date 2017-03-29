@@ -157,6 +157,7 @@ namespace SYSTEM{
     Ptr<Layer> getLayerByName(const std::string name);
     int getNumOfLayer();
     void getThicknessList(double* thicknessList);
+    void getPOVRay(const std::string outfile);
 
     const_LayerIter getLayersBegin();
     const_LayerIter getLayersEnd();
@@ -165,6 +166,7 @@ namespace SYSTEM{
     Structure();
     void deleteLayer(const_LayerIter it);
     void reorganizeLayers();
+    std::string getPOVRayForPattern(const PATTERN type);
     LayerMap layerMap_;
   };
 

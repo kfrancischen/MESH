@@ -15,4 +15,4 @@ s:OptUseQuadgk();
 s:BuildRCWA();
 s:SetKParallelIntegral(1);
 s:IntegrateKParallel();
-s:SaveToFile("test_lua.txt");
+s:OutputPhi("test_lua.txt");

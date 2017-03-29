@@ -24,7 +24,7 @@ int main(){
   s->buildRCWA();
   s->setThread(4);
   s->integrateKParallel();
-  s->saveToFile("test.txt");
+  s->outputPhi("test.txt");
   double* phi = s->getPhi();
   double* omega = s->getOmega();
   for(int i = 0; i < s->getNumOfOmega(); i++){

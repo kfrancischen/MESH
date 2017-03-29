@@ -29,7 +29,7 @@ int main(){
   s->setThread(4);
   s->buildRCWA();
   s->integrateKxKy();
-  //s->saveToFile("gold_to_vac.txt");
+  //s->outputPhi("gold_to_vac.txt");
 
   //std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
   return 0;

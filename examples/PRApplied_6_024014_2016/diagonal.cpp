@@ -25,6 +25,6 @@ int main(){
   s->setThread(4);
   s->buildRCWA();
   s->integrateKParallel();
-  s->saveToFile("output.txt");
+  s->outputPhi("output.txt");
   return 0;
 }

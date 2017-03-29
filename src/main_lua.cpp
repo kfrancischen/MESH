@@ -286,13 +286,13 @@ int MESH_SetProbeLayer(lua_State* L){
   return 1;
 }
 
-// this function wraps saveToFile(const std::string fileName)
+// this function wraps outputPhi(const std::string fileName)
 // @how to use
-// SaveToFile(output file)
-int MESH_SaveToFile(lua_State *L){
+// OutputPhi(output file)
+int MESH_OutputPhi(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   std::string name = luaU_check<std::string>(L, 2);
-  s->saveToFile(name);
+  s->outputPhi(name);
   return 1;
 }
 
@@ -505,6 +505,15 @@ int MESH_IntegrateKxKy(lua_State *L){
   s->integrateKxKy();
   return 1;
 }
+// this function wraps outputStructurePOVRay(const std::string outfile)
+// @how to use
+// OutputStructurePOVRay(file name)
+int MESH_OutputStructurePOVRay(lua_State *L){
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  std::string outfile = luaU_check<std::string>(L, 2);
+  s->outputStructurePOVRay(outfile);
+  return 1;
+}
 
 /*======================================================*/
 // constructor for the planar
@@ -622,7 +631,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "OptPrintIntermediate", MESH_OptPrintIntermediate },
   { "OptUseInverseRule", MESH_OptUseInverseRule },
   { "optUseNaiveRule", MESH_OptUseNaiveRule },
-  { "SaveToFile", MESH_SaveToFile },
+  { "OutputPhi", MESH_OutputPhi },
   { "BuildRCWA", MESH_BuildRCWA },
   { "SetThread", MESH_SetThread },
   { "SetKxIntegral", MESH_SetKxIntegral },
@@ -630,6 +639,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "SetKyIntegral", MESH_SetKyIntegral },
   { "SetKyIntegralSym", MESH_SetKyIntegralSym },
   { "IntegrateKxKy", MESH_IntegrateKxKy },
+  { "OutputStructurePOVRay", MESH_OutputStructurePOVRay },
 	{NULL, NULL}
 };
 
@@ -670,9 +680,9 @@ void usage(){
 	std::cout << "mesh [input-file] to run a file" << std::endl;
 }
 void version(){
+  std::cout << "Copyright (C) 2016-2018, and GNU GPL'd, by Kaifeng Chen." << std::endl;
 	std::cout << "Multilayer Electromagnetic Solver for Heat transfer (MESH)" << std::endl;
 	std::cout << "Version " << PACKAGE_VERSION << std::endl;
-  std::cout << "Developed by " << AUTHOR << std::endl;
   std::cout << "Email: " << PACKAGE_BUGREPORT << std::endl;
   #if defined(_OPENMP)
 	 std::cout << "With Openmp support." << std::endl;
