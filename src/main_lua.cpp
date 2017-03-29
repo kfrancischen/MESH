@@ -684,10 +684,12 @@ void version(){
 /*=======================================================*/
 int main(int argc, char *argv[]){
   if(argc <= 1){
+    std::cerr << "Please type input file name!" << std::endl;
     throw UTILITY::UnknownArgException("Please type input file name!");
     return 0;
   }
   if(argc >= 3){
+    std::cerr << "Please only read in one file a time!" << std::endl;
     throw UTILITY::UnknownArgException("Please only read in one file a time!");
     return 0;
   }

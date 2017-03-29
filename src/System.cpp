@@ -94,6 +94,7 @@ namespace SYSTEM{
   /*==============================================*/
   EpsilonVal Material::getEpsilonAtIndex(const int index){
     if(index >= numOfOmega_){
+      std::cerr << std::to_string(index) + ": out of range!" << std::endl;
       throw UTILITY::RangeException(std::to_string(index) + ": out of range!");
     }
     return epsilonList_.epsilonVals[index];
@@ -289,6 +290,7 @@ namespace SYSTEM{
   /*==============================================*/
   Ptr<Material> Layer::getBackGround(){
     if(backGround_ == nullptr){
+      std::cerr << "Backgroud not set yet!" << std::endl;
       throw UTILITY::NullPointerException("Backgroud not set yet!");
     }
     return backGround_;

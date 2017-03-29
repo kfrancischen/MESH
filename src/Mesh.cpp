@@ -45,6 +45,7 @@ namespace MESH{
       case 6: return DIAGONAL_;
       case 10: return TENSOR_;
       default:{
+        std::cerr << "Input type wrong!" << std::endl;
         throw UTILITY::UnknownTypeException("Input type wrong!");
       }
     }
@@ -58,6 +59,7 @@ namespace MESH{
   void FileLoader::load(const std::string fileName){
     std::ifstream inputFile(fileName);
     if(!inputFile.good()){
+      std::cerr << fileName + " not exists!" << std::endl;
       throw UTILITY::FileNotExistException(fileName + " not exists!");
     }
     std::string line;
@@ -77,6 +79,7 @@ namespace MESH{
     }
     else{
       if(numOfOmega_ != count){
+        std::cerr << "wrong omega points!" << std::endl;
         throw UTILITY::RangeException("wrong omega points!");
       }
     }
@@ -231,6 +234,7 @@ namespace MESH{
   /*==============================================*/
   double* Simulation::getPhi(){
     if(Phi_ == nullptr){
+      std::cerr << "Phi does not exist!" << std::endl;
       throw UTILITY::MemoryException("Phi does not exist!");
     }
     return Phi_;
@@ -241,6 +245,7 @@ namespace MESH{
   /*==============================================*/
   double* Simulation::getOmega(){
     if(omegaList_ == nullptr){
+      std::cerr << "omega does not exist!" << std::endl;
       throw UTILITY::MemoryException("omega does not exist!");
     }
     return omegaList_;
@@ -269,6 +274,7 @@ namespace MESH{
   /*==============================================*/
   void Simulation::addMaterial(const std::string name, const std::string infile){
     if(materialInstanceMap_.find(name) != materialInstanceMap_.cend()){
+      std::cerr << name + ": Material already exist!" << std::endl;
       throw UTILITY::NameInUseException(name + ": Material already exist!");
       return;
     }
@@ -295,6 +301,7 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setMaterial(const std::string name, double** epsilon, const std::string type){
     if(materialInstanceMap_.find(name) == materialInstanceMap_.cend()){
+      std::cerr << name + ": Material does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(name + ": Material does not exist!");
       return;
     }
@@ -331,6 +338,7 @@ namespace MESH{
     }
     // error
     else{
+      std::cerr << "Please choose 'type' from 'scalar', 'diagonal' or 'tensor'!" << std::endl;
       throw UTILITY::AttributeNotSupportedException("Please choose 'type' from 'scalar', 'diagonal' or 'tensor'!");
     }
 
@@ -362,10 +370,12 @@ namespace MESH{
   /*==============================================*/
   void Simulation::addLayer(const std::string name, const double thick, const std::string materialName){
     if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
       return;
     }
     if(layerInstanceMap_.find(name) != layerInstanceMap_.cend()){
+      std::cerr << name + ": Layer already exists!" << std::endl;
       throw UTILITY::NameInUseException(name + ": Layer already exists!");
       return;
     }
@@ -383,10 +393,12 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setLayer(const std::string name, const double thick, const std::string materialName){
     if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
       return;
     }
     if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      std::cerr << name + ": Layer does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(name + ": Layer does not exist!");
       return;
     }
@@ -409,6 +421,7 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setLayerThickness(const std::string name, const double thick){
     if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      std::cerr << name + ": Layer does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(name + ": Layer does not exist!");
       return;
     }
@@ -423,11 +436,13 @@ namespace MESH{
   /*==============================================*/
   void Simulation::addLayerCopy(const std::string name, const std::string originalName){
     if(layerInstanceMap_.find(originalName) == layerInstanceMap_.cend()){
+      std::cerr << originalName + ": Layer does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(originalName + ": Layer does not exist!");
       return;
     }
     if(layerInstanceMap_.find(name) != layerInstanceMap_.cend()){
-      throw UTILITY::NameInUseException(name + ": cannot add a layer that already exist!");
+      std::cerr << name + ": cannot add a layer that already exists!" << std::endl;
+      throw UTILITY::NameInUseException(name + ": cannot add a layer that already exists!");
       return;
     }
     Ptr<Layer> originalLayer = layerInstanceMap_.find(originalName)->second;
@@ -442,6 +457,7 @@ namespace MESH{
   /*==============================================*/
   void Simulation::deleteLayer(const std::string name){
     if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      std::cerr << name + ": Layer does not exist!" << std::endl;
       throw UTILITY::NameInUseException(name + ": Layer does not exist!");
       return;
     }
@@ -464,10 +480,12 @@ namespace MESH{
     const double width
   ){
     if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
       return;
     }
     if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      std::cerr << layerName + ": Layer does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
       return;
     }
@@ -494,10 +512,12 @@ namespace MESH{
     const double widthy
   ){
     if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
       return;
     }
     if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      std::cerr << layerName + ": Layer does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
       return;
     }
@@ -524,10 +544,12 @@ namespace MESH{
     const double radius
   ){
     if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
       return;
     }
     if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      std::cerr << layerName + ": Layer does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
       return;
     }
@@ -543,6 +565,7 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setSourceLayer(const std::string name){
     if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      std::cerr << name + ": Layer does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(name + ": Layer does not exist!");
       return;
     }
@@ -556,6 +579,7 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setProbeLayer(const std::string name){
     if(layerInstanceMap_.find(name) == layerInstanceMap_.cend()){
+      std::cerr << name + ": Layer does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(name + ": Layer does not exist!");
       return;
     }
@@ -627,6 +651,7 @@ namespace MESH{
   /*==============================================*/
   double Simulation::getPhiAtKxKy(const int omegaIdx, const double kx, const double ky){
     if(omegaIdx >= numOfOmega_){
+      std::cerr << std::to_string(omegaIdx) + ": out of range!" << std::endl;
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
     int N = getN(nGx_, nGy_);
@@ -657,8 +682,18 @@ namespace MESH{
       thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness();
       sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
       if(sourceList_[i] && i >= targetLayer_){
+        std::cerr << "Target Layer needs to be above source layer!" << std::endl;
         throw UTILITY::RangeException("Target Layer needs to be above source layer!");
       }
+    }
+
+    if(dim_ != NO_ && period_[0] == 0.0){
+      std::cerr << "Periodicity not set!" << std::endl;
+      throw UTILITY::ValueException("Periodicity not set!");
+    }
+    if(dim_ == TWO_ && period_[1] == 0.0){
+      std::cerr << "Periodicity not set!" << std::endl;
+      throw UTILITY::ValueException("Periodicity not set!");
     }
 
     Phi_ = new double[numOfOmega_];
@@ -930,6 +965,7 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setThread(const int thread){
     if(thread <= 0){
+      std::cerr << "Number of thread should >= 1!" << std::endl;
       throw UTILITY::RangeException("Number of thread should >= 1!");
     }
     #if defined(_OPENMP)
@@ -944,13 +980,16 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setKxIntegral(const int points, const double end){
     if(points < 2){
+      std::cerr << "Needs no less than 2 points!" << std::endl;
       throw UTILITY::ValueException("Needs no less than 2 points!");
     }
     numOfKx_ = points;
     if(dim_ != NO_ && period_[0] == 0.0){
+      std::cerr << "Periodicity not set!" << std::endl;
       throw UTILITY::ValueException("Periodicity not set!");
     }
     if(dim_ == NO_ && end == 0.0){
+      std::cerr << "integral upper bound cannot be zero!" << std::endl;
       throw UTILITY::ValueException("integral upper bound cannot be zero!");
     }
     if(end != 0){
@@ -972,13 +1011,16 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setKxIntegralSym(const int points, const double end){
     if(points < 2){
+      std::cerr << "Needs no less than 2 points!" << std::endl;
       throw UTILITY::ValueException("Needs no less than 2 points!");
     }
     numOfKx_ = points;
     if(dim_ != NO_ && period_[0] == 0.0){
+      std::cerr << "Periodicity not set!" << std::endl;
       throw UTILITY::ValueException("Periodicity not set!");
     }
     if(dim_ == NO_ && end == 0.0){
+      std::cerr << "integral upper bound cannot be zero!" << std::endl;
       throw UTILITY::ValueException("integral upper bound cannot be zero!");
     }
     if(end != 0){
@@ -1001,13 +1043,16 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setKyIntegral(const int points, const double end){
     if(points < 2){
+      std::cerr << "Needs no less than 2 points!" << std::endl;
       throw UTILITY::ValueException("Needs no less than 2 points!");
     }
     numOfKy_ = points;
     if(dim_ == TWO_ && period_[1] == 0.0){
+      std::cerr << "Periodicity not set!" << std::endl;
       throw UTILITY::ValueException("Periodicity not set!");
     }
     if((dim_ == NO_ || dim_ == ONE_) && end == 0.0){
+      std::cerr << "integral upper bound cannot be zero!" << std::endl;
       throw UTILITY::ValueException("integral upper bound cannot be zero!");
     }
     if(end != 0){
@@ -1028,13 +1073,16 @@ namespace MESH{
   /*==============================================*/
   void Simulation::setKyIntegralSym(const int points, const double end){
     if(points < 2){
+      std::cerr << "Needs no less than 2 points!" << std::endl;
       throw UTILITY::ValueException("Needs no less than 2 points!");
     }
     numOfKy_ = points;
     if(dim_ == TWO_ && period_[1] == 0.0){
+      std::cerr << "Periodicity not set!" << std::endl;
       throw UTILITY::ValueException("Periodicity not set!");
     }
     if((dim_ == NO_ || dim_ == ONE_) && end == 0.0){
+      std::cerr << "integral upper bound cannot be zero!" << std::endl;
       throw UTILITY::ValueException("integral upper bound cannot be zero!");
     }
     if(end != 0){
@@ -1104,7 +1152,9 @@ namespace MESH{
         int kyIdx = residue % numOfKy_;
         resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
         if(options_.PrintIntermediate){
-          std::cout << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+          std::stringstream msg;
+          msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+          std::cout << msg.str();
         }
     }
     for(int i = 0; i < numOfOmega_; i++){
@@ -1173,9 +1223,11 @@ namespace MESH{
   /*==============================================*/
   double SimulationPlanar::getPhiAtKParallel(const int omegaIdx, const double KParallel){
     if(options_.IntegrateKParallel == false){
+      std::cerr << "Cannot use kparallel integral here!" << std::endl;
       throw UTILITY::InternalException("Cannot use kparallel integral here!");
     }
     if(omegaIdx >= numOfOmega_){
+      std::cerr << std::to_string(omegaIdx) + ": out of range!" << std::endl;
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
     return POW2(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
@@ -1194,6 +1246,7 @@ namespace MESH{
   /*==============================================*/
   void SimulationPlanar::integrateKParallel(){
     if(options_.IntegrateKParallel == false){
+      std::cerr << "Cannot use kparallel integral here!" << std::endl;
       throw UTILITY::InternalException("Cannot use kparallel integral here!");
     }
     #if defined(_OPENMP)

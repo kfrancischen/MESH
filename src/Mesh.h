@@ -28,6 +28,7 @@
 #include "Common.h"
 #include "config.h"
 #include <fstream>
+#include <sstream>
 #if defined(_OPENMP)
   #include <omp.h>
 #endif
