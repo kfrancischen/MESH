@@ -6,4 +6,4 @@ LIBS=-L$(MESHPATH)/build -lmesh -lopenblas -llapack
 CXX=g++
 
 all:
-	$(CXX) planar_near.cpp -o planar $(CFLAGS) $(INCLUDES) ${ARMAINCLUDE} $(LIBS)
+	$(CXX) planar_near.cpp -o main $(CFLAGS) $(INCLUDES) ${ARMAINCLUDE} $(LIBS)

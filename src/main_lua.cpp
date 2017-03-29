@@ -69,16 +69,16 @@ struct luaU_Impl<std::string>
 // Setperiodicity(p1, p2)
 int MESH_SetPeriodicity(lua_State* L){
   int n = lua_gettop(L);
-	if(n != 3 || n != 4){
-		return luaL_error(L, "expecting 2 or 3 arguments");
+	if(n != 2 && n != 3){
+		return luaL_error(L, "expecting 1 or 2 arguments");
 	}
 	Simulation* s = luaW_check<Simulation>(L, 1);
-	double p1 = luaL_checknumber(L, 2);
-	if(n == 3){
+	double p1 = luaU_check<double>(L, 2);
+	if(n == 2){
 		s->setPeriodicity(p1);
 	}
   else{
-  	double p2 = luaL_checknumber(L, 3);
+  	double p2 = luaU_check<double>(L, 3);
   	s->setPeriodicity(p1, p2);
   }
 	return 1;
@@ -120,7 +120,7 @@ int MESH_SetMaterial(lua_State* L){
     for(int j = 0; j < len; j++){
       lua_pushinteger(L, j + 1);
       lua_gettable(L, 4);
-      epsilon[i][j] = lua_tonumber(L, -1);
+      epsilon[i][j] = luaU_check<double>(L, -1);
       lua_pop(L, 1);
     }
     lua_pop(L, 1);
@@ -141,7 +141,7 @@ int MESH_SetMaterial(lua_State* L){
 int MESH_AddLayer(lua_State *L){
 	Simulation* s = luaW_check<Simulation>(L, 1);
 	std::string name = luaU_check<std::string>(L, 2);
-	double thick = luaL_checknumber(L, 3);
+	double thick = luaU_check<double>(L, 3);
 	std::string materialName = luaU_check<std::string>(L, 4);
 	s->addLayer(name, thick, materialName);
 	return 1;
@@ -153,7 +153,7 @@ int MESH_AddLayer(lua_State *L){
 int MESH_SetLayer(lua_State* L){
   Simulation* s = luaW_check<Simulation>(L, 1);
 	std::string name = luaU_check<std::string>(L, 2);
-	double thick = luaL_checknumber(L, 3);
+	double thick = luaU_check<double>(L, 3);
 	std::string materialName = luaU_check<std::string>(L, 4);
 	s->setLayer(name, thick, materialName);
 	return 1;
@@ -165,7 +165,7 @@ int MESH_SetLayer(lua_State* L){
 int MESH_SetLayerThickness(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   std::string name = luaU_check<std::string>(L, 2);
-  double thick = luaL_checknumber(L, 3);
+  double thick = luaU_check<double>(L, 3);
   s->setLayerThickness(name, thick);
   return 1;
 }
@@ -199,8 +199,8 @@ int MESH_SetLayerPatternGrating(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   std::string layerName = luaU_check<std::string>(L, 2);
   std::string materialName = luaU_check<std::string>(L, 3);
-  double center = luaL_checknumber(L, 4);
-  double width = luaL_checknumber(L, 5);
+  double center = luaU_check<double>(L, 4);
+  double width = luaU_check<double>(L, 5);
   s->setLayerPatternGrating(layerName, materialName, center, width);
   return 1;
 }
@@ -218,7 +218,7 @@ int MESH_SetLayerPatternRectangle(lua_State *L){
     for(int j= 0; j < 2; j++){
       lua_pushinteger(L, j+1);
       lua_gettable(L, 4+i);
-      vals[2*i+j] = lua_tonumber(L, -1);
+      vals[2*i+j] = luaU_check<double>(L, -1);
       lua_pop(L, 1);
     }
   }
@@ -234,12 +234,12 @@ int MESH_SetLayerPatternCircle(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   std::string layerName = luaU_check<std::string>(L, 2);
   std::string materialName = luaU_check<std::string>(L, 3);
-  double radius = lua_tonumber(L, 5);
+  double radius = luaU_check<double>(L, 5);
   double vals[2];
   for(int i = 0; i < 2; i++){
     lua_pushinteger(L, i+1);
     lua_gettable(L, 4);
-    vals[i] = lua_tonumber(L, 1);
+    vals[i] = luaU_check<double>(L, 1);
     lua_pop(L, 1);
   }
   s->setLayerPatternCircle(layerName, materialName, vals[0], vals[1], radius);
@@ -251,7 +251,7 @@ int MESH_SetLayerPatternCircle(lua_State *L){
 // SetGx(number of Gx)
 int MESH_SetGx(lua_State* L){
   Simulation *s = luaW_check<Simulation>(L, 1);
-  int n = luaL_checkinteger(L, 2);
+  int n = luaU_check<int>(L, 2);
   s->setGx(n);
   return 1;
 }
@@ -261,7 +261,7 @@ int MESH_SetGx(lua_State* L){
 // SetGy(number of Gy)
 int MESH_SetGy(lua_State* L){
   Simulation *s = luaW_check<Simulation>(L, 1);
-  int n = luaL_checkinteger(L, 2);
+  int n = luaU_check<int>(L, 2);
   s->setGy(n);
   return 1;
 }
@@ -301,7 +301,7 @@ int MESH_SaveToFile(lua_State *L){
 // SetThread(number of thread)
 int MESH_SetThread(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
-  int thread = luaL_checkinteger(L, 2);
+  int thread = luaU_check<int>(L, 2);
   s->setThread(thread);
   return 1;
 }
@@ -351,7 +351,7 @@ int MESH_GetOmega(lua_State *L){
 // GetNumOfOmega()
 int MESH_GetNumOfOmega(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
-  lua_pushinteger(L, s->getNumOfOmega());
+  luaU_push(L, s->getNumOfOmega());
   return 1;
 }
 
@@ -361,18 +361,18 @@ int MESH_GetNumOfOmega(lua_State *L){
 // GetPhiAtKxKy(omega index, kx, ky)
 int MESH_GetPhiAtKxKy(lua_State *L){
   int n = lua_gettop(L);
-	if(n != 3 || n != 4){
+	if(n != 3 && n != 4){
 		return luaL_error(L, "expecting 2 or 3 arguments");
 	}
   Simulation* s = luaW_check<Simulation>(L, 1);
-  int omegaIdx = luaL_checkinteger(L, 2);
-  double kx = lua_tonumber(L, 3);
+  int omegaIdx = luaU_check<int>(L, 2);
+  double kx = luaU_check<double>(L, 3);
   if(n == 3){
-    s->getPhiAtKxKy(omegaIdx, kx);
+    luaU_push(L, s->getPhiAtKxKy(omegaIdx, kx));
   }
   else{
-    double ky = lua_tonumber(L, 4);
-    s->getPhiAtKxKy(omegaIdx, kx, ky);
+    double ky = luaU_check<double>(L, 4);
+    luaU_push(L, s->getPhiAtKxKy(omegaIdx, kx, ky));
   }
   return 1;
 }
@@ -419,16 +419,16 @@ int MESH_OptPrintIntermediate(lua_State *L){
 // SetKxIntegral(points, end)
 int MESH_SetKxIntegral(lua_State *L){
   int n = lua_gettop(L);
-	if(n != 2 || n != 3){
+	if(n != 2 && n != 3){
 		return luaL_error(L, "expecting 1 or 2 arguments");
 	}
   Simulation* s = luaW_check<Simulation>(L, 1);
-  int points = luaL_checkinteger(L, 2);
+  int points = luaU_check<int>(L, 2);
   if(n == 2){
     s->setKxIntegral(points);
   }
   else{
-    double end = lua_tonumber(L, 3);
+    double end = luaU_check<double>(L, 3);
     s->setKxIntegral(points, end);
   }
   return 1;
@@ -440,16 +440,16 @@ int MESH_SetKxIntegral(lua_State *L){
 // SetKyIntegral(points, end)
 int MESH_SetKyIntegral(lua_State *L){
   int n = lua_gettop(L);
-  if(n != 2 || n != 3){
+  if(n != 2 && n != 3){
     return luaL_error(L, "expecting 1 or 2 arguments");
   }
   Simulation* s = luaW_check<Simulation>(L, 1);
-  int points = luaL_checkinteger(L, 2);
+  int points = luaU_check<int>(L, 2);
   if(n == 2){
     s->setKyIntegral(points);
   }
   else{
-    double end = lua_tonumber(L, 3);
+    double end = luaU_check<double>(L, 3);
     s->setKyIntegral(points, end);
   }
   return 1;
@@ -461,16 +461,16 @@ int MESH_SetKyIntegral(lua_State *L){
 // SetKxIntegralSym(points, end)
 int MESH_SetKxIntegralSym(lua_State *L){
   int n = lua_gettop(L);
-  if(n != 2 || n != 3){
+  if(n != 2 && n != 3){
     return luaL_error(L, "expecting 1 or 2 arguments");
   }
   Simulation* s = luaW_check<Simulation>(L, 1);
-  int points = luaL_checkinteger(L, 2);
+  int points = luaU_check<int>(L, 2);
   if(n == 2){
     s->setKxIntegralSym(points);
   }
   else{
-    double end = lua_tonumber(L, 3);
+    double end = luaU_check<double>(L, 3);
     s->setKxIntegralSym(points, end);
   }
   return 1;
@@ -482,16 +482,16 @@ int MESH_SetKxIntegralSym(lua_State *L){
 // SetKyIntegralSym(points, end)
 int MESH_SetKyIntegralSym(lua_State *L){
   int n = lua_gettop(L);
-  if(n != 2 || n != 3){
+  if(n != 2 && n != 3){
     return luaL_error(L, "expecting 1 or 2 arguments");
   }
   Simulation* s = luaW_check<Simulation>(L, 1);
-  int points = luaL_checkinteger(L, 2);
+  int points = luaU_check<int>(L, 2);
   if(n == 2){
     s->setKyIntegralSym(points);
   }
   else{
-    double end = lua_tonumber(L, 3);
+    double end = luaU_check<double>(L, 3);
     s->setKyIntegralSym(points, end);
   }
   return 1;
@@ -528,7 +528,7 @@ int MESH_OptUseQuadgk(lua_State *L){
 // OptUseQuadgl(degree)
 int MESH_OptUseQuadgl(lua_State *L){
   int n = lua_gettop(L);
-  if(n != 1 || n != 2){
+  if(n != 1 && n != 2){
 		return luaL_error(L, "expecting no or 1 argument");
 	}
 	SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
@@ -536,7 +536,7 @@ int MESH_OptUseQuadgl(lua_State *L){
   	s->optUseQuadgl();
   }
   else{
-    int degree = luaL_checkinteger(L, 2);
+    int degree = luaU_check<int>(L, 2);
     s->optUseQuadgl(degree);
   }
 	return 1;
@@ -547,7 +547,7 @@ int MESH_OptUseQuadgl(lua_State *L){
 // SetKParallel(end)
 int MESH_SetKParallel(lua_State *L){
   SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
-  double end = luaL_checknumber(L, 2);
+  double end = luaU_check<double>(L, 2);
   s->setKParallelIntegral(end);
   return 1;
 }
@@ -557,9 +557,9 @@ int MESH_SetKParallel(lua_State *L){
 /// GetPhiAtKParallel(omega index, k parallel value)
 int MESH_GetPhiAtKParallel(lua_State *L){
   SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
-  int omegaIdx = luaL_checkinteger(L, 2);
-  double k = lua_tonumber(L, 3);
-  s->getPhiAtKParallel(omegaIdx, k);
+  int omegaIdx = luaU_check<int>(L, 2);
+  double k = luaU_check<double>(L, 3);
+  luaU_push(L, s->getPhiAtKParallel(omegaIdx, k));
   return 1;
 }
 
@@ -619,6 +619,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "GetNumOfOmega", MESH_GetNumOfOmega },
   { "GetPhiAtKxKy", MESH_GetPhiAtKxKy },
   { "GetSysInfo", MESH_GetSysInfo },
+  { "OptPrintIntermediate", MESH_OptPrintIntermediate },
   { "OptUseInverseRule", MESH_OptUseInverseRule },
   { "optUseNaiveRule", MESH_OptUseNaiveRule },
   { "SaveToFile", MESH_SaveToFile },
@@ -627,7 +628,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "SetKxIntegral", MESH_SetKxIntegral },
   { "SetKxIntegralSym", MESH_SetKxIntegralSym },
   { "SetKyIntegral", MESH_SetKyIntegral },
-  { "setKyIntegralSym", MESH_SetKyIntegralSym },
+  { "SetKyIntegralSym", MESH_SetKyIntegralSym },
   { "IntegrateKxKy", MESH_IntegrateKxKy },
 	{NULL, NULL}
 };
@@ -664,7 +665,9 @@ static int luaopen_Simulation(lua_State *L){
 // information about the package
 /*=======================================================*/
 void usage(){
-	std::cout << "mesh [input-file]" << std::endl;
+  std::cout << "mesh -h for help" << std::endl;
+  std::cout << "mesh -v for version information" << std::endl;
+	std::cout << "mesh [input-file] to run a file" << std::endl;
 }
 void version(){
 	std::cout << "Multilayer Electromagnetic Solver for Heat transfer (MESH)" << std::endl;
@@ -693,7 +696,7 @@ int main(int argc, char *argv[]){
 	luaL_openlibs(L);
 	luaopen_Simulation(L);
   int c;
-  if((c = getopt(argc, argv, "vh:")) != -1){
+  if((c = getopt(argc, argv, "vh")) != -1){
     switch(c){
       case 'v':{
         version();

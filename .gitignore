@@ -27,7 +27,11 @@
 *.exe
 *.out
 *.app
+main
 
 # build files
 /build
 .vscode/
+
+# output files
+*.txt

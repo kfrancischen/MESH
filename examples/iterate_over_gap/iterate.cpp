@@ -22,7 +22,7 @@ int main(){
   s->optUseQuadgk();
   s->setThread(4);
   // this function will interate the gap from 10-100 nm
-  for(int i = 10; i < 100; i += 10){
+  for(int i = 10; i <= 100; i += 10){
     s->setLayerThickness("VacGap", i * 1e-9);
     s->buildRCWA();
     s->integrateKParallel();

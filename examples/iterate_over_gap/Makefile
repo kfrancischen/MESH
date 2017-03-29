@@ -6,4 +6,4 @@ LIBS=-L$(MESHPATH)/build -lmesh -lopenblas -llapack
 CXX=g++
 
 all:
-	$(CXX) iterate.cpp -o iterate $(CFLAGS) $(INCLUDES) ${ARMAINCLUDE} $(LIBS)
+	$(CXX) iterate.cpp -o main $(CFLAGS) $(INCLUDES) ${ARMAINCLUDE} $(LIBS)

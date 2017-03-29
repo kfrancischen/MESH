@@ -25,11 +25,12 @@ int main(){
   s->setKxIntegralSym(500);
   s->setKyIntegralSym(200, 5);
   s->getSysInfo();
-  s->setThread(1);
+  s->optPrintIntermediate();
+  s->setThread(4);
   s->buildRCWA();
-  //s->integrateKxKy();
+  s->integrateKxKy();
   //s->saveToFile("gold_to_vac.txt");
 
-  std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
+  //std::cout << s->getPhiAtKxKy(0, 0, 0) << std::endl;
   return 0;
 }

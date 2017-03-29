@@ -6,4 +6,4 @@ LIBS=-L$(MESHPATH)/build -lmesh -lopenblas -llapack
 CXX=g++
 
 all:
-	$(CXX) diagonal.cpp -o diagonal $(CFLAGS) $(INCLUDES) ${ARMAINCLUDE} $(LIBS)
+	$(CXX) diagonal.cpp -o main $(CFLAGS) $(INCLUDES) ${ARMAINCLUDE} $(LIBS)
