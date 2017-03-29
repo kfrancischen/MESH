@@ -100,7 +100,7 @@ public:
 
   void setPeriodicity(const double p1, const double p2 = 0);
   void addMaterial(const std::string name, const std::string infile);
-  void setMaterial(const std::string name, const double** epsilon, const std::string type);
+  void setMaterial(const std::string name, double** epsilon, const std::string type);
 
   void addLayer(const std::string name, const double thick, const std::string materialName);
   void setLayer(const std::string name, const double thick, const std::string materialName);

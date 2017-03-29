@@ -293,7 +293,7 @@ namespace MESH{
   // If type == 'diagonal', epsilon should have size [numOfOmega][6]
   // If type == 'tensor', epsilon should have size [numOfOmega][10]
   /*==============================================*/
-  void Simulation::setMaterial(const std::string name, const double** epsilon, const std::string type){
+  void Simulation::setMaterial(const std::string name, double** epsilon, const std::string type){
     if(materialInstanceMap_.find(name) == materialInstanceMap_.cend()){
       throw UTILITY::IllegalNameException(name + ": Material does not exist!");
       return;

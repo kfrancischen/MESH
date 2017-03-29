@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include "setup.h"
-
+#include <unistd.h>
 extern "C"
 {
 #include "lua.h"
@@ -63,6 +63,10 @@ struct luaU_Impl<std::string>
 /*======================================================*/
 // wrappaer for the main class
 /*=======================================================*/
+// this function wraps setPeriodicity(const double p1, const double p2 = 0)
+// @how to use:
+// SetPeriodicity(p1) or
+// Setperiodicity(p1, p2)
 int MESH_SetPeriodicity(lua_State* L){
   int n = lua_gettop(L);
 	if(n != 3 || n != 4){
@@ -79,7 +83,9 @@ int MESH_SetPeriodicity(lua_State* L){
   }
 	return 1;
 }
-
+// this function wraps addMaterial(const std::string name, const std::string infile)
+// @how to use:
+// AddMaterial(material name, input file)
 int MESH_AddMaterial(lua_State *L){
 	Simulation* s = luaW_check<Simulation>(L, 1);
 	std::string name = luaU_check<std::string>(L, 2);
@@ -88,11 +94,50 @@ int MESH_AddMaterial(lua_State *L){
 	return 1;
 }
 
+// this function wraps setMaterial(const std::string name, const double** epsilon, const std::string type)
+// @how to use:
+// SetMaterial(material name, new epsilon)
 int MESH_SetMaterial(lua_State* L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+	std::string name = luaU_check<std::string>(L, 2);
+  int numOfOmega = lua_rawlen(L, 3);
+  bool set = false;
+  double** epsilon = new double*[numOfOmega];
+  std::string type = "scalar";
+  int len;
+  for(int i = 0; i < numOfOmega; i++){
+    lua_pushinteger(L, i+1);
+    lua_gettable(L, 3);
+    len = lua_rawlen(L, -1);
+    if(!set){
+      for(int j = 0; j < numOfOmega; j++){
+        epsilon[j] = new double[len];
+      }
+      if(len == 6) type = "diagonal";
+      if(len == 10) type = "tensor";
+      set = true;
+    }
+    for(int j = 0; j < len; j++){
+      lua_pushinteger(L, j + 1);
+      lua_gettable(L, 4);
+      epsilon[i][j] = lua_tonumber(L, -1);
+      lua_pop(L, 1);
+    }
+    lua_pop(L, 1);
+  }
+
+  s->setMaterial(name, epsilon, type);
+
+  for(int i = 0; i < numOfOmega; i++){
+    delete [] epsilon[i];
+  }
+  delete [] epsilon;
   return 1;
 }
 
+// this function wraps addLayer(const std::string name, const double thick, const std::string materialName)
+// @how to use:
+// AddLayer(layer name, thickness, material name)
 int MESH_AddLayer(lua_State *L){
 	Simulation* s = luaW_check<Simulation>(L, 1);
 	std::string name = luaU_check<std::string>(L, 2);
@@ -102,6 +147,9 @@ int MESH_AddLayer(lua_State *L){
 	return 1;
 }
 
+// this function wraps setLayer(const std::string name, const double thick, const std::string materialName)
+// @how to use:
+// SetLayer(layer name, thickness, material name)
 int MESH_SetLayer(lua_State* L){
   Simulation* s = luaW_check<Simulation>(L, 1);
 	std::string name = luaU_check<std::string>(L, 2);
@@ -111,6 +159,9 @@ int MESH_SetLayer(lua_State* L){
 	return 1;
 }
 
+// this function wraps setLayerThickness(const std::string name, const double thick)
+// @how to use
+// SetLayerThickness(layer name, thickness)
 int MESH_SetLayerThickness(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   std::string name = luaU_check<std::string>(L, 2);
@@ -119,6 +170,9 @@ int MESH_SetLayerThickness(lua_State *L){
   return 1;
 }
 
+// this function wraps addLayerCopy(const std::string name, const std::string originalName)
+// @how to use
+// AddLayerCopy(new layer name, original layer name)
 int MESH_AddLayerCopy(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   std::string name = luaU_check<std::string>(L, 2);
@@ -127,6 +181,9 @@ int MESH_AddLayerCopy(lua_State *L){
   return 1;
 }
 
+// this function wraps deleteLayer(const std::string name)
+// @how to use
+// DeleteLayer(layer name)
 int MESH_DeleteLayer(lua_State* L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   std::string name = luaU_check<std::string>(L, 2);
@@ -134,6 +191,10 @@ int MESH_DeleteLayer(lua_State* L){
   return 1;
 }
 
+// this function wraps setLayerPatternGrating(const std::string layerName,
+//  const std::string materialName, const double center, const double width)
+// @how to use
+// SetLayerPatternGrating(layer name, material name, center, width)
 int MESH_SetLayerPatternGrating(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   std::string layerName = luaU_check<std::string>(L, 2);
@@ -144,6 +205,10 @@ int MESH_SetLayerPatternGrating(lua_State *L){
   return 1;
 }
 
+// this function wraps setLayerPatternRectangle(const std::string layerName, const std::string materialName,
+//  const double centerx, const double centery, const double widthx, const double widthy)
+// @how to use
+// SetLayerPatternRectangle(layer name, material name, {centerx, centery}, {widthx, widthy})
 int MESH_SetLayerPatternRectangle(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   std::string layerName = luaU_check<std::string>(L, 2);
@@ -161,6 +226,10 @@ int MESH_SetLayerPatternRectangle(lua_State *L){
   return 1;
 }
 
+// this function wraps setLayerPatternCircle(const std::string layerName,const std::string materialName,
+//  const double centerx, const double centery, const double radius)
+// @how to use
+// SetLayerPatternCircle(layer name, material name, {centerx, centery}, radius)
 int MESH_SetLayerPatternCircle(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   std::string layerName = luaU_check<std::string>(L, 2);
@@ -177,6 +246,9 @@ int MESH_SetLayerPatternCircle(lua_State *L){
   return 1;
 }
 
+// this function wraps setGx(const int nGx)
+// @how to use
+// SetGx(number of Gx)
 int MESH_SetGx(lua_State* L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   int n = luaL_checkinteger(L, 2);
@@ -184,6 +256,9 @@ int MESH_SetGx(lua_State* L){
   return 1;
 }
 
+// this function wraps setGy(const int nGy)
+// @how to use
+// SetGy(number of Gy)
 int MESH_SetGy(lua_State* L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   int n = luaL_checkinteger(L, 2);
@@ -191,6 +266,9 @@ int MESH_SetGy(lua_State* L){
   return 1;
 }
 
+// this function wraps setSourceLayer(const std::string name)
+// @how to use
+// SetSourceLayer(layer name)
 int MESH_SetSourceLayer(lua_State* L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   std::string name = luaU_check<std::string>(L, 2);
@@ -198,6 +276,9 @@ int MESH_SetSourceLayer(lua_State* L){
   return 1;
 }
 
+// this function wraps setProbeLayer(const std::string name)
+// @how to use
+// SetProbeLayer(layer name)
 int MESH_SetProbeLayer(lua_State* L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   std::string name = luaU_check<std::string>(L, 2);
@@ -205,6 +286,9 @@ int MESH_SetProbeLayer(lua_State* L){
   return 1;
 }
 
+// this function wraps saveToFile(const std::string fileName)
+// @how to use
+// SaveToFile(output file)
 int MESH_SaveToFile(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   std::string name = luaU_check<std::string>(L, 2);
@@ -212,6 +296,9 @@ int MESH_SaveToFile(lua_State *L){
   return 1;
 }
 
+// this function wraps setThread(const int numThread)
+// @how to use
+// SetThread(number of thread)
 int MESH_SetThread(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   int thread = luaL_checkinteger(L, 2);
@@ -219,91 +306,230 @@ int MESH_SetThread(lua_State *L){
   return 1;
 }
 
+// this function wraps buildRCWA()
+// @how to use
+// BuildRCWA()
 int MESH_BuildRCWA(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   s->buildRCWA();
   return 1;
 }
 
+// this function wraps getPhi()
+// @how to use
+// GetPhi()
 int MESH_GetPhi(lua_State *L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  double* phi = s->getPhi();
+  int numOfOmega = s->getNumOfOmega();
+  lua_createtable(L, numOfOmega, 0);
+  for(int i = 0; i < numOfOmega; i++){
+    lua_pushinteger(L, i+1);
+    lua_pushnumber(L, phi[i]);
+    lua_settable(L, -3);
+  }
   return 1;
 }
 
+// this function wraps getOmega()
+// @how to use
+// GetOmega()
 int MESH_GetOmega(lua_State *L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  double* omega = s->getOmega();
+  int numOfOmega = s->getNumOfOmega();
+  for(int i = 0; i < numOfOmega; i++){
+    lua_pushinteger(L, i+1);
+    lua_pushnumber(L, omega[i]);
+    lua_settable(L, -3);
+  }
   return 1;
 }
 
+// this function wraps getNumOfOmega()
+// @how to use
+// GetNumOfOmega()
 int MESH_GetNumOfOmega(lua_State *L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  lua_pushinteger(L, s->getNumOfOmega());
   return 1;
 }
 
+// this function wraps getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0)
+// @how to use
+// GetPhiAtKxKy(omega index, kx) or
+// GetPhiAtKxKy(omega index, kx, ky)
 int MESH_GetPhiAtKxKy(lua_State *L){
-  // TODO
+  int n = lua_gettop(L);
+	if(n != 3 || n != 4){
+		return luaL_error(L, "expecting 2 or 3 arguments");
+	}
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  int omegaIdx = luaL_checkinteger(L, 2);
+  double kx = lua_tonumber(L, 3);
+  if(n == 3){
+    s->getPhiAtKxKy(omegaIdx, kx);
+  }
+  else{
+    double ky = lua_tonumber(L, 4);
+    s->getPhiAtKxKy(omegaIdx, kx, ky);
+  }
   return 1;
 }
 
+// this function wraps getSysInfo()
+// @how to use
+// GetSysInfo()
 int MESH_GetSysInfo(lua_State *L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  s->getSysInfo();
   return 1;
 }
 
+// this function wraps optUseInverseRule()
+// @how to use
+// OptUseInverseRule()
 int MESH_OptUseInverseRule(lua_State *L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  s->optUseInverseRule();
   return 1;
 }
 
+// this function wraps optUseNaiveRule()
+// @how to use
+// OptUseNaiveRule
 int MESH_OptUseNaiveRule(lua_State *L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  s->optUseNaiveRule();
   return 1;
 }
 
+// this function wraps optPrintIntermediate()
+// @how to use
+// OptPrintIntermediate()
 int MESH_OptPrintIntermediate(lua_State *L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  s->optPrintIntermediate();
   return 1;
 }
 
+// this function wraps setKxIntegral(const int points, const double end = 0)
+// @how to use
+// SetKxIntegral(points) or
+// SetKxIntegral(points, end)
 int MESH_SetKxIntegral(lua_State *L){
-  // TODO
+  int n = lua_gettop(L);
+	if(n != 2 || n != 3){
+		return luaL_error(L, "expecting 1 or 2 arguments");
+	}
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  int points = luaL_checkinteger(L, 2);
+  if(n == 2){
+    s->setKxIntegral(points);
+  }
+  else{
+    double end = lua_tonumber(L, 3);
+    s->setKxIntegral(points, end);
+  }
   return 1;
 }
 
+// this function wraps setKyIntegral(const int points, const double end = 0)
+// @how to use
+// SetKyIntegral(points) or
+// SetKyIntegral(points, end)
 int MESH_SetKyIntegral(lua_State *L){
-  // TODO
+  int n = lua_gettop(L);
+  if(n != 2 || n != 3){
+    return luaL_error(L, "expecting 1 or 2 arguments");
+  }
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  int points = luaL_checkinteger(L, 2);
+  if(n == 2){
+    s->setKyIntegral(points);
+  }
+  else{
+    double end = lua_tonumber(L, 3);
+    s->setKyIntegral(points, end);
+  }
   return 1;
 }
 
+// this function wraps setKxIntegralSym(const int points, const double end = 0)
+// @how to use
+// SetKxIntegralSym(points) or
+// SetKxIntegralSym(points, end)
 int MESH_SetKxIntegralSym(lua_State *L){
-  // TODO
+  int n = lua_gettop(L);
+  if(n != 2 || n != 3){
+    return luaL_error(L, "expecting 1 or 2 arguments");
+  }
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  int points = luaL_checkinteger(L, 2);
+  if(n == 2){
+    s->setKxIntegralSym(points);
+  }
+  else{
+    double end = lua_tonumber(L, 3);
+    s->setKxIntegralSym(points, end);
+  }
   return 1;
 }
 
+// this function wraps setKyIntegralSym(const int points, const double end = 0)
+// @how to use
+// SetKyIntegralSym(points) or
+// SetKyIntegralSym(points, end)
 int MESH_SetKyIntegralSym(lua_State *L){
-  // TODO
+  int n = lua_gettop(L);
+  if(n != 2 || n != 3){
+    return luaL_error(L, "expecting 1 or 2 arguments");
+  }
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  int points = luaL_checkinteger(L, 2);
+  if(n == 2){
+    s->setKyIntegralSym(points);
+  }
+  else{
+    double end = lua_tonumber(L, 3);
+    s->setKyIntegralSym(points, end);
+  }
   return 1;
 }
 
+// this function wraps integrateKxKy()
+// @how to use
+// IntegrateKxKy()
 int MESH_IntegrateKxKy(lua_State *L){
-  // TODO
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  s->integrateKxKy();
   return 1;
 }
 
+/*======================================================*/
+// constructor for the planar
+/*=======================================================*/
 SimulationPlanar* MESH_SimulationPlanar_New(lua_State* L){
 	return new SimulationPlanar();
 }
 
+// this function wraps optUseQuadgk()
+// @how to use
+// OptUseQuadgk()
 int MESH_OptUseQuadgk(lua_State *L){
 	SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
 	s->optUseQuadgk();
 	return 1;
 }
 
+// this function wraps optUseQuadgl()
+// @how to use
+// OptUseQuadgl() or
+// OptUseQuadgl(degree)
 int MESH_OptUseQuadgl(lua_State *L){
   int n = lua_gettop(L);
   if(n != 1 || n != 2){
-		return luaL_error(L, "expecting 2 or 3 arguments");
+		return luaL_error(L, "expecting no or 1 argument");
 	}
 	SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
   if(n == 1){
@@ -316,6 +542,9 @@ int MESH_OptUseQuadgl(lua_State *L){
 	return 1;
 }
 
+// this function wraps setKParallelIntegral(const double end)
+// @how to use
+// SetKParallel(end)
 int MESH_SetKParallel(lua_State *L){
   SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
   double end = luaL_checknumber(L, 2);
@@ -323,6 +552,20 @@ int MESH_SetKParallel(lua_State *L){
   return 1;
 }
 
+// this function wraps getPhiAtKParallel(const int omegaIndex, const double KParallel)
+// @how to use
+/// GetPhiAtKParallel(omega index, k parallel value)
+int MESH_GetPhiAtKParallel(lua_State *L){
+  SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
+  int omegaIdx = luaL_checkinteger(L, 2);
+  double k = lua_tonumber(L, 3);
+  s->getPhiAtKParallel(omegaIdx, k);
+  return 1;
+}
+
+// this function wraps integrateKParallel()
+// @how to use
+// IntegrateKPrarallel()
 int MESH_IntegrateKParallel(lua_State* L){
   SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
   s->integrateKParallel();
@@ -336,7 +579,9 @@ SimulationGrating* MESH_SimulationGrating_New(lua_State* L){
   return new SimulationGrating();
 }
 
-// wrapper for use adaptive function
+// this function wraps optUseAdaptive()
+// @how to use
+// OptUseAdaptive()
 int MESH_OptUseAdaptive(lua_State *L){
   SimulationGrating* s = luaW_check<SimulationGrating>(L, 1);
   s->optUseAdaptive();
@@ -391,6 +636,7 @@ static luaL_Reg character_metatable_SimulationPlanar[] = {
   { "OptUseQuadgl", MESH_OptUseQuadgl },
 	{ "OptUseQuadgk", MESH_OptUseQuadgk },
   { "SetKParallelIntegral", MESH_SetKParallel },
+  { "GetPhiAtKParalle", MESH_GetPhiAtKParallel },
   { "IntegrateKParallel", MESH_IntegrateKParallel },
 	{ NULL, NULL}
 };
@@ -422,8 +668,12 @@ void usage(){
 }
 void version(){
 	std::cout << "Multilayer Electromagnetic Solver for Heat transfer (MESH)" << std::endl;
-	std::cout << "Version " << "\t" << PACKAGE_VERSION << std::endl;
-	std::cout << "With Openmp support" << std::endl;
+	std::cout << "Version " << PACKAGE_VERSION << std::endl;
+  std::cout << "Developed by " << AUTHOR << std::endl;
+  std::cout << "Email: " << PACKAGE_BUGREPORT << std::endl;
+  #if defined(_OPENMP)
+	 std::cout << "With Openmp support." << std::endl;
+  #endif
 }
 
 /*======================================================*/
@@ -442,9 +692,29 @@ int main(int argc, char *argv[]){
 	lua_State *L = luaL_newstate();
 	luaL_openlibs(L);
 	luaopen_Simulation(L);
-	if (luaL_dofile(L, argv[1])){
-	   cout << lua_tostring(L, -1) << endl;
-	}
+  int c;
+  if((c = getopt(argc, argv, "vh:")) != -1){
+    switch(c){
+      case 'v':{
+        version();
+        return 1;
+      }
+      case 'h':{
+        usage();
+        return 1;
+      }
+      case '?':{
+        fprintf(stderr, "Unknown option -%c.\n", optopt);
+        usage();
+        return 0;
+      }
+      default: abort();
+    }
+  }
+
+  if (luaL_dofile(L, argv[1])){
+  	  cout << lua_tostring(L, -1) << endl;
+  }
   lua_close(L);
   return 0;
 
