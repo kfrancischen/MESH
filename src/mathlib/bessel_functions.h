@@ -108,7 +108,7 @@ inline int msta1(double x,int mp)
     for (i=0;i<20;i++) {
         nn = n1-(n1-n0)/(1.0-f0/f1);
         f = 0.5*log10(6.28*nn)-nn*log10(1.36*a0/nn)-mp;
-        if (abs(nn-n1) < 1) break;
+        if (std::abs(nn-n1) < 1) break;
         n0 = n1;
         f0 = f1;
         n1 = nn;
@@ -141,7 +141,7 @@ inline int msta2(double x,int n,int mp)
     for (i=0;i<20;i++) {
         nn = n1-(n1-n0)/(1.0-f0/f1);
         f = 0.5*log10(6.28*nn)-nn*log10(1.36*a0/nn)-obj;
-        if (abs(nn-n1) < 1) break;
+        if (std::abs(nn-n1) < 1) break;
         n0 = n1;
         f0 = f1;
         n1 = nn;
@@ -1331,7 +1331,7 @@ inline int cbessjy01(complex<double> z,complex<double> &cj0,complex<double> &cj1
         -9.833883876590679e17,
          1.855045211579828e20};
 
-    a0 = abs(z);
+    a0 = std::abs(z);
     z2 = z*z;
     z1 = z;
     if (a0 == 0.0) {
@@ -1352,14 +1352,14 @@ inline int cbessjy01(complex<double> z,complex<double> &cj0,complex<double> &cj1
         for (k=1;k<=40;k++) {
             cr *= -0.25*z2/(double)(k*k);
             cj0 += cr;
-            if (abs(cr) < abs(cj0)*eps) break;
+            if (std::abs(cr) < std::abs(cj0)*eps) break;
         }
         cj1 = cone;
         cr = cone;
         for (k=1;k<=40;k++) {
             cr *= -0.25*z2/(k*(k+1.0));
             cj1 += cr;
-            if (abs(cr) < abs(cj1)*eps) break;
+            if (std::abs(cr) < std::abs(cj1)*eps) break;
         }
         cj1 *= 0.5*z1;
         w0 = 0.0;
@@ -1370,7 +1370,7 @@ inline int cbessjy01(complex<double> z,complex<double> &cj0,complex<double> &cj1
             cr *= -0.25*z2/(double)(k*k);
             cp = cr*w0;
             cs += cp;
-            if (abs(cp) < abs(cs)*eps) break;
+            if (std::abs(cp) < std::abs(cs)*eps) break;
         }
         cy0 = M_2_PI*((log(0.5*z1)+el)*cj0-cs);
         w1 = 0.0;
@@ -1381,7 +1381,7 @@ inline int cbessjy01(complex<double> z,complex<double> &cj0,complex<double> &cj1
             cr *= -0.25*z2/(k*(k+1.0));
             cp = cr*(2.0*w1+1.0/(k+1.0));
             cs += cp;
-            if (abs(cp) < abs(cs)*eps) break;
+            if (std::abs(cp) < std::abs(cs)*eps) break;
         }
         cy1 = M_2_PI*((log(0.5*z1)+el)*cj1-1.0/z1-0.25*z1*cs);
     }
@@ -1441,7 +1441,7 @@ inline int cbessjyna(int n,complex<double> z,int &nm,complex<double> *cj,
     int m,k,lb,lb0;
 
     if (n < 0) return 1;
-    a0 = abs(z);
+    a0 = std::abs(z);
     nm = n;
     if (a0 < 1.0e-100) {
         for (k=0;k<=n;k++) {
@@ -1482,7 +1482,7 @@ inline int cbessjyna(int n,complex<double> z,int &nm,complex<double> *cj,
             cf2 = cf1;
             cf1 = cf;
         }
-        if (abs(cbj0) > abs(cbj1)) cs = cbj0/cf;
+        if (std::abs(cbj0) > std::abs(cbj1)) cs = cbj0/cf;
         else cs = cbj1/cf2;
         for (k=0;k<=nm;k++) {
             cj[k] *= cs;
@@ -1491,14 +1491,14 @@ inline int cbessjyna(int n,complex<double> z,int &nm,complex<double> *cj,
     for (k=2;k<=nm;k++) {
         cjp[k] = cj[k-1]-(double)k*cj[k]/z;
     }
-    ya0 = abs(cby0);
+    ya0 = std::abs(cby0);
     lb = 0;
     cg0 = cby0;
     cg1 = cby1;
     for (k=2;k<=nm;k++) {
         cyk = 2.0*(k-1.0)*cg1/z-cg0;
-        yak = abs(cyk);
-        ya1 = abs(cg0);
+        yak = std::abs(cyk);
+        ya1 = std::abs(cg0);
         if ((yak < ya0) && (yak < ya1)) lb = k;
         cy[k] = cyk;
         cg0 = cg1;
@@ -1528,7 +1528,7 @@ inline int cbessjyna(int n,complex<double> z,int &nm,complex<double> *cj,
             cp21 = ch2;
             if (lb == nm)
                 cj[lb+1] = 2.0*lb*cj[lb]/z-cj[lb-1];
-            if (abs(cj[0]) > abs(cj[1])) {
+            if (std::abs(cj[0]) > std::abs(cj[1])) {
                 cy[lb+1] = (cj[lb+1]*cby0-2.0*cp11/(M_PI*z))/cj[0];
                 cy[lb] = (cj[lb]*cby0+2.0*cp12/(M_PI*z))/cj[0];
             }
@@ -1553,8 +1553,8 @@ inline int cbessjyna(int n,complex<double> z,int &nm,complex<double> *cj,
                 cyl2 = cylk;
             }
             for (k=2;k<=nm;k++) {
-                wa = abs(cy[k]);
-                if (wa < abs(cy[k-1])) lb = k;
+                wa = std::abs(cy[k]);
+                if (wa < std::abs(cy[k-1])) lb = k;
             }
         }
     }
@@ -1593,8 +1593,8 @@ inline int cbessjynb(int n,complex<double> z,int &nm,complex<double> *cj,
        -1.993531733751297,
         2.724882731126854e1};
 
-    y0 = abs(imag(z));
-    a0 = abs(z);
+    y0 = std::abs(imag(z));
+    a0 = std::abs(z);
     nm = n;
     if (a0 < 1.0e-100) {
         for (k=0;k<=n;k++) {
@@ -1683,10 +1683,10 @@ inline int cbessjynb(int n,complex<double> z,int &nm,complex<double> *cj,
     for (k=1;k<=nm;k++) {
         cjp[k] = cj[k-1]-(double)k*cj[k]/z;
     }
-    if (abs(cj[0]) > 1.0)
+    if (std::abs(cj[0]) > 1.0)
         cy[1] = (cj[1]*cy[0]-2.0/(M_PI*z))/cj[0];
     for (k=2;k<=nm;k++) {
-        if (abs(cj[k-1]) >= abs(cj[k-2]))
+        if (std::abs(cj[k-1]) >= std::abs(cj[k-2]))
             cyy = (cj[k]*cy[k-1]-2.0/(M_PI*z))/cj[k-1];
         else
             cyy = (cj[k]*cy[k-2]-4.0*(k-1.0)/(M_PI*z*z))/cj[k-2];
@@ -1744,7 +1744,7 @@ inline int cbessik01(complex<double>z,complex<double>&ci0,complex<double>&ci1,
         8.401390346421e08,
         7.2031420482627e10};
 
-    a0 = abs(z);
+    a0 = std::abs(z);
     z2 = z*z;
     z1 = z;
     if (a0 == 0.0) {
@@ -1765,14 +1765,14 @@ inline int cbessik01(complex<double>z,complex<double>&ci0,complex<double>&ci1,
         for (k=1;k<=50;k++) {
             cr *= 0.25*z2/(double)(k*k);
             ci0 += cr;
-            if (abs(cr/ci0) < eps) break;
+            if (std::abs(cr/ci0) < eps) break;
         }
         ci1 = cone;
         cr = cone;
         for (k=1;k<=50;k++) {
             cr *= 0.25*z2/(double)(k*(k+1.0));
             ci1 += cr;
-            if (abs(cr/ci1) < eps) break;
+            if (std::abs(cr/ci1) < eps) break;
         }
         ci1 *= 0.5*z1;
     }
@@ -1802,7 +1802,7 @@ inline int cbessik01(complex<double>z,complex<double>&ci0,complex<double>&ci1,
             w0 += 1.0/k;
             cr *= 0.25*z2/(double)(k*k);
             cs += cr*(w0+ct);
-            if (abs((cs-cw)/cs) < eps) break;
+            if (std::abs((cs-cw)/cs) < eps) break;
             cw = cs;
         }
         ck0 = ct+cs;
@@ -1841,7 +1841,7 @@ inline int cbessikna(int n,complex<double> z,int &nm,complex<double> *ci,
     complex<double> ci0,ci1,ck0,ck1,ckk,cf,cf1,cf2,cs;
     double a0;
     int k,m;
-    a0 = abs(z);
+    a0 = std::abs(z);
     nm = n;
     if (a0 < 1.0e-100) {
         for (k=0;k<=n;k++) {
@@ -1876,7 +1876,7 @@ inline int cbessikna(int n,complex<double> z,int &nm,complex<double> *ci,
         ci[k] *= cs;
     }
     for (k=2;k<=nm;k++) {
-        if (abs(ci[k-1]) > abs(ci[k-2])) {
+        if (std::abs(ci[k-1]) > std::abs(ci[k-2])) {
             ckk = (1.0/z-ci[k]*ck[k-1])/ci[k-1];
         }
         else {
@@ -1898,7 +1898,7 @@ inline int cbessiknb(int n,complex<double> z,int &nm,complex<double> *ci,
     double a0,vt,fac;
     int k,kz,l,m;
 
-    a0 = abs(z);
+    a0 = std::abs(z);
     nm = n;
     if (a0 < 1.0e-100) {
         for (k=0;k<=n;k++) {
@@ -1995,7 +1995,7 @@ inline int cbessjyva(double v,complex<double> z,double &vm,complex<double>*cjv,
     double a0,v0,pv0,pv1,vl,ga,gb,vg,vv,w0,w1,ya0,yak,ya1,wa;
     int j,n,k,kz,l,lb,lb0,m;
 
-    a0 = abs(z);
+    a0 = std::abs(z);
     z1 = z;
     z2 = z*z;
     n = (int)v;
@@ -2032,7 +2032,7 @@ inline int cbessjyva(double v,complex<double> z,double &vm,complex<double>*cjv,
             for (k=1;k<=40;k++) {
                 cr *= -0.25*z2/(k*(k+vl));
                 cjvl += cr;
-                if (abs(cr) < abs(cjvl)*eps) break;
+                if (std::abs(cr) < std::abs(cjvl)*eps) break;
             }
            vg = 1.0 + vl;
            ga = gammaFun(vg);
@@ -2085,7 +2085,7 @@ inline int cbessjyva(double v,complex<double> z,double &vm,complex<double>*cjv,
                 for (k=1;k<=40;k++) {
                     cr *= -0.25*z2/(k*(k-vl));
                     cjvl += cr;
-                    if (abs(cr) < abs(cjvl)*eps) break;
+                    if (std::abs(cr) < std::abs(cjvl)*eps) break;
                 }
                 vg = 1.0-vl;
                 gb = gammaFun(vg);
@@ -2158,7 +2158,7 @@ inline int cbessjyva(double v,complex<double> z,double &vm,complex<double>*cjv,
             cf2 = cf1;
             cf1 = cf;
         }
-        if (abs(cjv0) > abs(cjv1)) cs = cjv0/cf;
+        if (std::abs(cjv0) > std::abs(cjv1)) cs = cjv0/cf;
         else cs = cjv1/cf2;
         for (k=0;k<=n;k++) {
             cjv[k] *= cs;
@@ -2170,14 +2170,14 @@ inline int cbessjyva(double v,complex<double> z,double &vm,complex<double>*cjv,
     }
     cyv[0] = cyv0;
     cyv[1] = cyv1;
-    ya0 = abs(cyv0);
+    ya0 = std::abs(cyv0);
     lb = 0;
     cg0 = cyv0;
     cg1 = cyv1;
     for (k=2;k<=n;k++) {
         cyk = 2.0*(v0+k-1.0)*cg1/z-cg0;
-        yak = abs(cyk);
-        ya1 = abs(cg0);
+        yak = std::abs(cyk);
+        ya1 = std::abs(cg0);
         if ((yak < ya0) && (yak< ya1)) lb = k;
         cyv[k] = cyk;
         cg0 = cg1;
@@ -2207,7 +2207,7 @@ inline int cbessjyva(double v,complex<double> z,double &vm,complex<double>*cjv,
             cp21 = ch2;
             if (lb == n)
                 cjv[lb+1] = 2.0*(lb+v0)*cjv[lb]/z-cjv[lb-1];
-            if (abs(cjv[0]) > abs(cjv[1])) {
+            if (std::abs(cjv[0]) > std::abs(cjv[1])) {
                 cyv[lb+1] = (cjv[lb+1]*cyv0-2.0*cp11/(M_PI*z))/cjv[0];
                 cyv[lb] = (cjv[lb]*cyv0+2.0*cp12/(M_PI*z))/cjv[0];
             }
@@ -2232,8 +2232,8 @@ inline int cbessjyva(double v,complex<double> z,double &vm,complex<double>*cjv,
                 cyl2 = cylk;
             }
             for (k=2;k<=n;k++) {
-                wa = abs(cyv[k]);
-                if (wa < abs(cyv[k-1])) lb = k;
+                wa = std::abs(cyv[k]);
+                if (wa < std::abs(cyv[k-1])) lb = k;
             }
         }
     }
@@ -2254,7 +2254,7 @@ inline int cbessikv(double v,complex<double>z,double &vm,complex<double> *civ,
     double a0,v0,v0p,v0n,vt,w0,piv,gap,gan;
     int m,n,k,kz;
 
-    a0 = abs(z);
+    a0 = std::abs(z);
     z1 = z;
     z2 = z*z;
     n = (int)v;
@@ -2294,7 +2294,7 @@ inline int cbessikv(double v,complex<double>z,double &vm,complex<double> *civ,
         for (k=1;k<=50;k++) {
             cr *= 0.25*z2/(k*(k+v0));
             ci0 += cr;
-            if (abs(cr/ci0) < eps) break;
+            if (std::abs(cr/ci0) < eps) break;
         }
         cbi0 = ci0*ca1;
     }
@@ -2334,7 +2334,7 @@ inline int cbessikv(double v,complex<double>z,double &vm,complex<double> *civ,
                 cr *= 0.25*z2/(double)(k*k);
                 cp = cr*(w0+ct);
                 cs += cp;
-                if ((k >= 10) && (abs(cp/cs) < eps)) break;
+                if ((k >= 10) && (std::abs(cp/cs) < eps)) break;
             }
             cbk0 = ct+cs;
         }
@@ -2351,7 +2351,7 @@ inline int cbessikv(double v,complex<double>z,double &vm,complex<double> *civ,
                 cr1 *= 0.25*z2/(k*(k-v0));
                 cr2 *= 0.25*z2/(k*(k+v0));
                 csu += ca2*cr1-ca1*cr2;
-                if ((k >= 10) && (abs((cws-csu)/csu) < eps)) break;
+                if ((k >= 10) && (std::abs((cws-csu)/csu) < eps)) break;
                 cws = csu;
             }
             cbk0 = csu*M_PI_2/sin(piv);

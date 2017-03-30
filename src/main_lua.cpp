@@ -563,7 +563,7 @@ int MESH_SetKParallel(lua_State *L){
 
 // this function wraps getPhiAtKParallel(const int omegaIndex, const double KParallel)
 // @how to use
-/// GetPhiAtKParallel(omega index, k parallel value)
+// GetPhiAtKParallel(omega index, k parallel value)
 int MESH_GetPhiAtKParallel(lua_State *L){
   SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
   int omegaIdx = luaU_check<int>(L, 2);
@@ -661,10 +661,10 @@ static luaL_Reg character_metatable_SimulationGrating[] = {
 // special function to return the values of constants
 /*=======================================================*/
 static int MESH_Constants(lua_State *L){
-  int tableLen = 11;
-  const char *properties[tableLen] = {"pi", "k_B", "eps_0", "m_e", "eV", "mu_0", "h", "h_bar", "c_0", "q", "sigma"};
-  const double vals[tableLen] = {constants.pi, constants.k_B, constants.eps_0, constants.m_e, constants.eV, constants.mu_0,
+  std::vector<const char*> properties = {"pi", "k_B", "eps_0", "m_e", "eV", "mu_0", "h", "h_bar", "c_0", "q", "sigma"};
+  std::vector<double> vals = {constants.pi, constants.k_B, constants.eps_0, constants.m_e, constants.eV, constants.mu_0,
     constants.h, constants.h_bar, constants.c_0, constants.q, constants.sigma};
+  int tableLen = properties.size();
   lua_createtable(L, 0, tableLen);
   for(int i = 0; i < tableLen; i++){
     lua_pushstring(L, properties[i]);
