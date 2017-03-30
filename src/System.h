@@ -166,7 +166,7 @@ namespace SYSTEM{
     Structure();
     void deleteLayer(const_LayerIter it);
     void reorganizeLayers();
-    std::string getPOVRayForPattern(const PATTERN type);
+    std::string getPOVRayForPattern(const Pattern pattern);
     LayerMap layerMap_;
   };
 

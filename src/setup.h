@@ -41,5 +41,5 @@ typedef struct CONSTANT{
   double sigma = datum::sigma;
 } Constant;
 
-const Constant constant;
+const Constant constants;
 #endif

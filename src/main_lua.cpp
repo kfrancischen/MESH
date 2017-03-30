@@ -619,7 +619,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "SetSourceLayer", MESH_SetSourceLayer },
   { "SetProbeLayer", MESH_SetProbeLayer },
   { "SetLayerPatternGrating", MESH_SetLayerPatternGrating },
-  { "setLayerPatternRectangle", MESH_SetLayerPatternRectangle },
+  { "SetLayerPatternRectangle", MESH_SetLayerPatternRectangle },
   { "SetLayerPatternCircle", MESH_SetLayerPatternCircle },
   { "SetGx", MESH_SetGx },
   { "SetGy", MESH_SetGy },
@@ -630,7 +630,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "GetSysInfo", MESH_GetSysInfo },
   { "OptPrintIntermediate", MESH_OptPrintIntermediate },
   { "OptUseInverseRule", MESH_OptUseInverseRule },
-  { "optUseNaiveRule", MESH_OptUseNaiveRule },
+  { "OptUseNaiveRule", MESH_OptUseNaiveRule },
   { "OutputPhi", MESH_OutputPhi },
   { "BuildRCWA", MESH_BuildRCWA },
   { "SetThread", MESH_SetThread },
@@ -658,6 +658,23 @@ static luaL_Reg character_metatable_SimulationGrating[] = {
 };
 
 /*======================================================*/
+// special function to return the values of constants
+/*=======================================================*/
+static int MESH_Constants(lua_State *L){
+  int tableLen = 11;
+  const char *properties[tableLen] = {"pi", "k_B", "eps_0", "m_e", "eV", "mu_0", "h", "h_bar", "c_0", "q", "sigma"};
+  const double vals[tableLen] = {constants.pi, constants.k_B, constants.eps_0, constants.m_e, constants.eV, constants.mu_0,
+    constants.h, constants.h_bar, constants.c_0, constants.q, constants.sigma};
+  lua_createtable(L, 0, tableLen);
+  for(int i = 0; i < tableLen; i++){
+    lua_pushstring(L, properties[i]);
+    lua_pushnumber(L, vals[i]);
+    lua_settable(L, -3);
+  }
+  return 1;
+};
+
+/*======================================================*/
 // registering the classes
 /*=======================================================*/
 static int luaopen_Simulation(lua_State *L){
@@ -668,6 +685,8 @@ static int luaopen_Simulation(lua_State *L){
 	luaW_extend<SimulationPlanar, Simulation>(L);
   luaW_extend<SimulationGrating, Simulation>(L);
   luaW_extend<SimulationPattern, Simulation>(L);
+
+  lua_register(L, "Constants", MESH_Constants);
 	return 1;
 }
 

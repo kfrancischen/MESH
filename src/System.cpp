@@ -522,9 +522,9 @@ namespace SYSTEM{
   // @args:
   // type: the type of the pattern
   /*==============================================*/
-  std::string Structure::getPOVRayForPattern(const PATTERN type){
+  std::string Structure::getPOVRayForPattern(const Pattern pattern){
     std::string output;
-    switch (type) {
+    switch (pattern.type_) {
       case GRATING_:{
         //TODO
         break;
