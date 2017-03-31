@@ -18,7 +18,6 @@ s:SetSourceLayer("GoldGratingBottom");
 s:SetProbeLayer("VacGap");
 
 s:OptPrintIntermediate();
-s:SetThread(1);
 s:SetGx(50);
 s:SetKxIntegralSym(500);
 s:SetKyIntegralSym(200, 5);
