@@ -762,7 +762,7 @@ namespace MESH{
 
     // initializing for the output
     Phi_ = new double[numOfOmega_];
-    if(numOfKx_ == 0 || numOfKy_ == 0){
+    if(dim_ != NO_ && (numOfKx_ == 0 || numOfKy_ == 0)){
       std::cerr << "Set integration range first!" << std::endl;
       throw UTILITY::ValueException("Set integration range first!");
     }
