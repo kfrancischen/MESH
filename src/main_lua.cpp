@@ -29,7 +29,7 @@ extern "C"
 #ifdef HAVE_MPI
 #include <mpi.h>
 #include "luawrapper/lua_mpi.c"
-#include "luawrapper/buffer.c"
+#include "luawrapper/buffer_mpi.c"
 #endif
 
 using namespace MESH;
@@ -724,8 +724,8 @@ lua_State* new_MESH_lua_State(){
 
   luaL_openlibs(L);
   #ifdef HAVE_MPI
-    luaL_requiref(L, "MPI", luaopen_MPI, 0); lua_pop(L, 1);
-    luaL_requiref(L, "buffer", luaopen_buffer, 0); lua_pop(L, 1);
+    luaL_requiref(L, "MPI", &luaopen_MPI, 1); lua_pop(L, 1);
+    luaL_requiref(L, "buffer", &luaopen_buffer, 1); lua_pop(L, 1);
   #endif
   return L;
 }

@@ -8,9 +8,13 @@ CXXFLAGS += -std=c++11 -O3 -Wall -march=native -fcx-limited-range -fPIC -fopenmp
 LA_LIBS = -lopenblas -llapack
 
 LUA_INC = -I/usr/local/include
-LUA_LIB = -llua -ldl
+LUA_LIB = -llua -ldl -lm
 
 
 #### change to proper compilers
 CC = gcc
 CXX = g++
+
+#### change to proper MPI compilers
+MPICC = mpicc
+MPICXX = mpic++

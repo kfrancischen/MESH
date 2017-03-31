@@ -14,3 +14,7 @@ LUA_MODULE_LIB = -DLUA_BUILD_AS_DLL -Wl,-Bdynamic -llua.dll -Wl,-Bstatic
 #### change to proper compilers
 CC = gcc
 CXX = g++
+
+#### change to proper MPI compilers
+MPICC = mpicc
+MPICXX = mpic++

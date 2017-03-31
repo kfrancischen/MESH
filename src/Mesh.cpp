@@ -767,6 +767,9 @@ namespace MESH{
       throw UTILITY::ValueException("Set integration range first!");
     }
     resultArray_ = new double[numOfKx_ * numOfKy_ * numOfOmega_];
+    for(int i = 0; i < numOfKx_ * numOfKy_ * numOfOmega_; i++){
+      resultArray_[i] = 0;
+    }
 
     EMatricesVec_.resize(numOfOmega_);
     grandImaginaryMatrixVec_.resize(numOfOmega_);
@@ -1215,7 +1218,6 @@ namespace MESH{
 
     if(parallel){
       #if defined(_OPENMP)
-      std::cout << "here" << std::endl;
         #pragma omp parallel for num_threads(numOfThread_)
       #endif
       for(int i = start; i < end; i++){

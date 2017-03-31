@@ -15,4 +15,7 @@ s:OptUseQuadgk();
 s:BuildRCWA();
 s:SetKParallelIntegral(1);
 s:IntegrateKParallel();
-s:OutputPhi("test_lua.txt");
+phi = s:GetPhi();
+for i = 1, s:GetNumOfOmega() do
+  print(phi[i])
+end

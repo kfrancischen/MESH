@@ -21,6 +21,10 @@ int main(){
   s->setThread(4);
   s->buildRCWA();
   s->integrateKParallel();
-  s->outputPhi("test_output.txt");
+
+  double* phi = s->getPhi();
+  for(int i = 0; i < s->getNumOfOmega(); i++){
+    std::cout << phi[i] << std::endl;
+  }
   return 0;
 }

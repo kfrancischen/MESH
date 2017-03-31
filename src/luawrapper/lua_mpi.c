@@ -74,7 +74,7 @@ static int _MPI_Init(lua_State *L)
   lua_pushnumber(L, ret);
   return 1;
 }
-#include "mpifuncs.c"
+#include "funcs_mpi.c"
 
 
 static void register_constants(lua_State *L)
