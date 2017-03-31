@@ -762,8 +762,11 @@ namespace MESH{
 
     // initializing for the output
     Phi_ = new double[numOfOmega_];
-    int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
-    resultArray_ = new double[totalNum];
+    if(numOfKx_ == 0 || numOfKy_ == 0){
+      std::cerr << "Set integration range first!" << std::endl;
+      throw UTILITY::ValueException("Set integration range first!");
+    }
+    resultArray_ = new double[numOfKx_ * numOfKy_ * numOfOmega_];
 
     EMatricesVec_.resize(numOfOmega_);
     grandImaginaryMatrixVec_.resize(numOfOmega_);
@@ -1170,8 +1173,7 @@ namespace MESH{
   // start: the starting index
   // end: the end index
   /*==============================================*/
-  void Simulation::integrateKxKyInternal(const int start, const int end){
-
+  void Simulation::integrateKxKyInternal(const int start, const int end, const bool parallel){
     double* kxList = new double[numOfKx_];
     double* kyList = new double[numOfKy_];
     double* scalex = new double[numOfOmega_];
@@ -1211,20 +1213,38 @@ namespace MESH{
       }
     }
 
-    #if defined(_OPENMP) && ! defined(HAVE_MPI)
-      #pragma omp parallel for num_threads(numOfThread_)
-    #endif
-    for(int i = start; i < end; i++){
-        int omegaIdx = i / (numOfKx_ * numOfKy_);
-        int residue = i % (numOfKx_ * numOfKy_);
-        int kxIdx = residue / numOfKy_;
-        int kyIdx = residue % numOfKy_;
-        resultArray_[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
-        if(options_.PrintIntermediate){
-          std::stringstream msg;
-          msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray_[i] << std::endl;
-          std::cout << msg.str();
-        }
+    if(parallel){
+      #if defined(_OPENMP)
+      std::cout << "here" << std::endl;
+        #pragma omp parallel for num_threads(numOfThread_)
+      #endif
+      for(int i = start; i < end; i++){
+          int omegaIdx = i / (numOfKx_ * numOfKy_);
+          int residue = i % (numOfKx_ * numOfKy_);
+          int kxIdx = residue / numOfKy_;
+          int kyIdx = residue % numOfKy_;
+          resultArray_[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+          if(options_.PrintIntermediate){
+            std::stringstream msg;
+            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray_[i] << std::endl;
+            std::cout << msg.str();
+          }
+      }
+
+    }
+    else{
+      for(int i = start; i < end; i++){
+          int omegaIdx = i / (numOfKx_ * numOfKy_);
+          int residue = i % (numOfKx_ * numOfKy_);
+          int kxIdx = residue / numOfKy_;
+          int kyIdx = residue % numOfKy_;
+          resultArray_[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+          if(options_.PrintIntermediate){
+            std::stringstream msg;
+            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray_[i] << std::endl;
+            std::cout << msg.str();
+          }
+      }
     }
 
     delete[] kxList;
@@ -1241,7 +1261,7 @@ namespace MESH{
   // This function computes the flux for general usage
   /*==============================================*/
   void Simulation::integrateKxKy(){
-    this->integrateKxKyInternal(0, numOfOmega_ * numOfKx_ * numOfKy_);
+    this->integrateKxKyInternal(0, numOfOmega_ * numOfKx_ * numOfKy_, true);
   }
   /*==============================================*/
   // This function computes the flux for MPI only
@@ -1260,7 +1280,8 @@ namespace MESH{
       end = start + chunksize + 1;
     }
     if(end > totalNum) end = totalNum;
-    this->integrateKxKyInternal(start, end);
+    this->integrateKxKyInternal(start, end, false);
+
   }
   /*==============================================*/
   // function saving the structure to a POVRay file

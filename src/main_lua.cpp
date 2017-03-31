@@ -28,6 +28,8 @@ extern "C"
 #include "luawrapper/luawrapperutil.hpp"
 #ifdef HAVE_MPI
 #include <mpi.h>
+#include "luawrapper/lua_mpi.c"
+#include "luawrapper/buffer.c"
 #endif
 
 using namespace MESH;
@@ -721,6 +723,10 @@ lua_State* new_MESH_lua_State(){
   lua_pop(L, 1);
 
   luaL_openlibs(L);
+  #ifdef HAVE_MPI
+    luaL_requiref(L, "MPI", luaopen_MPI, 0); lua_pop(L, 1);
+    luaL_requiref(L, "buffer", luaopen_buffer, 0); lua_pop(L, 1);
+  #endif
   return L;
 }
 /*======================================================*/
@@ -776,35 +782,13 @@ int main(int argc, char *argv[]){
     }
   }
 
-  int mpi_size = 1;
-  int mpi_rank = MASTER;
-  // for MPI purpose
-#ifdef HAVE_MPI
-  MPI_Init(&argc, &argv);
-  MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-#endif
-
 	lua_State *L = new_MESH_lua_State();
-
-  lua_getglobal(L, "MESH");
-  lua_pushstring(L, "MPIRank");
-  lua_pushinteger(L, mpi_rank);
-  lua_settable(L, -3);
-
-	lua_pushstring(L, "MPISize");
-	lua_pushinteger(L, mpi_size);
-	lua_settable(L, -3);
-	lua_pop(L, 1);
 
   if (luaL_dofile(L, argv[1])){
   	  cout << lua_tostring(L, -1) << endl;
   }
   lua_close(L);
-  // if exist MPI call
-#ifdef HAVE_MPI
-  MPI_Finalize();
-#endif
+
   return 0;
 
 }

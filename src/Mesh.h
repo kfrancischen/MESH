@@ -164,7 +164,7 @@ public:
 
   ~Simulation();
 protected:
-  void integrateKxKyInternal(const int start, const int end);
+  void integrateKxKyInternal(const int start, const int end, const bool parallel);
   Simulation();
   Simulation(const Simulation&) = delete;
 
