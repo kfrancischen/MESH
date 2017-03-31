@@ -24,6 +24,8 @@ namespace MESH{
   // Constructor of the FileLoader class
   /*==============================================*/
   FileLoader::FileLoader(){
+    omegaList_ = nullptr;
+    epsilonList_.epsilonVals = nullptr;
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -143,10 +145,14 @@ namespace MESH{
   // Class destructor
   /*==============================================*/
   FileLoader::~FileLoader(){
-    delete [] omegaList_;
-    omegaList_ = nullptr;
-    delete [] epsilonList_.epsilonVals;
-    epsilonList_.epsilonVals = nullptr;
+    if(omegaList_ != nullptr){
+      delete [] omegaList_;
+      omegaList_ = nullptr;
+    }
+    if(epsilonList_.epsilonVals != nullptr){
+      delete [] epsilonList_.epsilonVals;
+      epsilonList_.epsilonVals = nullptr;
+    }
   }
   /*==============================================*/
   // This function wraps the data for quad_gaussian_kronrod
@@ -209,34 +215,92 @@ namespace MESH{
     dim_ = NO_;
     structure_ = Structure::instanceNew();
     fileLoader_ = FileLoader::instanceNew();
+    resultArray_ = nullptr;
   }
   /*==============================================*/
   // Class destructor
   /*==============================================*/
   Simulation::~Simulation(){
-    delete[] Phi_;
-    Phi_ = nullptr;
+    if(Phi_ != nullptr){
+      delete[] Phi_;
+      Phi_ = nullptr;
+    }
+    if(resultArray_ != nullptr){
+      delete[] resultArray_;
+      resultArray_ = nullptr;
+    }
   }
 
-  /*==============================================*/
-  // This function saves data to disk
-  /*==============================================*/
-  void Simulation::outputPhi(const std::string fileName){
-    std::ofstream outputFile(fileName);
-    for(int i = 0; i < numOfOmega_; i++){
-      outputFile << omegaList_[i] << "\t" << Phi_[i] << std::endl;
-    }
-    outputFile.close();
-  }
 
   /*==============================================*/
   // This function return the Phi value
   /*==============================================*/
   double* Simulation::getPhi(){
-    if(Phi_ == nullptr){
-      std::cerr << "Phi does not exist!" << std::endl;
-      throw UTILITY::MemoryException("Phi does not exist!");
+    if(resultArray_ == nullptr){
+      std::cerr << "Integration has not done yet!" << std::endl;
+      throw UTILITY::MemoryException("Integration has not done yet!");
     }
+
+    if(Phi_ == nullptr){
+      std::cerr << "Please do RCWA and integration first!" << std::endl;
+      throw UTILITY::MemoryException("Please do RCWA and integration first!");
+    }
+
+    double* kxList = new double[numOfKx_];
+    double* kyList = new double[numOfKy_];
+    double* scalex = new double[numOfOmega_];
+    double* scaley = new double[numOfOmega_];
+    // here dkx is not normalized
+    double dkx = (kxEnd_ - kxStart_) / (numOfKx_ - 1);
+    // here kyEnd_ is normalized for 1D case
+    double dky = (kyEnd_ - kyStart_) / (numOfKy_ - 1);
+    for(int i = 0; i < numOfKx_; i++){
+      kxList[i] = kxStart_ + dkx * i;
+    }
+    for(int i = 0; i < numOfKy_; i++){
+      kyList[i] = kyStart_ + dky * i;
+    }
+
+    for(int i = 0; i < numOfOmega_; i++){
+      switch (dim_) {
+        case NO_:{
+          scalex[i] = 1;
+          scaley[i] = 1;
+          break;
+        }
+        case ONE_:{
+          if(options_.kxIntegralPreset) scalex[i] = 1;
+          else scalex[i] = omegaList_[i] / datum::c_0;
+          scaley[i] = 1;
+          break;
+        }
+        case TWO_:{
+          if(options_.kxIntegralPreset) scalex[i] = 1;
+          else scalex[i] = omegaList_[i] / datum::c_0;
+          if(options_.kyIntegralPreset) scaley[i] = 1;
+          else scaley[i] = omegaList_[i] / datum::c_0;
+          break;
+        }
+        default: break;
+      }
+    }
+
+    for(int i = 0; i < numOfOmega_; i++){
+        Phi_[i] = 0;
+        for(int j = 0; j < numOfKx_ * numOfKy_; j++){
+          Phi_[i] += resultArray_[i * numOfKx_ * numOfKy_ + j];
+        }
+        Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i] * POW2(omegaList_[i] / datum::c_0);
+    }
+
+    delete[] kxList;
+    kxList = nullptr;
+    delete[] kyList;
+    kyList = nullptr;
+    delete[] scalex;
+    scalex = nullptr;
+    delete[] scaley;
+    scaley = nullptr;
     return Phi_;
   }
 
@@ -696,7 +760,11 @@ namespace MESH{
       throw UTILITY::ValueException("Periodicity not set!");
     }
 
+    // initializing for the output
     Phi_ = new double[numOfOmega_];
+    int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
+    resultArray_ = new double[totalNum];
+
     EMatricesVec_.resize(numOfOmega_);
     grandImaginaryMatrixVec_.resize(numOfOmega_);
     eps_zz_Inv_MatrixVec_.resize(numOfOmega_);
@@ -1097,9 +1165,12 @@ namespace MESH{
     prefactor_ *= 2;
   }
   /*==============================================*/
-  // This function computes the flux
+  // This function computes the flux for internal usage
+  // @args:
+  // start: the starting index
+  // end: the end index
   /*==============================================*/
-  void Simulation::integrateKxKy(){
+  void Simulation::integrateKxKyInternal(const int start, const int end){
 
     double* kxList = new double[numOfKx_];
     double* kyList = new double[numOfKy_];
@@ -1140,35 +1211,22 @@ namespace MESH{
       }
     }
 
-    int totalNum = numOfKx_ * numOfKy_ * numOfOmega_;
-
-    // use dynamic allocation for stack memory problem
-    double* resultArray = new double[totalNum];
-    #if defined(_OPENMP)
+    #if defined(_OPENMP) && ! defined(HAVE_MPI)
       #pragma omp parallel for num_threads(numOfThread_)
     #endif
-    for(int i = 0; i < totalNum; i++){
+    for(int i = start; i < end; i++){
         int omegaIdx = i / (numOfKx_ * numOfKy_);
         int residue = i % (numOfKx_ * numOfKy_);
         int kxIdx = residue / numOfKy_;
         int kyIdx = residue % numOfKy_;
-        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+        resultArray_[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
         if(options_.PrintIntermediate){
           std::stringstream msg;
-          msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+          msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray_[i] << std::endl;
           std::cout << msg.str();
         }
     }
-    for(int i = 0; i < numOfOmega_; i++){
-        Phi_[i] = 0;
-        for(int j = 0; j < numOfKx_ * numOfKy_; j++){
-          Phi_[i] += resultArray[i * numOfKx_ * numOfKy_ + j];
-        }
-        Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i] * POW2(omegaList_[i] / datum::c_0);
-    }
 
-    delete[] resultArray;
-    resultArray = nullptr;
     delete[] kxList;
     kxList = nullptr;
     delete[] kyList;
@@ -1177,6 +1235,32 @@ namespace MESH{
     scalex = nullptr;
     delete[] scaley;
     scaley = nullptr;
+  }
+
+  /*==============================================*/
+  // This function computes the flux for general usage
+  /*==============================================*/
+  void Simulation::integrateKxKy(){
+    this->integrateKxKyInternal(0, numOfOmega_ * numOfKx_ * numOfKy_);
+  }
+  /*==============================================*/
+  // This function computes the flux for MPI only
+  /*==============================================*/
+  void Simulation::integrateKxKyMPI(const int rank, const int size){
+    int totalNum = numOfOmega_ * numOfKx_ * numOfKy_;
+    int chunksize = totalNum / size;
+    int left = totalNum % size;
+    int start, end;
+    if(rank >= left){
+      start = left * (chunksize + 1) + (rank - left) * chunksize;
+      end = start + chunksize;
+    }
+    else{
+      start = rank * (chunksize + 1);
+      end = start + chunksize + 1;
+    }
+    if(end > totalNum) end = totalNum;
+    this->integrateKxKyInternal(start, end);
   }
   /*==============================================*/
   // function saving the structure to a POVRay file
@@ -1267,6 +1351,11 @@ namespace MESH{
       std::cerr << "Cannot use kparallel integral here!" << std::endl;
       throw UTILITY::InternalException("Cannot use kparallel integral here!");
     }
+    if(Phi_ == nullptr){
+      std::cerr << "Please do RCWA and integration first!" << std::endl;
+      throw UTILITY::MemoryException("Please do RCWA and integration first!");
+    }
+
     #if defined(_OPENMP)
       #pragma omp parallel for num_threads(numOfThread_)
     #endif
@@ -1298,6 +1387,12 @@ namespace MESH{
       }
       Phi_[i] *= POW3(omegaList_[i] / datum::c_0) / POW2(datum::pi);
     }
+  }
+  /*==============================================*/
+  // Implementaion of getPhi to overwrite the base class
+  /*==============================================*/
+  double* SimulationPlanar::getPhi(){
+    return Phi_;
   }
   /*==============================================*/
   // Implementaion of the class on 1D grating simulation

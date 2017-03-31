@@ -138,12 +138,12 @@ public:
 
   void setGx(const int nGx);
   void setGy(const int nGy);
-  void outputPhi(const std::string fileName);
   double* getPhi();
   double* getOmega();
   int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
+
   void buildRCWA();
 
   void getSysInfo();
@@ -159,10 +159,12 @@ public:
   void setKyIntegralSym(const int points, const double end = 0);
 
   void integrateKxKy();
+  void integrateKxKyMPI(const int rank, const int size);
   void outputStructurePOVRay(const std::string outfile);
 
   ~Simulation();
 protected:
+  void integrateKxKyInternal(const int start, const int end);
   Simulation();
   Simulation(const Simulation&) = delete;
 
@@ -176,6 +178,7 @@ protected:
   int numOfOmega_;
   double* Phi_;
   double* omegaList_;
+  double* resultArray_;
   double kxStart_;
   double kxEnd_;
   double kyStart_;
@@ -232,7 +235,7 @@ public:
 
   void integrateKParallel();
   double getPhiAtKParallel(const int omegaIndex, const double KParallel);
-
+  double* getPhi();
   SimulationPlanar();
 protected:
 

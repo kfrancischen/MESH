@@ -26,6 +26,9 @@ extern "C"
 }
 #include "luawrapper/luawrapper.hpp"
 #include "luawrapper/luawrapperutil.hpp"
+#ifdef HAVE_MPI
+#include <mpi.h>
+#endif
 
 using namespace MESH;
 
@@ -286,15 +289,6 @@ int MESH_SetProbeLayer(lua_State* L){
   return 1;
 }
 
-// this function wraps outputPhi(const std::string fileName)
-// @how to use
-// OutputPhi(output file)
-int MESH_OutputPhi(lua_State *L){
-  Simulation* s = luaW_check<Simulation>(L, 1);
-  std::string name = luaU_check<std::string>(L, 2);
-  s->outputPhi(name);
-  return 1;
-}
 
 // this function wraps setThread(const int numThread)
 // @how to use
@@ -505,6 +499,17 @@ int MESH_IntegrateKxKy(lua_State *L){
   s->integrateKxKy();
   return 1;
 }
+
+// this function wraps integrateKxKyMPI(const int rank, const int size)
+// @how to use
+// IntegrateKxKyMPI(rank, size)
+int MESH_IntegrateKxKyMPI(lua_State* L){
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  int rank = luaU_check<int>(L, 2);
+  int size = luaU_check<int>(L, 3);
+  s->integrateKxKyMPI(rank, size);
+  return 1;
+}
 // this function wraps outputStructurePOVRay(const std::string outfile)
 // @how to use
 // OutputStructurePOVRay(file name)
@@ -581,6 +586,22 @@ int MESH_IntegrateKParallel(lua_State* L){
   return 1;
 }
 
+// this function wraps getPhi()
+// @how to use
+// GetPhi()
+int MESH_GetPhi_Planar(lua_State* L){
+  SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
+  double* phi = s->getPhi();
+  int numOfOmega = s->getNumOfOmega();
+  lua_createtable(L, numOfOmega, 0);
+  for(int i = 0; i < numOfOmega; i++){
+    lua_pushinteger(L, i+1);
+    lua_pushnumber(L, phi[i]);
+    lua_settable(L, -3);
+  }
+  return 1;
+}
+
 /*======================================================*/
 // constructor for the 1D grating
 /*=======================================================*/
@@ -631,7 +652,6 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "OptPrintIntermediate", MESH_OptPrintIntermediate },
   { "OptUseInverseRule", MESH_OptUseInverseRule },
   { "OptUseNaiveRule", MESH_OptUseNaiveRule },
-  { "OutputPhi", MESH_OutputPhi },
   { "BuildRCWA", MESH_BuildRCWA },
   { "SetThread", MESH_SetThread },
   { "SetKxIntegral", MESH_SetKxIntegral },
@@ -639,6 +659,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "SetKyIntegral", MESH_SetKyIntegral },
   { "SetKyIntegralSym", MESH_SetKyIntegralSym },
   { "IntegrateKxKy", MESH_IntegrateKxKy },
+  { "IntegrateKxKyMPI", MESH_IntegrateKxKyMPI },
   { "OutputStructurePOVRay", MESH_OutputStructurePOVRay },
 	{NULL, NULL}
 };
@@ -648,6 +669,7 @@ static luaL_Reg character_metatable_SimulationPlanar[] = {
 	{ "OptUseQuadgk", MESH_OptUseQuadgk },
   { "SetKParallelIntegral", MESH_SetKParallel },
   { "GetPhiAtKParalle", MESH_GetPhiAtKParallel },
+  { "GetPhi", MESH_GetPhi_Planar },
   { "IntegrateKParallel", MESH_IntegrateKParallel },
 	{ NULL, NULL}
 };
@@ -691,6 +713,17 @@ static int luaopen_Simulation(lua_State *L){
 }
 
 /*======================================================*/
+// customized new state function
+/*=======================================================*/
+lua_State* new_MESH_lua_State(){
+  lua_State *L = luaL_newstate();
+  luaL_requiref(L, "MESH", &luaopen_Simulation, 1);
+  lua_pop(L, 1);
+
+  luaL_openlibs(L);
+  return L;
+}
+/*======================================================*/
 // information about the package
 /*=======================================================*/
 void usage(){
@@ -722,10 +755,7 @@ int main(int argc, char *argv[]){
     throw UTILITY::UnknownArgException("Please only read in one file a time!");
     return 0;
   }
-   //lua_State *L;
-	lua_State *L = luaL_newstate();
-	luaL_openlibs(L);
-	luaopen_Simulation(L);
+
   int c;
   if((c = getopt(argc, argv, "vh")) != -1){
     switch(c){
@@ -746,10 +776,35 @@ int main(int argc, char *argv[]){
     }
   }
 
+  int mpi_size = 1;
+  int mpi_rank = MASTER;
+  // for MPI purpose
+#ifdef HAVE_MPI
+  MPI_Init(&argc, &argv);
+  MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+#endif
+
+	lua_State *L = new_MESH_lua_State();
+
+  lua_getglobal(L, "MESH");
+  lua_pushstring(L, "MPIRank");
+  lua_pushinteger(L, mpi_rank);
+  lua_settable(L, -3);
+
+	lua_pushstring(L, "MPISize");
+	lua_pushinteger(L, mpi_size);
+	lua_settable(L, -3);
+	lua_pop(L, 1);
+
   if (luaL_dofile(L, argv[1])){
   	  cout << lua_tostring(L, -1) << endl;
   }
   lua_close(L);
+  // if exist MPI call
+#ifdef HAVE_MPI
+  MPI_Finalize();
+#endif
   return 0;
 
 }
