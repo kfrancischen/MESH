@@ -18,11 +18,15 @@ s:SetSourceLayer("GoldGratingBottom");
 s:SetProbeLayer("VacGap");
 
 s:OptPrintIntermediate();
-s:SetGx(50);
-s:SetKxIntegralSym(500);
-s:SetKyIntegralSym(200, 5);
+s:SetGx(0);
+s:SetKxIntegralSym(2);
+s:SetKyIntegralSym(2, 5);
 s:BuildRCWA();
 
+----------------------------------------------------------------
+-- this part is for MPI
+-- in principle there is no need to change this part for your simulation
+----------------------------------------------------------------
 -- start MPI
 local sizeb = buffer.new_buffer(buffer.sizeof(buffer.int))
 local rankb = buffer.new_buffer(buffer.sizeof(buffer.int))
@@ -40,26 +44,32 @@ end
 
 status = MPI.Status()
 numOfOmega = s:GetNumOfOmega()
-
+-- rank 0 is the master node
 if rank == 0 then
-  print(rank);
   s:IntegrateKxKyMPI(rank, size);
   phi_master = s:GetPhi();
+  -- master collects values from slave
   for i = 1,size - 1 do
-    local phi_local = buffer.new_buffer(buffer.sizeof(numOfOmega * buffer.double));
-    MPI.Recv(phi_local, numOfOmega, MPI.DOUBLE, 0, MPI.COMM_WORLD, status);
+    local phi_local = buffer.new_buffer(numOfOmega * buffer.sizeof(buffer.double));
+    MPI.Recv(phi_local, numOfOmega, MPI.DOUBLE, i, 0, MPI.COMM_WORLD, status);
     for j = 1, numOfOmega do
-      phi_master[j] = phi_master[j] + phi_local[j];
+      phi_master[j] = phi_master[j] + buffer.get_typed(phi_local, buffer.double, j - 1);
     end
   end
+  -- output all the phi values from the master
   for i = 1,numOfOmega do
     print(string.format("%e", phi_master[i]));
   end
+-- rank 1-size are the slave nodes
 else
-  print(rank);
   s:IntegrateKxKyMPI(rank, size);
   local phi_slave = s:GetPhi();
-  MPI.Send(phi_slave, numOfOmega, MPI.DOUBLE, 0, 0, MPI.COMM_WORLD);
+  -- slave nodes send phi values back to master
+  local phi_ = buffer.new_buffer(numOfOmega * buffer.sizeof(buffer.double));
+  for i = 1, numOfOmega do
+    buffer.set_typed(phi_, buffer.double, i - 1, phi_slave[i]);
+  end
+  MPI.Send(phi_, numOfOmega, MPI.DOUBLE, 0, 0, MPI.COMM_WORLD);
 end
 
 MPI.Finalize();

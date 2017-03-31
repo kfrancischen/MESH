@@ -18,7 +18,6 @@ s:SetThread(4);
 
 s:BuildRCWA();
 s:IntegrateKParallel();
-s:OutputPhi("test_lua.txt");
 
 numOfOmega = s:GetNumOfOmega();
 phi = s:GetPhi();
