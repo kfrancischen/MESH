@@ -1,0 +1,3 @@
+2017-04-01
+  commit version 1.0.0. Supports MPI, openmp. Passed Valgrind memory test for simple cases.
+  TODO: implement output POVRay object.

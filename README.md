@@ -1,8 +1,8 @@
 ### Package MESH
 **M**ultilayer **E**lectromagnetic **S**olver for **H**eat transfer.
 
-A program for computing electromagnetic far-field and near-field heat transfer, developed
-by Kaifeng Chen (<kfrancischen@gmail.com>) of the
+A program for computing electromagnetic far-field and near-field heat transfer periodic, layered
+structures, developed by Kaifeng Chen (<kfrancischen@gmail.com>) of the
 [Fan group](http://web.stanford.edu/group/fan/) in the Stanford Electrical Engineering Department.
 
 Please visit [https://kfrancischen.github.io/MESH/](https://kfrancischen.github.io/MESH/), for a complete
