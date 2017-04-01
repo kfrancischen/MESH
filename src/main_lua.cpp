@@ -733,17 +733,19 @@ lua_State* new_MESH_lua_State(){
 // information about the package
 /*=======================================================*/
 void usage(){
+  std::cout << "========================================================" << std::endl;
   std::cout << "mesh -h for help" << std::endl;
   std::cout << "mesh -v for version information" << std::endl;
 	std::cout << "mesh [input-file] to run a file" << std::endl;
+    std::cout << "========================================================" << std::endl;
 }
 void version(){
   std::cout << "========================================================" << std::endl;
   std::cout << "Copyright (C) 2016-2018, and GNU GPL'd, by Kaifeng Chen." << std::endl;
 	std::cout << "Multilayer Electromagnetic Solver for Heat transfer (MESH)" << std::endl;
-	std::cout << "Version " << PACKAGE_VERSION << std::endl;
+	std::cout << "Version: " << PACKAGE_VERSION << std::endl;
   std::cout << "Email: " << PACKAGE_BUGREPORT << std::endl;
-  #if defined(_OPENMP)
+  #if defined(_OPENMP) && ! defined(HAVE_MPI)
 	 std::cout << "With Openmp support." << std::endl;
   #endif
   #ifdef HAVE_MPI
