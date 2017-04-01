@@ -329,6 +329,7 @@ namespace MESH{
   void Simulation::setPeriodicity(const double p1, const double p2){
     period_[0] = p1;
     period_[1] = p2;
+    structure_->setPeriodicity(p1, p2);
   }
   /*==============================================*/
   // This function adds material to the system
@@ -349,7 +350,8 @@ namespace MESH{
      fileLoader_->getEpsilonList(),
      fileLoader_->getNumOfOmega()
     );
-    materialInstanceMap_.insert(MaterialInstanceMap::value_type(name, material));
+    materialInstanceMap_.insert(MaterialMap::value_type(name, material));
+    structure_->addMaterial(material);
   }
 
   /*==============================================*/

@@ -670,7 +670,7 @@ static luaL_Reg character_metatable_SimulationPlanar[] = {
   { "OptUseQuadgl", MESH_OptUseQuadgl },
 	{ "OptUseQuadgk", MESH_OptUseQuadgk },
   { "SetKParallelIntegral", MESH_SetKParallel },
-  { "GetPhiAtKParalle", MESH_GetPhiAtKParallel },
+  { "GetPhiAtKParallel", MESH_GetPhiAtKParallel },
   { "GetPhi", MESH_GetPhi_Planar },
   { "IntegrateKParallel", MESH_IntegrateKParallel },
 	{ NULL, NULL}

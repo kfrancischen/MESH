@@ -22,6 +22,8 @@
 #include <map>
 #include "Common.h"
 #include <string>
+#include <fstream>
+#include <cstdlib>
 
 namespace SYSTEM{
   /*======================================================
@@ -121,6 +123,7 @@ namespace SYSTEM{
     void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
     void addGratingPattern(const Ptr<Material>& material, const double center, const double width);
 
+    std::string getPOVRayForPattern(const Pattern pattern);
   private:
     enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 
@@ -138,6 +141,7 @@ namespace SYSTEM{
   typedef std::map<int, Ptr<Layer> > LayerMap;
   typedef LayerMap::iterator LayerIter;
   typedef LayerMap::const_iterator const_LayerIter;
+  typedef std::map< std::string, Ptr<Material> > MaterialMap;
 
   /*======================================================
   Implementaion of the structure class
@@ -150,7 +154,9 @@ namespace SYSTEM{
 
     Structure(const Structure& structure);
 
+    void addMaterial(const Ptr<Material>& material);
     void addLayer(const Ptr<Layer>& layer);
+    void setPeriodicity(const double p1, const double p2 = 0);
     void deleteLayerByName(const string name);
     void deleteLayerByLayer(const Ptr<Layer>& layer);
     Ptr<Layer> getLayerByIndex(const int index);
@@ -166,8 +172,9 @@ namespace SYSTEM{
     Structure();
     void deleteLayer(const_LayerIter it);
     void reorganizeLayers();
-    std::string getPOVRayForPattern(const Pattern pattern);
     LayerMap layerMap_;
+    MaterialMap materialMap_;
+    double period_[2];
   };
 
 

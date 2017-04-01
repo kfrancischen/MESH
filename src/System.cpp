@@ -279,7 +279,7 @@ namespace SYSTEM{
   // check whether the layer contains a given material
   /*==============================================*/
   bool Layer::hasMaterial(const Ptr<Material>& material){
-    if((backGround_->name()).compare(material->getName())) return true;
+    if((backGround_->name()).compare(material->getName()) == 0) return true;
     for(const_MaterialIter it = this->getMaterialsBegin(); it != this->getMaterialsEnd(); it++){
       if(*it == material) return true;
     }
@@ -404,14 +404,49 @@ namespace SYSTEM{
     if(material->getType() == TENSOR_) hasTensor_++;
     Pattern pattern;
     pattern.arg1_ = std::make_pair(center, width);
+    pattern.arg2_ = std::make_pair(0, 0);
     pattern.type_ = GRATING_;
     patternVec_.push_back(pattern);
+  }
+
+  /*==============================================*/
+  // function returning the POV for one pattern
+  // @args:
+  // type: the type of the pattern
+  /*==============================================*/
+  std::string Layer::getPOVRayForPattern(const Pattern pattern){
+    double t = thickness_ * 1e6;
+    std::string output = "";
+    switch (pattern.type_) {
+      case GRATING_:{
+        output += std::string("box{\n\t<-1, -1, 0>, <1, 1, ") + std::to_string(t) + std::string(">, 1\n");
+        output += std::string("\tscale +x*") + std::to_string(pattern.arg1_.first * 1e6 /2) + std::string("\n\tscale +x*0");
+        output += std::string("\ttranslate +x*\n") + std::to_string(pattern.arg2_.first * 1e6) + std::string("\ttranslate +y*0\n");
+        break;
+      }
+      case RECTANGLE_:{
+        output += std::string("box{\n\t<-1, -1, 0>, <1, 1, ") + std::to_string(t) + std::string(">, 1\n");
+        output += std::string("\tscale +x*") + std::to_string(pattern.arg1_.first * 1e6 /2) + std::string("\n\tscale +x*") + std::to_string(pattern.arg1_.second * 1e6/2);
+        output += std::string("\ttranslate +x*\n") + std::to_string(pattern.arg2_.first * 1e6) + std::string("\ttranslate +y*\n") + std::to_string(pattern.arg2_.second * 1e6);
+        break;
+      }
+      case CIRCLE_:{
+        output += std::string("cylinder{\n\t<0,0,0>, <0,0,") + std::to_string(t) + std::string(">, \n");
+        output += std::string("\ttranslate +x*\n") + std::to_string(pattern.arg1_.first * 1e6) + std::string("\ttranslate +y*\n") + std::to_string(pattern.arg2_.first * 1e6);
+        break;
+      }
+      default: break;
+    }
+    output += "}\n";
+    return output;
   }
 
   /*==============================================*/
   // Implementaion of the structure class
   /*==============================================*/
   Structure::Structure(){
+    period_[0] = 0;
+    period_[1] = 0;
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -434,7 +469,14 @@ namespace SYSTEM{
       layerMap_.insert(LayerMap::value_type(it->first, it->second));
     }
   }
-
+  /*==============================================*/
+  // function adding a material to the structure
+  // @args:
+  // material: the added material
+  /*==============================================*/
+  void Structure::addMaterial(const Ptr<Material>& material){
+    materialMap_.insert(MaterialMap::value_type(material->getName(), material));
+  }
   /*==============================================*/
   // function adding a layer to the structure
   // @args:
@@ -443,6 +485,16 @@ namespace SYSTEM{
   void Structure::addLayer(const Ptr<Layer>& layer){
     int size = layerMap_.size();
     layerMap_.insert(LayerMap::value_type(size, layer));
+  }
+  /*==============================================*/
+  // function setting the periodicity of a layer
+  // @args:
+  // p1: periodicity in x direction
+  // p2: periodicity in y direction
+  /*==============================================*/
+  void Structure::setPeriodicity(const double p1, const double p2){
+    period_[0] = p1;
+    period_[1] = p2;
   }
   /*==============================================*/
   // function deleting a layer in the structure by its name
@@ -514,32 +566,129 @@ namespace SYSTEM{
   // outfile: the output file name, should end with .pov
   /*==============================================*/
   void Structure::getPOVRay(const std::string outfile){
-    // TODO
-  }
+    double charsize = std::max(period_[0], period_[1]) * 1e6;
+    // output preample
+    std::string outputString = "// -w320 -h240\n"
+      "\n"
+      "#version 3.7;\n"
+      "\n"
+      "#include \"colors.inc\"\n"
+      "#include \"textures.inc\"\n"
+      "#include \"shapes.inc\"\n"
+      "\n"
+      "global_settings {max_trace_level 5 assumed_gamma 1.0}\n"
+      "\n"
+      "camera {\n"
+      "\tlocation<";
 
-  /*==============================================*/
-  // function returning the POV for one pattern
-  // @args:
-  // type: the type of the pattern
-  /*==============================================*/
-  std::string Structure::getPOVRayForPattern(const Pattern pattern){
-    std::string output;
-    switch (pattern.type_) {
-      case GRATING_:{
-        //TODO
-        break;
+    outputString += std::to_string(-3.0*charsize) + std::string(",")
+      + std::to_string(6.0*charsize) + std::string(",")
+      + std::to_string(-9.0*charsize);
+
+    outputString = ">\n\tdirection <0, 0,  2.25>\n"
+      "\tright x*1.33\n"
+      "\tlook_at <0,0,0>\n"
+      "}\n"
+      "\n"
+      "#declare Dist=80.0;\n"
+      "light_source {< -25, 50, -50> color White\n"
+      "\tfade_distance Dist fade_power 2\n"
+      "}\n"
+      "light_source {< 50, 10,  -4> color Gray30\n"
+      "\tfade_distance Dist fade_power 2\n"
+      "}\n"
+      "light_source {< 0, 100,  0> color Gray30\n"
+      "\tfade_distance Dist fade_power 2\n"
+      "}\n"
+      "\n"
+      "sky_sphere {\n"
+      "\tpigment {\n"
+      "\t\tgradient y\n"
+      "\t\tcolor_map {\n"
+      "\t\t\t[0, 1  color White color White]\n"
+      "\t\t}\n"
+      "\t}\n"
+      "}\n"
+      "\n"
+      "#declare Xaxis = union{\n"
+      "\tcylinder{\n"
+      "\t\t<0,0,0>,<0.8,0,0>,0.05\n"
+      "\t}\n"
+      "\tcone{\n"
+      "\t\t<0.8,0,0>, 0.1, <1,0,0>, 0\n"
+      "\t}\n"
+      "\ttexture { pigment { color Red } }\n"
+      "}\n"
+      "#declare Yaxis = union{\n"
+      "\tcylinder{\n"
+      "\t\t<0,0,0>,<0,0.8,0>,0.05\n"
+      "\t}\n"
+      "\tcone{\n"
+      "\t\t<0,0.8,0>, 0.1, <0,1,0>, 0\n"
+      "\t}\n"
+      "\ttexture { pigment { color Green } }\n"
+      "}\n"
+      "#declare Zaxis = union{\n"
+      "\tcylinder{\n"
+      "\t<0,0,0>,<0,0,0.8>,0.05\n"
+      "\t}\n"
+      "\tcone{\n"
+      "\t\t<0,0,0.8>, 0.1, <0,0,1>, 0\n"
+      "\t}\n"
+      "\ttexture { pigment { color Blue } }\n"
+      "}\n"
+      "#declare Axes = union{\n"
+      "\tobject { Xaxis }\n"
+      "\tobject { Yaxis }\n"
+      "\tobject { Zaxis }\n"
+      "}\n";
+
+    // needs to collect material
+    for(MaterialMap::const_iterator it = materialMap_.cbegin(); it != materialMap_.cend(); it++){
+      std::string name = it->first;
+      if(!name.compare("air") || !name.compare("vacuum") || !name.compare("Air") || !name.compare("Vacuum")){
+        outputString += std::string("#declare Material_") + name
+          + std::string("= texture{ pigment{ color transmit 1.0 } }\n");
       }
-      case RECTANGLE_:{
-        //TODO
-        break;
+      else{
+        outputString += std::string("#declare Material_") + name
+          + std::string("= texture{ pigment{ rgb <")
+          + std::to_string((double)rand()/(double)RAND_MAX) + std::string(",")
+          + std::to_string((double)rand()/(double)RAND_MAX) + std::string(",")
+          + std::to_string((double)rand()/(double)RAND_MAX) + std::string(">}\n");
       }
-      case CIRCLE_:{
-        //TODO
-        break;
-      }
-      default: break;
     }
-    return output;
+    // needs to collect layer info
+    int layerCounter = 0;
+    for(int i = 0; i < this->getNumOfLayer(); i++){
+      Ptr<Layer> layer = this->getLayerByIndex(i);
+      std::string name = layer->getName();
+      outputString += std::string("#declare Layer_") + std::to_string(layerCounter++) + std::string(" = union{\n");
+      outputString += std::string("\tdifference{\n") + std::string("\t\tintersection{\n");
+      // TODO
+      for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){
+        outputString += layer->getPOVRayForPattern((*it));
+      }
+    }
+    // Output postamble
+    outputString += std::string("#declare Layers = union {\n");
+    layerCounter = 0;
+    for(LayerMap::const_iterator it = layerMap_.cbegin(); it != layerMap_.cend(); it++){
+      Ptr<Layer> layer = it->second;
+      std::string name = layer->getName();
+      std::string comment = (0 < layerCounter && layerCounter + 1 < this->getNumOfLayer()) ? "" : "//";
+      outputString += std::string("\t") + comment + std::string("object{ Layer_") + std::to_string(layerCounter++) + std::string(" }\n");
+    }
+
+    outputString += "}\n"
+      "\n"
+      "Axes\n"
+      "Layers\n";
+    // output to file
+    std::ofstream file(outfile);
+    file << outputString;
+    file.close();
+
   }
 
   /*==============================================*/

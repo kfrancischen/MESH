@@ -28,7 +28,6 @@
 #include "Common.h"
 #include "config.h"
 #include <fstream>
-#include <sstream>
 #if defined(_OPENMP)
   #include <omp.h>
 #endif
@@ -89,7 +88,6 @@ private:
 /*=======================================================*/
 typedef std::map< std::string, Ptr<Layer> > LayerInstanceMap;
 typedef LayerInstanceMap::const_iterator const_LayerInstanceIter;
-typedef std::map< std::string, Ptr<Material> > MaterialInstanceMap;
 
 /*======================================================*/
 //  Implementaion of the parent simulation super class
@@ -191,7 +189,7 @@ protected:
   int prefactor_;
 
   LayerInstanceMap layerInstanceMap_;
-  MaterialInstanceMap materialInstanceMap_;
+  MaterialMap materialInstanceMap_;
   Ptr<Structure> structure_;
   Ptr<FileLoader> fileLoader_;
 
