@@ -738,6 +738,7 @@ void usage(){
 	std::cout << "mesh [input-file] to run a file" << std::endl;
 }
 void version(){
+  std::cout << "========================================================" << std::endl;
   std::cout << "Copyright (C) 2016-2018, and GNU GPL'd, by Kaifeng Chen." << std::endl;
 	std::cout << "Multilayer Electromagnetic Solver for Heat transfer (MESH)" << std::endl;
 	std::cout << "Version " << PACKAGE_VERSION << std::endl;
@@ -745,6 +746,10 @@ void version(){
   #if defined(_OPENMP)
 	 std::cout << "With Openmp support." << std::endl;
   #endif
+  #ifdef HAVE_MPI
+    std::cout << "With MPI support." << std::endl;
+  #endif
+  std::cout << "========================================================" << std::endl;
 }
 
 /*======================================================*/
