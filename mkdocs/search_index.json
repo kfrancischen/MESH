@@ -1,0 +1,19 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Package MESH\n\n\nM\nultilayer \nE\nlectromagnetic \nS\nolver for \nH\neat transfer.\n\n\nA program for computing electromagnetic far-field and near-field heat transfer periodic, layered\nstructures, developed by Kaifeng Chen (\n) of the\n\nFan group\n in the Stanford Electrical Engineering Department.\n\n\nPlease visit \nhttps://kfrancischen.github.io/MESH/\n, for a complete\ndescription of the package and its user interface, as well as\ninstallation instructions, the license and copyright, contact\naddresses, and other important information.\n\n\nThe author would like to acknowledge the following packages:\n\n armadillo: \nC++ linear algebra library\n\n\n luawrapper: \nThe lua wrapper for C++ classes\n\n* lua-mpi: \nThe lua wrapper for MPI", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#package-mesh", 
+            "text": "M ultilayer  E lectromagnetic  S olver for  H eat transfer.  A program for computing electromagnetic far-field and near-field heat transfer periodic, layered\nstructures, developed by Kaifeng Chen ( ) of the Fan group  in the Stanford Electrical Engineering Department.  Please visit  https://kfrancischen.github.io/MESH/ , for a complete\ndescription of the package and its user interface, as well as\ninstallation instructions, the license and copyright, contact\naddresses, and other important information.  The author would like to acknowledge the following packages:  armadillo:  C++ linear algebra library   luawrapper:  The lua wrapper for C++ classes \n* lua-mpi:  The lua wrapper for MPI", 
+            "title": "Package MESH"
+        }, 
+        {
+            "location": "/about/", 
+            "text": "MESH is copyright (c) 2016-2018, Stanford University.\n\n\nMESH is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.\n\n\nThis program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.\n\n\nYou should have received a copy of the GNU General Public License along with this library; if not, write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. You can also find it on the GNU web site:\n\n\nhttp://www.gnu.org/copyleft/gpl.html\n\n\nThe author would like to acknowledge the following packages:\n\n\n\n\n\n\narmadillo: \nC++ linear algebra library\n\n\n\n\n\n\nluawrapper: \nThe lua wrapper for C++ classes\n\n\n\n\n\n\nlua-mpi: \nThe lua wrapper for MPI", 
+            "title": "About"
+        }
+    ]
+}
