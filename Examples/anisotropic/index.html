@@ -544,7 +544,27 @@
                 
                   <h1>Anisotropic Material Near-field</h1>
                 
-                
+                <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;hBN&quot;</span><span class="p">,</span> <span class="s2">&quot;hBN.txt&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;MCT&quot;</span><span class="p">,</span> <span class="s2">&quot;MCT.txt&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;PEC&quot;</span><span class="p">,</span> <span class="s2">&quot;PEC.txt&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;PECBottom&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;PEC&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;hBNLayer&quot;</span><span class="p">,</span> <span class="mf">5e-6</span><span class="p">,</span> <span class="s2">&quot;hBN&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacLayer&quot;</span><span class="p">,</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;MCTLayer&quot;</span><span class="p">,</span> <span class="mf">5e-6</span><span class="p">,</span> <span class="s2">&quot;MCT&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;PECTop&quot;</span><span class="p">,</span> <span class="s2">&quot;PECBottom&quot;</span><span class="p">);</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;hBNLayer&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacLayer&quot;</span><span class="p">);</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">SetKParallelIntegral</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetThread</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">OptUseQuadgk</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">IntegrateKParallel</span><span class="p">();</span>
+</pre></div>
                 
                   
                 

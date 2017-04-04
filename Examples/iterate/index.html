@@ -544,7 +544,30 @@
                 
                   <h1>Iterate Over Gaps Near-field</h1>
                 
-                
+                <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;GaAs&quot;</span><span class="p">,</span> <span class="s2">&quot;GaAs.txt&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;PEC&quot;</span><span class="p">,</span> <span class="s2">&quot;PEC.txt&quot;</span><span class="p">);</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;PECBottom&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;PEC&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;GaAsBottom&quot;</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;GaAs&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;GaAsTop&quot;</span><span class="p">,</span> <span class="s2">&quot;GaAsBottom&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;PECTop&quot;</span><span class="p">,</span> <span class="s2">&quot;PECBottom&quot;</span><span class="p">);</span>
+
+
+<span class="n">s</span><span class="p">:</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;GaAsBottom&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">OptUseQuadgk</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetThread</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKParallelIntegral</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+
+<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span> <span class="kr">do</span>
+  <span class="n">s</span><span class="p">:</span><span class="n">SetLayerThickness</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">);</span>
+  <span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
+  <span class="n">s</span><span class="p">:</span><span class="n">IntegrateKParallel</span><span class="p">();</span>
+<span class="kr">end</span>
+</pre></div>
                 
                   
                 
