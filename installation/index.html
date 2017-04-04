@@ -67,7 +67,7 @@
     <a class="current" href="./">Installation</a>
     <ul class="subnav">
             
-    <li class="toctree-l3"><a href="#prerequisites">Prerequisites:</a></li>
+    <li class="toctree-l3"><a href="#prerequisites">Prerequisites</a></li>
     
 
     <li class="toctree-l3"><a href="#installation-on-linux">Installation on Linux</a></li>
@@ -79,7 +79,7 @@
     <li class="toctree-l3"><a href="#installation-on-windows">Installation on Windows</a></li>
     
 
-    <li class="toctree-l3"><a href="#for-fans-group">For Fan's group</a></li>
+    <li class="toctree-l3"><a href="#location-on-clusters">Location on Clusters</a></li>
     
 
     </ul>
@@ -213,11 +213,11 @@
           <div role="main">
             <div class="section">
               
-                <h4 id="prerequisites">Prerequisites:</h4>
+                <h4 id="prerequisites">Prerequisites</h4>
 <p>MESH comes with two versions: one has OpenMP support if the system has OpenMP libraries; one has MPI support. Both of them requires the following Prerequisites:</p>
 <ul>
 <li>Lapack and blas (or blas mutants, such as openblas, atlas, or mkl).</li>
-<li>lua version &gt;= 5.2 (version 5.3.x is preferred).</li>
+<li>Lua version &gt;= 5.2 (version 5.3.x is preferred).</li>
 </ul>
 <p>In order to have the MPI version of MESH installed, one needs to install MPI besides the above two libraries.</p>
 <p>MESH can be downloaded by
@@ -236,7 +236,7 @@ make
 make meshMPI
 </code></pre></p>
 <p>Executables can be found in directory <code>build/</code>. The executables are called <code>mesh</code> and <code>meshMPI</code>.</p>
-<p>For a customized installation, please change the paths for compilers in <strong>Makefile.Linux</strong>.</p>
+<p>For a customized installation, please change the paths for compilers in <code>Makefile.Linux</code>.</p>
 <h4 id="installation-on-macos">Installation on MacOS</h4>
 <p>Default clang compiler does not support OpenMP. One can either follow the same steps exactly the same as the installation on Linux machines (then no OpenMP is not supported), or installing gcc with OpenMP first by
 <pre><code>
@@ -245,7 +245,7 @@ brew install gcc --without-multilib
 <p>and then change the compiles from cc and c++ to corresponding gnu compilers.</p>
 <h4 id="installation-on-windows">Installation on Windows</h4>
 <p>//TODO, haven't tried yet</p>
-<h4 id="for-fans-group">For Fan's group</h4>
+<h4 id="location-on-clusters">Location on Clusters</h4>
 <p>The mesh has been built on <code>hera</code>, <code>comet</code> and <code>stampede</code>. The executables are in the directory
 <pre><code>
 /home/kfchen/MESH/build/
