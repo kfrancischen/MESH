@@ -14,6 +14,8 @@
   <link rel="stylesheet" href="./css/theme.css" type="text/css" />
   <link rel="stylesheet" href="./css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="./css/highlight.css">
+  <link href="./css/highlight-fix.css" rel="stylesheet">
+  <link href="./css/highlight-custom.css" rel="stylesheet">
   
   <script>
     // Current page data
@@ -78,7 +80,7 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="features/">Features</a>
+    <a class="" href="features/">Equations & Features</a>
                 </li>
                 <li class="">
                     
@@ -211,13 +213,13 @@
               
                 <h3 id="package-mesh">Package MESH</h3>
 <p><strong>M</strong>ultilayer <strong>E</strong>lectromagnetic <strong>S</strong>olver for <strong>H</strong>eat transfer.</p>
-<p>A program for computing electromagnetic far-field and near-field heat transfer periodic, layered
-structures, developed by Kaifeng Chen (<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#107;&#102;&#114;&#97;&#110;&#99;&#105;&#115;&#99;&#104;&#101;&#110;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#107;&#102;&#114;&#97;&#110;&#99;&#105;&#115;&#99;&#104;&#101;&#110;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>) of the
+<p>A program for computing electromagnetic far-field and near-field heat transfer for periodic, layered
+structures, developed by <a href="http://web.stanford.edu/~kfchen/">Kaifeng Chen</a> (<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#107;&#102;&#114;&#97;&#110;&#99;&#105;&#115;&#99;&#104;&#101;&#110;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#107;&#102;&#114;&#97;&#110;&#99;&#105;&#115;&#99;&#104;&#101;&#110;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>) of the
 <a href="http://web.stanford.edu/group/fan/">Fan group</a> in the Stanford Electrical Engineering Department.</p>
-<p>The program is built upon C++ and wrapped with Lua (&gt;= 5.2), with OpenMP and MPI support. It is enabled with heat flux calculation in both far and near field, along with implementations about structure visualization with <a href="http://www.povray.org/">POVRay</a>. This documents will cover the basic idea over MESH, a complete description of the Lua API and C++ API, and a few concrete examples either created to illustrate the simple usage or reproducing some results from existing literatures. The documents are organized as follows:</p>
+<p>The program is built upon C++ and wrapped with Lua (&gt;= 5.2), with OpenMP and MPI support. It is enabled with heat flux calculation in both far and near field, along with implementations about structure visualization through <a href="http://www.povray.org/">POVRay</a>. The source code can be downloaded at <a href="https://github.com/kfrancischen/MESH">Github</a> This document will cover the basic ideas behind MESH, complete descriptions of the Lua API and C++ API, and a few concrete examples created either to illustrate the simple usage or to reproduce some of results from existing literatures. The documents are organized as follows:</p>
 <h4 id="overview">Overview</h4>
 <ul>
-<li><a href="features/">Features</a>: detailed features and equations offered by the package.</li>
+<li><a href="features/">Equations &amp; Features</a>: detailed equations computed and features offered by the package.</li>
 <li><a href="installation/">Installation</a>: the installation steps on different platforms and clusters.</li>
 </ul>
 <h4 id="lua-api">Lua API</h4>
@@ -225,7 +227,7 @@ structures, developed by Kaifeng Chen (<a href="&#109;&#97;&#105;&#108;&#116;&#1
 <li><a href="LuaAPI/baseClass/">Base Class</a>: the base class the code is built upon.</li>
 <li><a href="LuaAPI/planar/">SimulationPlanar</a>: the inherited class computing planar geometries</li>
 <li><a href="LuaAPI/grating/">SimulationGrating</a>: the inherited class computing 1D grating geometries.</li>
-<li><a href="LuaAPI/pattern/">SimulationPattern</a>: the inherited class computing 2D pattern geometries</li>
+<li><a href="LuaAPI/pattern/">SimulationPattern</a>: the inherited class computing 2D pattern geometries.</li>
 </ul>
 <h4 id="c-api">C++ API</h4>
 <ul>
@@ -233,12 +235,12 @@ structures, developed by Kaifeng Chen (<a href="&#109;&#97;&#105;&#108;&#116;&#1
 </ul>
 <h4 id="examples">Examples</h4>
 <ul>
-<li><a href="Examples/tutorial/">Tutorial Example</a>: a simple tutorial about how to setup the inputs and run the input script</li>
-<li><a href="Examples/planeFarField/">Single Plane Far-field</a>: example about how to compute thermal radiation to the far field.</li>
-<li><a href="Examples/planeNearField/">Two Planes Near-field</a>: example about how to compute near-field heat transfer between two planes.</li>
-<li><a href="Examples/anisotropic/">Anisotropic Material Near-field</a>: example about how to use anisotropic material</li>
-<li><a href="Examples/iterate/">Iterate Over Gaps Near-field</a>: example about how to iterate over different gaps for near-field heat transfer between two plates.</li>
-<li><a href="Examples/gratingNearField/">Two Gratings Near-field</a>: example about how to setup the calculation between two grating structures in the near-field regime.</li>
+<li><a href="Examples/tutorial/">Tutorial Example</a>: a simple tutorial setting up the inputs and running the input script.</li>
+<li><a href="Examples/planeFarField/">Single Plane Far-field</a>: example about thermal radiation to the far field.</li>
+<li><a href="Examples/planeNearField/">Two Planes Near-field</a>: example about near-field heat transfer between two planes.</li>
+<li><a href="Examples/anisotropic/">Anisotropic Material Near-field</a>: example about simulations involving anisotropic material.</li>
+<li><a href="Examples/iterate/">Iterate Over Gaps Near-field</a>: example about iterating over different gaps for near-field heat transfer between two plates.</li>
+<li><a href="Examples/gratingNearField/">Two Gratings Near-field</a>: example the calculation between two grating structures in the near-field regime.</li>
 <li><a href="Examples/rectangleNearField/">Two Rectangle Patterns Near-field</a>: example about the near-field heat transfer between two rectangle patterned structures</li>
 <li><a href="Examples/mixedNearField/">Mixed Patterns Near-field</a>: example about the near-field heat transfer between two structures with different kinds of patterns (rectangle and circle).</li>
 <li><a href="Examples/MPI/">MPI Example</a>: example about how to use Lua wrapped MPI interface for fast parallelization on distributed clusters.</li>
@@ -255,7 +257,7 @@ structures, developed by Kaifeng Chen (<a href="&#109;&#97;&#105;&#108;&#116;&#1
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="features/" class="btn btn-neutral float-right" title="Features">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="features/" class="btn btn-neutral float-right" title="Equations & Features">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
     </div>
@@ -290,11 +292,13 @@ structures, developed by Kaifeng Chen (<a href="&#109;&#97;&#105;&#108;&#116;&#1
     </span>
 </div>
     <script src="./js/theme.js"></script>
+      <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+      <script src="./mathjaxhelper.js"></script>
 
 </body>
 </html>
 
 <!--
 MkDocs version : 0.16.2
-Build Date UTC : 2017-04-04 00:46:30
+Build Date UTC : 2017-04-04 07:06:33
 -->

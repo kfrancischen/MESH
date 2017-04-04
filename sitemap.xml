@@ -4,7 +4,7 @@
     
     <url>
      <loc>/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -13,13 +13,13 @@
         
     <url>
      <loc>/features/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/installation/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -29,25 +29,25 @@
         
     <url>
      <loc>/LuaAPI/baseClass/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/LuaAPI/planar/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/LuaAPI/grating/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/LuaAPI/pattern/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -57,7 +57,7 @@
         
     <url>
      <loc>/C++API/classAndFunction/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -67,55 +67,55 @@
         
     <url>
      <loc>/Examples/tutorial/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/Examples/planeFarField/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/Examples/planeNearField/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/Examples/anisotropic/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/Examples/iterate/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/Examples/gratingNearField/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/Examples/rectangleNearField/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/Examples/mixedNearField/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>/Examples/MPI/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -124,7 +124,7 @@
     
     <url>
      <loc>/develop/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -132,7 +132,7 @@
     
     <url>
      <loc>/about/</loc>
-     <lastmod>2017-04-03</lastmod>
+     <lastmod>2017-04-04</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
