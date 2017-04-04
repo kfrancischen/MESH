@@ -38,10 +38,6 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
-      <link rel="stylesheet" href="../css/highlight-fix.css">
-    
-      <link rel="stylesheet" href="../css/highlight-custom.css">
-    
     
   </head>
   
@@ -669,14 +665,14 @@
                 
                   <h1>Equations & Features</h1>
                 
-                <h3 id="physical-quantities-computed-by-mesh">Physical Quantities Computed By MESH</h3>
+                <h3 id="physical-quantities-computed-by-mesh">Physical Quantities Computed By MESH<a class="headerlink" href="#physical-quantities-computed-by-mesh" title="Permanent link">&para;</a></h3>
 <p>By classifying the geometries into three different categories: planar geometry where the basic components are plates, grating geometry which contains at least one layer has a grating along <script type="math/tex">x</script> direction, and patterns where at least one layer has either rectangle or circular patterns. The details about these three types are discussed below.</p>
 <p>In general, the total heat transfer between bodies with temperatures <script type="math/tex">T_1</script> and <script type="math/tex">T_2</script> is written as</p>
 <p>
 <script type="math/tex; mode=display">P=\int d\omega [\Theta(T_1, \omega)-\Theta(T_2,\omega)]\Phi(\omega)</script>
 </p>
 <p>where the quantity <script type="math/tex">\Phi(\omega)</script> characterize the strength of heat transfer between the two bodies involved.</p>
-<h4 id="heat-transfer-in-planar-geometries">Heat transfer in planar geometries</h4>
+<h4 id="heat-transfer-in-planar-geometries">Heat transfer in planar geometries<a class="headerlink" href="#heat-transfer-in-planar-geometries" title="Permanent link">&para;</a></h4>
 <p>For planar geometries (implemented as <a href="../LuaAPI/planar/">SimulationPlanar</a> object),  the quantity <script type="math/tex">\Phi(\omega)</script> computed by integrating the <script type="math/tex">k_x</script> and <script type="math/tex">k_y</script> vector over the whole <script type="math/tex">k</script> space, i.e.</p>
 <p>
 <script type="math/tex; mode=display">\Phi(\omega)=\int_{-\infty}^{\infty}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)</script>
@@ -686,7 +682,7 @@
 <script type="math/tex; mode=display">\Phi(\omega)=\int_{0}^{\infty}dk_{\parallel} \Phi(k_{\parallel}, \omega)</script>
 </p>
 <p>MESH directly provides function to either compute <script type="math/tex">\Phi(\omega, k_x, k_y)</script>, <script type="math/tex">\Phi(\omega, k_{\parallel})</script> and <script type="math/tex">\Phi(\omega)</script> directly.</p>
-<h4 id="heat-transfer-in-grating-geometries">Heat transfer in grating geometries</h4>
+<h4 id="heat-transfer-in-grating-geometries">Heat transfer in grating geometries<a class="headerlink" href="#heat-transfer-in-grating-geometries" title="Permanent link">&para;</a></h4>
 <p>In the case of a grating geometry (implemented as <a href="../LuaAPI/grating/">SimulationGrating</a> object), the heat transfer rate is written as</p>
 <p>
 <script type="math/tex; mode=display">\Phi(\omega)=\int_{-G/2}^{G/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)</script>
@@ -696,13 +692,13 @@
 <li>settings of the integral: for isotropic geometries <script type="math/tex">\int_{-G/2}^{G/2}</script> and  <script type="math/tex">\int_{-\infty}^{\infty}</script> can be reduced to twice of the integral over the positive axis.</li>
 <li>directly computation of <script type="math/tex">\Phi(k_x,k_y, \omega)</script> and <script type="math/tex">\Phi(\omega)</script>, and allows to print out <script type="math/tex">\Phi(k_x,k_y, \omega)</script> in the process of obtaining <script type="math/tex">\Phi(\omega)</script>.</li>
 </ul>
-<h4 id="heat-transfer-in-pattern-geometries">Heat transfer in pattern geometries</h4>
+<h4 id="heat-transfer-in-pattern-geometries">Heat transfer in pattern geometries<a class="headerlink" href="#heat-transfer-in-pattern-geometries" title="Permanent link">&para;</a></h4>
 <p>In the case of a pattern geometry (implemented as <a href="../LuaAPI/pattern/">SimulationPattern</a> object), the heat transfer rate is written as</p>
 <p>
 <script type="math/tex; mode=display">\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-G_y/2}^{-G_y/2}dk_y \Phi(k_x,k_y, \omega)</script>
 </p>
 <p>Again similar to the grating geometries, integral settings and printing of intermediate <script type="math/tex">\Phi(k_x,k_y, \omega)</script> are supported. In addition, multiple different kinds of patterns can exist in one layer. However, the code now only supports a rectangle lattice and non-interleaving patterns. In MESH, the only two patterns supported are rectangle and circle. However, extending the code to non-trivial lattice and adding supports to more patterns are in principle doable.</p>
-<h4 id="supports-over-both-scalar-dielectric-and-tensor-dielectric">Supports over both scalar dielectric and tensor dielectric</h4>
+<h4 id="supports-over-both-scalar-dielectric-and-tensor-dielectric">Supports over both scalar dielectric and tensor dielectric<a class="headerlink" href="#supports-over-both-scalar-dielectric-and-tensor-dielectric" title="Permanent link">&para;</a></h4>
 <p>MESH also supports material whose dielectric can be scalar, diagonal, or a tensor. These three different types are encapsulated into a Union type in MESH. Currently for tensor types, MESH can only deal with the case when epsilon in the <script type="math/tex">z</script> direction can be decomposed from <script type="math/tex">x</script> and <script type="math/tex">y</script> directions, i.e.</p>
 <p>
 <script type="math/tex; mode=display"> \overleftrightarrow{\epsilon}=\begin{pmatrix}
@@ -711,7 +707,7 @@
 0 & 0 & \epsilon_{zz}
 \end{pmatrix}</script>
 </p>
-<h4 id="a-comprehensive-lua-wrapper-for-users">A Comprehensive Lua Wrapper for Users</h4>
+<h4 id="a-comprehensive-lua-wrapper-for-users">A Comprehensive Lua Wrapper for Users<a class="headerlink" href="#a-comprehensive-lua-wrapper-for-users" title="Permanent link">&para;</a></h4>
 <p>Lua wrapper for C code is widely used because of easy implementation and high readability. For example, <a href="https://web.stanford.edu/group/fan/S4/">S4</a> which is also an implementation of RCWA for periodic geometries, also utilizes Lua as its front. Here MESH not only gives the user basic functionalities of computing physical quantities related to heat transfer, but also allows users to directly use MPI in a lua script, so that users have better control over the simulation at run time. To show the advantages of directly revealing MPI interface to the users, a concrete example of lua MPI interface is explained in the <a href="../Examples/MPI/">example section</a>. MESH also provides a vanilla version that can be built without MPI. In that case, OpenMP is used if the system has OpenMP libraries built in.</p>
                 
                   

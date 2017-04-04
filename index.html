@@ -38,10 +38,6 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
-      <link rel="stylesheet" href="./css/highlight-fix.css">
-    
-      <link rel="stylesheet" href="./css/highlight-custom.css">
-    
     
   </head>
   
@@ -663,29 +659,29 @@
                 
                   <h1>Home</h1>
                 
-                <h3 id="package-mesh">Package MESH</h3>
+                <h3 id="package-mesh">Package MESH<a class="headerlink" href="#package-mesh" title="Permanent link">&para;</a></h3>
 <p><strong>M</strong>ultilayer <strong>E</strong>lectromagnetic <strong>S</strong>olver for <strong>H</strong>eat transfer.</p>
 <p>A program for computing electromagnetic far-field and near-field heat transfer for periodic, layered
 structures, developed by <a href="http://web.stanford.edu/~kfchen/">Kaifeng Chen</a> (<a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#107;&#102;&#114;&#97;&#110;&#99;&#105;&#115;&#99;&#104;&#101;&#110;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">&#107;&#102;&#114;&#97;&#110;&#99;&#105;&#115;&#99;&#104;&#101;&#110;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;</a>) of the
 <a href="http://web.stanford.edu/group/fan/">Fan group</a> in the Stanford Electrical Engineering Department.</p>
 <p>The program is built upon C++ and wrapped with Lua (&gt;= 5.2), with OpenMP and MPI support. It is enabled with heat flux calculation in both far and near field, along with implementations about structure visualization through <a href="http://www.povray.org/">POVRay</a>. The source code can be downloaded at <a href="https://github.com/kfrancischen/MESH">Github</a>. This document will cover the basic ideas behind MESH, complete descriptions of the Lua API and C++ API, and a few concrete examples created either to illustrate the simple usage or to reproduce some of results from existing literatures. The documents are organized as follows:</p>
-<h4 id="overview">Overview</h4>
+<h4 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h4>
 <ul>
 <li><a href="features/">Equations &amp; Features</a>: detailed equations computed and features offered by the package.</li>
 <li><a href="installation/">Installation</a>: the installation steps on different platforms and clusters.</li>
 </ul>
-<h4 id="lua-api">Lua API</h4>
+<h4 id="lua-api">Lua API<a class="headerlink" href="#lua-api" title="Permanent link">&para;</a></h4>
 <ul>
 <li><a href="LuaAPI/baseClass/">Base Class</a>: the base class the code is built upon.</li>
 <li><a href="LuaAPI/planar/">SimulationPlanar</a>: the inherited class computing planar geometries</li>
 <li><a href="LuaAPI/grating/">SimulationGrating</a>: the inherited class computing 1D grating geometries.</li>
 <li><a href="LuaAPI/pattern/">SimulationPattern</a>: the inherited class computing 2D pattern geometries.</li>
 </ul>
-<h4 id="c-api">C++ API</h4>
+<h4 id="c-api">C++ API<a class="headerlink" href="#c-api" title="Permanent link">&para;</a></h4>
 <ul>
 <li><a href="C++API/classAndFunction/">C++ classes and functions</a>: the C++ interface for all the functions.</li>
 </ul>
-<h4 id="examples">Examples</h4>
+<h4 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h4>
 <ul>
 <li><a href="Examples/tutorial/">Tutorial Example</a>: a simple tutorial setting up the inputs and running the input script.</li>
 <li><a href="Examples/planeFarField/">Single Plane Far-field</a>: example about thermal radiation to the far field.</li>
@@ -697,7 +693,7 @@ structures, developed by <a href="http://web.stanford.edu/~kfchen/">Kaifeng Chen
 <li><a href="Examples/mixedNearField/">Mixed Patterns Near-field</a>: example about the near-field heat transfer between two structures with different kinds of patterns (rectangle and circle).</li>
 <li><a href="Examples/MPI/">MPI Example</a>: example about how to use Lua wrapped MPI interface for fast parallelization on distributed clusters.</li>
 </ul>
-<h4 id="other-information">Other information</h4>
+<h4 id="other-information">Other information<a class="headerlink" href="#other-information" title="Permanent link">&para;</a></h4>
 <ul>
 <li><a href="develop/">Developer</a>: information for developers on how to contribute to MESH</li>
 <li><a href="about/">About</a>: Information about the author, license, copyrights and contact addresses.</li>
