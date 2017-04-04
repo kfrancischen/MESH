@@ -1,0 +1,31 @@
+site_name: MESH documentation
+site_author: Kaifeng Chen
+
+repo_url: https://github.com/kfrancischen/MESH
+
+pages:
+- Home: 'index.md'
+- Overview:
+  - 'Features': 'features.md'
+  - 'Installation': 'installation.md'
+- Lua API:
+  - 'Base Class': 'LuaAPI/baseClass.md'
+  - 'SimulationPlanar': 'LuaAPI/planar.md'
+  - 'SimulationGrating': 'LuaAPI/grating.md'
+  - 'SimulationPattern': 'LuaAPI/pattern.md'
+- C++ API:
+  - 'Classes and Functions': 'C++API/classAndFunction.md'
+- Examples:
+  - 'Tutorial Example': 'Examples/tutorial.md'
+  - 'Single Plane Far-field': 'Examples/planeFarField.md'
+  - 'Two Planes Near-field': 'Examples/planeNearField.md'
+  - 'Anisotropic Material Near-field': 'Examples/anisotropic.md'
+  - 'Iterate Over Gaps Near-field': 'Examples/iterate.md'
+  - 'Two Gratings Near-field': 'Examples/gratingNearField.md'
+  - 'Two Rectangle Patterns Near-field': 'Examples/rectangleNearField.md'
+  - 'Mixed Patterns Near-field': 'Examples/mixedNearField.md'
+  - 'MPI Example': 'Examples/MPI.md'
+- Developer: 'develop.md'
+- About: 'about.md'
+
+theme: readthedocs
