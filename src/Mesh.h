@@ -202,29 +202,6 @@ public:
   void useInverseRule() = delete;
   void setGx() = delete;
   void setGy() = delete;
-  void setLayerPatternGrating(
-    const std::string layerName,
-    const std::string materialName,
-    const double center,
-    const double width
-  ) = delete;
-
-  void setLayerPatternRectangle(
-    const std::string layerName,
-    const std::string materialName,
-    const double centerx,
-    const double centery,
-    const double widthx,
-    const double widthy
-  ) = delete;
-
-  void setLayerPatternCircle(
-    const std::string layerName,
-    const std::string materialName,
-    const double centerx,
-    const double centery,
-    const double radius
-  ) = delete;
 
   // this function is used when one knows that the problem is only a kx integral
   void setKParallelIntegral(const double end);

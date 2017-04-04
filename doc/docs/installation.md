@@ -35,7 +35,7 @@ Default clang compiler does not support OpenMP. One can either follow the same s
 brew install gcc --without-multilib
 ```
 
-and then change the compiles from cc and c++ in `Makefile.Darwin` to corresponding GNU compilers.
+and then change the compiles from cc and c++ in `Makefile.Darwin` to corresponding GNU compilers, and add `-fopenmp` in the `CFLAGS` and `CXXFLAGS`.
 
 #### Installation on Windows
 //TODO, haven't tried yet

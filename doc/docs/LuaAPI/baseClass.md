@@ -22,9 +22,10 @@ AddMaterial(material name, input file)
     ```    
     omega eps_xx_r eps_xx_i eps_xy_r eps_xy_i eps_yx_r eps_yx_i eps_yy_r eps_yy_i eps_zz_r  eps_zz_i      
     ```     
-    The omega needs to be aligned for all the materials in the simulation.
 
 * Output: None
+
+* Note: The omega needs to be aligned for all the materials in the simulation
 
 ```lua
 SetMaterial(material name, new epsilon)
@@ -286,3 +287,24 @@ OptPrintIntermediate()
 * Arguments: None
 
 * Note: this function prints intermediate $\Phi(\omega, k_x, k_y)$ when function `IntegrateKxKy()` or `IntegrateKxKyMPI(rank, size)` is called.
+
+
+MESH also provides physics constants to facilitate computation. The constant object can be initiated by
+```lua
+constant = Constants()
+```
+
+The supported constants are (all in SI unit)
+
+
+* constant.pi: the value of $\pi$.
+* constant.k_B: the value of $k_B$.
+* constant.eps_0: the value of $\epsilon_0$.
+* constant.mu_0: the value of $\mu_0$.
+* constant.m_e: the value of $m_e$, i.e. the mass of an electron.
+* constant.eV: electron volt in Joules.
+* constant.h: the value of Planck's constant.
+* constant.h_bar: the value of the reduced Planck's constant.
+* constant.c_0: the speed of light.
+* constant.q: the value of $q$, i.e. magnitude of electron charge.
+* constant.sigma: the value of $\sigma$, i.e. Stefan-Boltzmann constant.
