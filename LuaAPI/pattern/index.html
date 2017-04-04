@@ -544,7 +544,52 @@
                 
                   <h1>SimulationPattern</h1>
                 
-                
+                <p>The SimulationPattern class can be initiated in Lua script by</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPattern</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Most of the function provided in <a href="../baseClass/">base class</a> can be used except for the following changes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following functions are added and specific to <code>SimulationPattern</code> object.</p>
+</div>
+<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternRectangle</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="p">{</span><span class="n">widthx</span><span class="p">,</span> <span class="n">widthy</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>layer name: [string], the layer that this rectangle pattern will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>material name: [string],  the material used as the rectangle pattern. Such material should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>{centerx, centery}: [double table], the centers of the rectangle pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
+<li>{widthx, widthy}: [double table], the widths of the rectangle pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternCircle</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="n">radius</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>layer name: [string], the layer that this circle pattern will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>material name: [string],  the material used as the circle pattern. Such material should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>{centerx, centery}: [double table], the centers of the circle pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
+<li>radius: [double], the radius of the circle pattern in SI unit.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
                 
                   
                 

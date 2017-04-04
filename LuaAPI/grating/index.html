@@ -544,7 +544,55 @@
                 
                   <h1>SimulationGrating</h1>
                 
-                
+                <p>The SimulationGrating class can be initiated in Lua script by</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationGrating</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+</pre></div>
+
+
+<p>All of the function provided in <a href="../baseClass/">base class</a> can be used except for the following changes.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The following function needs to be called specifically for <code>SimulationGrating</code> object.</p>
+</div>
+<div class="codehilite"><pre><span></span><span class="n">Setperiodicity</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The above function can only be called without the second argument <code>p2</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following functions are added and specific to <code>SimulationGrating</code> object.</p>
+</div>
+<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternGrating</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>layer name: [string], the layer that this grating will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>material name: [string],  the material used as the grating. Such material should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>center: [double], the center of the grating in SI unit.</li>
+<li>width: [double], the width of the grating in SI unit.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">OptUseAdaptive</span><span class="p">()</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments: None</p>
+</li>
+<li>
+<p>Note: this function will use the <a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.125404">spatial adaptive resolution method</a> to compute the Fourier transform of the dielectric.</p>
+</li>
+</ul>
                 
                   
                 

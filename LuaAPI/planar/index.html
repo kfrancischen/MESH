@@ -544,7 +544,106 @@
                 
                   <h1>SimulationPlanar</h1>
                 
-                
+                <p>The SimulationPlanar class can be initiated in Lua script by</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+</pre></div>
+
+
+<p>All of the function provided in <a href="../baseClass/">base class</a> can be used except for the following changes.</p>
+<div class="admonition failure">
+<p class="admonition-title">Failure</p>
+<p>The following function are unavailable and cannot be called for a <code>SimulationPlanar</code> object.</p>
+</div>
+<div class="codehilite"><pre><span></span><span class="n">SetGx</span><span class="p">()</span>
+<span class="n">SetGy</span><span class="p">()</span>
+<span class="n">Setperiodicity</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following functions are added and specific to <code>SimulationPlanar</code> object.</p>
+</div>
+<div class="codehilite"><pre><span></span><span class="n">SetKParallel</span><span class="p">(</span><span class="kr">end</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>end: [double], the end of the <script type="math/tex">k_{\parallel}</script> integral. It is a normalized number with respect to <script type="math/tex">\omega/c</script>.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+<li>
+<p>Note: this function is essentially doing
+<script type="math/tex; mode=display"> \int_{0}^{\text{end}\cdot\omega/c}dk_{\parallel}</script>
+where the integral is evaluated either using Gauss-legendre methdod or Gauss-kronrod adaptive method.</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">GetPhiAtKParallel</span><span class="p">(</span><span class="n">omega</span> <span class="n">index</span><span class="p">,</span> <span class="n">k</span> <span class="n">parallel</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>omega index: [int], the index of omega where <script type="math/tex">\Phi(\omega(\text[index]), k_{\parallel})</script> is evaluated.</li>
+<li>k parallel: [double], the <script type="math/tex">k_{\parallel}</script> value where <script type="math/tex">\Phi(\omega(\text[index]), k_{\parallel})</script> is evaluated. It should be a normalized value with respect to <script type="math/tex">\omega(\text[index])/c</script>.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">IntegrateKPrarallel</span><span class="p">()</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments: None</p>
+</li>
+<li>
+<p>Note: before using this function, make sure the flux integral can be reduced to a <script type="math/tex">k_{\parallel}</script> integral. In principle, the cases when all the materials possess only scalar dielectric or diagonal forms
+<script type="math/tex; mode=display"> \begin{pmatrix}
+\epsilon_{1} & 0 & 0\\
+0 & \epsilon_{1} & 0\\
+0 & 0 & \epsilon_{2}
+\end{pmatrix}</script> can use this function.</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">OptUseQuadgl</span><span class="p">(</span><span class="n">degree</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>degree: [int, optional], the degree of legendre polynomial in evaluating the integral. If degree is not given, it is set to be <script type="math/tex">1024</script>.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">OptUseQuadgk</span><span class="p">()</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments: None</p>
+</li>
+<li>
+<p>Note: the simulation will use this function if the integral option is not specified.</p>
+</li>
+</ul>
                 
                   
                 
