@@ -15,3 +15,5 @@ The author would like to acknowledge the following packages:
 * luawrapper: [The lua wrapper for C++ classes](https://bitbucket.org/alexames/luawrapper/src)
 
 * lua-mpi: [The lua wrapper for MPI](https://github.com/jzrake/lua-mpi)
+
+Also, the author would like to thank Dr. Bo Zhao, Yu Guo and alumni Victor Liu for useful discussions, and Siddharth Buddhiraju for testing installation and some cases.
