@@ -102,7 +102,7 @@
         }, 
         {
             "location": "/LuaAPI/baseClass/", 
-            "text": "", 
+            "text": "MESH is written in a inheritance manner, so most of the functions in the base class can be directly accessed by subclasses. Usage of MESH involves writing a Lua script to call into various parts of MESH. Here we describe all of the MESH base class functions that can be called within the Lua environment.\n\n\nFor detailed function calls of a given geometry, please read the pages \nSimulationPlanar\n, \nSimulationGrating\n and \nSimulationPattern\n for the geometries you are simulating.\n\n\n\n\nNote\n\n\n\n\nThe base class is just a wrapper for most of the functions, but it cannot be initiated in a Lua script.", 
             "title": "Base Class"
         }, 
         {
