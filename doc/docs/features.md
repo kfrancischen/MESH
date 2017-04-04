@@ -2,13 +2,15 @@
 
 By classifying the geometries into three different categories: planar geometry where the basic components are plates, grating geometry which contains at least one layer has a grating along $x$ direction, and patterns where at least one layer has either rectangle or circular patterns. The details about these three types are discussed below.
 
-#### Heat transfer in planar geometries
-
 In general, the total heat transfer between bodies with temperatures $T_1$ and $T_2$ is written as
 
 $$P=\int d\omega [\Theta(T_1, \omega)-\Theta(T_2,\omega)]\Phi(\omega)$$
 
-where the quantity $\Phi(\omega)$ characterize the strength of heat transfer between the two bodies involved. For planar geometries (implemented as [SimulationPlanar](LuaAPI/planar.md) object),  the quantity $\Phi(\omega)$ computed by integrating the $k_x$ and $k_y$ vector over the whole $k$ space, i.e.
+where the quantity $\Phi(\omega)$ characterize the strength of heat transfer between the two bodies involved.
+
+#### Heat transfer in planar geometries
+
+For planar geometries (implemented as [SimulationPlanar](LuaAPI/planar.md) object),  the quantity $\Phi(\omega)$ computed by integrating the $k_x$ and $k_y$ vector over the whole $k$ space, i.e.
 
 $$\Phi(\omega)=\int_{-\infty}^{\infty}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)$$
 
@@ -31,7 +33,7 @@ Here again, MESH gives access to a few things
 
 #### Heat transfer in pattern geometries
 
-In the case of a pattern geometry (implemented as [SimulationPattern](LuaAPI/pattern.md), the heat transfer rate is written as
+In the case of a pattern geometry (implemented as [SimulationPattern](LuaAPI/pattern.md) object), the heat transfer rate is written as
 
 $$\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-G_y/2}^{-G_y/2}dk_y \Phi(k_x,k_y, \omega)$$
 
@@ -49,4 +51,4 @@ $$ \overleftrightarrow{\epsilon}=\begin{pmatrix}
 
 #### A Comprehensive Lua Wrapper for Users
 
-Lua wrapper for C code is widely used because of easily implementation and high readability. For example, [S4](https://web.stanford.edu/group/fan/S4/) which is also an implementation of RCWA for periodic geometries, also utilized Lua as its front. Here MESH only gives the user basic functionalities of computing physical quantities related to heat transfer, but also allows users to directly use MPI in a lua script, so that users have better control over the simulation at run time. To show the advantages of directly revealing MPI interface to the users, a concrete example of lua MPI interface in shown in the [example section](Examples/MPI.md). MESH also provides a vanilla version that can be built without MPI. In that case, OpenMP is used if the system has OpenMP libraries built in.
+Lua wrapper for C code is widely used because of easy implementation and high readability. For example, [S4](https://web.stanford.edu/group/fan/S4/) which is also an implementation of RCWA for periodic geometries, also utilizes Lua as its front. Here MESH not only gives the user basic functionalities of computing physical quantities related to heat transfer, but also allows users to directly use MPI in a lua script, so that users have better control over the simulation at run time. To show the advantages of directly revealing MPI interface to the users, a concrete example of lua MPI interface is explained in the [example section](Examples/MPI.md). MESH also provides a vanilla version that can be built without MPI. In that case, OpenMP is used if the system has OpenMP libraries built in.
