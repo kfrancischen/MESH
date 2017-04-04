@@ -217,12 +217,13 @@
               
                 <h3 id="physical-quantities-computed-by-mesh">Physical Quantities Computed By MESH</h3>
 <p>By classifying the geometries into three different categories: planar geometry where the basic components are plates, grating geometry which contains at least one layer has a grating along <script type="math/tex">x</script> direction, and patterns where at least one layer has either rectangle or circular patterns. The details about these three types are discussed below.</p>
-<h4 id="heat-transfer-in-planar-geometries">Heat transfer in planar geometries</h4>
 <p>In general, the total heat transfer between bodies with temperatures <script type="math/tex">T_1</script> and <script type="math/tex">T_2</script> is written as</p>
 <p>
 <script type="math/tex; mode=display">P=\int d\omega [\Theta(T_1, \omega)-\Theta(T_2,\omega)]\Phi(\omega)</script>
 </p>
-<p>where the quantity <script type="math/tex">\Phi(\omega)</script> characterize the strength of heat transfer between the two bodies involved. For planar geometries (implemented as <a href="../LuaAPI/planar/">SimulationPlanar</a> object),  the quantity <script type="math/tex">\Phi(\omega)</script> computed by integrating the <script type="math/tex">k_x</script> and <script type="math/tex">k_y</script> vector over the whole <script type="math/tex">k</script> space, i.e.</p>
+<p>where the quantity <script type="math/tex">\Phi(\omega)</script> characterize the strength of heat transfer between the two bodies involved.</p>
+<h4 id="heat-transfer-in-planar-geometries">Heat transfer in planar geometries</h4>
+<p>For planar geometries (implemented as <a href="../LuaAPI/planar/">SimulationPlanar</a> object),  the quantity <script type="math/tex">\Phi(\omega)</script> computed by integrating the <script type="math/tex">k_x</script> and <script type="math/tex">k_y</script> vector over the whole <script type="math/tex">k</script> space, i.e.</p>
 <p>
 <script type="math/tex; mode=display">\Phi(\omega)=\int_{-\infty}^{\infty}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)</script>
 </p>
@@ -257,7 +258,7 @@
 \end{pmatrix}</script>
 </p>
 <h4 id="a-comprehensive-lua-wrapper-for-users">A Comprehensive Lua Wrapper for Users</h4>
-<p>Lua wrapper for C code is widely used because of easily implementation and high readability. For example, <a href="https://web.stanford.edu/group/fan/S4/">S4</a> which is also an implementation of RCWA for periodic geometries, also utilized Lua as its front. Here MESH only gives the user basic functionalities of computing physical quantities related to heat transfer, but also allows users to directly use MPI in a lua script, so that users have better control over the simulation at run time. To show the advantages of directly revealing MPI interface to the users, a concrete example of lua MPI interface in shown in the <a href="../Examples/MPI/">example section</a>. MESH also provides a vanilla version that can be built without MPI. In that case, OpenMP is used if the system has OpenMP libraries built in.</p>
+<p>Lua wrapper for C code is widely used because of easy implementation and high readability. For example, <a href="https://web.stanford.edu/group/fan/S4/">S4</a> which is also an implementation of RCWA for periodic geometries, also utilizes Lua as its front. Here MESH not only gives the user basic functionalities of computing physical quantities related to heat transfer, but also allows users to directly use MPI in a lua script, so that users have better control over the simulation at run time. To show the advantages of directly revealing MPI interface to the users, a concrete example of lua MPI interface is explained in the <a href="../Examples/MPI/">example section</a>. MESH also provides a vanilla version that can be built without MPI. In that case, OpenMP is used if the system has OpenMP libraries built in.</p>
               
             </div>
           </div>
