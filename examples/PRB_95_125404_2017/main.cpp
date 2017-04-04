@@ -24,7 +24,7 @@ int main(){
   // setoutput simulation
   s->setKxIntegralSym(500);
   s->setKyIntegralSym(200, 5);
-  s->getSysInfo();
+  s->outputSysInfo();
   s->optPrintIntermediate();
   s->setThread(4);
   s->buildRCWA();

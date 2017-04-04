@@ -20,7 +20,7 @@ s:SetProbeLayer("VacGap");
 
 s:SetKxIntegralSym(500);
 s:SetKyIntegralSym(200, 5);
-s:GetSysInfo();
+s:OutputSysInfo();
 s:SetThread(4);
 s:BuildRCWA();
 s:IntegrateKxKy();

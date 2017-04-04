@@ -17,7 +17,7 @@ s:AddLayerCopy("TopAir", "BottomAir");
 s:SetSourceLayer("GoldSubstrateBottom");
 s:SetSourceLayer("GoldGratingBottom");
 s:SetProbeLayer("VacGap");
-s:GetSysInfo();
+s:OutputSysInfo();
 
 s:OptPrintIntermediate();
 s:SetThread(4);

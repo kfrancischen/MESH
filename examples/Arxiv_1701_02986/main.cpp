@@ -47,7 +47,7 @@ int main(){
 
   s_2->setSourceLayer("SiBottom");
   s_2->setProbeLayer("VacGap");
-  s_2->getSysInfo();
+  s_2->outputSysInfo();
 
   s_2->optPrintIntermediate();
   s_2->setKxIntegralSym(20, 60);

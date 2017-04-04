@@ -45,7 +45,7 @@ s2:AddLayerCopy("SiTop", "SiBottom");
 
 s2:SetSourceLayer("SiBottom");
 s2:SetProbeLayer("VacGap");
-s2:GetSysInfo();
+s2:OutputSysInfo();
 
 s2:OptPrintIntermediate();
 s2:SetKxIntegralSym(20, 60);
