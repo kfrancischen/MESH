@@ -567,6 +567,19 @@ namespace SYSTEM{
   /*==============================================*/
   void Structure::getPOVRay(const std::string outfile){
     double charsize = std::max(period_[0], period_[1]) * 1e6;
+    // get Voronoi defining points
+  	double vorpts[8];
+  	vorpts[0] = period_[0] * 1e6;
+  	vorpts[1] = 0;
+  	vorpts[2] = period_[1] * 1e6;
+  	vorpts[3] = 0;
+  	vorpts[4] = vorpts[0] + vorpts[2];
+  	vorpts[5] = 0;
+  	vorpts[6] = vorpts[0] - vorpts[2];
+  	vorpts[7] = 0;
+  	if(std::abs(vorpts[6]) < std::abs(vorpts[4])){
+  		vorpts[4] = vorpts[6];
+  	}
     // output preample
     std::string outputString = "// -w320 -h240\n"
       "\n"
@@ -585,7 +598,7 @@ namespace SYSTEM{
       + std::to_string(6.0*charsize) + std::string(",")
       + std::to_string(-9.0*charsize);
 
-    outputString = ">\n\tdirection <0, 0,  2.25>\n"
+    outputString += ">\n\tdirection <0, 0,  2.25>\n"
       "\tright x*1.33\n"
       "\tlook_at <0,0,0>\n"
       "}\n"
@@ -665,10 +678,23 @@ namespace SYSTEM{
       std::string name = layer->getName();
       outputString += std::string("#declare Layer_") + std::to_string(layerCounter++) + std::string(" = union{\n");
       outputString += std::string("\tdifference{\n") + std::string("\t\tintersection{\n");
-      // TODO
+
+      for(int j = 0; j < 3; j++){
+        double dist = 0.5 * hypot(vorpts[2*i], vorpts[2*i+1]);
+        outputString += std::string("\t\t\tplane{ <") + std::to_string(vorpts[2*i]) + std::string(",")
+          + std::to_string(vorpts[2*i+1]) + std::string(",0>, ") + std::to_string(dist) + std::string(" }\n");
+        outputString += std::string("\t\t\tplane{ <") + std::to_string(-vorpts[2*i]) + std::string(",")
+          + std::to_string(-vorpts[2*i+1]) + std::string(",0>, ") + std::to_string(dist) + std::string(" }\n");
+      }
+      outputString += std::string("\t\t\tplane{ <0,0,-1>, 0 }\n") + std::string("\t\t\tplane{ <0,0,1>, ")
+        + std::to_string(layer->getThickness()) + std::string("}\n\t\t}\n");
+
+      outputString += std::string("// nshapes = ") + std::to_string(layer->getNumOfMaterial()) + std::string("%d\n");
+
       for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){
         outputString += layer->getPOVRayForPattern((*it));
       }
+      outputString += std::string("\t}\n");
     }
     // Output postamble
     outputString += std::string("#declare Layers = union {\n");

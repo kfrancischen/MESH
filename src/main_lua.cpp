@@ -71,7 +71,7 @@ struct luaU_Impl<std::string>
 // this function wraps setPeriodicity(const double p1, const double p2 = 0)
 // @how to use:
 // SetPeriodicity(p1) or
-// Setperiodicity(p1, p2)
+// SetPeriodicity(p1, p2)
 int MESH_SetPeriodicity(lua_State* L){
   int n = lua_gettop(L);
 	if(n != 2 && n != 3){
@@ -196,60 +196,6 @@ int MESH_DeleteLayer(lua_State* L){
   return 1;
 }
 
-// this function wraps setLayerPatternGrating(const std::string layerName,
-//  const std::string materialName, const double center, const double width)
-// @how to use
-// SetLayerPatternGrating(layer name, material name, center, width)
-int MESH_SetLayerPatternGrating(lua_State *L){
-  Simulation *s = luaW_check<Simulation>(L, 1);
-  std::string layerName = luaU_check<std::string>(L, 2);
-  std::string materialName = luaU_check<std::string>(L, 3);
-  double center = luaU_check<double>(L, 4);
-  double width = luaU_check<double>(L, 5);
-  s->setLayerPatternGrating(layerName, materialName, center, width);
-  return 1;
-}
-
-// this function wraps setLayerPatternRectangle(const std::string layerName, const std::string materialName,
-//  const double centerx, const double centery, const double widthx, const double widthy)
-// @how to use
-// SetLayerPatternRectangle(layer name, material name, {centerx, centery}, {widthx, widthy})
-int MESH_SetLayerPatternRectangle(lua_State *L){
-  Simulation *s = luaW_check<Simulation>(L, 1);
-  std::string layerName = luaU_check<std::string>(L, 2);
-  std::string materialName = luaU_check<std::string>(L, 3);
-  double vals[4];
-  for(int i = 0; i < 2; i++){
-    for(int j= 0; j < 2; j++){
-      lua_pushinteger(L, j+1);
-      lua_gettable(L, 4+i);
-      vals[2*i+j] = luaU_check<double>(L, -1);
-      lua_pop(L, 1);
-    }
-  }
-  s->setLayerPatternRectangle(layerName, materialName, vals[0], vals[1], vals[2], vals[3]);
-  return 1;
-}
-
-// this function wraps setLayerPatternCircle(const std::string layerName,const std::string materialName,
-//  const double centerx, const double centery, const double radius)
-// @how to use
-// SetLayerPatternCircle(layer name, material name, {centerx, centery}, radius)
-int MESH_SetLayerPatternCircle(lua_State *L){
-  Simulation *s = luaW_check<Simulation>(L, 1);
-  std::string layerName = luaU_check<std::string>(L, 2);
-  std::string materialName = luaU_check<std::string>(L, 3);
-  double radius = luaU_check<double>(L, 5);
-  double vals[2];
-  for(int i = 0; i < 2; i++){
-    lua_pushinteger(L, i+1);
-    lua_gettable(L, 4);
-    vals[i] = luaU_check<double>(L, 1);
-    lua_pop(L, 1);
-  }
-  s->setLayerPatternCircle(layerName, materialName, vals[0], vals[1], radius);
-  return 1;
-}
 
 // this function wraps setGx(const int nGx)
 // @how to use
@@ -373,12 +319,12 @@ int MESH_GetPhiAtKxKy(lua_State *L){
   return 1;
 }
 
-// this function wraps getSysInfo()
+// this function wraps outputSysInfo()
 // @how to use
-// GetSysInfo()
-int MESH_GetSysInfo(lua_State *L){
+// OutputSysInfo()
+int MESH_OutputSysInfo(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
-  s->getSysInfo();
+  s->outputSysInfo();
   return 1;
 }
 
@@ -393,7 +339,7 @@ int MESH_OptUseInverseRule(lua_State *L){
 
 // this function wraps optUseNaiveRule()
 // @how to use
-// OptUseNaiveRule
+// OptUseNaiveRule()
 int MESH_OptUseNaiveRule(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   s->optUseNaiveRule();
@@ -611,6 +557,20 @@ SimulationGrating* MESH_SimulationGrating_New(lua_State* L){
   return new SimulationGrating();
 }
 
+// this function wraps setLayerPatternGrating(const std::string layerName,
+//  const std::string materialName, const double center, const double width)
+// @how to use
+// SetLayerPatternGrating(layer name, material name, center, width)
+int MESH_SetLayerPatternGrating(lua_State *L){
+  SimulationGrating *s = luaW_check<SimulationGrating>(L, 1);
+  std::string layerName = luaU_check<std::string>(L, 2);
+  std::string materialName = luaU_check<std::string>(L, 3);
+  double center = luaU_check<double>(L, 4);
+  double width = luaU_check<double>(L, 5);
+  s->setLayerPatternGrating(layerName, materialName, center, width);
+  return 1;
+}
+
 // this function wraps optUseAdaptive()
 // @how to use
 // OptUseAdaptive()
@@ -627,6 +587,46 @@ SimulationPattern* MESH_SimulationPattern_New(lua_State* L){
   return new SimulationPattern();
 }
 
+// this function wraps setLayerPatternRectangle(const std::string layerName, const std::string materialName,
+//  const double centerx, const double centery, const double widthx, const double widthy)
+// @how to use
+// SetLayerPatternRectangle(layer name, material name, {centerx, centery}, {widthx, widthy})
+int MESH_SetLayerPatternRectangle(lua_State *L){
+  SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
+  std::string layerName = luaU_check<std::string>(L, 2);
+  std::string materialName = luaU_check<std::string>(L, 3);
+  double vals[4];
+  for(int i = 0; i < 2; i++){
+    for(int j= 0; j < 2; j++){
+      lua_pushinteger(L, j+1);
+      lua_gettable(L, 4+i);
+      vals[2*i+j] = luaU_check<double>(L, -1);
+      lua_pop(L, 1);
+    }
+  }
+  s->setLayerPatternRectangle(layerName, materialName, vals[0], vals[1], vals[2], vals[3]);
+  return 1;
+}
+
+// this function wraps setLayerPatternCircle(const std::string layerName,const std::string materialName,
+//  const double centerx, const double centery, const double radius)
+// @how to use
+// SetLayerPatternCircle(layer name, material name, {centerx, centery}, radius)
+int MESH_SetLayerPatternCircle(lua_State *L){
+  SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
+  std::string layerName = luaU_check<std::string>(L, 2);
+  std::string materialName = luaU_check<std::string>(L, 3);
+  double radius = luaU_check<double>(L, 5);
+  double vals[2];
+  for(int i = 0; i < 2; i++){
+    lua_pushinteger(L, i+1);
+    lua_gettable(L, 4);
+    vals[i] = luaU_check<double>(L, 1);
+    lua_pop(L, 1);
+  }
+  s->setLayerPatternCircle(layerName, materialName, vals[0], vals[1], radius);
+  return 1;
+}
 /*======================================================*/
 // tables for the three clases
 /*=======================================================*/
@@ -641,16 +641,13 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "DeleteLayer", MESH_DeleteLayer, },
   { "SetSourceLayer", MESH_SetSourceLayer },
   { "SetProbeLayer", MESH_SetProbeLayer },
-  { "SetLayerPatternGrating", MESH_SetLayerPatternGrating },
-  { "SetLayerPatternRectangle", MESH_SetLayerPatternRectangle },
-  { "SetLayerPatternCircle", MESH_SetLayerPatternCircle },
   { "SetGx", MESH_SetGx },
   { "SetGy", MESH_SetGy },
   { "GetPhi", MESH_GetPhi },
   { "GetOmega", MESH_GetOmega },
   { "GetNumOfOmega", MESH_GetNumOfOmega },
   { "GetPhiAtKxKy", MESH_GetPhiAtKxKy },
-  { "GetSysInfo", MESH_GetSysInfo },
+  { "OutputSysInfo", MESH_OutputSysInfo },
   { "OptPrintIntermediate", MESH_OptPrintIntermediate },
   { "OptUseInverseRule", MESH_OptUseInverseRule },
   { "OptUseNaiveRule", MESH_OptUseNaiveRule },
@@ -678,6 +675,13 @@ static luaL_Reg character_metatable_SimulationPlanar[] = {
 
 static luaL_Reg character_metatable_SimulationGrating[] = {
   { "OptUseAdaptive", MESH_OptUseAdaptive },
+  { "SetLayerPatternGrating", MESH_SetLayerPatternGrating },
+  { NULL, NULL}
+};
+
+static luaL_Reg character_metatable_SimulationPattern[] = {
+  { "SetLayerPatternRectangle", MESH_SetLayerPatternRectangle },
+  { "SetLayerPatternCircle", MESH_SetLayerPatternCircle },
   { NULL, NULL}
 };
 
@@ -705,7 +709,7 @@ static int luaopen_Simulation(lua_State *L){
 	luaW_register<Simulation>(L, "Simulation", NULL, character_metatable_Simulation, NULL);
 	luaW_register<SimulationPlanar>(L, "SimulationPlanar", NULL, character_metatable_SimulationPlanar, MESH_SimulationPlanar_New);
   luaW_register<SimulationGrating>(L, "SimulationGrating", NULL, character_metatable_SimulationGrating, MESH_SimulationGrating_New);
-  luaW_register<SimulationPattern>(L, "SimulationPattern", NULL, NULL, MESH_SimulationPattern_New);
+  luaW_register<SimulationPattern>(L, "SimulationPattern", NULL, character_metatable_SimulationPattern, MESH_SimulationPattern_New);
 	luaW_extend<SimulationPlanar, Simulation>(L);
   luaW_extend<SimulationGrating, Simulation>(L);
   luaW_extend<SimulationPattern, Simulation>(L);

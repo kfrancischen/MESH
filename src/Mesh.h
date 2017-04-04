@@ -107,29 +107,6 @@ public:
   void addLayerCopy(const std::string name, const std::string originalName);
   void deleteLayer(const std::string name);
 
-  void setLayerPatternGrating(
-    const std::string layerName,
-    const std::string materialName,
-    const double center,
-    const double width
-  );
-
-  void setLayerPatternRectangle(
-    const std::string layerName,
-    const std::string materialName,
-    const double centerx,
-    const double centery,
-    const double widthx,
-    const double widthy
-  );
-
-  void setLayerPatternCircle(
-    const std::string layerName,
-    const std::string materialName,
-    const double centerx,
-    const double centery,
-    const double radius
-  );
 
   void setSourceLayer(const std::string name);
   void setProbeLayer(const std::string name);
@@ -144,7 +121,7 @@ public:
 
   void buildRCWA();
 
-  void getSysInfo();
+  void outputSysInfo();
 
   void optUseInverseRule();
   void optUseNaiveRule();
@@ -221,9 +198,33 @@ class SimulationPlanar : public Simulation{
 public:
   static Ptr<SimulationPlanar> instanceNew();
   SimulationPlanar(const SimulationPlanar&) = delete;
+  void setPeriodicity(const double p1, const double p2 = 0) = delete;
   void useInverseRule() = delete;
   void setGx() = delete;
   void setGy() = delete;
+  void setLayerPatternGrating(
+    const std::string layerName,
+    const std::string materialName,
+    const double center,
+    const double width
+  ) = delete;
+
+  void setLayerPatternRectangle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double widthx,
+    const double widthy
+  ) = delete;
+
+  void setLayerPatternCircle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double radius
+  ) = delete;
 
   // this function is used when one knows that the problem is only a kx integral
   void setKParallelIntegral(const double end);
@@ -252,6 +253,12 @@ public:
   SimulationGrating(const SimulationGrating&) = delete;
 
   void setGy() = delete;
+  void setLayerPatternGrating(
+    const std::string layerName,
+    const std::string materialName,
+    const double center,
+    const double width
+  );
 
   void optUseAdaptive();
   SimulationGrating();
@@ -267,6 +274,22 @@ class SimulationPattern : public Simulation{
 public:
 
   static Ptr<SimulationPattern> instanceNew();
+  void setLayerPatternRectangle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double widthx,
+    const double widthy
+  );
+
+  void setLayerPatternCircle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double radius
+  );
   SimulationPattern();
   SimulationPattern(const SimulationPattern&) = delete;
 

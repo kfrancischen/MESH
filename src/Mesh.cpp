@@ -530,100 +530,6 @@ namespace MESH{
     layerInstanceMap_.erase(name);
     structure_->deleteLayerByName(name);
   }
-
-  /*==============================================*/
-  // This function add grating to a layer
-  // @args:
-  // layerName: the name of the layer
-  // materialName: the name of the material
-  // center: the center of the grating
-  // width: the width of the grating
-  /*==============================================*/
-  void Simulation::setLayerPatternGrating(
-    const std::string layerName,
-    const std::string materialName,
-    const double center,
-    const double width
-  ){
-    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
-      std::cerr << materialName + ": Material does not exist!" << std::endl;
-      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
-      return;
-    }
-    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
-      std::cerr << layerName + ": Layer does not exist!" << std::endl;
-      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
-      return;
-    }
-    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
-    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
-    layer->addGratingPattern(material, center, width);
-  }
-  /*==============================================*/
-  // This function add rectangle pattern to a layer
-  // @args:
-  // layerName: the name of the layer
-  // materialName: the name of the material
-  // centerx: the center of the rectangle in x direction
-  // centery: the center of the rectangle in y direction
-  // widthx: the width of the rectangle in x direction
-  // widthy: the width of the rectangle in y direction
-  /*==============================================*/
-  void Simulation::setLayerPatternRectangle(
-    const std::string layerName,
-    const std::string materialName,
-    const double centerx,
-    const double centery,
-    const double widthx,
-    const double widthy
-  ){
-    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
-      std::cerr << materialName + ": Material does not exist!" << std::endl;
-      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
-      return;
-    }
-    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
-      std::cerr << layerName + ": Layer does not exist!" << std::endl;
-      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
-      return;
-    }
-    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
-    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
-    double arg1[2] = {centerx, centery};
-    double arg2[2] = {widthx, widthy};
-    layer->addRectanlgePattern(material, arg1, arg2);
-  }
-  /*==============================================*/
-  // This function add circle pattern to a layer
-  // @args:
-  // layerName: the name of the layer
-  // materialName: the name of the material
-  // centerx: the center of the circle in x direction
-  // centery: the center of the circle in y direction
-  // radius: the radius of the circle
-  /*==============================================*/
-  void Simulation::setLayerPatternCircle(
-    const std::string layerName,
-    const std::string materialName,
-    const double centerx,
-    const double centery,
-    const double radius
-  ){
-    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
-      std::cerr << materialName + ": Material does not exist!" << std::endl;
-      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
-      return;
-    }
-    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
-      std::cerr << layerName + ": Layer does not exist!" << std::endl;
-      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
-      return;
-    }
-    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
-    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
-    double arg1[2] = {centerx, centery};
-    layer->addCirclePattern(material, arg1, radius);
-  }
   /*==============================================*/
   // This function sets a layer as the source
   // @args:
@@ -958,7 +864,7 @@ namespace MESH{
   /*==============================================*/
   // This function prints out the information of the system
   /*==============================================*/
-  void Simulation::getSysInfo(){
+  void Simulation::outputSysInfo(){
     std::cout << "==================================================" << std::endl;
     std::cout << "The system has in total " << structure_->getNumOfLayer() << " layers." << std::endl;
     if(dim_ == ONE_){
@@ -1432,7 +1338,34 @@ namespace MESH{
   Ptr<SimulationGrating> SimulationGrating::instanceNew(){
     return new SimulationGrating();
   }
-
+  /*==============================================*/
+  // This function add grating to a layer
+  // @args:
+  // layerName: the name of the layer
+  // materialName: the name of the material
+  // center: the center of the grating
+  // width: the width of the grating
+  /*==============================================*/
+  void SimulationGrating::setLayerPatternGrating(
+    const std::string layerName,
+    const std::string materialName,
+    const double center,
+    const double width
+  ){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      std::cerr << layerName + ": Layer does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
+    layer->addGratingPattern(material, center, width);
+  }
   /*==============================================*/
   // function using adaptive resolution algorithm
   /*==============================================*/
@@ -1445,6 +1378,71 @@ namespace MESH{
   SimulationPattern::SimulationPattern() : Simulation(){
     prefactor_ = 1;
     dim_ = TWO_;
+  }
+  /*==============================================*/
+  // This function add rectangle pattern to a layer
+  // @args:
+  // layerName: the name of the layer
+  // materialName: the name of the material
+  // centerx: the center of the rectangle in x direction
+  // centery: the center of the rectangle in y direction
+  // widthx: the width of the rectangle in x direction
+  // widthy: the width of the rectangle in y direction
+  /*==============================================*/
+  void SimulationPattern::setLayerPatternRectangle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double widthx,
+    const double widthy
+  ){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      std::cerr << layerName + ": Layer does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
+    double arg1[2] = {centerx, centery};
+    double arg2[2] = {widthx, widthy};
+    layer->addRectanlgePattern(material, arg1, arg2);
+  }
+  /*==============================================*/
+  // This function add circle pattern to a layer
+  // @args:
+  // layerName: the name of the layer
+  // materialName: the name of the material
+  // centerx: the center of the circle in x direction
+  // centery: the center of the circle in y direction
+  // radius: the radius of the circle
+  /*==============================================*/
+  void SimulationPattern::setLayerPatternCircle(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double radius
+  ){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      std::cerr << layerName + ": Layer does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
+    double arg1[2] = {centerx, centery};
+    layer->addCirclePattern(material, arg1, radius);
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
