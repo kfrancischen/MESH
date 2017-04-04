@@ -544,7 +544,48 @@
                 
                   <h1>Classes and Functions</h1>
                 
-                
+                <p>The C++ interface have the same functions as the Lua interface except for the following changes.</p>
+<ul>
+<li>An instance of a class is initiated to smart pointers. For example to instantiate a <code>SimulationPlanar</code> object, the right way to do is</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">SimulationPlanar</span><span class="o">&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="o">::</span><span class="n">instanceNew</span><span class="p">();</span>
+</pre></div>
+
+
+<p>This also applies to the instantiation of <code>SimulationGrating</code> and <code>SimulationPattern</code> objects. The advantage of using smart pointers is that there is no need to do manual gabage collection using <code>delete</code>.</p>
+<ul>
+<li>
+<p>Function names: the function names starts with lower case whereas Lua interface starts with a capital letter.</p>
+</li>
+<li>
+<p>extra inputs in function <code>setMaterial</code>. In C++, this function is called as    </p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="kt">void</span> <span class="n">setMaterial</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">,</span> <span class="kt">double</span><span class="o">**</span> <span class="n">epsilon</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">type</span><span class="p">)</span>
+</pre></div>
+
+
+<p>where type is one of "scalar", "diagonal" and "tensor". The 2D array <code>epsilon</code> then depends on the type. For scalar, the epsilon is of dimension <script type="math/tex">\text{# omega}\times 2</script>. For diagonal, the epsilon is of dimension <script type="math/tex">\text{# omega}\times 6</script>, and for tensor, the epsilon is of dimension <script type="math/tex">\text{# omega}\times 10</script>.</p>
+<ul>
+<li>
+<p>changes in obtaining physical constants. In C++ there is no need to initiate or call any function to retrieve the constants. A constant, for example <script type="math/tex">q</script>, can be directly obtained by using constant.q.</p>
+</li>
+<li>
+<p>Extra Makefile is needed. An example for the Makefile for a <code>main.cpp</code> file is         </p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="nv">CFLAGS</span><span class="o">=</span>-std<span class="o">=</span>c++11 -O3 -ffast-math -march<span class="o">=</span>native -fopenmp  
+<span class="nv">MESHPATH</span><span class="o">=</span>../../          
+<span class="nv">INCLUDES</span><span class="o">=</span>-I<span class="k">$(</span>MESHPATH<span class="k">)</span>/src        
+<span class="nv">ARMAINCLUDE</span><span class="o">=</span>-I<span class="k">$(</span>MESHPATH<span class="k">)</span>/src/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG         
+<span class="nv">LIBS</span><span class="o">=</span>-L<span class="k">$(</span>MESHPATH<span class="k">)</span>/build -lmesh -lopenblas -llapack        
+<span class="nv">CXX</span><span class="o">=</span>g++       
+all:     
+ <span class="k">$(</span>CXX<span class="k">)</span> <span class="k">$(</span>CFLAGS<span class="k">)</span> <span class="k">$(</span>INCLUDES<span class="k">)</span> <span class="si">${</span><span class="nv">ARMAINCLUDE</span><span class="si">}</span> main.cpp -o main <span class="k">$(</span>LIBS<span class="k">)</span>
+</pre></div>
+
+
+<p>The <code>MESHPATH</code> should point to where the <code>src</code> folder is placed.</p>
                 
                   
                 
