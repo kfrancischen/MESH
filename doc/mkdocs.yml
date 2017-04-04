@@ -15,14 +15,12 @@ markdown_extensions:
     - fenced_code
     - codehilite
     - footnotes
+    - admonition
+    - toc(permalink=true)
 
 # Required to load the MathJax javascript for the mdx_math.py
 extra_javascript: ['https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML', 'mathjaxhelper.js']
 
-extra_css:
-    - css/highlight-fix.css
-    - css/highlight-custom.css
-    
 pages:
 - Home: 'index.md'
 - Overview:
@@ -48,4 +46,4 @@ pages:
 - Developer: 'develop.md'
 - About: 'about.md'
 
-theme: readthedocs
+theme: 'material'
