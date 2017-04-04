@@ -1015,6 +1015,25 @@ For tensor dielectric, the format is  <br />
 <p>Note: this function prints intermediate <script type="math/tex">\Phi(\omega, k_x, k_y)</script> when function <code>IntegrateKxKy()</code> or <code>IntegrateKxKyMPI(rank, size)</code> is called.</p>
 </li>
 </ul>
+<p>MESH also provides physics constants to facilitate computation. The constant object can be initiated by</p>
+<div class="codehilite"><pre><span></span><span class="n">constant</span> <span class="o">=</span> <span class="n">Constants</span><span class="p">()</span>
+</pre></div>
+
+
+<p>The supported constants are (all in SI unit)</p>
+<ul>
+<li>constant.pi: the value of <script type="math/tex">\pi</script>.</li>
+<li>constant.k_B: the value of <script type="math/tex">k_B</script>.</li>
+<li>constant.eps_0: the value of <script type="math/tex">\epsilon_0</script>.</li>
+<li>constant.mu_0: the value of <script type="math/tex">\mu_0</script>.</li>
+<li>constant.m_e: the value of <script type="math/tex">m_e</script>, i.e. the mass of an electron.</li>
+<li>constant.eV: electron volt in Joules.</li>
+<li>constant.h: the value of Planck's constant.</li>
+<li>constant.h_bar: the value of the reduced Planck's constant.</li>
+<li>constant.c_0: the speed of light.</li>
+<li>constant.q: the value of <script type="math/tex">q</script>, i.e. magnitude of electron charge.</li>
+<li>constant.sigma: the value of <script type="math/tex">\sigma</script>, i.e. Stefan-Boltzmann constant.</li>
+</ul>
                 
                   
                 
