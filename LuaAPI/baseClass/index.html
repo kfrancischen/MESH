@@ -561,9 +561,9 @@
 <li>material name: [string], the name of the material added to the simulation. Such name is unique and if there already exists a material with the same name, an error message will be printed out.</li>
 <li>input file: [string], a file that contains the dielectric properties of the corresponding material. For scalar dielectric, the input file should be formatted as  a list of      <br />
 <code>omega eps_r eps_i</code>  <br />
-For diagonal dielectric, the format is  <br />
+For diagonal dielectric, the format is a list of      <br />
 <code>omega eps_xx_r eps_xx_i eps_yy_r eps_yy_i eps_zz_r  eps_zz_i</code>  <br />
-For tensor dielectric, the format is  <br />
+For tensor dielectric, the format is a list of   <br />
 <code>omega eps_xx_r eps_xx_i eps_xy_r eps_xy_i eps_yx_r eps_yx_i eps_yy_r eps_yy_i eps_zz_r  eps_zz_i</code>     </li>
 </ol>
 </li>
@@ -738,7 +738,7 @@ For tensor dielectric, the format is  <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: a system can have more than <script type="math/tex">1</script> source layers</p>
+<p>Note: a system can have more than <script type="math/tex">1</script> source layers.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">)</span>
@@ -783,7 +783,7 @@ For tensor dielectric, the format is  <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>points: [int], number of points in the integration</li>
+<li>points: [int], number of points in the integration.</li>
 <li>end: [double, optional for grating and pattern geometries], the end of the integral over <script type="math/tex">k_x</script>. This end should be a normalized number with respect to <script type="math/tex">\omega/c</script>.</li>
 </ol>
 </li>
@@ -803,7 +803,7 @@ For tensor dielectric, the format is  <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>points: [int], number of points in the integration</li>
+<li>points: [int], number of points in the integration.</li>
 <li>end: [double, optional for pattern geometries], the end of the integral over <script type="math/tex">k_y</script>. This end should be a normalized number with respect to <script type="math/tex">\omega/c</script>.</li>
 </ol>
 </li>
@@ -823,7 +823,7 @@ For tensor dielectric, the format is  <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>points: [int], number of points in the integration</li>
+<li>points: [int], number of points in the integration.</li>
 <li>end: [double, optional for grating and pattern geometries], the end of the integral over <script type="math/tex">k_x</script>. This end should be a normalized number with respect to <script type="math/tex">\omega/c</script>.</li>
 </ol>
 </li>
@@ -843,7 +843,7 @@ For tensor dielectric, the format is  <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>points: [int], number of points in the integration</li>
+<li>points: [int], number of points in the integration.</li>
 <li>end: [double, optional for pattern geometries], the end of the integral over <script type="math/tex">k_y</script>. This end should be a normalized number with respect to <script type="math/tex">\omega/c</script>.</li>
 </ol>
 </li>
@@ -890,7 +890,7 @@ For tensor dielectric, the format is  <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>rank: [int], the rank of the thread</li>
+<li>rank: [int], the rank of the thread.</li>
 <li>size: [int], the total size of the MPI run.</li>
 </ol>
 </li>

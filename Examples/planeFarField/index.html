@@ -544,7 +544,7 @@
                 
                   <h1>Single Plane Far-field</h1>
                 
-                <p>This is a simple example calculating far-field radiation from a <script type="math/tex">1~\um m</script> thick GaAs slab to vacuum. Here one can set the upper bound of <script type="math/tex">k_{\parallel}</script> integration to <script type="math/tex">1</script> because it is far field.</p>
+                <p>This is a simple example calculating far-field radiation from a <script type="math/tex">1~\mu m</script> thick GaAs slab to vacuum. Here one can set the upper bound of <script type="math/tex">k_{\parallel}</script> integration to <script type="math/tex">1</script> because it is far field.</p>
 <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetThread</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;GaAs&quot;</span><span class="p">,</span> <span class="s2">&quot;GaAs.txt&quot;</span><span class="p">);</span>
@@ -558,8 +558,8 @@
 <span class="n">s</span><span class="p">:</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacuumLayer&quot;</span><span class="p">);</span>
 
 <span class="n">s</span><span class="p">:</span><span class="n">OptUseQuadgk</span><span class="p">();</span>
-<span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetKParallelIntegral</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
 <span class="n">s</span><span class="p">:</span><span class="n">IntegrateKParallel</span><span class="p">();</span>
 <span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetPhi</span><span class="p">();</span>
 <span class="n">omega</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetOmega</span><span class="p">();</span>
