@@ -289,6 +289,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#installation-on-clusters-not-recommended" title="Installation on clusters (not recommended)" class="md-nav__link">
+    Installation on clusters (not recommended)
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -620,6 +627,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#installation-on-clusters-not-recommended" title="Installation on clusters (not recommended)" class="md-nav__link">
+    Installation on clusters (not recommended)
+  </a>
+  
+</li>
+      
       
       
     </ul>
@@ -691,6 +705,23 @@
 
 
 <p>in <code>.bashrc</code>.</p>
+<p>In addition, on <code>comet</code>, please add the following to <code>.bashrc</code></p>
+<div class="codehilite"><pre><span></span>module purge
+module load gnu
+module load gnutools
+module load mkl
+module load openmpi_ib
+</pre></div>
+
+
+<p>and on <code>stampede</code>:</p>
+<div class="codehilite"><pre><span></span>module load gcc
+module load mkl
+</pre></div>
+
+
+<p>For a job that use more than <script type="math/tex">24</script> cores for <code>comet</code> and <script type="math/tex">16</script> cores for <code>stampede</code>, MPI version needs to be used. On <code>hera</code>, the OpenMP version is recommended.</p>
+<h4 id="installation-on-clusters-not-recommended">Installation on clusters (not recommended)<a class="headerlink" href="#installation-on-clusters-not-recommended" title="Permanent link">&para;</a></h4>
 <p>If one wants to install MESH on his/her own directory, one <code>hera</code> please use</p>
 <div class="codehilite"><pre><span></span>make -f Makefile.hera
 </pre></div>
@@ -713,7 +744,7 @@ make -f Makefile.stampede
 </pre></div>
 
 
-<p>On clusters, both OpenMP version and MPI version will be generated. In particular, for a job that use more than <script type="math/tex">24</script> cores, MPI version needs to be used.</p>
+<p>On clusters, both OpenMP version and MPI version will be generated.</p>
                 
                   
                 
