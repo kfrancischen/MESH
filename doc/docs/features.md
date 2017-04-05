@@ -18,17 +18,17 @@ And in the case of an isotropic material in $x$ and $y$ direction, the above int
 
 $$\Phi(\omega)=\int_{0}^{\infty}dk_{\parallel} \Phi(k_{\parallel}, \omega)$$
 
-MESH directly provides function to either compute $\Phi(\omega, k_x, k_y)$, $\Phi(\omega, k_{\parallel})$ and $\Phi(\omega)$ directly.
+MESH directly provides functions to compute $\Phi(\omega, k_x, k_y)$, $\Phi(\omega, k_{\parallel})$ and $\Phi(\omega)$ directly.
 
 #### Heat transfer in grating geometries
 
 In the case of a grating geometry (implemented as [SimulationGrating](LuaAPI/grating.md) object), the heat transfer rate is written as
 
-$$\Phi(\omega)=\int_{-G/2}^{G/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)$$
+$$\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)$$
 
 Here again, MESH gives access to a few things
 
-* settings of the integral: for isotropic geometries $\int_{-G/2}^{G/2}$ and  $\int_{-\infty}^{\infty}$ can be reduced to twice of the integral over the positive axis.
+* settings of the integral: for isotropic geometries $\int_{-G_x/2}^{G_x/2}$ and  $\int_{-\infty}^{\infty}$ can be reduced to twice of the integral over the positive axis.
 * directly computation of $\Phi(k_x,k_y, \omega)$ and $\Phi(\omega)$, and allows to print out $\Phi(k_x,k_y, \omega)$ in the process of obtaining $\Phi(\omega)$.
 
 #### Heat transfer in pattern geometries

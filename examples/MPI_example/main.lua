@@ -39,7 +39,7 @@ local size = buffer.get_typed(sizeb, buffer.int, 0)
 local rank = buffer.get_typed(rankb, buffer.int, 0)
 
 if rank == 0 then
-  s:GetSysInfo();
+  s:OutputSysInfo();
 end
 
 status = MPI.Status()

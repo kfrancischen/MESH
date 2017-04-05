@@ -3,7 +3,7 @@ The SimulationPattern class can be initiated in Lua script by
 s = SimulationPattern.new()
 ```
 
-Most of the function provided in [base class](baseClass.md) can be used except for the following changes.
+All of the function provided in [base class](baseClass.md) can be used.
 
 
 !!! note

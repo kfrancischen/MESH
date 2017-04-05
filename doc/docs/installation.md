@@ -9,7 +9,6 @@ In order to have the MPI version of MESH installed, one needs to install MPI bes
 MESH can be downloaded by
 ```bash
 git clone git@github.com:kfrancischen/MESH.git
-unzip MESH_master.zip -d MESH
 cd MESH
 ```
 

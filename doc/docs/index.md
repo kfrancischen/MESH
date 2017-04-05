@@ -13,15 +13,15 @@ The program is built upon C++ and wrapped with Lua (>= 5.2), with OpenMP and MPI
 
 #### Lua API
 * [Base Class](LuaAPI/baseClass.md): the base class the code is built upon.
-* [SimulationPlanar](LuaAPI/planar.md): the inherited class computing planar geometries
-* [SimulationGrating](LuaAPI/grating.md): the inherited class computing 1D grating geometries.
-* [SimulationPattern](LuaAPI/pattern.md): the inherited class computing 2D pattern geometries.
+* [SimulationPlanar](LuaAPI/planar.md): the inherited class for planar geometries.
+* [SimulationGrating](LuaAPI/grating.md): the inherited class for 1D grating geometries.
+* [SimulationPattern](LuaAPI/pattern.md): the inherited class for 2D pattern geometries.
 
 #### C++ API
 * [C++ classes and functions](C++API/classAndFunction.md): the C++ interface for all the functions.
 
 #### Examples
-* [Tutorial Example](Examples/tutorial.md): a simple tutorial setting up the inputs and running the input script.
+* [Tutorial Example](Examples/tutorial.md): a simple tutorial about setting up the inputs and running the input script.
 * [Single Plane Far-field](Examples/planeFarField.md): example about thermal radiation to the far field.
 * [Two Planes Near-field](Examples/planeNearField.md): example about near-field heat transfer between two planes.
 * [Anisotropic Material Near-field](Examples/anisotropic.md): example about simulations involving anisotropic material.
@@ -33,4 +33,4 @@ The program is built upon C++ and wrapped with Lua (>= 5.2), with OpenMP and MPI
 
 #### Other information
 * [Developer](develop.md): information for developers on how to contribute to MESH
-* [About](about.md): Information about the author, license, copyrights and contact addresses.
+* [About](about.md): information about the author, license, copyrights and contact addresses.

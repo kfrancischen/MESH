@@ -1,6 +1,6 @@
 MESH is written in a inheritance manner, so most of the functions in the base class can be directly accessed by subclasses. Usage of MESH involves writing a Lua script to call into various parts of MESH. Here we describe all of the MESH base class functions that can be called within the Lua environment.
 
-For detailed function calls of a given geometry, please read the pages [SimulationPlanar](planar.md), [SimulationGrating](grating.md) and [SimulationPattern](pattern.md) for the geometries you are simulating.
+For which functions can be called for a given geometry, please read the pages [SimulationPlanar](planar.md), [SimulationGrating](grating.md) and [SimulationPattern](pattern.md) for the geometries you are simulating.
 
 !!! note
     The base class is just a wrapper for most of the functions, but it cannot be initiated in a Lua script. The only instances that can be initiated are the classes corresponding to different dimensions.
@@ -10,7 +10,7 @@ AddMaterial(material name, input file)
 ```
 * Arguments:
     1. material name: [string], the name of the material added to the simulation. Such name is unique and if there already exists a material with the same name, an error message will be printed out.
-    2. input file: [string], a file that contains the dielectric properties of the corresponding material. For scalar dielectric, the input file should be formatted as     
+    2. input file: [string], a file that contains the dielectric properties of the corresponding material. For scalar dielectric, the input file should be formatted as  a list of        
     ```    
     omega eps_r eps_i      
     ```    
@@ -25,13 +25,13 @@ AddMaterial(material name, input file)
 
 * Output: None
 
-* Note: The omega needs to be aligned for all the materials in the simulation
+* Note: The omega needs to be aligned for all the materials in the simulation.
 
 ```lua
 SetMaterial(material name, new epsilon)
 ```
 * Arguments:
-    1. material name: [string], the name of the material whose epsilon will be changed. This material should already exist in the simulation, otherwise an error will be printed out.
+    1. material name: [string], the name of the material whose epsilon will be changed. This material should already exist in the simulation (by `AddMaterial`), otherwise an error will be printed out.
     2. new epsilon: [nested table], the length equals the number of omega, and per row is the epsilon values with the same format as the input of `AddMaterial` function. i.e. for scalar case the length will be $2$, for diagonal case the length is $6$ and for tensor case the length is $10$.
 
 * Output: None
@@ -42,7 +42,7 @@ AddLayer(layer name, thickness, material name)
 * Arguments:
     1. layer name: [string], the name of the layer. Similarly, the names for layers are unique, and if such name already exists in the simulation, an error message will be printed out.
     2. thickness: [double], the thickness of the new layer in SI unit.
-    3. material name: [string], the material that is used as the background of the layer. This material should already exist in the simulation, otherwise an error message will be printed out.
+    3. material name: [string], the material that is used as the background of the layer. This material should already exist in the simulation (by `AddMaterial`), otherwise an error message will be printed out.
 
 * Output: None
 
@@ -99,7 +99,7 @@ SetPeriodicity(p1, p2)
 SetGx(nGx)
 ```
 * Arguments:
-    1. nGx: [int], the number of positive Fourier components in $x$ direction. The total number of G is thus 2nGx+1.
+    1. nGx: [int], the number of positive Fourier components in $x$ direction. The total number of G is thus 2nGx + 1.
 
 * Output: None
 
@@ -107,7 +107,7 @@ SetGx(nGx)
 SetGy(nGy)
 ```
 * Arguments:
-    1. nGy: [int], the number of positive Fourier components in $y$ direction. The total number of G is thus 2nGy+1.
+    1. nGy: [int], the number of positive Fourier components in $y$ direction. The total number of G is thus 2nGy + 1.
 
 * Output: None
 
@@ -151,19 +151,19 @@ SetKxIntegral(points, end)
 * Output: None
 
 * Note: this function is essential doing
-$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $(G_x/2)/(\omega/c)$.
+$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm G_x/2$.
 
 ```lua
 SetKyIntegral(points, end)
 ```
 * Arguments:
     1. points: [int], number of points in the integration
-    2. end: [double, optional for pattern geometries], the end of the integral over $k_y$. This end should be a normalized number with respect to $\omega/c$. In the case when `end` is not given, the upper bound of the integral will be $(G_y/2)/(\omega/c)$.
+    2. end: [double, optional for pattern geometries], the end of the integral over $k_y$. This end should be a normalized number with respect to $\omega/c$.
 
 * Output: None
 
 * Note: this function is essential doing
-$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points.
+$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm G_y/2$.
 
 ```lua
 SetKxIntegralSym(points, end)
@@ -175,7 +175,7 @@ SetKxIntegralSym(points, end)
 * Output: None
 
 * Note: this function is essential doing
-$$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $(G_x/2)/(\omega/c)$.
+$$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $G_x/2$.
 
 ```lua
 SetKyIntegralSym(points, end)
@@ -187,14 +187,14 @@ SetKyIntegralSym(points, end)
 * Output: None
 
 * Note: this function is essential doing
-$$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $(G_y/2)/(\omega/c)$.
+$$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $G_y/2$.
 
 ```lua
 BuildRCWA()
 ```
 * Arguments: None
 
-* Note: this function builds up the matrices for the dielectric.
+* Note: this function builds up the matrices for the dielectric and performs RCWA.
 
 ```lua
 IntegrateKxKy()
@@ -214,7 +214,7 @@ IntegrateKxKyMPI(rank, size)
 
 * Output: None
 
-*  Note: this function can only be called during MPI. For an example of a funtion call, please refer to [MPI example](../Examples/MPI.md).
+*  Note: this function can only be called during MPI. For an example of a funtion call,  please refer to [MPI example](../Examples/MPI.md).
 
 ```lua
 GetNumOfOmega()
@@ -244,8 +244,8 @@ GetPhiAtKxKy(omega index, kx, ky)
 ```
 * Arguments:
     1. omega index: [int], the index of the omega value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated.
-    2. kx: [double], the $k_x$ value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated. It is a normalized by $\omega[\text{index}]/c$.
-    3. ky: [double], the $k_y$ value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated. It is a normalized by $\omega[\text{index}]/c$.
+    2. kx: [double], the $k_x$ value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated. It is a normalized value by $\omega[\text{index}]/c$.
+    3. ky: [double], the $k_y$ value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated. It is a normalized value by $\omega[\text{index}]/c$.
 
 * Output: [double], the value of $\Phi(\omega, k_x, k_y)$.
 

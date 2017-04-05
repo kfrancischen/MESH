@@ -9,7 +9,7 @@ All of the function provided in [base class](baseClass.md) can be used except fo
     The following function needs to be called specifically for `SimulationGrating` object.
 
 ```lua
-Setperiodicity(p1)
+SetPeriodicity(p1)
 ```
 The above function can only be called without the second argument `p2`.
 
