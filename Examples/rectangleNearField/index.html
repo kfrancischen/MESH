@@ -544,7 +544,8 @@
                 
                   <h1>Two Rectangle Patterns Near-field</h1>
                 
-                <div class="codehilite"><pre><span></span><span class="n">constants</span> <span class="o">=</span> <span class="n">Constants</span><span class="p">();</span>
+                <p>This is an example for Fig.2 (b) black curve in <a href="https://arxiv.org/abs/1701.02986">arXiv:1701.02986</a>.</p>
+<div class="codehilite"><pre><span></span><span class="n">constants</span> <span class="o">=</span> <span class="n">Constants</span><span class="p">();</span>
 
 <span class="kr">function</span> <span class="nf">thetaDerivative</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
   <span class="kd">local</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">constants</span><span class="p">.</span><span class="n">h_bar</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span> <span class="p">(</span><span class="nb">math.exp</span><span class="p">(</span><span class="n">constants</span><span class="p">.</span><span class="n">h_bar</span> <span class="o">*</span> <span class="n">omega</span><span class="o">/</span><span class="n">constants</span><span class="p">.</span><span class="n">k_B</span><span class="o">/</span><span class="n">T</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
@@ -581,6 +582,9 @@
   <span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">..</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">..</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
 <span class="kr">end</span>
 </pre></div>
+
+
+<p>// TODO: test</p>
                 
                   
                 

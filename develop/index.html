@@ -538,7 +538,27 @@
                 
                   <h1>Developer</h1>
                 
-                
+                <p>The source code of MESH is in <code>src/</code> folder, which consists of the following files and folders:</p>
+<ul>
+<li><code>armar/</code>: the folder contains all the headers from <a href="http://arma.sourceforge.net/">armadillo</a>.</li>
+<li><code>luawrapper/</code>: the Lua wrapper for C++ classes and MPI.</li>
+<li><code>mathlib/</code>: some mathematical functions such as Bessel functions, and Gauss-legendre integral method.</li>
+<li><code>utility/</code>: templates for smart points as well as exception handling.</li>
+<li><code>Cubature.c</code>: a fast adaptive integration method for high dimensional functions, adoptted from <a href="http://ab-initio.mit.edu/wiki/index.php/Cubature">the original code</a>.</li>
+<li><code>Fmm.cpp</code>: file computing the Fourier transform for different geometries.</li>
+<li><code>Rcwa.cpp</code>: file computing the RCWA and Poynting vector.</li>
+<li><code>System.cpp</code>: file containing material, layer and structure classes and their methods.</li>
+<li><code>Mesh.cpp</code>: file containing different types of simulations and C++ API.</li>
+<li><code>main_lua.cpp</code>: file implementing Lua API.</li>
+</ul>
+<p>The class structure is illustrated in the following figure</p>
+<p><img alt="code structure" src="../codeStructure.png" /></p>
+<p>There are few features that need to be implemented in MESH:</p>
+<ul>
+<li>A correct and fast implementation of Fourier transform over dielectric functions.</li>
+<li>Improved ways of doing <script type="math/tex">k_x</script> and <script type="math/tex">k_y</script> integral other than the current naive summation method.</li>
+<li>Computing more physical quantities, such as energy density and Casimir force.</li>
+</ul>
                 
                   
                 

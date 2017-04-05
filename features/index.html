@@ -681,15 +681,15 @@
 <p>
 <script type="math/tex; mode=display">\Phi(\omega)=\int_{0}^{\infty}dk_{\parallel} \Phi(k_{\parallel}, \omega)</script>
 </p>
-<p>MESH directly provides function to compute <script type="math/tex">\Phi(\omega, k_x, k_y)</script>, <script type="math/tex">\Phi(\omega, k_{\parallel})</script> and <script type="math/tex">\Phi(\omega)</script> directly.</p>
+<p>MESH directly provides functions to compute <script type="math/tex">\Phi(\omega, k_x, k_y)</script>, <script type="math/tex">\Phi(\omega, k_{\parallel})</script> and <script type="math/tex">\Phi(\omega)</script> directly.</p>
 <h4 id="heat-transfer-in-grating-geometries">Heat transfer in grating geometries<a class="headerlink" href="#heat-transfer-in-grating-geometries" title="Permanent link">&para;</a></h4>
 <p>In the case of a grating geometry (implemented as <a href="../LuaAPI/grating/">SimulationGrating</a> object), the heat transfer rate is written as</p>
 <p>
-<script type="math/tex; mode=display">\Phi(\omega)=\int_{-G/2}^{G/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)</script>
+<script type="math/tex; mode=display">\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)</script>
 </p>
 <p>Here again, MESH gives access to a few things</p>
 <ul>
-<li>settings of the integral: for isotropic geometries <script type="math/tex">\int_{-G/2}^{G/2}</script> and  <script type="math/tex">\int_{-\infty}^{\infty}</script> can be reduced to twice of the integral over the positive axis.</li>
+<li>settings of the integral: for isotropic geometries <script type="math/tex">\int_{-G_x/2}^{G_x/2}</script> and  <script type="math/tex">\int_{-\infty}^{\infty}</script> can be reduced to twice of the integral over the positive axis.</li>
 <li>directly computation of <script type="math/tex">\Phi(k_x,k_y, \omega)</script> and <script type="math/tex">\Phi(\omega)</script>, and allows to print out <script type="math/tex">\Phi(k_x,k_y, \omega)</script> in the process of obtaining <script type="math/tex">\Phi(\omega)</script>.</li>
 </ul>
 <h4 id="heat-transfer-in-pattern-geometries">Heat transfer in pattern geometries<a class="headerlink" href="#heat-transfer-in-pattern-geometries" title="Permanent link">&para;</a></h4>

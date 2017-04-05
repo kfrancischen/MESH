@@ -544,7 +544,17 @@
                 
                   <h1>Anisotropic Material Near-field</h1>
                 
-                <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+                <p>This is an example that has been used in the paper <a href="https://journals.aps.org/prapplied/abstract/10.1103/PhysRevApplied.6.024014">Phys. Rev. Applied 6, 024014, 2016</a>, where <code>hBN</code> has a diagonal dielectric function as (top <script type="math/tex">5</script> rows)</p>
+<div class="codehilite"><pre><span></span>2.127000e+14    1.022020e+01    3.983602e-01    1.022020e+01    3.983602e-01    4.251609e+00    3.151862e-01
+2.128640e+14    1.023858e+01    3.932224e-01    1.023858e+01    3.932224e-01    4.248610e+00    3.151862e-01
+2.130281e+14    1.025696e+01    3.880846e-01    1.025696e+01    3.880846e-01    4.253492e+00    3.151862e-01
+2.131921e+14    1.027534e+01    3.829468e-01    1.027534e+01    3.829468e-01    4.258538e+00    3.151862e-01
+2.133561e+14    1.029372e+01    3.778090e-01    1.029372e+01    3.778090e-01    4.263583e+00    3.151862e-01
+</pre></div>
+
+
+<p>These values correspond to <script type="math/tex">\omega, \text{real}(\epsilon_{xx}), \text{imag}(\epsilon_{xx}), \text{real}(\epsilon_{yy}), \text{imag}(\epsilon_{yy}), \text{real}(\epsilon_{zz}), \text{imag}(\epsilon_{zz})</script>, respectively. And the following is a script computing the flux between MCT and hBN in the presence of a <script type="math/tex">10~\text{nm}</script> vacuum gap.</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;hBN&quot;</span><span class="p">,</span> <span class="s2">&quot;hBN.txt&quot;</span><span class="p">)</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;MCT&quot;</span><span class="p">,</span> <span class="s2">&quot;MCT.txt&quot;</span><span class="p">)</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;PEC&quot;</span><span class="p">,</span> <span class="s2">&quot;PEC.txt&quot;</span><span class="p">)</span>
@@ -570,6 +580,9 @@
   <span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">..</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">..</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
 <span class="kr">end</span>
 </pre></div>
+
+
+<p>The output of the Lua file is the same as the output from the original MATLAB code. The output from the MATLAB code is <a href="https://github.com/kfrancischen/MESH/tree/master/examples/PRApplied_6_024014_2016">Electron_5000_10_5000.mat</a>.</p>
                 
                   
                 

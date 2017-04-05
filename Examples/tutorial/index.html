@@ -382,9 +382,69 @@
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
     
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Tutorial Example
+      </label>
+    
     <a href="./" title="Tutorial Example" class="md-nav__link md-nav__link--active">
       Tutorial Example
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-initialize-simulation-object" title="0. Initialize simulation object" class="md-nav__link">
+    0. Initialize simulation object
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-read-input-material-files" title="1. Read input material files" class="md-nav__link">
+    1. Read input material files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-add-layers-to-the-system" title="2. Add layers to the system" class="md-nav__link">
+    2. Add layers to the system
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-set-source-and-probe-as-well-as-options" title="3. Set source and probe, as well as options" class="md-nav__link">
+    3. Set source and probe, as well as options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-build-simulation-and-perform-integration" title="4. Build simulation and perform integration" class="md-nav__link">
+    4. Build simulation and perform integration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-print-results" title="5. Print results" class="md-nav__link">
+    5. Print results
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -529,6 +589,55 @@
   
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-initialize-simulation-object" title="0. Initialize simulation object" class="md-nav__link">
+    0. Initialize simulation object
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-read-input-material-files" title="1. Read input material files" class="md-nav__link">
+    1. Read input material files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-add-layers-to-the-system" title="2. Add layers to the system" class="md-nav__link">
+    2. Add layers to the system
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-set-source-and-probe-as-well-as-options" title="3. Set source and probe, as well as options" class="md-nav__link">
+    3. Set source and probe, as well as options
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-build-simulation-and-perform-integration" title="4. Build simulation and perform integration" class="md-nav__link">
+    4. Build simulation and perform integration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-print-results" title="5. Print results" class="md-nav__link">
+    5. Print results
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -544,32 +653,77 @@
                 
                   <h1>Tutorial Example</h1>
                 
-                <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
-<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;GaAs&quot;</span><span class="p">,</span> <span class="s2">&quot;GaAs.txt&quot;</span><span class="p">)</span>
+                <p>This is an detailed tutorial on the near-field heat transfer between two GaAs slabs backed with PEC.</p>
+<h4 id="0-initialize-simulation-object">0. Initialize simulation object<a class="headerlink" href="#0-initialize-simulation-object" title="Permanent link">&para;</a></h4>
+<p>First, to initialize the planar simulation, one should do</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
+</pre></div>
+
+
+<h4 id="1-read-input-material-files">1. Read input material files<a class="headerlink" href="#1-read-input-material-files" title="Permanent link">&para;</a></h4>
+<p>First, one should add materials to the system, and the materials are initialized by the input files.</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;GaAs&quot;</span><span class="p">,</span> <span class="s2">&quot;GaAs.txt&quot;</span><span class="p">)</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;PEC&quot;</span><span class="p">,</span> <span class="s2">&quot;PEC.txt&quot;</span><span class="p">)</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">)</span>
+</pre></div>
 
-<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;PECBottom&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;PEC&quot;</span><span class="p">);</span>
+
+<p>Here we initialize three materials <code>GaAs</code>, <code>PEC</code> and <code>Vacuum</code>, and their dielectric constants are contained in the files <code>GaAs.txt</code>, <code>PEC.txt</code> and <code>Vacuum.txt</code>, respectively. Here is a glance at the top few lines of <code>GaAs.txt</code> file:</p>
+<div class="codehilite"><pre><span></span>2.126978e+15    1.306099e+01    1.228760e-02
+2.131253e+15    1.307147e+01    2.845717e-02
+2.135527e+15    1.308195e+01    4.462674e-02
+2.139802e+15    1.309243e+01    6.079631e-02
+2.144077e+15    1.310291e+01    7.696587e-02
+    ...             ...              ...
+</pre></div>
+
+
+<p>where the data is specified in <script type="math/tex">\omega, \epsilon_r, \epsilon_i</script> fashion, separated by tab, with in total <script type="math/tex">199</script> rows. All material files should contain the dielectric function at the same omega values. For PEC, one needs to use a very large <script type="math/tex">\epsilon</script> value for it be to reflective, and Vacuum needs to have a very small imaginary part (here <script type="math/tex">10^{-10}</script>) to maintain numerical stability. In addition, make sure that all the <code>.txt</code>  files are the in the same directory as the <code>.lua</code> script.</p>
+<h4 id="2-add-layers-to-the-system">2. Add layers to the system<a class="headerlink" href="#2-add-layers-to-the-system" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;PECBottom&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;PEC&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;GaAsBottom&quot;</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;GaAs&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="mf">1e-8</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;GaAsTop&quot;</span><span class="p">,</span> <span class="s2">&quot;GaAsBottom&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;PECTop&quot;</span><span class="p">,</span> <span class="s2">&quot;PECBottom&quot;</span><span class="p">);</span>
+</pre></div>
 
-<span class="n">s</span><span class="p">:</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;GaAsBottom&quot;</span><span class="p">);</span>
+
+<p>Here there are in total <script type="math/tex">5</script> layers that has been added to the system: <code>PECBottom</code>, <code>GaAsBottom</code>, <code>VacGap</code>, <code>GaAsTop</code> and <code>PECTop</code>. Different from <a href="https://web.stanford.edu/group/fan/S4/">S4</a>, here the layers are built from bottom to the top, with the bottom most and top most layers being semi-infinite (set thickness to <script type="math/tex">0</script> here). The following is a drawing illustrating how the layers are added to the system:
+<img alt="Steps to add layers" src="../layers.png" /></p>
+<h4 id="3-set-source-and-probe-as-well-as-options">3. Set source and probe, as well as options<a class="headerlink" href="#3-set-source-and-probe-as-well-as-options" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><span class="n">s</span><span class="p">:</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;GaAsBottom&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">OptUseQuadgk</span><span class="p">();</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetKParallelIntegral</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetThread</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
+</pre></div>
 
-<span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
+
+<p>In this case, since we are simulating the heat transfer between the two GaAs layers, we set the layer <code>GaAsBottom</code> as the source layer, and <code>VacGap</code> to be the probe layer where Poynting vector is measured. Here, one needs to ensure that the source layer is always below the probe layer in the system. The following figure is an illustration after the source and probe layers are set.
+<img alt="Source and probe layers" src="../sourceAndProbe.png" /></p>
+<h4 id="4-build-simulation-and-perform-integration">4. Build simulation and perform integration<a class="headerlink" href="#4-build-simulation-and-perform-integration" title="Permanent link">&para;</a></h4>
+<p>Now, with the system built up and the integral set up, one can build RCWA matrices and perform integration over <script type="math/tex">k_{\parallel}</script>.</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
 <span class="n">s</span><span class="p">:</span><span class="n">IntegrateKParallel</span><span class="p">();</span>
+</pre></div>
 
-<span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetPhi</span><span class="p">();</span>
+
+<h4 id="5-print-results">5. Print results<a class="headerlink" href="#5-print-results" title="Permanent link">&para;</a></h4>
+<div class="codehilite"><pre><span></span><span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetPhi</span><span class="p">();</span>
 <span class="n">omega</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetOmega</span><span class="p">();</span>
 <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">s</span><span class="p">:</span><span class="n">GetNumOfOmega</span><span class="p">(),</span> <span class="mi">1</span> <span class="kr">do</span>
   <span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">..</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">..</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
 <span class="kr">end</span>
 </pre></div>
+
+
+<p>The above is a simple way to retrieve the result and print it to the screen. One can also use Lua built-in i/o functions to output result into files.</p>
+<p>Now save this file as <code>main.lua</code>, and one can simply type</p>
+<div class="codehilite"><pre><span></span>mesh main.lua
+</pre></div>
+
+
+<p>to run the simulation.</p>
                 
                   
                 

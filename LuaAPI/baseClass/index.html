@@ -545,7 +545,7 @@
                   <h1>Base Class</h1>
                 
                 <p>MESH is written in a inheritance manner, so most of the functions in the base class can be directly accessed by subclasses. Usage of MESH involves writing a Lua script to call into various parts of MESH. Here we describe all of the MESH base class functions that can be called within the Lua environment.</p>
-<p>For detailed function calls of a given geometry, please read the pages <a href="../planar/">SimulationPlanar</a>, <a href="../grating/">SimulationGrating</a> and <a href="../pattern/">SimulationPattern</a> for the geometries you are simulating.</p>
+<p>For which functions can be called for a given geometry, please read the pages <a href="../planar/">SimulationPlanar</a>, <a href="../grating/">SimulationGrating</a> and <a href="../pattern/">SimulationPattern</a> for the geometries you are simulating.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The base class is just a wrapper for most of the functions, but it cannot be initiated in a Lua script. The only instances that can be initiated are the classes corresponding to different dimensions.</p>
@@ -559,7 +559,7 @@
 <p>Arguments:</p>
 <ol>
 <li>material name: [string], the name of the material added to the simulation. Such name is unique and if there already exists a material with the same name, an error message will be printed out.</li>
-<li>input file: [string], a file that contains the dielectric properties of the corresponding material. For scalar dielectric, the input file should be formatted as   <br />
+<li>input file: [string], a file that contains the dielectric properties of the corresponding material. For scalar dielectric, the input file should be formatted as  a list of      <br />
 <code>omega eps_r eps_i</code>  <br />
 For diagonal dielectric, the format is  <br />
 <code>omega eps_xx_r eps_xx_i eps_yy_r eps_yy_i eps_zz_r  eps_zz_i</code>  <br />
@@ -582,7 +582,7 @@ For tensor dielectric, the format is  <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>material name: [string], the name of the material whose epsilon will be changed. This material should already exist in the simulation, otherwise an error will be printed out.</li>
+<li>material name: [string], the name of the material whose epsilon will be changed. This material should already exist in the simulation (by <code>AddMaterial</code>), otherwise an error will be printed out.</li>
 <li>new epsilon: [nested table], the length equals the number of omega, and per row is the epsilon values with the same format as the input of <code>AddMaterial</code> function. i.e. for scalar case the length will be <script type="math/tex">2</script>, for diagonal case the length is <script type="math/tex">6</script> and for tensor case the length is <script type="math/tex">10</script>.</li>
 </ol>
 </li>
@@ -600,7 +600,7 @@ For tensor dielectric, the format is  <br />
 <ol>
 <li>layer name: [string], the name of the layer. Similarly, the names for layers are unique, and if such name already exists in the simulation, an error message will be printed out.</li>
 <li>thickness: [double], the thickness of the new layer in SI unit.</li>
-<li>material name: [string], the material that is used as the background of the layer. This material should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>material name: [string], the material that is used as the background of the layer. This material should already exist in the simulation (by <code>AddMaterial</code>), otherwise an error message will be printed out.</li>
 </ol>
 </li>
 <li>
@@ -701,7 +701,7 @@ For tensor dielectric, the format is  <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>nGx: [int], the number of positive Fourier components in <script type="math/tex">x</script> direction. The total number of G is thus 2nGx+1.</li>
+<li>nGx: [int], the number of positive Fourier components in <script type="math/tex">x</script> direction. The total number of G is thus 2nGx + 1.</li>
 </ol>
 </li>
 <li>
@@ -716,7 +716,7 @@ For tensor dielectric, the format is  <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>nGy: [int], the number of positive Fourier components in <script type="math/tex">y</script> direction. The total number of G is thus 2nGy+1.</li>
+<li>nGy: [int], the number of positive Fourier components in <script type="math/tex">y</script> direction. The total number of G is thus 2nGy + 1.</li>
 </ol>
 </li>
 <li>
@@ -804,7 +804,7 @@ For tensor dielectric, the format is  <br />
 <p>Arguments:</p>
 <ol>
 <li>points: [int], number of points in the integration</li>
-<li>end: [double, optional for pattern geometries], the end of the integral over <script type="math/tex">k_y</script>. This end should be a normalized number with respect to <script type="math/tex">\omega/c</script>. In the case when <code>end</code> is not given, the upper bound of the integral will be <script type="math/tex">(G_y/2)/(\omega/c)</script>.</li>
+<li>end: [double, optional for pattern geometries], the end of the integral over <script type="math/tex">k_y</script>. This end should be a normalized number with respect to <script type="math/tex">\omega/c</script>.</li>
 </ol>
 </li>
 <li>
@@ -898,7 +898,7 @@ For tensor dielectric, the format is  <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: this function can only be called during MPI. For an example of a funtion call, please refer to <a href="../../Examples/MPI/">MPI example</a>.</p>
+<p>Note: this function can only be called during MPI. For an example of a funtion call,  please refer to <a href="../../Examples/MPI/">MPI example</a>.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">GetNumOfOmega</span><span class="p">()</span>
@@ -949,8 +949,8 @@ For tensor dielectric, the format is  <br />
 <p>Arguments:</p>
 <ol>
 <li>omega index: [int], the index of the omega value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated.</li>
-<li>kx: [double], the <script type="math/tex">k_x</script> value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated. It is a normalized by <script type="math/tex">\omega[\text{index}]/c</script>.</li>
-<li>ky: [double], the <script type="math/tex">k_y</script> value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated. It is a normalized by <script type="math/tex">\omega[\text{index}]/c</script>.</li>
+<li>kx: [double], the <script type="math/tex">k_x</script> value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated. It is a normalized value by <script type="math/tex">\omega[\text{index}]/c</script>.</li>
+<li>ky: [double], the <script type="math/tex">k_y</script> value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated. It is a normalized value by <script type="math/tex">\omega[\text{index}]/c</script>.</li>
 </ol>
 </li>
 <li>
