@@ -1,8 +1,8 @@
 #### Prerequisites
 MESH comes with two versions: one has OpenMP support if the system has OpenMP libraries; one has MPI support. Both of them requires the following Prerequisites:
 
-* Lapack and blas (or blas mutants, such as openblas, atlas, or mkl). For MacOS this is not necessary.
-* Lua version >= 5.2 (version 5.3.x is preferred).
+* [Lapack](http://www.netlib.org/lapack/) and [blas](http://www.netlib.org/blas/) (or blas mutants, such as [openblas](http://www.openblas.net/), [atlas](http://math-atlas.sourceforge.net/), or [mkl](https://software.intel.com/en-us/intel-mkl)). For MacOS this is not necessary.
+* [Lua](https://www.lua.org/) version >= 5.2 (version 5.3.x is preferred).
 
 In order to have the MPI version of MESH installed, one needs to install MPI besides the above two libraries.
 
@@ -26,7 +26,11 @@ make meshMPI
 
 Executables can be found in directory `build/`. The executables are called `mesh` and `meshMPI`.
 
-For a customized installation, please change the paths for compilers in `Makefile.Linux`.
+For a customized installation, please change the paths for compilers in `Makefile.Linux`. For OpenMP support, one can add (replace $4$ with the maximum number of cores supported by the computer)
+```bash
+export OMP_NUM_THREADS=4
+```
+to the `.bashrc` file.
 
 #### Installation on MacOS
 Default clang compiler does not support OpenMP. One can either follow the same steps exactly the same as the installation on Linux machines (then no OpenMP is not supported), or installing gcc with OpenMP first by
@@ -50,3 +54,26 @@ One can add this to one's own path by adding
 export PATH="$PATH:/home/kfchen/MESH/build/"
 ```
 in `.bashrc`.
+
+If one wants to install MESH on his/her own directory, one `hera` please use
+```bash
+make -f Makefile.hera
+```
+On `comet` please install Lua at the same directory as MESH and type
+```bash
+module purge
+module load gnu
+module load gnutools
+module load mkl
+module load openmpi_ib
+make -f Makefile.comet
+```
+
+On `stampede` please install Lua at the same directory as MESH and type
+```bash
+module load gcc
+module load mkl
+make -f Makefile.stampede
+```
+
+On clusters, both OpenMP version and MPI version will be generated. In particular, for a job that use more than $24$ cores, MPI version needs to be used.

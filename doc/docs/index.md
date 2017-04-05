@@ -27,10 +27,10 @@ The program is built upon C++ and wrapped with Lua (>= 5.2), with OpenMP and MPI
 * [Anisotropic Material Near-field](Examples/anisotropic.md): example about simulations involving anisotropic material.
 * [Iterate Over Gaps Near-field](Examples/iterate.md): example about iterating over different gaps for near-field heat transfer between two plates.
 * [Two Gratings Near-field](Examples/gratingNearField.md): example the calculation between two grating structures in the near-field regime.
-* [Two Rectangle Patterns Near-field](Examples/rectangleNearField.md): example about the near-field heat transfer between two rectangle patterned structures
+* [Two Rectangle Patterns Near-field](Examples/rectangleNearField.md): example about the near-field heat transfer between two rectangle patterned structures.
 * [Mixed Patterns Near-field](Examples/mixedNearField.md): example about the near-field heat transfer between two structures with different kinds of patterns (rectangle and circle).
 * [MPI Example](Examples/MPI.md): example about how to use Lua wrapped MPI interface for fast parallelization on distributed clusters.
 
 #### Other information
-* [Developer](develop.md): information for developers on how to contribute to MESH
+* [Developer](develop.md): information for developers on how to contribute to MESH.
 * [About](about.md): information about the author, license, copyrights and contact addresses.

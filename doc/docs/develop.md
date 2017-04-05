@@ -1,6 +1,6 @@
 The source code of MESH is in `src/` folder, which consists of the following files and folders:
 
-* `armar/`: the folder contains all the headers from [armadillo](http://arma.sourceforge.net/).
+* `arma/`: the folder contains all the headers from [armadillo](http://arma.sourceforge.net/).
 * `luawrapper/`: the Lua wrapper for C++ classes and MPI.
 * `mathlib/`: some mathematical functions such as Bessel functions, and Gauss-legendre integral method.
 * `utility/`: templates for smart points as well as exception handling.

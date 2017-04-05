@@ -13,6 +13,7 @@ Most of the function provided in [base class](baseClass.md) can be used except f
 SetGx(nGx)
 SetGy(nGy)
 Setperiodicity(p1, p2)
+OptPrintIntermediate()
 ```
 
 !!! note

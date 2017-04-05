@@ -14,11 +14,11 @@ AddMaterial(material name, input file)
     ```    
     omega eps_r eps_i      
     ```    
-    For diagonal dielectric, the format is    
+    For diagonal dielectric, the format is a list of        
     ```    
     omega eps_xx_r eps_xx_i eps_yy_r eps_yy_i eps_zz_r  eps_zz_i      
     ```    
-    For tensor dielectric, the format is    
+    For tensor dielectric, the format is a list of     
     ```    
     omega eps_xx_r eps_xx_i eps_xy_r eps_xy_i eps_yx_r eps_yx_i eps_yy_r eps_yy_i eps_zz_r  eps_zz_i      
     ```     
@@ -120,7 +120,7 @@ SetSourceLayer(layer name)
 
 * Output: None
 
-* Note: a system can have more than $1$ source layers
+* Note: a system can have more than $1$ source layers.
 
 ```lua
 SetProbeLayer(layer name)
@@ -145,7 +145,7 @@ SetThread(nthread)
 SetKxIntegral(points, end)
 ```
 * Arguments:
-    1. points: [int], number of points in the integration
+    1. points: [int], number of points in the integration.
     2. end: [double, optional for grating and pattern geometries], the end of the integral over $k_x$. This end should be a normalized number with respect to $\omega/c$.
 
 * Output: None
@@ -157,7 +157,7 @@ $$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the in
 SetKyIntegral(points, end)
 ```
 * Arguments:
-    1. points: [int], number of points in the integration
+    1. points: [int], number of points in the integration.
     2. end: [double, optional for pattern geometries], the end of the integral over $k_y$. This end should be a normalized number with respect to $\omega/c$.
 
 * Output: None
@@ -169,7 +169,7 @@ $$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y$$ where the in
 SetKxIntegralSym(points, end)
 ```
 * Arguments:
-    1. points: [int], number of points in the integration
+    1. points: [int], number of points in the integration.
     2. end: [double, optional for grating and pattern geometries], the end of the integral over $k_x$. This end should be a normalized number with respect to $\omega/c$.
 
 * Output: None
@@ -181,7 +181,7 @@ $$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evalua
 SetKyIntegralSym(points, end)
 ```
 * Arguments:
-    1. points: [int], number of points in the integration
+    1. points: [int], number of points in the integration.
     2. end: [double, optional for pattern geometries], the end of the integral over $k_y$. This end should be a normalized number with respect to $\omega/c$.
 
 * Output: None
@@ -209,7 +209,7 @@ IntegrateKxKy()
 IntegrateKxKyMPI(rank, size)
 ```
 * Arguments:
-    1. rank: [int], the rank of the thread
+    1. rank: [int], the rank of the thread.
     2. size: [int], the total size of the MPI run.
 
 * Output: None

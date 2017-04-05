@@ -1,0 +1,75 @@
+OBJDIR = build
+SHLIB_EXT = so
+SHLIB_FLAGS = -fPIC -shared
+
+CFLAGS   += -O3 -Wall -march=native -fcx-limited-range -fPIC -fopenmp
+CXXFLAGS += -std=c++11 -O3 -Wall -march=native -fcx-limited-range -fPIC -fopenmp
+
+LA_LIBS = -lopenblas -llapack
+
+LUA_INC = -I/usr/include/lua5.3
+LUA_LIB = -llua5.3 -ldl -lm
+
+
+#### change to proper compilers
+CC = gcc
+CXX = g++
+
+#### change to proper MPI compilers
+MPICC = mpicc
+MPICXX = mpic++
+
+
+CPPFLAGS += -Isrc/
+ARMAFLAG = -Isrc/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG
+
+#### Compilation targets
+MESH_LIBNAME = libmesh.a
+all: $(OBJDIR)/$(MESH_LIBNAME)  $(OBJDIR)/mesh	$(OBJDIR)/meshMPI
+
+objdir:
+	mkdir -p $(OBJDIR)
+	mkdir -p $(OBJDIR)/MESH_o
+
+MESH_LIBOBJS = \
+	$(OBJDIR)/MESH_o/Rcwa.o \
+	$(OBJDIR)/MESH_o/Cubature.o \
+	$(OBJDIR)/MESH_o/System.o \
+	$(OBJDIR)/MESH_o/Fmm.o \
+	$(OBJDIR)/MESH_o/Mesh.o
+
+$(OBJDIR)/libmesh.a: objdir $(MESH_LIBOBJS)
+	$(AR) crvs $@ $(MESH_LIBOBJS)
+$(OBJDIR)/MESH_o/Rcwa.o: src/Rcwa.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/MESH_o/Cubature.o: src/Cubature.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/MESH_o/System.o: src/System.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/MESH_o/Fmm.o: src/Fmm.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/MESH_o/Mesh.o: src/Mesh.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+
+
+#### Build Lua frontend
+
+$(OBJDIR)/MESH_o/main_lua.o: src/main_lua.cpp objdir
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/mesh: $(OBJDIR)/MESH_o/main_lua.o $(OBJDIR)/$(MESH_LIBNAME)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ -L$(OBJDIR) -lmesh $(LA_LIBS) $(LUA_LIB)
+
+### for MPI only
+$(OBJDIR)/MESH_o/buffer_mpi.o: src/luawrapper/buffer_mpi.c objdir
+	$(MPICC) -c -DHAVE_MPI $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/MESH_o/lua_mpi.o: src/luawrapper/lua_mpi.c src/luawrapper/funcs_mpi.c objdir
+	$(MPICC) -c -DHAVE_MPI $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/MESH_o/main_lua_mpi.o: src/main_lua.cpp objdir
+	$(MPICXX) -c -DHAVE_MPI $(CXXFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+$(OBJDIR)/meshMPI: $(OBJDIR)/MESH_o/main_lua_mpi.o $(OBJDIR)/MESH_o/lua_mpi.o $(OBJDIR)/MESH_o/buffer_mpi.o  $(OBJDIR)/$(MESH_LIBNAME)
+	$(MPICXX) $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ -L$(OBJDIR) -lmesh $(LA_LIBS) $(LUA_LIB)
+
+clean:
+	rm -rf $(OBJDIR)
+
+always:

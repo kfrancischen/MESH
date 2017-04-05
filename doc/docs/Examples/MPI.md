@@ -62,8 +62,8 @@ if rank == 0 then
     end
   end
   -- output all the phi values from the master
-  for i = 1,numOfOmega, 1 do
-    print(string.format("%e", omega[i]).."\t"..string.format("%e", phi[i]));
+  for i = 1,numOfOmega do
+    print(string.format("%e", omega[i]).."\t"..string.format("%e", phi_master[i]));
   end
 -- rank 1-size are the slave nodes
 else

@@ -1,4 +1,4 @@
-This is a simple example calculating far-field radiation from a $1~\um m$ thick GaAs slab to vacuum. Here one can set the upper bound of $k_{\parallel}$ integration to $1$ because it is far field.
+This is a simple example calculating far-field radiation from a $1~\mu m$ thick GaAs slab to vacuum. Here one can set the upper bound of $k_{\parallel}$ integration to $1$ because it is far field.
 ```lua
 s = SimulationPlanar.new()
 s:SetThread(4);
@@ -13,8 +13,8 @@ s:SetSourceLayer("GaAsLayer");
 s:SetProbeLayer("VacuumLayer");
 
 s:OptUseQuadgk();
-s:BuildRCWA();
 s:SetKParallelIntegral(1);
+s:BuildRCWA();
 s:IntegrateKParallel();
 phi = s:GetPhi();
 omega = s:GetOmega();
