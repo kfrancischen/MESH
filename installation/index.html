@@ -691,6 +691,29 @@
 
 
 <p>in <code>.bashrc</code>.</p>
+<p>If one wants to install MESH on his/her own directory, one <code>hera</code> please use</p>
+<div class="codehilite"><pre><span></span>make -f Makefile.hera
+</pre></div>
+
+
+<p>On <code>comet</code> please install Lua at the same directory as MESH and type</p>
+<div class="codehilite"><pre><span></span>module purge
+module load gnu
+module load gnutools
+module load mkl
+module load openmpi_ib
+make -f Makefile.comet
+</pre></div>
+
+
+<p>On <code>stampede</code> please install Lua at the same directory as MESH and type</p>
+<div class="codehilite"><pre><span></span>module load gcc
+module load mkl
+make -f Makefile.stampede
+</pre></div>
+
+
+<p>On clusters, both OpenMP version and MPI version will be generated. In particular, for a job that use more than <script type="math/tex">24</script> cores, MPI version needs to be used.</p>
                 
                   
                 
