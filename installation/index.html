@@ -664,7 +664,12 @@
 
 
 <p>Executables can be found in directory <code>build/</code>. The executables are called <code>mesh</code> and <code>meshMPI</code>.</p>
-<p>For a customized installation, please change the paths for compilers in <code>Makefile.Linux</code>.</p>
+<p>For a customized installation, please change the paths for compilers in <code>Makefile.Linux</code>. For OpenMP support, one can add (replace <script type="math/tex">4</script> with the maximum number of cores supported by the computer)</p>
+<div class="codehilite"><pre><span></span><span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">4</span>
+</pre></div>
+
+
+<p>to the <code>.bashrc</code> file</p>
 <h4 id="installation-on-macos">Installation on MacOS<a class="headerlink" href="#installation-on-macos" title="Permanent link">&para;</a></h4>
 <p>Default clang compiler does not support OpenMP. One can either follow the same steps exactly the same as the installation on Linux machines (then no OpenMP is not supported), or installing gcc with OpenMP first by</p>
 <div class="codehilite"><pre><span></span>brew install gcc --without-multilib
