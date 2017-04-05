@@ -544,7 +544,43 @@
                 
                   <h1>Two Rectangle Patterns Near-field</h1>
                 
-                
+                <div class="codehilite"><pre><span></span><span class="n">constants</span> <span class="o">=</span> <span class="n">Constants</span><span class="p">();</span>
+
+<span class="kr">function</span> <span class="nf">thetaDerivative</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+  <span class="kd">local</span> <span class="n">theta</span> <span class="o">=</span> <span class="n">constants</span><span class="p">.</span><span class="n">h_bar</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span> <span class="p">(</span><span class="nb">math.exp</span><span class="p">(</span><span class="n">constants</span><span class="p">.</span><span class="n">h_bar</span> <span class="o">*</span> <span class="n">omega</span><span class="o">/</span><span class="n">constants</span><span class="p">.</span><span class="n">k_B</span><span class="o">/</span><span class="n">T</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="kr">return</span> <span class="nb">math.pow</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="nb">math.exp</span><span class="p">(</span><span class="n">constants</span><span class="p">.</span><span class="n">h_bar</span> <span class="o">*</span> <span class="n">omega</span><span class="o">/</span><span class="n">constants</span><span class="p">.</span><span class="n">k_B</span><span class="o">/</span><span class="n">T</span><span class="p">)</span> <span class="o">/</span><span class="n">constants</span><span class="p">.</span><span class="n">k_B</span> <span class="o">/</span> <span class="nb">math.pow</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+<span class="kr">end</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="mf">0.98</span><span class="p">;</span>
+<span class="n">width</span> <span class="o">=</span> <span class="nb">math.sqrt</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="mf">50e-9</span> <span class="o">*</span> <span class="mf">50e-9</span><span class="p">);</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPattern</span><span class="p">.</span><span class="n">new</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetPeriodicity</span><span class="p">(</span><span class="mf">50e-9</span><span class="p">,</span> <span class="mf">50e-9</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetGx</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetGy</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">,</span> <span class="s2">&quot;Si.txt&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetLayerPatternRectangle</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mf">25e-9</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">},</span> <span class="p">{</span><span class="n">width</span><span class="p">,</span> <span class="n">width</span><span class="p">});</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="mf">20e-9</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;SiTop&quot;</span><span class="p">,</span> <span class="s2">&quot;SiBottom&quot;</span><span class="p">);</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">OutputSysInfo</span><span class="p">();</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">OptPrintIntermediate</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">IntegrateKxKy</span><span class="p">();</span>
+
+<span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetPhi</span><span class="p">();</span>
+<span class="n">omega</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetOmega</span><span class="p">();</span>
+<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">s</span><span class="p">:</span><span class="n">GetNumOfOmega</span><span class="p">(),</span> <span class="mi">1</span> <span class="kr">do</span>
+  <span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">..</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">..</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+<span class="kr">end</span>
+</pre></div>
                 
                   
                 

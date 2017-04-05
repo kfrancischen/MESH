@@ -544,7 +544,8 @@
                 
                   <h1>MPI Example</h1>
                 
-                <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationGrating</span><span class="p">.</span><span class="n">new</span><span class="p">();</span>
+                <p>This is an MPI example, rewriting the same example in <a href="../gratingNearField/">Two Gratings Near-field</a></p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationGrating</span><span class="p">.</span><span class="n">new</span><span class="p">();</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetPeriodicity</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Au&quot;</span><span class="p">,</span> <span class="s2">&quot;fullGold.txt&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;fullVacuum.txt&quot;</span><span class="p">);</span>
@@ -564,12 +565,15 @@
 <span class="n">s</span><span class="p">:</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">);</span>
 
 <span class="n">s</span><span class="p">:</span><span class="n">OptPrintIntermediate</span><span class="p">();</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetGx</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetGx</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
+</pre></div>
 
-<span class="c1">----------------------------------------------------------------</span>
+
+<p>The above are the same as the standard Lua script. The following code configures the MPI.</p>
+<div class="codehilite"><pre><span></span><span class="c1">----------------------------------------------------------------</span>
 <span class="c1">-- this part is for MPI</span>
 <span class="c1">-- in principle there is no need to change this part for your simulation</span>
 <span class="c1">----------------------------------------------------------------</span>
@@ -585,11 +589,12 @@
 <span class="kd">local</span> <span class="n">rank</span> <span class="o">=</span> <span class="n">buffer</span><span class="p">.</span><span class="n">get_typed</span><span class="p">(</span><span class="n">rankb</span><span class="p">,</span> <span class="n">buffer</span><span class="p">.</span><span class="n">int</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
 <span class="kr">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="kr">then</span>
-  <span class="n">s</span><span class="p">:</span><span class="n">GetSysInfo</span><span class="p">();</span>
+  <span class="n">s</span><span class="p">:</span><span class="n">OutputSysInfo</span><span class="p">();</span>
 <span class="kr">end</span>
 
 <span class="n">status</span> <span class="o">=</span> <span class="n">MPI</span><span class="p">.</span><span class="n">Status</span><span class="p">()</span>
 <span class="n">numOfOmega</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetNumOfOmega</span><span class="p">()</span>
+<span class="n">omega</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetOmega</span><span class="p">();</span>
 <span class="c1">-- rank 0 is the master node</span>
 <span class="kr">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="kr">then</span>
   <span class="n">s</span><span class="p">:</span><span class="n">IntegrateKxKyMPI</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
@@ -603,8 +608,8 @@
     <span class="kr">end</span>
   <span class="kr">end</span>
   <span class="c1">-- output all the phi values from the master</span>
-  <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">numOfOmega</span> <span class="kr">do</span>
-    <span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">phi_master</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+  <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">numOfOmega</span><span class="p">,</span> <span class="mi">1</span> <span class="kr">do</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">..</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">..</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
   <span class="kr">end</span>
 <span class="c1">-- rank 1-size are the slave nodes</span>
 <span class="kr">else</span>
@@ -619,6 +624,11 @@
 <span class="kr">end</span>
 
 <span class="n">MPI</span><span class="p">.</span><span class="n">Finalize</span><span class="p">();</span>
+</pre></div>
+
+
+<p>The above code uses master-slave manner, where rank <script type="math/tex">0</script> is the master node that collects all the <script type="math/tex">\Phi(\omega)</script> from the other slave nodes, and then sum them together. The code can be run by:</p>
+<div class="codehilite"><pre><span></span>mpirun -np <span class="m">40</span> meshMPI main.lua
 </pre></div>
                 
                   
