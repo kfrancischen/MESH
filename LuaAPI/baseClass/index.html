@@ -544,7 +544,7 @@
                 
                   <h1>Base Class</h1>
                 
-                <p>MESH is written in a inheritance manner, so most of the functions in the base class can be directly accessed by subclasses. Usage of MESH involves writing a Lua script to call into various parts of MESH. Here we describe all of the MESH base class functions that can be called within the Lua environment.</p>
+                <p>MESH is written in an inheritance manner, so most of the functions in the base class can be directly accessed by subclasses. Usage of MESH involves writing a Lua script to call into various parts of MESH. Here we describe all of the MESH base class functions that can be called within the Lua environment.</p>
 <p>For which functions can be called for a given geometry, please read the pages <a href="../planar/">SimulationPlanar</a>, <a href="../grating/">SimulationGrating</a> and <a href="../pattern/">SimulationPattern</a> for the geometries you are simulating.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -701,7 +701,7 @@ For tensor dielectric, the format is a list of   <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>nGx: [int], the number of positive Fourier components in <script type="math/tex">x</script> direction. The total number of G is thus 2nGx + 1.</li>
+<li>nGx: [int], the number of positive Fourier components in <script type="math/tex">x</script> direction. The total number of G in <script type="math/tex">x</script> direction is thus 2nGx + 1.</li>
 </ol>
 </li>
 <li>
@@ -716,7 +716,7 @@ For tensor dielectric, the format is a list of   <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>nGy: [int], the number of positive Fourier components in <script type="math/tex">y</script> direction. The total number of G is thus 2nGy + 1.</li>
+<li>nGy: [int], the number of positive Fourier components in <script type="math/tex">y</script> direction. The total number of G in <script type="math/tex">y</script> direction is thus 2nGy + 1.</li>
 </ol>
 </li>
 <li>
@@ -791,15 +791,8 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: this function is essential doing
-<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm G_x/2</script>.</p>
+<p>Note: this</p>
 </li>
-</ul>
-<div class="codehilite"><pre><span></span><span class="n">SetKyIntegral</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="kr">end</span><span class="p">)</span>
-</pre></div>
-
-
-<ul>
 <li>
 <p>Arguments:</p>
 <ol>
@@ -966,7 +959,10 @@ For tensor dielectric, the format is a list of   <br />
 <p>Arguments: None</p>
 </li>
 <li>
-<p>Output: the function prints out a system description to screen.</p>
+<p>Output: None</p>
+</li>
+<li>
+<p>Note: the function prints out a system description to screen.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">OutputStructurePOVRay</span><span class="p">(</span><span class="n">file</span> <span class="n">name</span><span class="p">)</span>
@@ -988,6 +984,9 @@ For tensor dielectric, the format is a list of   <br />
 <p>Arguments: None</p>
 </li>
 <li>
+<p>Output: None</p>
+</li>
+<li>
 <p>Note: this function tells the RCWA to use the simplest closed form Fourier transform for the dielectric.</p>
 </li>
 </ul>
@@ -1000,6 +999,9 @@ For tensor dielectric, the format is a list of   <br />
 <p>Arguments: None</p>
 </li>
 <li>
+<p>Output: None</p>
+</li>
+<li>
 <p>Note: this function tells the RCWA to use the inverse rule of the Fourier transform for the dielectric.</p>
 </li>
 </ul>
@@ -1010,6 +1012,9 @@ For tensor dielectric, the format is a list of   <br />
 <ul>
 <li>
 <p>Arguments: None</p>
+</li>
+<li>
+<p>Output: None</p>
 </li>
 <li>
 <p>Note: this function prints intermediate <script type="math/tex">\Phi(\omega, k_x, k_y)</script> when function <code>IntegrateKxKy()</code> or <code>IntegrateKxKyMPI(rank, size)</code> is called. The output format is
