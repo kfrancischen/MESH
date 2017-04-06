@@ -33,4 +33,6 @@ OptUseAdaptive()
 ```
 * Arguments: None
 
+* Output: None
+
 * Note: this function will use the [spatial adaptive resolution method](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.125404) to compute the Fourier transform of the dielectric.

@@ -34,6 +34,7 @@ using UTILITY::NamedInterface;
 enum DIMENSION { NO_, ONE_, TWO_ };
 enum PATTERN {GRATING_, RECTANGLE_, CIRCLE_};
 enum EPSTYPE {SCALAR_, DIAGONAL_, TENSOR_};
+enum POLARIZATION {TE_, TM_, BOTH_};
 #define POW2(x) pow(x, 2)
 #define POW3(x) pow(x, 3)
 #define SENDTAG 2

@@ -44,6 +44,7 @@ enum METHOD {NAIVEFMM_, INVERSERULE_, SPATIALADAPTIVE_};
 typedef struct OPTIONS{
   int FMMRule = NAIVEFMM_;
   int IntegralMethod = GAUSSKRONROD_;
+  POLARIZATION polarization = BOTH_;
   bool PrintIntermediate = false;
   bool IntegrateKParallel = true;
   bool kxIntegralPreset = false;
@@ -61,6 +62,7 @@ typedef struct ARGWEAPPER{
   RCWAMatrix Gy_mat;
   SourceList sourceList;
   int targetLayer;
+  POLARIZATION polar;
 } ArgWrapper;
 
 /*======================================================*/
@@ -118,6 +120,30 @@ public:
   int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
+  void getEFields(
+    const int omegaIndex,
+    const double kx,
+    const double ky,
+    const double** positions,
+    double ** fields,
+    const int numOfPoints
+  );
+  void getHFields(
+    const int omegaIndex,
+    const double kx,
+    const double ky,
+    const double** positions,
+    double ** fields,
+    const int numOfPoints
+  );
+  void getFields(
+    const int omegaIndex,
+    const double kx,
+    const double ky,
+    const double** positions,
+    double ** fields,
+    const int numOfPoints
+  );
 
   void buildRCWA();
 
@@ -126,6 +152,8 @@ public:
   void optUseInverseRule();
   void optUseNaiveRule();
   void optPrintIntermediate();
+  void optOnlyComputeTE();
+  void optOnlyComputeTM();
   void setThread(const int numThread);
 
   void setKxIntegral(const int points, const double end = 0);
@@ -135,7 +163,6 @@ public:
 
   void integrateKxKy();
   void integrateKxKyMPI(const int rank, const int size);
-  void outputStructurePOVRay(const std::string outfile);
 
   ~Simulation();
 protected:

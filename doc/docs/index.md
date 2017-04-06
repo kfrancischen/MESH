@@ -5,7 +5,7 @@ A program for computing electromagnetic far-field and near-field heat transfer f
 structures, developed by [Kaifeng Chen](http://web.stanford.edu/~kfchen/) (<kfrancischen@gmail.com>) of the
 [Fan group](http://web.stanford.edu/group/fan/) in the Stanford Electrical Engineering Department.
 
-The program is built upon C++ and wrapped with Lua (>= 5.2), with OpenMP and MPI support. It is enabled with heat flux calculation in both far and near field, along with implementations about structure visualization through [POVRay](http://www.povray.org/). The source code can be downloaded at [Github](https://github.com/kfrancischen/MESH). This document will cover the basic ideas behind MESH, complete descriptions of the Lua API and C++ API, and a few concrete examples created either to illustrate the simple usage or to reproduce some of results from existing literatures. The documents are organized as follows:
+The program is built upon C++ and wrapped with Lua (>= 5.2), with OpenMP and MPI support. It is enabled with heat flux calculation in both far and near field for planar, grating and pattern geometries. The source code can be downloaded at [Github](https://github.com/kfrancischen/MESH). This document will cover the basic ideas behind MESH, complete descriptions of the Lua API and C++ API, and a few concrete examples created either to illustrate the simple usage or to reproduce some of results from existing literatures. The documents are organized as follows:
 
 #### Overview
 * [Equations & Features](features.md): detailed equations computed and features offered by the package.

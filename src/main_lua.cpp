@@ -132,7 +132,6 @@ int MESH_SetMaterial(lua_State* L){
   }
 
   s->setMaterial(name, epsilon, type);
-
   for(int i = 0; i < numOfOmega; i++){
     delete [] epsilon[i];
   }
@@ -355,6 +354,24 @@ int MESH_OptPrintIntermediate(lua_State *L){
   return 1;
 }
 
+// this function wraps optOnlyComputeTE()
+// @how to use
+// OptOnlyComputeTE()
+int MESH_OptOnlyComputeTE(lua_State *L){
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  s->optOnlyComputeTE();
+  return 1;
+}
+
+// this function wraps optOnlyComputeTM()
+// @how to use
+// OptOnlyComputeTM()
+int MESH_OptOnlyComputeTM(lua_State *L){
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  s->optOnlyComputeTM();
+  return 1;
+}
+
 // this function wraps setKxIntegral(const int points, const double end = 0)
 // @how to use
 // SetKxIntegral(points) or
@@ -456,15 +473,6 @@ int MESH_IntegrateKxKyMPI(lua_State* L){
   int rank = luaU_check<int>(L, 2);
   int size = luaU_check<int>(L, 3);
   s->integrateKxKyMPI(rank, size);
-  return 1;
-}
-// this function wraps outputStructurePOVRay(const std::string outfile)
-// @how to use
-// OutputStructurePOVRay(file name)
-int MESH_OutputStructurePOVRay(lua_State *L){
-  Simulation* s = luaW_check<Simulation>(L, 1);
-  std::string outfile = luaU_check<std::string>(L, 2);
-  s->outputStructurePOVRay(outfile);
   return 1;
 }
 
@@ -651,6 +659,8 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "OptPrintIntermediate", MESH_OptPrintIntermediate },
   { "OptUseInverseRule", MESH_OptUseInverseRule },
   { "OptUseNaiveRule", MESH_OptUseNaiveRule },
+  { "OptOnlyComputeTE", MESH_OptOnlyComputeTE },
+  { "OptOnlyComputeTM", MESH_OptOnlyComputeTM },
   { "BuildRCWA", MESH_BuildRCWA },
   { "SetThread", MESH_SetThread },
   { "SetKxIntegral", MESH_SetKxIntegral },
@@ -659,7 +669,6 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "SetKyIntegralSym", MESH_SetKyIntegralSym },
   { "IntegrateKxKy", MESH_IntegrateKxKy },
   { "IntegrateKxKyMPI", MESH_IntegrateKxKyMPI },
-  { "OutputStructurePOVRay", MESH_OutputStructurePOVRay },
 	{NULL, NULL}
 };
 

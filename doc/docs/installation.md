@@ -1,5 +1,5 @@
 #### Prerequisites
-MESH comes with two versions: one has OpenMP support if the system has OpenMP libraries; one has MPI support. Both of them requires the following Prerequisites:
+MESH comes with two versions: one has OpenMP support if the system has OpenMP libraries; one has MPI support. Both of them require the following prerequisites:
 
 * [Lapack](http://www.netlib.org/lapack/) and [blas](http://www.netlib.org/blas/) (or blas mutants, such as [openblas](http://www.openblas.net/), [atlas](http://math-atlas.sourceforge.net/), or [mkl](https://software.intel.com/en-us/intel-mkl)). For MacOS this is not necessary.
 * [Lua](https://www.lua.org/) version >= 5.2 (version 5.3.x is preferred).
@@ -65,11 +65,12 @@ module load openmpi_ib
 ```
 and on `stampede`:
 ```bash
+module purge
 module load gcc
 module load mvapich2
 module load mkl
 ```
-For a job that use more than $24$ cores for `comet` and $16$ cores for `stampede`, MPI version needs to be used. On `hera`, the OpenMP version is recommended.
+For a job that use more than $24$ cores for `comet` and $16$ cores for `stampede`, MPI version should be used. On `hera`, the OpenMP version is recommended.
 
 #### Installation on clusters (not recommended)
 If one wants to install MESH on his/her own directory, one `hera` please use

@@ -1,4 +1,4 @@
-MESH is written in a inheritance manner, so most of the functions in the base class can be directly accessed by subclasses. Usage of MESH involves writing a Lua script to call into various parts of MESH. Here we describe all of the MESH base class functions that can be called within the Lua environment.
+MESH is written in an inheritance manner, so most of the functions in the base class can be directly accessed by subclasses. Usage of MESH involves writing a Lua script to call into various parts of MESH. Here we describe all of the MESH base class functions that can be called within the Lua environment.
 
 For which functions can be called for a given geometry, please read the pages [SimulationPlanar](planar.md), [SimulationGrating](grating.md) and [SimulationPattern](pattern.md) for the geometries you are simulating.
 
@@ -99,7 +99,7 @@ SetPeriodicity(p1, p2)
 SetGx(nGx)
 ```
 * Arguments:
-    1. nGx: [int], the number of positive Fourier components in $x$ direction. The total number of G is thus 2nGx + 1.
+    1. nGx: [int], the number of positive Fourier components in $x$ direction. The total number of G in $x$ direction is thus 2nGx + 1.
 
 * Output: None
 
@@ -107,7 +107,7 @@ SetGx(nGx)
 SetGy(nGy)
 ```
 * Arguments:
-    1. nGy: [int], the number of positive Fourier components in $y$ direction. The total number of G is thus 2nGy + 1.
+    1. nGy: [int], the number of positive Fourier components in $y$ direction. The total number of G in $y$ direction is thus 2nGy + 1.
 
 * Output: None
 
@@ -150,12 +150,7 @@ SetKxIntegral(points, end)
 
 * Output: None
 
-* Note: this function is essential doing
-$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm G_x/2$.
-
-```lua
-SetKyIntegral(points, end)
-```
+* Note: this
 * Arguments:
     1. points: [int], number of points in the integration.
     2. end: [double, optional for pattern geometries], the end of the integral over $k_y$. This end should be a normalized number with respect to $\omega/c$.
@@ -194,7 +189,7 @@ BuildRCWA()
 ```
 * Arguments: None
 
-* Note: this function builds up the matrices for the dielectric and performs RCWA.
+* Note: this function builds up the matrices for the dielectric [Fourier transform] and prepare for RCWA. This function does not solve RCWA.
 
 ```lua
 IntegrateKxKy()
@@ -254,23 +249,37 @@ OutputSysInfo()
 ```
 * Arguments: None
 
-* Output: the function prints out a system description to screen.
-
-```lua
-OutputStructurePOVRay(file name)
-```
-* Arguments:
-    file name: [string], the output file that contains the POVRay object that describes the system. The file needs to have extension ".pov".
 * Output: None
+
+* Note: the function prints out a system description to screen.
 
 
 Also, MESH provides some options for printing intermediate information and methods for Fourier transform of the dielectric.
 
+```lua
+OptOnlyComputeTE()
+```
+* Arguments: None
+
+* Output: None
+
+* Note: with this function, the package only computes flux contributed from TE mode.
+
+```lua
+OptOnlyComputeTM()
+```
+* Arguments: None
+
+* Output: None
+
+* Note: with this function, the package only computes flux contributed from TM mode.
 
 ```lua
 OptUseNaiveRule()
 ```
 * Arguments: None
+
+* Output: None
 
 * Note: this function tells the RCWA to use the simplest closed form Fourier transform for the dielectric.
 
@@ -279,12 +288,16 @@ OptUseInverseRule()
 ```
 * Arguments: None
 
+* Output: None
+
 * Note: this function tells the RCWA to use the inverse rule of the Fourier transform for the dielectric.
 
 ```lua
 OptPrintIntermediate()
 ```
 * Arguments: None
+
+* Output: None
 
 * Note: this function prints intermediate $\Phi(\omega, k_x, k_y)$ when function `IntegrateKxKy()` or `IntegrateKxKyMPI(rank, size)` is called. The output format is
 a list of "$\omega$  $k_x$ $k_y$ $\Phi(\omega, k_x, k_y)$", where $k_x$ and $k_y$ are values normalized to $\omega/c$.

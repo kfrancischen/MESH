@@ -179,7 +179,8 @@ namespace MESH{
       wrapper.Gy_mat,
       wrapper.sourceList,
       wrapper.targetLayer,
-      1
+      1,
+      wrapper.polar
     );
   }
   /*==============================================*/
@@ -202,7 +203,8 @@ namespace MESH{
       wrapper.Gy_mat,
       wrapper.sourceList,
       wrapper.targetLayer,
-      1
+      1,
+      wrapper.polar
     );
   }
   /*======================================================*/
@@ -630,9 +632,74 @@ namespace MESH{
     return omegaList_[omegaIdx] / datum::c_0 / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, kx, ky, EMatricesVec_[omegaIdx],
       grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
-      sourceList_, targetLayer_,N);
+      sourceList_, targetLayer_,N, options_.polarization);
   }
-
+  /*==============================================*/
+  // this functions gets the E fields at given spacial positions
+  // @args:
+  // omegaIndex: the index of the omega values
+  // kx: the normalized kx value
+  // ky: the normalized ky value
+  // positions: real space positions, of dimension numOfPoints * 3
+  // fields: the E fields at the corresponding positions, of dimension numOfPoints * 6
+  // numOfPoints: the number of points of the positions
+  // @Note
+  // per E field is written in the form [Ex_r, Ex_i, Ey_r, Ey_i, Ez_r, Ez_i]
+  /*==============================================*/
+  void Simulation::getEFields(
+      const int omegaIndex,
+      const double kx,
+      const double ky,
+      const double** positions,
+      double ** fields,
+      const int numOfPoints
+  ){
+    // TODO
+  }
+  /*==============================================*/
+  // this functions gets the H fields at given spacial positions
+  // @args:
+  // omegaIndex: the index of the omega values
+  // kx: the normalized kx value
+  // ky: the normalized ky value
+  // positions: real space positions, of dimension numOfPoints * 3
+  // fields: the H fields at the corresponding positions, of dimension numOfPoints * 6
+  // numOfPoints: the number of points of the positions
+  // @Note
+  // per H field is written in the form [Hx_r, Hx_i, Hy_r, Hy_i, Hz_r, Hz_i]
+  /*==============================================*/
+  void Simulation::getHFields(
+      const int omegaIndex,
+      const double kx,
+      const double ky,
+      const double** positions,
+      double ** fields,
+      const int numOfPoints
+  ){
+    // TODO
+  }
+  /*==============================================*/
+  // this functions gets the E  and H fields at given spacial positions
+  // @args:
+  // omegaIndex: the index of the omega values
+  // kx: the normalized kx value
+  // ky: the normalized ky value
+  // positions: real space positions, of dimension numOfPoints * 3
+  // fields: the E and H fields at the corresponding positions, of dimension numOfPoints * 12
+  // numOfPoints: the number of points of the positions
+  // @Note
+  // per E and H field is written in the form [Hx_r, Hx_i, Hy_r, Hy_i, Hz_r, Hz_i, Ex_r, Ex_i, Ey_r, Ey_i, Ez_r, Ez_i]
+  /*==============================================*/
+  void Simulation::getFields(
+      const int omegaIndex,
+      const double kx,
+      const double ky,
+      const double** positions,
+      double ** fields,
+      const int numOfPoints
+  ){
+    // TODO
+  }
   /*==============================================*/
   // This function builds up the matrices
   /*==============================================*/
@@ -941,6 +1008,18 @@ namespace MESH{
   void Simulation::optPrintIntermediate(){
     options_.PrintIntermediate = true;
   }
+  /*==============================================*/
+  // function sets that only TE mode is computed
+  /*==============================================*/
+  void Simulation::optOnlyComputeTE(){
+    options_.polarization = TE_;
+  }
+  /*==============================================*/
+  // function sets that only TM mode is computed
+  /*==============================================*/
+  void Simulation::optOnlyComputeTM(){
+    options_.polarization = TM_;
+  }
 
   /*==============================================*/
   // function print intermediate results
@@ -1194,14 +1273,6 @@ namespace MESH{
 
   }
   /*==============================================*/
-  // function saving the structure to a POVRay file
-  // @args:
-  // outfile: the output file name, should end with .pov
-  /*==============================================*/
-  void Simulation::outputStructurePOVRay(const std::string outfile){
-    structure_->getPOVRay(outfile);
-  }
-  /*==============================================*/
   // Implementaion of the class on planar simulation
   /*==============================================*/
   SimulationPlanar::SimulationPlanar() : Simulation(){
@@ -1266,7 +1337,7 @@ namespace MESH{
     return POW2(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, KParallel, 0, EMatricesVec_[omegaIdx],
       grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
-      sourceList_, targetLayer_,1);
+      sourceList_, targetLayer_,1, options_.polarization);
   }
 
 
@@ -1302,6 +1373,7 @@ namespace MESH{
 
       wrapper.grandImaginaryMatrices = grandImaginaryMatrixVec_[i];
       wrapper.eps_zz_Inv = eps_zz_Inv_MatrixVec_[i];
+      wrapper.polar = options_.polarization;
       switch (options_.IntegralMethod) {
         case GAUSSLEGENDRE_:{
           Phi_[i] = gauss_legendre(degree_, wrapperFunQuadgl, &wrapper, kxStart_, kxEnd_);

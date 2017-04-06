@@ -47,6 +47,8 @@ IntegrateKPrarallel()
 ```
 * Arguments: None
 
+* Output: None
+
 * Note: before using this function, make sure the flux integral can be reduced to a $k_{\parallel}$ integral. In principle, the cases when all the materials possess only scalar dielectric or diagonal forms
 $$ \begin{pmatrix}
 \epsilon_{1} & 0 & 0\\
@@ -66,5 +68,7 @@ OptUseQuadgl(degree)
 OptUseQuadgk()
 ```
 * Arguments: None
+
+* Output: None
 
 * Note: this function uses Gauss-kronrod adaptive integral algorithm in `IntegrateKPrarallel()`. The simulation will use this function if the integral option is not specified.

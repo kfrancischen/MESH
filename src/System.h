@@ -123,7 +123,6 @@ namespace SYSTEM{
     void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
     void addGratingPattern(const Ptr<Material>& material, const double center, const double width);
 
-    std::string getPOVRayForPattern(const Pattern pattern);
   private:
     enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 
@@ -163,7 +162,6 @@ namespace SYSTEM{
     Ptr<Layer> getLayerByName(const std::string name);
     int getNumOfLayer();
     void getThicknessList(double* thicknessList);
-    void getPOVRay(const std::string outfile);
 
     const_LayerIter getLayersBegin();
     const_LayerIter getLayersEnd();
