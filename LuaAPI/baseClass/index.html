@@ -965,16 +965,37 @@ For tensor dielectric, the format is a list of   <br />
 <p>Note: the function prints out a system description to screen.</p>
 </li>
 </ul>
-<div class="codehilite"><pre><span></span><span class="n">OutputStructurePOVRay</span><span class="p">(</span><span class="n">file</span> <span class="n">name</span><span class="p">)</span>
+<p>Also, MESH provides some options for printing intermediate information and methods for Fourier transform of the dielectric.</p>
+<div class="codehilite"><pre><span></span><span class="n">OptOnlyComputeTE</span><span class="p">()</span>
 </pre></div>
 
 
 <ul>
-<li>Arguments:
-    file name: [string], the output file that contains the POVRay object that describes the system. The file needs to have extension ".pov".</li>
-<li>Output: None</li>
+<li>
+<p>Arguments: None</p>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+<li>
+<p>Note: with this function, the package only computes flux contributed from TE mode.</p>
+</li>
 </ul>
-<p>Also, MESH provides some options for printing intermediate information and methods for Fourier transform of the dielectric.</p>
+<div class="codehilite"><pre><span></span><span class="n">OptOnlyComputeTM</span><span class="p">()</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments: None</p>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+<li>
+<p>Note: with this function, the package only computes flux contributed from TM mode.</p>
+</li>
+</ul>
 <div class="codehilite"><pre><span></span><span class="n">OptUseNaiveRule</span><span class="p">()</span>
 </pre></div>
 
