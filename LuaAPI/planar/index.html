@@ -557,6 +557,8 @@
 <div class="codehilite"><pre><span></span><span class="n">SetGx</span><span class="p">(</span><span class="n">nGx</span><span class="p">)</span>
 <span class="n">SetGy</span><span class="p">(</span><span class="n">nGy</span><span class="p">)</span>
 <span class="n">Setperiodicity</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+<span class="n">OptUseNaiveRule</span><span class="p">()</span>
+<span class="n">OptUseInverseRule</span><span class="p">()</span>
 <span class="n">OptPrintIntermediate</span><span class="p">()</span>
 </pre></div>
 
@@ -598,7 +600,7 @@ where the integral is evaluated either using Gauss-legendre methdod or Gauss-kro
 </ol>
 </li>
 <li>
-<p>Output: None</p>
+<p>Output: [double], value of <script type="math/tex">\Phi(\omega[\text{index}], k_{\parallel})</script>.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">IntegrateKPrarallel</span><span class="p">()</span>
