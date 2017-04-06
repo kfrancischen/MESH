@@ -53,8 +53,25 @@ One can add this to one's own path by adding
 ```bash
 export PATH="$PATH:/home/kfchen/MESH/build/"
 ```
-in `.bashrc`.
+in `.bashrc` (on stampede it is `.profile` for `bash`).
 
+In addition, on `comet`, please add the following to your job submission file
+```bash
+module purge
+module load gnu
+module load gnutools
+module load mkl
+module load openmpi_ib
+```
+and on `stampede`:
+```bash
+module load gcc
+module load mvapich2
+module load mkl
+```
+For a job that use more than $24$ cores for `comet` and $16$ cores for `stampede`, MPI version needs to be used. On `hera`, the OpenMP version is recommended.
+
+#### Installation on clusters (not recommended)
 If one wants to install MESH on his/her own directory, one `hera` please use
 ```bash
 make -f Makefile.hera
@@ -71,9 +88,11 @@ make -f Makefile.comet
 
 On `stampede` please install Lua at the same directory as MESH and type
 ```bash
+module purge
 module load gcc
+module load mvapich2
 module load mkl
 make -f Makefile.stampede
 ```
 
-On clusters, both OpenMP version and MPI version will be generated. In particular, for a job that use more than $24$ cores, MPI version needs to be used.
+On clusters, both OpenMP version and MPI version will be generated.

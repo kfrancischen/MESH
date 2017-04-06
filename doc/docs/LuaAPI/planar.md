@@ -13,6 +13,8 @@ Most of the function provided in [base class](baseClass.md) can be used except f
 SetGx(nGx)
 SetGy(nGy)
 Setperiodicity(p1, p2)
+OptUseNaiveRule()
+OptUseInverseRule()
 OptPrintIntermediate()
 ```
 
@@ -38,7 +40,7 @@ GetPhiAtKParallel(omega index, k parallel value)
     1. omega index: [int], the index of omega where $\Phi(\omega[\text{index}], k_{\parallel})$ is evaluated.
     2. k parallel: [double], the $k_{\parallel}$ value where $\Phi(\omega[\text{index}], k_{\parallel})$ is evaluated. It should be a normalized value with respect to $\omega[\text{index}]/c$.
 
-* Output: None
+* Output: [double], value of $\Phi(\omega[\text{index}], k_{\parallel})$.
 
 ```lua
 IntegrateKPrarallel()
