@@ -27,23 +27,37 @@
 namespace RCWA{
   enum DIRECTION {UP_, DOWN_, ALL_};
   using namespace arma;
-  typedef cx_mat RCWAMatrix;
-  typedef std::vector< RCWAMatrix > RCWAMatrices;
+  typedef cx_mat RCWAcMatrix;
+  typedef mat RCWArMatrix;
+  typedef std::vector< RCWAcMatrix > RCWAMatrices;
   typedef std::vector< RCWAMatrices > RCWAMatricesVec;
   typedef vec RCWAVector;
 
   /*============================================================
-  * Function similar to meshgrid in matlab
+  * Function similar to meshgrid in matlab for real numbers
   @arg:
    vL, vR: the input two vectors (here everything is a matrix)
    qL, qR: the input two vectors
     [qL, qR] = meshgrid(vl, vR)
   ==============================================================*/
   void meshGrid(
-    const RCWAMatrix& vL,
-    const RCWAMatrix& vR,
-    RCWAMatrix& qL,
-    RCWAMatrix& qR
+    const RCWArMatrix& vL,
+    const RCWArMatrix& vR,
+    RCWArMatrix& qL,
+    RCWArMatrix& qR
+  );
+  /*============================================================
+  * Function similar to meshgrid in matlab for complex numbers
+  @arg:
+   vL, vR: the input two vectors (here everything is a matrix)
+   qL, qR: the input two vectors
+    [qL, qR] = meshgrid(vl, vR)
+  ==============================================================*/
+  void meshGrid(
+    const RCWAcMatrix& vL,
+    const RCWAcMatrix& vR,
+    RCWAcMatrix& qL,
+    RCWAcMatrix& qR
   );
   /*============================================================
   * Function computing S matrix for each layers
@@ -81,7 +95,7 @@ namespace RCWA{
  @arg:
   x: the input argument
  ==============================================================*/
- RCWAMatrix sinc(const RCWAMatrix x);
+ RCWArMatrix sinc(const RCWArMatrix x);
  /*============================================================
  * Function computing the jinc function (J1(x) / x)
  @arg:
@@ -103,8 +117,8 @@ namespace RCWA{
     const int nGx,
     const int nGy,
     const double period[2],
-    RCWAMatrix& Gx_mat,
-    RCWAMatrix& Gy_mat,
+    RCWArMatrix& Gx_mat,
+    RCWArMatrix& Gy_mat,
     const DIMENSION d
   );
 
@@ -176,13 +190,13 @@ namespace RCWA{
     const RCWAMatrices& EMatrices,
     const RCWAMatrices& grandImaginaryMatrices,
     const RCWAMatrices& eps_zz_inv,
-    const RCWAMatrix& Gx_mat,
-    const RCWAMatrix& Gy_mat,
+    const RCWArMatrix& Gx_mat,
+    const RCWArMatrix& Gy_mat,
     const SourceList& sourceList,
     const int targetLayer,
     const int N,
     const POLARIZATION polar
   );
-  
+
 }
 #endif

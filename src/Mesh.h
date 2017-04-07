@@ -58,8 +58,8 @@ typedef struct ARGWEAPPER{
   RCWAMatrices EMatrices;
   RCWAMatrices grandImaginaryMatrices;
   RCWAMatrices eps_zz_Inv;
-  RCWAMatrix Gx_mat;
-  RCWAMatrix Gy_mat;
+  RCWArMatrix Gx_mat;
+  RCWArMatrix Gy_mat;
   SourceList sourceList;
   int targetLayer;
   POLARIZATION polar;
@@ -177,8 +177,8 @@ protected:
 
   int targetLayer_;
 
-  RCWAMatrix Gx_mat_;
-  RCWAMatrix Gy_mat_;
+  RCWArMatrix Gx_mat_;
+  RCWArMatrix Gy_mat_;
 
   RCWAMatricesVec EMatricesVec_;
   RCWAMatricesVec grandImaginaryMatrixVec_;

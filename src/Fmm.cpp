@@ -86,10 +86,10 @@
    // center: the center position
    // width: the width of the grating
    /*==============================================*/
-   static RCWAMatrix transformGratingElement(
+   static RCWAcMatrix transformGratingElement(
      const dcomplex epsVal,
      const dcomplex epsBG,
-     const RCWAMatrix& G_mat,
+     const RCWArMatrix& G_mat,
      const double center,
      const double width
    ){
@@ -108,11 +108,11 @@
    // widthx: the width of the rectangle in x direction
    // widthy: the width of the rectangle in y direction
    /*==============================================*/
-   static RCWAMatrix transformRectangleElement(
+   static RCWAcMatrix transformRectangleElement(
      const dcomplex epsVal,
      const dcomplex epsBG,
-     const RCWAMatrix& GxMat,
-     const RCWAMatrix& GyMat,
+     const RCWArMatrix& GxMat,
+     const RCWArMatrix& GyMat,
      const double centerx,
      const double centery,
      const double widthx,
@@ -133,17 +133,17 @@
    // centery: the center position in y direction
    // radius: the radius of the circle
    /*==============================================*/
-   static RCWAMatrix transformCircleElement(
+   static RCWAcMatrix transformCircleElement(
      const dcomplex epsVal,
      const dcomplex epsBG,
-     const RCWAMatrix& GxMat,
-     const RCWAMatrix& GyMat,
+     const RCWArMatrix& GxMat,
+     const RCWArMatrix& GyMat,
      const double centerx,
      const double centery,
      const double radius
    ){
-     arma::mat rho = sqrt(square(real(GxMat)) + square(real(GyMat))) * 2 * datum::pi * radius;
-     arma::mat jincMat = zeros<arma::mat>( size(rho) );
+     RCWArMatrix rho = sqrt(square(GxMat) + square(GyMat)) * 2 * datum::pi * radius;
+     RCWArMatrix jincMat = zeros<RCWArMatrix>( size(rho) );
 
      mat::iterator jincMat_it = jincMat.begin();
      int count = 0;
@@ -175,7 +175,7 @@
    // im_eps_yy: the Fourier trainsform for imaginary part
    // im_eps_zz: the Fourier trainsform for imaginary part
    // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-   // N: the total number of G
+   // nGx: the total number of G
    // center: the center of the grating
    // width: the width of the grating
    // period: the periodicity
@@ -183,20 +183,20 @@
    // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformGrating(
-    RCWAMatrix& eps_xx,
-    RCWAMatrix& eps_xy,
-    RCWAMatrix& eps_yx,
-    RCWAMatrix& eps_yy,
-    RCWAMatrix& eps_zz_Inv,
-    RCWAMatrix& im_eps_xx,
-    RCWAMatrix& im_eps_xy,
-    RCWAMatrix& im_eps_yx,
-    RCWAMatrix& im_eps_yy,
-    RCWAMatrix& im_eps_zz,
+    RCWAcMatrix& eps_xx,
+    RCWAcMatrix& eps_xy,
+    RCWAcMatrix& eps_yx,
+    RCWAcMatrix& eps_yy,
+    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& im_eps_xx,
+    RCWAcMatrix& im_eps_xy,
+    RCWAcMatrix& im_eps_yx,
+    RCWAcMatrix& im_eps_yy,
+    RCWAcMatrix& im_eps_zz,
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
-    const int N,
+    const int nGx,
     const double center,
     const double width,
     const double period,
@@ -204,14 +204,14 @@
     const bool useInverse
    ){
 
-     RCWAMatrix Gx_mat, Gy_mat;
+     RCWArMatrix Gx_mat, Gy_mat;
      double periods[2] = {period, 0};
-     RCWA::getGMatrices((N-1)/2, 0, periods, Gx_mat, Gy_mat, ONE_);
+     RCWA::getGMatrices(nGx, 0, periods, Gx_mat, Gy_mat, ONE_);
      // dcomplex IMAG_I = dcomplex(0, 1.0);
-     RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
+     RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
      meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
 
-     RCWAMatrix G_mat(real(Gx_l) - real(Gx_r), zeros<arma::mat>(N, N));
+     RCWArMatrix G_mat = Gx_l - Gx_r;
 
 
      dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
@@ -277,16 +277,16 @@
    // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformRectangle(
-    RCWAMatrix& eps_xx,
-    RCWAMatrix& eps_xy,
-    RCWAMatrix& eps_yx,
-    RCWAMatrix& eps_yy,
-    RCWAMatrix& eps_zz_Inv,
-    RCWAMatrix& im_eps_xx,
-    RCWAMatrix& im_eps_xy,
-    RCWAMatrix& im_eps_yx,
-    RCWAMatrix& im_eps_yy,
-    RCWAMatrix& im_eps_zz,
+    RCWAcMatrix& eps_xx,
+    RCWAcMatrix& eps_xy,
+    RCWAcMatrix& eps_yx,
+    RCWAcMatrix& eps_yy,
+    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& im_eps_xx,
+    RCWAcMatrix& im_eps_xy,
+    RCWAcMatrix& im_eps_yx,
+    RCWAcMatrix& im_eps_yy,
+    RCWAcMatrix& im_eps_zz,
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
@@ -299,18 +299,17 @@
     const bool useInverse
    ){
 
-     int N = RCWA::getN(nGx, nGy);
      double area = period[0] * period[1];
 
-     RCWAMatrix Gx_mat, Gy_mat;
+     RCWArMatrix Gx_mat, Gy_mat;
      RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
      // dcomplex IMAG_I = dcomplex(0, 1.0);
-     RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
+     RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
      meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
      meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
 
-     RCWAMatrix GxMat(real(Gx_l) - real(Gx_r), zeros<arma::mat>(N, N));
-     RCWAMatrix GyMat(real(Gy_l) - real(Gy_r), zeros<arma::mat>(N, N));
+     RCWArMatrix GxMat = Gx_l - Gx_r;
+     RCWArMatrix GyMat = Gy_l - Gy_r;
 
 
      dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
@@ -378,16 +377,16 @@
    // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformCircle(
-    RCWAMatrix& eps_xx,
-    RCWAMatrix& eps_xy,
-    RCWAMatrix& eps_yx,
-    RCWAMatrix& eps_yy,
-    RCWAMatrix& eps_zz_Inv,
-    RCWAMatrix& im_eps_xx,
-    RCWAMatrix& im_eps_xy,
-    RCWAMatrix& im_eps_yx,
-    RCWAMatrix& im_eps_yy,
-    RCWAMatrix& im_eps_zz,
+    RCWAcMatrix& eps_xx,
+    RCWAcMatrix& eps_xy,
+    RCWAcMatrix& eps_yx,
+    RCWAcMatrix& eps_yy,
+    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& im_eps_xx,
+    RCWAcMatrix& im_eps_xy,
+    RCWAcMatrix& im_eps_yx,
+    RCWAcMatrix& im_eps_yy,
+    RCWAcMatrix& im_eps_zz,
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
@@ -402,17 +401,17 @@
      int N = RCWA::getN(nGx, nGy);
      double area = period[0] * period[1];
 
-     RCWAMatrix Gx_mat, Gy_mat;
+     RCWArMatrix Gx_mat, Gy_mat;
      RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
      // dcomplex IMAG_I = dcomplex(0, 1.0);
-     RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
+     RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
      meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
      meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
 
-     RCWAMatrix GxMat = Gx_l - Gx_r;
-     RCWAMatrix GyMat = Gy_l - Gy_r;
+     RCWArMatrix GxMat = Gx_l - Gx_r;
+     RCWArMatrix GyMat = Gy_l - Gy_r;
 
-     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
+     RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
 
      dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
      dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);

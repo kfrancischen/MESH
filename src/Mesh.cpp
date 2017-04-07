@@ -703,15 +703,15 @@ namespace MESH{
     RCWAMatricesVec im_eps_xx_MatrixVec(numOfOmega_), im_eps_xy_MatrixVec(numOfOmega_), im_eps_yx_MatrixVec(numOfOmega_), im_eps_yy_MatrixVec(numOfOmega_), im_eps_zz_MatrixVec(numOfOmega_);
 
     int N = getN(nGx_, nGy_);
-    RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
+    RCWArMatrix onePadding1N = eye<RCWArMatrix>(N, N);
 
     for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
       Ptr<Material> backGround = layer->getBackGround();
 
       for(int j = 0; j < numOfOmega_; j++){
-        RCWAMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
-        RCWAMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
+        RCWAcMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
+        RCWAcMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
 
         EpsilonVal epsBG = backGround->getEpsilonAtIndex(j);
         EpsilonVal epsBGTensor = FMM::toTensor(epsBG, backGround->getType());
@@ -745,7 +745,7 @@ namespace MESH{
                 epsBGTensor,
                 epsilon,
                 material->getType(),
-                N,
+                nGx_,
                 center,
                 width,
                 period_[0],

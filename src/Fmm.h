@@ -25,7 +25,8 @@
 
 namespace FMM{
   using namespace arma;
-  using RCWA::RCWAMatrix;
+  using RCWA::RCWAcMatrix;
+  using RCWA::RCWArMatrix;
   using RCWA::RCWAVector;
   using RCWA::sinc;
   using RCWA::jinc;
@@ -53,7 +54,7 @@ namespace FMM{
   // im_eps_yy: the Fourier trainsform for imaginary part
   // im_eps_zz: the Fourier trainsform for imaginary part
   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-  // N: the total number of G
+  // nGx: the total number of G
   // center: the center of the grating
   // width: the width of the grating
   // period: the periodicity
@@ -61,20 +62,20 @@ namespace FMM{
   // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformGrating(
-    RCWAMatrix& eps_xx,
-    RCWAMatrix& eps_xy,
-    RCWAMatrix& eps_yx,
-    RCWAMatrix& eps_yy,
-    RCWAMatrix& eps_zz_Inv,
-    RCWAMatrix& im_eps_xx,
-    RCWAMatrix& im_eps_xy,
-    RCWAMatrix& im_eps_yx,
-    RCWAMatrix& im_eps_yy,
-    RCWAMatrix& im_eps_zz,
+    RCWAcMatrix& eps_xx,
+    RCWAcMatrix& eps_xy,
+    RCWAcMatrix& eps_yx,
+    RCWAcMatrix& eps_yy,
+    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& im_eps_xx,
+    RCWAcMatrix& im_eps_xy,
+    RCWAcMatrix& im_eps_yx,
+    RCWAcMatrix& im_eps_yy,
+    RCWAcMatrix& im_eps_zz,
     const EpsilonVal& epsilonBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
-    const int N,
+    const int nGx,
     const double center,
     const double width,
     const double period,
@@ -105,16 +106,16 @@ namespace FMM{
   // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformRectangle(
-    RCWAMatrix& eps_xx,
-    RCWAMatrix& eps_xy,
-    RCWAMatrix& eps_yx,
-    RCWAMatrix& eps_yy,
-    RCWAMatrix& eps_zz_Inv,
-    RCWAMatrix& im_eps_xx,
-    RCWAMatrix& im_eps_xy,
-    RCWAMatrix& im_eps_yx,
-    RCWAMatrix& im_eps_yy,
-    RCWAMatrix& im_eps_zz,
+    RCWAcMatrix& eps_xx,
+    RCWAcMatrix& eps_xy,
+    RCWAcMatrix& eps_yx,
+    RCWAcMatrix& eps_yy,
+    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& im_eps_xx,
+    RCWAcMatrix& im_eps_xy,
+    RCWAcMatrix& im_eps_yx,
+    RCWAcMatrix& im_eps_yy,
+    RCWAcMatrix& im_eps_zz,
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
@@ -150,16 +151,16 @@ namespace FMM{
   // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformCircle(
-    RCWAMatrix& eps_xx,
-    RCWAMatrix& eps_xy,
-    RCWAMatrix& eps_yx,
-    RCWAMatrix& eps_yy,
-    RCWAMatrix& eps_zz_Inv,
-    RCWAMatrix& im_eps_xx,
-    RCWAMatrix& im_eps_xy,
-    RCWAMatrix& im_eps_yx,
-    RCWAMatrix& im_eps_yy,
-    RCWAMatrix& im_eps_zz,
+    RCWAcMatrix& eps_xx,
+    RCWAcMatrix& eps_xy,
+    RCWAcMatrix& eps_yx,
+    RCWAcMatrix& eps_yy,
+    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& im_eps_xx,
+    RCWAcMatrix& im_eps_xy,
+    RCWAcMatrix& im_eps_yx,
+    RCWAcMatrix& im_eps_yy,
+    RCWAcMatrix& im_eps_zz,
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
