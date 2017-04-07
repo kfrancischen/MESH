@@ -67,9 +67,9 @@ void RCWA::getSMatrices(
   const int startLayer,
   const int N,
   const int numOfLayer,
-  const RCWAMatrices& MMatrices,
-  const RCWAMatrices& FMatrices,
-  RCWAMatrices& SMatrices,
+  const RCWAcMatrices& MMatrices,
+  const RCWAcMatrices& FMatrices,
+  RCWAcMatrices& SMatrices,
   const DIRECTION direction
 ){
 
@@ -237,12 +237,12 @@ N: the number of G
 ==============================================================*/
 // IMPORTANT: this functoin need to be changed to be compatible with tensor interface
 void RCWA::getGrandImaginaryMatrices(
-  RCWAMatrices& grandImaginaryMatrices,
-  const RCWAMatrices& im_eps_xx,
-  const RCWAMatrices& im_eps_xy,
-  const RCWAMatrices& im_eps_yx,
-  const RCWAMatrices& im_eps_yy,
-  const RCWAMatrices& im_eps_zz,
+  RCWAcMatrices& grandImaginaryMatrices,
+  const RCWAcMatrices& im_eps_xx,
+  const RCWAcMatrices& im_eps_xy,
+  const RCWAcMatrices& im_eps_yx,
+  const RCWAcMatrices& im_eps_yy,
+  const RCWAcMatrices& im_eps_zz,
   int numOfLayer,
   int N
 )
@@ -271,11 +271,11 @@ N: the number of G
 ==============================================================*/
 // IMPORTANT: this functoin need to be changed to be compatible with tensor interface
 void RCWA::getEMatrices(
-  RCWAMatrices& EMatrices,
-  const RCWAMatrices& eps_xx,
-  const RCWAMatrices& eps_xy,
-  const RCWAMatrices& eps_yx,
-  const RCWAMatrices& eps_yy,
+  RCWAcMatrices& EMatrices,
+  const RCWAcMatrices& eps_xx,
+  const RCWAcMatrices& eps_xy,
+  const RCWAcMatrices& eps_yx,
+  const RCWAcMatrices& eps_yy,
   const int numOfLayer,
   const int N
 ){
@@ -309,12 +309,12 @@ N: total number of G
 // IMPORTANT: there is no change in this function even for a tensor
 double RCWA::poyntingFlux(
   const double omega,
-  const RCWAVector& thicknessList,
+  const RCWArVector& thicknessList,
   double kx,
   double ky,
-  const RCWAMatrices& EMatrices,
-  const RCWAMatrices& grandImaginaryMatrices,
-  const RCWAMatrices& eps_zz_inv,
+  const RCWAcMatrices& EMatrices,
+  const RCWAcMatrices& grandImaginaryMatrices,
+  const RCWAcMatrices& eps_zz_inv,
   const RCWArMatrix& Gx_mat,
   const RCWArMatrix& Gy_mat,
   const SourceList& sourceList,
@@ -343,8 +343,8 @@ double RCWA::poyntingFlux(
   /*======================================================
   this part initializes structure matrices
   =======================================================*/
-  RCWAMatrices TMatrices(numOfLayer), MMatrices(numOfLayer);
-  RCWAMatrices EigenValMatrices(numOfLayer), EigenVecMatrices(numOfLayer), FMatrices(numOfLayer);
+  RCWAcMatrices TMatrices(numOfLayer), MMatrices(numOfLayer);
+  RCWAcMatrices EigenValMatrices(numOfLayer), EigenVecMatrices(numOfLayer), FMatrices(numOfLayer);
 
 
   // initialize K matrix
@@ -399,7 +399,7 @@ double RCWA::poyntingFlux(
   =======================================================*/
 
   double flux = 0;
-  RCWAMatrices S_matrices_target;
+  RCWAcMatrices S_matrices_target;
 
 
   for(int i = 0; i < numOfLayer; i++){
@@ -410,7 +410,7 @@ double RCWA::poyntingFlux(
       MMatrices, FMatrices, S_matrices_target, UP_);
   RCWAcMatrix q_R, q_L, targetFields, P1, P2, Q1, Q2, R;
   RCWAcMatrix integralSelf, integralMutual, integral, poyntingMat;
-  RCWAMatrices S_matrices(numOfLayer), NewFMatrices(numOfLayer);
+  RCWAcMatrices S_matrices(numOfLayer), NewFMatrices(numOfLayer);
 
   RCWAcMatrix source = zeros<RCWAcMatrix>(4*N, 3*N);
   /*======================================================

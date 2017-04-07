@@ -27,7 +27,7 @@ namespace FMM{
   using namespace arma;
   using RCWA::RCWAcMatrix;
   using RCWA::RCWArMatrix;
-  using RCWA::RCWAVector;
+  using RCWA::RCWArVector;
   using RCWA::sinc;
   using RCWA::jinc;
   using RCWA::meshGrid;

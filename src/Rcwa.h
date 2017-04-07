@@ -29,9 +29,9 @@ namespace RCWA{
   using namespace arma;
   typedef cx_mat RCWAcMatrix;
   typedef mat RCWArMatrix;
-  typedef std::vector< RCWAcMatrix > RCWAMatrices;
-  typedef std::vector< RCWAMatrices > RCWAMatricesVec;
-  typedef vec RCWAVector;
+  typedef std::vector< RCWAcMatrix > RCWAcMatrices;
+  typedef std::vector< RCWAcMatrices > RCWAcMatricesVec;
+  typedef vec RCWArVector;
 
   /*============================================================
   * Function similar to meshgrid in matlab for real numbers
@@ -73,9 +73,9 @@ namespace RCWA{
     const int startLayer,
     const int N,
     const int numOfLayer,
-    const RCWAMatrices& MMatrices,
-    const RCWAMatrices& FMatrices,
-    RCWAMatrices& SMatrices,
+    const RCWAcMatrices& MMatrices,
+    const RCWAcMatrices& FMatrices,
+    RCWAcMatrices& SMatrices,
     const DIRECTION direction
   );
 
@@ -135,12 +135,12 @@ namespace RCWA{
   N: the number of G
   ==============================================================*/
   void getGrandImaginaryMatrices(
-    RCWAMatrices& grandImaginaryMatrices,
-    const RCWAMatrices& im_eps_xx,
-    const RCWAMatrices& im_eps_xy,
-    const RCWAMatrices& im_eps_yx,
-    const RCWAMatrices& im_eps_yy,
-    const RCWAMatrices& im_eps_zz,
+    RCWAcMatrices& grandImaginaryMatrices,
+    const RCWAcMatrices& im_eps_xx,
+    const RCWAcMatrices& im_eps_xy,
+    const RCWAcMatrices& im_eps_yx,
+    const RCWAcMatrices& im_eps_yy,
+    const RCWAcMatrices& im_eps_zz,
     int numOfLayer,
     int N
   );
@@ -157,11 +157,11 @@ namespace RCWA{
   N: the number of G
   ==============================================================*/
   void getEMatrices(
-    RCWAMatrices& EMatrices,
-    const RCWAMatrices& eps_xx,
-    const RCWAMatrices& eps_xy,
-    const RCWAMatrices& eps_yx,
-    const RCWAMatrices& eps_yy,
+    RCWAcMatrices& EMatrices,
+    const RCWAcMatrices& eps_xx,
+    const RCWAcMatrices& eps_xy,
+    const RCWAcMatrices& eps_yx,
+    const RCWAcMatrices& eps_yy,
     const int numOfLayer,
     const int N
   );
@@ -184,12 +184,12 @@ namespace RCWA{
   ==============================================================*/
   double poyntingFlux(
     const double omega,
-    const RCWAVector& thicknessList,
+    const RCWArVector& thicknessList,
     double kx,
     double ky,
-    const RCWAMatrices& EMatrices,
-    const RCWAMatrices& grandImaginaryMatrices,
-    const RCWAMatrices& eps_zz_inv,
+    const RCWAcMatrices& EMatrices,
+    const RCWAcMatrices& grandImaginaryMatrices,
+    const RCWAcMatrices& eps_zz_inv,
     const RCWArMatrix& Gx_mat,
     const RCWArMatrix& Gy_mat,
     const SourceList& sourceList,

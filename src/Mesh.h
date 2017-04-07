@@ -54,10 +54,10 @@ typedef struct OPTIONS{
 
 typedef struct ARGWEAPPER{
   double omega;
-  RCWAVector thicknessList;
-  RCWAMatrices EMatrices;
-  RCWAMatrices grandImaginaryMatrices;
-  RCWAMatrices eps_zz_Inv;
+  RCWArVector thicknessList;
+  RCWAcMatrices EMatrices;
+  RCWAcMatrices grandImaginaryMatrices;
+  RCWAcMatrices eps_zz_Inv;
   RCWArMatrix Gx_mat;
   RCWArMatrix Gy_mat;
   SourceList sourceList;
@@ -180,12 +180,12 @@ protected:
   RCWArMatrix Gx_mat_;
   RCWArMatrix Gy_mat_;
 
-  RCWAMatricesVec EMatricesVec_;
-  RCWAMatricesVec grandImaginaryMatrixVec_;
-  RCWAMatricesVec eps_zz_Inv_MatrixVec_;
+  RCWAcMatricesVec EMatricesVec_;
+  RCWAcMatricesVec grandImaginaryMatrixVec_;
+  RCWAcMatricesVec eps_zz_Inv_MatrixVec_;
 
   SourceList sourceList_;
-  RCWAVector thicknessListVec_;
+  RCWArVector thicknessListVec_;
   DIMENSION dim_;
   Options options_;
 

@@ -661,7 +661,7 @@ namespace MESH{
     omegaList_ = backGround->getOmegaList();
     int numOfLayer = structure_->getNumOfLayer();
 
-    thicknessListVec_ = zeros<RCWAVector>(numOfLayer);
+    thicknessListVec_ = zeros<RCWArVector>(numOfLayer);
     sourceList_.resize(numOfLayer);
     for(int i = 0; i < numOfLayer; i++){
       thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness();
@@ -699,11 +699,11 @@ namespace MESH{
     grandImaginaryMatrixVec_.resize(numOfOmega_);
     eps_zz_Inv_MatrixVec_.resize(numOfOmega_);
 
-    RCWAMatricesVec eps_xx_MatrixVec(numOfOmega_), eps_xy_MatrixVec(numOfOmega_), eps_yx_MatrixVec(numOfOmega_), eps_yy_MatrixVec(numOfOmega_);
-    RCWAMatricesVec im_eps_xx_MatrixVec(numOfOmega_), im_eps_xy_MatrixVec(numOfOmega_), im_eps_yx_MatrixVec(numOfOmega_), im_eps_yy_MatrixVec(numOfOmega_), im_eps_zz_MatrixVec(numOfOmega_);
+    RCWAcMatricesVec eps_xx_MatrixVec(numOfOmega_), eps_xy_MatrixVec(numOfOmega_), eps_yx_MatrixVec(numOfOmega_), eps_yy_MatrixVec(numOfOmega_);
+    RCWAcMatricesVec im_eps_xx_MatrixVec(numOfOmega_), im_eps_xy_MatrixVec(numOfOmega_), im_eps_yx_MatrixVec(numOfOmega_), im_eps_yy_MatrixVec(numOfOmega_), im_eps_zz_MatrixVec(numOfOmega_);
 
     int N = getN(nGx_, nGy_);
-    RCWArMatrix onePadding1N = eye<RCWArMatrix>(N, N);
+    RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
 
     for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
