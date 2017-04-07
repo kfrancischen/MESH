@@ -117,6 +117,7 @@ public:
   void setGy(const int nGy);
   double* getPhi();
   double* getOmega();
+  void getEpsilon(const int omegaIndex, const double position[3], double* epsilon);
   int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);

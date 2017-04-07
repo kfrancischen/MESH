@@ -39,6 +39,8 @@ namespace RCWA{
    vL, vR: the input two vectors (here everything is a matrix)
    qL, qR: the input two vectors
     [qL, qR] = meshgrid(vl, vR)
+  @note:
+    both vL and vR should be a colum vector
   ==============================================================*/
   void meshGrid(
     const RCWArMatrix& vL,
@@ -52,6 +54,8 @@ namespace RCWA{
    vL, vR: the input two vectors (here everything is a matrix)
    qL, qR: the input two vectors
     [qL, qR] = meshgrid(vl, vR)
+  @note:
+    both vL and vR should be a colum vector
   ==============================================================*/
   void meshGrid(
     const RCWAcMatrix& vL,

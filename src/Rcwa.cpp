@@ -24,6 +24,8 @@
  vL, vR: the input two vectors (here everything is a matrix)
  qL, qR: the input two vectors
  [qL, qR] = meshgrid(vl, vR)
+@note:
+ both vL and vR should be a colum vector
 ==============================================================*/
 void RCWA::meshGrid(
   const RCWArMatrix& vL,
@@ -41,6 +43,8 @@ void RCWA::meshGrid(
  vL, vR: the input two vectors (here everything is a matrix)
  qL, qR: the input two vectors
  [qL, qR] = meshgrid(vl, vR)
+@note:
+ both vL and vR should be a colum vector
 ==============================================================*/
 void RCWA::meshGrid(
   const RCWAcMatrix& vL,
@@ -209,12 +213,12 @@ void RCWA::getGMatrices(
       break;
     }
   }
-  RCWArMatrix Gx_list(1, Nx), Gy_list(1, Ny);
+  RCWArMatrix Gx_list(Nx, 1), Gy_list(Ny, 1);
   for(int i = -nGx; i <= nGx; i++){
-    Gx_list(0, i+nGx) = i * Gx;
+    Gx_list(i+nGx, 0) = i * Gx;
   }
   for(int i = -nGy; i <= nGy; i++){
-    Gy_list(0, i+nGy) = i * Gy;
+    Gy_list(i+nGy, 0) = i * Gy;
   }
 
   meshGrid(Gx_list, Gy_list, Gx_mat, Gy_mat);

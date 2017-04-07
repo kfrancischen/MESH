@@ -317,6 +317,12 @@ namespace MESH{
     return omegaList_;
   }
   /*==============================================*/
+  // This function return reconstructed dielectric at a given point
+  /*==============================================*/
+  void Simulation::getEpsilon(const int omegaIndex, const double position[3], double* epsilon){
+    // TODO
+  }
+  /*==============================================*/
   // This function return the number of omega
   /*==============================================*/
   int Simulation::getNumOfOmega(){
