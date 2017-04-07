@@ -57,6 +57,15 @@ $$ \begin{pmatrix}
 \end{pmatrix}$$ can use this function.
 
 ```lua
+GetPhiPlanar()
+```
+* Argument: None
+
+* Output: the $\Phi(\omega)$ values obtained by integrating all $k_{\parallel}$.
+
+* Note: this function differs from the base class `GetPhi()` function. If you are integrating $k_{\parallel}$ (which is usually right), you should call this function.
+
+```lua
 OptUseQuadgl(degree)
 ```
 * Arguments:

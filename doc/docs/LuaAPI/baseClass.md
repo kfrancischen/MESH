@@ -235,6 +235,20 @@ GetOmega()
 * Output: [table of double], the omega values computed in the simulation.
 
 ```lua
+GetEpsilon(omega index, {x, y, z})
+```
+* Arguments:
+    1. omega index: [int], the index of the omega value where $\epsilon$ is evaluated.
+    2. {x, y, z}: [double table], the real space position where the index is evaluated, in SI unit
+
+* Output: value of epsilon with length $10$, in the form of
+  ```
+  eps_xx_r, eps_xx_i, eps_xy_r, eps_xy_i, eps_yx_r, eps_yx_i,　eps_yy_r, eps_yy_i, eps_zz_r, eps_zz_i
+  ```
+  These are computed by reconstruction of the Fourier series, so won't be the same as the exact dielectric function.
+
+
+```lua
 GetPhiAtKxKy(omega index, kx, ky)
 ```
 * Arguments:

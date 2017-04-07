@@ -320,7 +320,51 @@ namespace MESH{
   // This function return reconstructed dielectric at a given point
   /*==============================================*/
   void Simulation::getEpsilon(const int omegaIndex, const double position[3], double* epsilon){
-    // TODO
+    if(omegaIndex < 0 || omegaIndex >= numOfOmega_){
+      std::cerr << "index out of range!" << std::endl;
+      throw UTILITY::RangeException("index out of range!");
+    }
+
+    int layerIdx = 0;
+    double offset = 0;
+    for(int i = 1; i < structure_->getNumOfLayer(); i++){
+      if(position[3] > offset && position[3] <= offset + thicknessListVec_(i)){
+        layerIdx = i;
+        break;
+      }
+      offset += thicknessListVec_(i);
+    }
+    if(position[3] > offset) layerIdx = structure_->getNumOfLayer() - 1;
+
+    int N = getN(nGx_, nGy_);
+
+    RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
+    meshGrid(Gx_mat_, Gx_mat_, Gx_r, Gx_l);
+    meshGrid(Gy_mat_, Gy_mat_, Gy_r, Gy_l);
+
+    RCWArMatrix GxMat = Gx_l - Gx_r;
+    RCWArMatrix GyMat = Gy_l - Gy_r;
+    int r1 = 0, r2 = N-1, r3 = N, r4 = 2*N-1;
+
+    RCWAcMatrix phase = exp(IMAG_I * (GxMat * position[0] + GyMat * position[1]));
+
+    dcomplex eps_xx = accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r3, r4)) % phase);
+    dcomplex eps_xy = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r1, r2)) % phase);
+    dcomplex eps_yx = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r1, r2), span(r3, r4)) % phase);
+    dcomplex eps_yy = accu(EMatricesVec_[omegaIndex][layerIdx](span(r1, r2), span(r1, r2)) % phase);
+
+    dcomplex eps_zz = accu(inv(eps_zz_Inv_MatrixVec_[omegaIndex][layerIdx]) % phase);
+
+    epsilon[0] = real(eps_xx);
+    epsilon[1] = -imag(eps_xx);
+    epsilon[2] = real(eps_xy);
+    epsilon[3] = -imag(eps_xy);
+    epsilon[4] = real(eps_yx);
+    epsilon[5] = -imag(eps_yx);
+    epsilon[6] = real(eps_yy);
+    epsilon[7] = -imag(eps_yy);
+    epsilon[8] = real(eps_zz);
+    epsilon[9] = -imag(eps_zz);
   }
   /*==============================================*/
   // This function return the number of omega
@@ -932,7 +976,7 @@ namespace MESH{
               break;
             }
             case CIRCLE_:{
-              std::cout << "circle";
+              std::cout << "circle, ";
               std::cout << "(c, w) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first << "), ";
               std::cout << "r = " << (*it).arg1_.second << std::endl;
               break;
@@ -1349,7 +1393,7 @@ namespace MESH{
   /*==============================================*/
   // Implementaion of getPhi to overwrite the base class
   /*==============================================*/
-  double* SimulationPlanar::getPhi(){
+  double* SimulationPlanar::getPhiPlanar(){
     return Phi_;
   }
   /*==============================================*/

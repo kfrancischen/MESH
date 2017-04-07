@@ -287,6 +287,31 @@ int MESH_GetOmega(lua_State *L){
   return 1;
 }
 
+//  this function wraps getEpsilon(const int omegaIndex, const double position[3], double* epsilon)
+// @how to use
+// GetEpsilon(omega index, {x, y, z})
+int MESH_GetEpsilon(lua_State *L){
+  Simulation *s = luaW_check<Simulation>(L, 1);
+  int omegaIdx = luaU_check<int>(L, 2);
+  double vals[3];
+  for(int i = 0; i < 3; i++){
+    lua_pushinteger(L, i+1);
+    lua_gettable(L, 3);
+    vals[i] = luaU_check<double>(L, -1);
+    lua_pop(L, 1);
+  }
+  double* epsilon = new double[10];
+  s->getEpsilon(omegaIdx, vals, epsilon);
+  for(int i = 0; i < 10; i++){
+    lua_pushinteger(L, i+1);
+    lua_pushnumber(L, epsilon[i]);
+    lua_settable(L, -3);
+  }
+
+  delete [] epsilon;
+  return 1;
+}
+
 // this function wraps getNumOfOmega()
 // @how to use
 // GetNumOfOmega()
@@ -542,12 +567,12 @@ int MESH_IntegrateKParallel(lua_State* L){
   return 1;
 }
 
-// this function wraps getPhi()
+// this function wraps getPhiPlanar()
 // @how to use
 // GetPhi()
 int MESH_GetPhi_Planar(lua_State* L){
   SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
-  double* phi = s->getPhi();
+  double* phi = s->getPhiPlanar();
   int numOfOmega = s->getNumOfOmega();
   lua_createtable(L, numOfOmega, 0);
   for(int i = 0; i < numOfOmega; i++){
@@ -629,7 +654,7 @@ int MESH_SetLayerPatternCircle(lua_State *L){
   for(int i = 0; i < 2; i++){
     lua_pushinteger(L, i+1);
     lua_gettable(L, 4);
-    vals[i] = luaU_check<double>(L, 1);
+    vals[i] = luaU_check<double>(L, -1);
     lua_pop(L, 1);
   }
   s->setLayerPatternCircle(layerName, materialName, vals[0], vals[1], radius);
@@ -653,6 +678,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "SetGy", MESH_SetGy },
   { "GetPhi", MESH_GetPhi },
   { "GetOmega", MESH_GetOmega },
+  { "GetEpsilon", MESH_GetEpsilon },
   { "GetNumOfOmega", MESH_GetNumOfOmega },
   { "GetPhiAtKxKy", MESH_GetPhiAtKxKy },
   { "OutputSysInfo", MESH_OutputSysInfo },
@@ -677,7 +703,7 @@ static luaL_Reg character_metatable_SimulationPlanar[] = {
 	{ "OptUseQuadgk", MESH_OptUseQuadgk },
   { "SetKParallelIntegral", MESH_SetKParallel },
   { "GetPhiAtKParallel", MESH_GetPhiAtKParallel },
-  { "GetPhi", MESH_GetPhi_Planar },
+  { "GetPhiPlanar", MESH_GetPhi_Planar },
   { "IntegrateKParallel", MESH_IntegrateKParallel },
 	{ NULL, NULL}
 };

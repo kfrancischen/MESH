@@ -142,10 +142,10 @@
      const double centery,
      const double radius
    ){
-     RCWArMatrix rho = sqrt(square(GxMat) + square(GyMat)) * 2 * datum::pi * radius;
+     RCWArMatrix rho = sqrt(square(GxMat) + square(GyMat)) * radius;
      RCWArMatrix jincMat = zeros<RCWArMatrix>( size(rho) );
 
-     mat::iterator jincMat_it = jincMat.begin();
+     RCWArMatrix::iterator jincMat_it = jincMat.begin();
      int count = 0;
      for(mat::const_iterator it = rho.begin(); it != rho.end(); it++){
        if(*it == 0.0){
