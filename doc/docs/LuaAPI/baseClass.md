@@ -290,7 +290,7 @@ OptUseInverseRule()
 
 * Output: None
 
-* Note: this function tells the RCWA to use the inverse rule of the Fourier transform for the dielectric.
+* Note: this function tells the RCWA to use the inverse rule of the Fourier transform for the dielectric. (This options is not implemented yet.)
 
 ```lua
 OptPrintIntermediate()
