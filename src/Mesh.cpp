@@ -630,76 +630,22 @@ namespace MESH{
     }
     int N = getN(nGx_, nGy_);
     return omegaList_[omegaIdx] / datum::c_0 / POW3(datum::pi) / 2.0 *
-      poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, kx, ky, EMatricesVec_[omegaIdx],
-      grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
-      sourceList_, targetLayer_,N, options_.polarization);
+      poyntingFlux(omegaList_[omegaIdx] / datum::c_0,
+        thicknessListVec_,
+        kx,
+        ky,
+        EMatricesVec_[omegaIdx],
+        grandImaginaryMatrixVec_[omegaIdx],
+        eps_zz_Inv_MatrixVec_[omegaIdx],
+        Gx_mat_,
+        Gy_mat_,
+        sourceList_,
+        targetLayer_,
+        N,
+        options_.polarization
+      );
   }
-  /*==============================================*/
-  // this functions gets the E fields at given spacial positions
-  // @args:
-  // omegaIndex: the index of the omega values
-  // kx: the normalized kx value
-  // ky: the normalized ky value
-  // positions: real space positions, of dimension numOfPoints * 3
-  // fields: the E fields at the corresponding positions, of dimension numOfPoints * 6
-  // numOfPoints: the number of points of the positions
-  // @Note
-  // per E field is written in the form [Ex_r, Ex_i, Ey_r, Ey_i, Ez_r, Ez_i]
-  /*==============================================*/
-  void Simulation::getEFields(
-      const int omegaIndex,
-      const double kx,
-      const double ky,
-      const double** positions,
-      double ** fields,
-      const int numOfPoints
-  ){
-    // TODO
-  }
-  /*==============================================*/
-  // this functions gets the H fields at given spacial positions
-  // @args:
-  // omegaIndex: the index of the omega values
-  // kx: the normalized kx value
-  // ky: the normalized ky value
-  // positions: real space positions, of dimension numOfPoints * 3
-  // fields: the H fields at the corresponding positions, of dimension numOfPoints * 6
-  // numOfPoints: the number of points of the positions
-  // @Note
-  // per H field is written in the form [Hx_r, Hx_i, Hy_r, Hy_i, Hz_r, Hz_i]
-  /*==============================================*/
-  void Simulation::getHFields(
-      const int omegaIndex,
-      const double kx,
-      const double ky,
-      const double** positions,
-      double ** fields,
-      const int numOfPoints
-  ){
-    // TODO
-  }
-  /*==============================================*/
-  // this functions gets the E  and H fields at given spacial positions
-  // @args:
-  // omegaIndex: the index of the omega values
-  // kx: the normalized kx value
-  // ky: the normalized ky value
-  // positions: real space positions, of dimension numOfPoints * 3
-  // fields: the E and H fields at the corresponding positions, of dimension numOfPoints * 12
-  // numOfPoints: the number of points of the positions
-  // @Note
-  // per E and H field is written in the form [Hx_r, Hx_i, Hy_r, Hy_i, Hz_r, Hz_i, Ex_r, Ex_i, Ey_r, Ey_i, Ez_r, Ez_i]
-  /*==============================================*/
-  void Simulation::getFields(
-      const int omegaIndex,
-      const double kx,
-      const double ky,
-      const double** positions,
-      double ** fields,
-      const int numOfPoints
-  ){
-    // TODO
-  }
+
   /*==============================================*/
   // This function builds up the matrices
   /*==============================================*/
@@ -725,6 +671,9 @@ namespace MESH{
         throw UTILITY::RangeException("Target Layer needs to be above source layer!");
       }
     }
+    // set the first and last layer to have 0 thickness
+    thicknessListVec_(0) = 0;
+    thicknessListVec_(numOfLayer - 1) = 0;
 
     if(dim_ != NO_ && period_[0] == 0.0){
       std::cerr << "Periodicity not set!" << std::endl;

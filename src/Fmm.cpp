@@ -180,7 +180,7 @@
    // width: the width of the grating
    // period: the periodicity
    // hasTensor: whether this layer contains tensor
-   // userInverse: whether to use inverse rule
+   // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformGrating(
     RCWAMatrix& eps_xx,
@@ -203,14 +203,16 @@
     const bool hasTensor,
     const bool useInverse
    ){
-     RCWAMatrix G_row(1, N), G_col(N, 1);
-     for(int i = 0; i < N; i++){
-       G_row(0, i) = -i * 2.0 * datum::pi / period;
-       G_col(i, 0) = -G_row(0, i);
-     }
 
-     RCWAMatrix G_mat = toeplitz(G_col, G_row);
-     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
+     RCWAMatrix Gx_mat, Gy_mat;
+     double periods[2] = {period, 0};
+     RCWA::getGMatrices((N-1)/2, 0, periods, Gx_mat, Gy_mat, ONE_);
+     // dcomplex IMAG_I = dcomplex(0, 1.0);
+     RCWAMatrix Gx_r, Gx_l, Gy_r, Gy_l;
+     meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
+
+     RCWAMatrix G_mat(real(Gx_l) - real(Gx_r), zeros<arma::mat>(N, N));
+
 
      dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
      dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
@@ -272,7 +274,7 @@
    // widths: the widths of the rectangle
    // period: the periodicity
    // hasTensor: whether this layer contains tensor
-   // userInverse: whether to use inverse rule
+   // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformRectangle(
     RCWAMatrix& eps_xx,
@@ -307,10 +309,9 @@
      meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
      meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
 
-     RCWAMatrix GxMat = Gx_l - Gx_r;
-     RCWAMatrix GyMat = Gy_l - Gy_r;
+     RCWAMatrix GxMat(real(Gx_l) - real(Gx_r), zeros<arma::mat>(N, N));
+     RCWAMatrix GyMat(real(Gy_l) - real(Gy_r), zeros<arma::mat>(N, N));
 
-     RCWAMatrix onePadding1N = eye<RCWAMatrix>(N, N);
 
      dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
      dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
@@ -374,7 +375,7 @@
    // radius: the radius of the circle
    // period: the periodicity
    // hasTensor: whether this layer contains tensor
-   // userInverse: whether to use inverse rule
+   // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformCircle(
     RCWAMatrix& eps_xx,

@@ -120,30 +120,6 @@ public:
   int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
-  void getEFields(
-    const int omegaIndex,
-    const double kx,
-    const double ky,
-    const double** positions,
-    double ** fields,
-    const int numOfPoints
-  );
-  void getHFields(
-    const int omegaIndex,
-    const double kx,
-    const double ky,
-    const double** positions,
-    double ** fields,
-    const int numOfPoints
-  );
-  void getFields(
-    const int omegaIndex,
-    const double kx,
-    const double ky,
-    const double** positions,
-    double ** fields,
-    const int numOfPoints
-  );
 
   void buildRCWA();
 

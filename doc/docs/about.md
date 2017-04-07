@@ -16,4 +16,4 @@ The author would like to acknowledge the following packages:
 
 * lua-mpi: [The lua wrapper for MPI](https://github.com/jzrake/lua-mpi)
 
-Also, the author would like to thank [Dr. Bo Zhao](http://www.prism.gatech.edu/~bzhao35/), [Yu Guo](https://sites.google.com/site/yuguophys/) and alumni [Victor Liu](http://victorliu.info/) for useful discussions, and Siddharth Buddhiraju for testing installation and some cases.
+Also, the author would like to thank [Dr. Bo Zhao](http://www.prism.gatech.edu/~bzhao35/), [Yu Guo](https://sites.google.com/site/yuguophys/) and alumni [Dr. Linxiao Zhu](https://sites.google.com/site/linxiaozhuphys/), [Dr. Victor Liu](http://victorliu.info/) for useful discussions, and Siddharth Buddhiraju for testing installation and some cases.

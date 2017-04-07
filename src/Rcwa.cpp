@@ -184,12 +184,12 @@ void RCWA::getGMatrices(
     case NO_:
       break;
     case ONE_:{
-      Gx = 2 * datum::pi / period[0];
+      Gx = 2.0 * datum::pi / period[0];
       break;
     }
     case TWO_:{
-      Gx = 2 * datum::pi / period[0];
-      Gy = 2 * datum::pi / period[1];
+      Gx = 2.0 * datum::pi / period[0];
+      Gy = 2.0 * datum::pi / period[1];
       break;
     }
   }
@@ -342,10 +342,15 @@ double RCWA::poyntingFlux(
   =======================================================*/
   for(int i = 0; i < numOfLayer; i++){
 
+    RCWAMatrix verticalAlign = join_vert(kyMat, -kxMat);
+    RCWAMatrix horizontalAlign = join_horiz(kyMat, -kxMat);
+    TMatrices[i] = verticalAlign * eps_zz_inv[i] * horizontalAlign;
+    /*
     TMatrices[i] = join_vert(
       join_horiz(kyMat * eps_zz_inv[i] * kyMat, -kyMat * eps_zz_inv[i] * kxMat),
       join_horiz(-kxMat * eps_zz_inv[i] * kyMat, kxMat * eps_zz_inv[i] * kxMat)
     );
+    */
     RCWAMatrix eigMatrix = EMatrices[i] * (POW2(omega) * onePadding2N - TMatrices[i]) - KMatrix;
     cx_vec eigVal;
     // here is the problem
@@ -474,104 +479,4 @@ double RCWA::poyntingFlux(
   }
   return flux;
 
-}
-
-/*============================================================
-* Function computing the E and H fields at given (kx, ky) and positions
-@arg:
- omega: the angular frequency (normalized to c)
- thicknessList: the thickness for each layer
- kx: the k vector at x direction (normalized value)
- ky: the y vector at x direction (normalized value)
- EMatrices:  the E matrices for all layers
- grandImaginaryMatrices: collection of all imaginary matrices in all layers
- eps_zz_inv: the inverse of eps_zz
- Gx_mat: the Gx matrix
- Gy_mat: the Gy matrix
- N: total number of G
- positions: the real space positions
- numOfPoints: the number of positions
- fields: the output fields
-==============================================================*/
-void RCWA::ehFields(
-  const double omega,
-  const RCWAVector& thicknessList,
-  double kx,
-  double ky,
-  const RCWAMatrices& EMatrices,
-  const RCWAMatrices& eps_zz_inv,
-  const RCWAMatrix& Gx_mat,
-  const RCWAMatrix& Gy_mat,
-  const int N,
-  const double** positions,
-  const double numOfPoints,
-  const double** fields
-){
-  // TODO
-}
-/*============================================================
-* Function computing the E fields at given (kx, ky) and positions
-@arg:
- omega: the angular frequency (normalized to c)
- thicknessList: the thickness for each layer
- kx: the k vector at x direction (normalized value)
- ky: the y vector at x direction (normalized value)
- EMatrices:  the E matrices for all layers
- grandImaginaryMatrices: collection of all imaginary matrices in all layers
- eps_zz_inv: the inverse of eps_zz
- Gx_mat: the Gx matrix
- Gy_mat: the Gy matrix
- N: total number of G
- positions: the real space positions
- numOfPoints: the number of positions
- fields: the output fields
-==============================================================*/
-void RCWA::eFields(
-  const double omega,
-  const RCWAVector& thicknessList,
-  double kx,
-  double ky,
-  const RCWAMatrices& EMatrices,
-  const RCWAMatrices& eps_zz_inv,
-  const RCWAMatrix& Gx_mat,
-  const RCWAMatrix& Gy_mat,
-  const int N,
-  const double** positions,
-  const double numOfPoints,
-  const double** fields
-){
-  // TODO
-}
-/*============================================================
-* Function computing the H fields at given (kx, ky) and positions
-@arg:
- omega: the angular frequency (normalized to c)
- thicknessList: the thickness for each layer
- kx: the k vector at x direction (normalized value)
- ky: the y vector at x direction (normalized value)
- EMatrices:  the E matrices for all layers
- grandImaginaryMatrices: collection of all imaginary matrices in all layers
- eps_zz_inv: the inverse of eps_zz
- Gx_mat: the Gx matrix
- Gy_mat: the Gy matrix
- N: total number of G
- positions: the real space positions
- numOfPoints: the number of positions
- fields: the output fields
-==============================================================*/
-void RCWA::hFields(
-  const double omega,
-  const RCWAVector& thicknessList,
-  double kx,
-  double ky,
-  const RCWAMatrices& EMatrices,
-  const RCWAMatrices& eps_zz_inv,
-  const RCWAMatrix& Gx_mat,
-  const RCWAMatrix& Gy_mat,
-  const int N,
-  const double** positions,
-  const double numOfPoints,
-  const double** fields
-){
-  // TODO
 }

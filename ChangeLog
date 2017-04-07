@@ -1,3 +1,5 @@
 2017-04-01
   commit version 1.0.0. Supports MPI, openmp. Passed Valgrind memory test for simple cases.
   TODO: implement output POVRay object.
+2017-04-06
+  remove POVRay functions and finish document.  Now devote all the time of the correct Fourier transform.
