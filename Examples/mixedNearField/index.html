@@ -544,7 +544,32 @@
                 
                   <h1>Mixed Patterns Near-field</h1>
                 
-                <p>// TODO</p>
+                <p>The following is an example with a mixed pattern on one layer. The layer <code>SiTop</code> has two patterns: (1) a rectangle patten centered at (250 nm, 250 nm) with widths (300 nm, 300 nm), and (2) a circle pattern centered at (750 nm, 750 nm) with radius 200 nm. Note that MESH has a contraint that patterns cannot interleave with each other.</p>
+<div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPattern</span><span class="p">.</span><span class="n">new</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetPeriodicity</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetGx</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetGy</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">,</span> <span class="s2">&quot;Si.txt&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">);</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;SiTop&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetLayerPatternRectangle</span><span class="p">(</span><span class="s2">&quot;SiTop&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mf">2.5e-7</span><span class="p">,</span> <span class="mf">2.5e-7</span><span class="p">},</span> <span class="p">{</span><span class="mf">3e-7</span><span class="p">,</span> <span class="mf">3e-7</span><span class="p">});</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetLayerPatternCircle</span><span class="p">(</span><span class="s2">&quot;SiTop&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mf">7.5e-7</span><span class="p">,</span> <span class="mf">7.5e-7</span><span class="p">},</span> <span class="mf">2e-7</span><span class="p">);</span>
+
+
+<span class="n">s</span><span class="p">:</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">OutputSysInfo</span><span class="p">();</span>
+
+<span class="n">s</span><span class="p">:</span><span class="n">OptPrintIntermediate</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">IntegrateKxKy</span><span class="p">();</span>
+</pre></div>
                 
                   
                 

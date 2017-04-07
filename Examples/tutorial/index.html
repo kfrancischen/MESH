@@ -709,7 +709,7 @@
 
 
 <h4 id="5-print-results">5. Print results<a class="headerlink" href="#5-print-results" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetPhi</span><span class="p">();</span>
+<div class="codehilite"><pre><span></span><span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetPhiPlanar</span><span class="p">();</span>
 <span class="n">omega</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetOmega</span><span class="p">();</span>
 <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">s</span><span class="p">:</span><span class="n">GetNumOfOmega</span><span class="p">(),</span> <span class="mi">1</span> <span class="kr">do</span>
   <span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">..</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">..</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
@@ -717,7 +717,7 @@
 </pre></div>
 
 
-<p>The above is a simple way to retrieve the result and print it to the screen. One can also use Lua built-in i/o functions to output result into files.</p>
+<p>Since here we integrate all <script type="math/tex">k_{\parallel}</script>, we use the function <code>GetPhiPlanar</code>. The above is a simple way to retrieve the result and print it to the screen. One can also use Lua built-in i/o functions to output result into files.</p>
 <p>Now save this file as <code>main.lua</code>, and one can simply type</p>
 <div class="codehilite"><pre><span></span>mesh main.lua
 </pre></div>

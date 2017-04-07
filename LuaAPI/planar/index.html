@@ -623,6 +623,21 @@ where the integral is evaluated either using Gauss-legendre methdod or Gauss-kro
 \end{pmatrix}</script> can use this function.</p>
 </li>
 </ul>
+<div class="codehilite"><pre><span></span><span class="n">GetPhiPlanar</span><span class="p">()</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Argument: None</p>
+</li>
+<li>
+<p>Output: the <script type="math/tex">\Phi(\omega)</script> values obtained by integrating all <script type="math/tex">k_{\parallel}</script>.</p>
+</li>
+<li>
+<p>Note: this function differs from the base class <code>GetPhi()</code> function. If you are integrating <script type="math/tex">k_{\parallel}</script> (which is usually right), you should call this function.</p>
+</li>
+</ul>
 <div class="codehilite"><pre><span></span><span class="n">OptUseQuadgl</span><span class="p">(</span><span class="n">degree</span><span class="p">)</span>
 </pre></div>
 
