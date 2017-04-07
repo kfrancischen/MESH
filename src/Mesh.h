@@ -215,7 +215,7 @@ public:
 
   void integrateKParallel();
   double getPhiAtKParallel(const int omegaIndex, const double KParallel);
-  double* getPhi();
+  double* getPhiPlanar();
   SimulationPlanar();
 protected:
 
