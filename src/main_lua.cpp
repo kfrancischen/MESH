@@ -567,22 +567,6 @@ int MESH_IntegrateKParallel(lua_State* L){
   return 1;
 }
 
-// this function wraps getPhiPlanar()
-// @how to use
-// GetPhi()
-int MESH_GetPhi_Planar(lua_State* L){
-  SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
-  double* phi = s->getPhiPlanar();
-  int numOfOmega = s->getNumOfOmega();
-  lua_createtable(L, numOfOmega, 0);
-  for(int i = 0; i < numOfOmega; i++){
-    lua_pushinteger(L, i+1);
-    lua_pushnumber(L, phi[i]);
-    lua_settable(L, -3);
-  }
-  return 1;
-}
-
 /*======================================================*/
 // constructor for the 1D grating
 /*=======================================================*/
@@ -703,7 +687,6 @@ static luaL_Reg character_metatable_SimulationPlanar[] = {
 	{ "OptUseQuadgk", MESH_OptUseQuadgk },
   { "SetKParallelIntegral", MESH_SetKParallel },
   { "GetPhiAtKParallel", MESH_GetPhiAtKParallel },
-  { "GetPhiPlanar", MESH_GetPhi_Planar },
   { "IntegrateKParallel", MESH_IntegrateKParallel },
 	{ NULL, NULL}
 };

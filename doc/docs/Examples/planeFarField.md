@@ -16,7 +16,7 @@ s:OptUseQuadgk();
 s:SetKParallelIntegral(1);
 s:BuildRCWA();
 s:IntegrateKParallel();
-phi = s:GetPhiPlanar();
+phi = s:GetPhi();
 omega = s:GetOmega();
 for i = 1,s:GetNumOfOmega(), 1 do
   print(string.format("%e", omega[i]).."\t"..string.format("%e", phi[i]));

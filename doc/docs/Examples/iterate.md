@@ -23,7 +23,7 @@ for i = 10, 100, 10 do
   s:SetLayerThickness("VacGap", i * 1e-9);
   s:BuildRCWA();
   s:IntegrateKParallel();
-  phi = s:GetPhiPlanar();
+  phi = s:GetPhi();
   omega = s:GetOmega();
   for j = 1,s:GetNumOfOmega(), 1 do
     print(string.format("%e", omega[j]).."\t"..string.format("%e", phi[j]));

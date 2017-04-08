@@ -15,7 +15,7 @@ s:OptUseQuadgk();
 s:BuildRCWA();
 s:SetKParallelIntegral(1);
 s:IntegrateKParallel();
-phi = s:getPhiPlanar();
+phi = s:getPhi();
 for i = 1, s:GetNumOfOmega() do
   print(phi[i])
 end

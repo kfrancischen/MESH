@@ -55,13 +55,13 @@ s:IntegrateKParallel();
 
 #### 5. Print results
 ```lua
-phi = s:GetPhiPlanar();
+phi = s:GetPhi();
 omega = s:GetOmega();
 for i = 1,s:GetNumOfOmega(), 1 do
   print(string.format("%e", omega[i]).."\t"..string.format("%e", phi[i]));
 end
 ```
-Since here we integrate all $k_{\parallel}$, we use the function `GetPhiPlanar`. The above is a simple way to retrieve the result and print it to the screen. One can also use Lua built-in i/o functions to output result into files.
+The above is a simple way to retrieve the result and print it to the screen. One can also use Lua built-in i/o functions to output result into files.
 
 Now save this file as `main.lua`, and one can simply type
 ```bash

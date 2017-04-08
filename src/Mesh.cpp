@@ -217,7 +217,7 @@ namespace MESH{
     dim_ = NO_;
     structure_ = Structure::instanceNew();
     fileLoader_ = FileLoader::instanceNew();
-    resultArray_ = nullptr;
+
   }
   /*==============================================*/
   // Class destructor
@@ -227,10 +227,6 @@ namespace MESH{
       delete[] Phi_;
       Phi_ = nullptr;
     }
-    if(resultArray_ != nullptr){
-      delete[] resultArray_;
-      resultArray_ = nullptr;
-    }
   }
 
 
@@ -238,71 +234,11 @@ namespace MESH{
   // This function return the Phi value
   /*==============================================*/
   double* Simulation::getPhi(){
-    if(resultArray_ == nullptr){
-      std::cerr << "Integration has not done yet!" << std::endl;
-      throw UTILITY::MemoryException("Integration has not done yet!");
-    }
 
     if(Phi_ == nullptr){
       std::cerr << "Please do RCWA and integration first!" << std::endl;
       throw UTILITY::MemoryException("Please do RCWA and integration first!");
     }
-
-    double* kxList = new double[numOfKx_];
-    double* kyList = new double[numOfKy_];
-    double* scalex = new double[numOfOmega_];
-    double* scaley = new double[numOfOmega_];
-    // here dkx is not normalized
-    double dkx = (kxEnd_ - kxStart_) / (numOfKx_ - 1);
-    // here kyEnd_ is normalized for 1D case
-    double dky = (kyEnd_ - kyStart_) / (numOfKy_ - 1);
-    for(int i = 0; i < numOfKx_; i++){
-      kxList[i] = kxStart_ + dkx * i;
-    }
-    for(int i = 0; i < numOfKy_; i++){
-      kyList[i] = kyStart_ + dky * i;
-    }
-
-    for(int i = 0; i < numOfOmega_; i++){
-      switch (dim_) {
-        case NO_:{
-          scalex[i] = 1;
-          scaley[i] = 1;
-          break;
-        }
-        case ONE_:{
-          if(options_.kxIntegralPreset) scalex[i] = 1;
-          else scalex[i] = omegaList_[i] / datum::c_0;
-          scaley[i] = 1;
-          break;
-        }
-        case TWO_:{
-          if(options_.kxIntegralPreset) scalex[i] = 1;
-          else scalex[i] = omegaList_[i] / datum::c_0;
-          if(options_.kyIntegralPreset) scaley[i] = 1;
-          else scaley[i] = omegaList_[i] / datum::c_0;
-          break;
-        }
-        default: break;
-      }
-    }
-
-    for(int i = 0; i < numOfOmega_; i++){
-        Phi_[i] = 0;
-        for(int j = 0; j < numOfKx_ * numOfKy_; j++){
-          Phi_[i] += resultArray_[i * numOfKx_ * numOfKy_ + j];
-        }
-        Phi_[i] *= prefactor_ * dkx / scalex[i] * dky / scaley[i] * POW2(omegaList_[i] / datum::c_0);
-    }
-
-    delete[] kxList;
-    kxList = nullptr;
-    delete[] kyList;
-    kyList = nullptr;
-    delete[] scalex;
-    scalex = nullptr;
-    delete[] scaley;
-    scaley = nullptr;
     return Phi_;
   }
 
@@ -736,14 +672,15 @@ namespace MESH{
 
     // initializing for the output
     Phi_ = new double[numOfOmega_];
+    for(int i = 0; i < numOfOmega_; i++){
+      Phi_[i] = 0;
+    }
+
     if(dim_ != NO_ && (numOfKx_ == 0 || numOfKy_ == 0)){
       std::cerr << "Set integration range first!" << std::endl;
       throw UTILITY::ValueException("Set integration range first!");
     }
-    resultArray_ = new double[numOfKx_ * numOfKy_ * numOfOmega_];
-    for(int i = 0; i < numOfKx_ * numOfKy_ * numOfOmega_; i++){
-      resultArray_[i] = 0;
-    }
+
 
     EMatricesVec_.resize(numOfOmega_);
     grandImaginaryMatrixVec_.resize(numOfOmega_);
@@ -1202,6 +1139,11 @@ namespace MESH{
       }
     }
 
+    double* resultArray = new double[numOfKx_ * numOfKy_ * numOfOmega_];
+    for(int i = 0; i < numOfKx_ * numOfKy_ * numOfOmega_; i++){
+      resultArray[i] = 0;
+    }
+
     if(parallel){
       #if defined(_OPENMP)
         #pragma omp parallel for num_threads(numOfThread_)
@@ -1211,10 +1153,10 @@ namespace MESH{
           int residue = i % (numOfKx_ * numOfKy_);
           int kxIdx = residue / numOfKy_;
           int kyIdx = residue % numOfKy_;
-          resultArray_[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+          resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
           if(options_.PrintIntermediate){
             std::stringstream msg;
-            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray_[i] << std::endl;
+            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
             std::cout << msg.str();
           }
       }
@@ -1226,14 +1168,20 @@ namespace MESH{
           int residue = i % (numOfKx_ * numOfKy_);
           int kxIdx = residue / numOfKy_;
           int kyIdx = residue % numOfKy_;
-          resultArray_[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+          resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
           if(options_.PrintIntermediate){
             std::stringstream msg;
-            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray_[i] << std::endl;
+            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
             std::cout << msg.str();
           }
       }
     }
+
+    for(int i = start; i < end; i++){
+      int omegaIdx = i / (numOfKx_ * numOfKy_);
+      Phi_[omegaIdx] += resultArray[i] * dkx / scalex[omegaIdx] * dky / scaley[omegaIdx] * POW2(omegaList_[omegaIdx] / datum::c_0);
+    }
+
 
     delete[] kxList;
     kxList = nullptr;
@@ -1243,6 +1191,8 @@ namespace MESH{
     scalex = nullptr;
     delete[] scaley;
     scaley = nullptr;
+    delete[] resultArray;
+    resultArray = nullptr;
   }
 
   /*==============================================*/
@@ -1390,12 +1340,7 @@ namespace MESH{
       Phi_[i] *= POW3(omegaList_[i] / datum::c_0) / POW2(datum::pi);
     }
   }
-  /*==============================================*/
-  // Implementaion of getPhi to overwrite the base class
-  /*==============================================*/
-  double* SimulationPlanar::getPhiPlanar(){
-    return Phi_;
-  }
+
   /*==============================================*/
   // Implementaion of the class on 1D grating simulation
   /*==============================================*/

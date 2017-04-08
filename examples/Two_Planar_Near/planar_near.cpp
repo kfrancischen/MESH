@@ -24,7 +24,7 @@ int main(){
   s->buildRCWA();
   s->setThread(4);
   s->integrateKParallel();
-  double* phi = s->getPhiPlanar();
+  double* phi = s->getPhi();
   double* omega = s->getOmega();
   for(int i = 0; i < s->getNumOfOmega(); i++){
     std::cout << omega[i] << "\t" << phi[i] << std::endl;

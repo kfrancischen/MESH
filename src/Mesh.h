@@ -157,7 +157,6 @@ protected:
   int numOfOmega_;
   double* Phi_;
   double* omegaList_;
-  double* resultArray_;
   double kxStart_;
   double kxEnd_;
   double kyStart_;
@@ -190,7 +189,6 @@ protected:
   DIMENSION dim_;
   Options options_;
 
-  int MPI_Initialized_, MPI_Finalized_;
   int numOfThread_ = 1;
 };
 
@@ -215,7 +213,6 @@ public:
 
   void integrateKParallel();
   double getPhiAtKParallel(const int omegaIndex, const double KParallel);
-  double* getPhiPlanar();
   SimulationPlanar();
 protected:
 

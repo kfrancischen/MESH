@@ -22,7 +22,7 @@ int main(){
   s->buildRCWA();
   s->integrateKParallel();
 
-  double* phi = s->getPhiPlanar();
+  double* phi = s->getPhi();
   for(int i = 0; i < s->getNumOfOmega(); i++){
     std::cout << phi[i] << std::endl;
   }
