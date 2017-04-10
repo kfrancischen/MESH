@@ -1179,7 +1179,7 @@ namespace MESH{
 
     for(int i = start; i < end; i++){
       int omegaIdx = i / (numOfKx_ * numOfKy_);
-      Phi_[omegaIdx] += resultArray[i] * dkx / scalex[omegaIdx] * dky / scaley[omegaIdx] * POW2(omegaList_[omegaIdx] / datum::c_0);
+      Phi_[omegaIdx] += prefactor_ * resultArray[i] * dkx / scalex[omegaIdx] * dky / scaley[omegaIdx] * POW2(omegaList_[omegaIdx] / datum::c_0);
     }
 
 
