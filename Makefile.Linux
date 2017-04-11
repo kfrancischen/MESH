@@ -5,7 +5,8 @@ SHLIB_FLAGS = -fPIC -shared
 CFLAGS   += -O3 -Wall -march=native -fcx-limited-range -fPIC -fopenmp
 CXXFLAGS += -std=c++11 -O3 -Wall -march=native -fcx-limited-range -fPIC -fopenmp
 
-LA_LIBS = -lopenblas -llapack
+MKL_INC = -I/usr/intel/mkl/include/
+LA_LIBS = -L/usr/intel/mkl/lib/intel64/ -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lpthread -lm
 
 LUA_INC = -I/usr/local/include
 LUA_LIB = -llua -ldl -lm

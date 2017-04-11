@@ -255,7 +255,7 @@ namespace MESH{
   /*==============================================*/
   // This function return reconstructed dielectric at a given point
   /*==============================================*/
-  void Simulation::getEpsilon(const int omegaIndex, const double position[3], double* epsilon){
+  void Simulation::getEpsilon(const int omegaIndex, const double position[3], double* &epsilon){
     if(omegaIndex < 0 || omegaIndex >= numOfOmega_){
       std::cerr << "index out of range!" << std::endl;
       throw UTILITY::RangeException("index out of range!");
@@ -282,7 +282,7 @@ namespace MESH{
     RCWArMatrix GyMat = Gy_l - Gy_r;
     int r1 = 0, r2 = N-1, r3 = N, r4 = 2*N-1;
 
-    RCWAcMatrix phase = exp(IMAG_I * (GxMat * position[0] + GyMat * position[1]));
+    RCWAcMatrix phase = exp(-IMAG_I * (GxMat * position[0] + GyMat * position[1]));
 
     dcomplex eps_xx = accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r3, r4)) % phase);
     dcomplex eps_xy = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r1, r2)) % phase);
@@ -353,7 +353,7 @@ namespace MESH{
   // If type == 'diagonal', epsilon should have size [numOfOmega][6]
   // If type == 'tensor', epsilon should have size [numOfOmega][10]
   /*==============================================*/
-  void Simulation::setMaterial(const std::string name, double** epsilon, const std::string type){
+  void Simulation::setMaterial(const std::string name, double** &epsilon, const std::string type){
     if(materialInstanceMap_.find(name) == materialInstanceMap_.cend()){
       std::cerr << name + ": Material does not exist!" << std::endl;
       throw UTILITY::IllegalNameException(name + ": Material does not exist!");
@@ -674,11 +674,6 @@ namespace MESH{
     Phi_ = new double[numOfOmega_];
     for(int i = 0; i < numOfOmega_; i++){
       Phi_[i] = 0;
-    }
-
-    if(dim_ != NO_ && (numOfKx_ == 0 || numOfKy_ == 0)){
-      std::cerr << "Set integration range first!" << std::endl;
-      throw UTILITY::ValueException("Set integration range first!");
     }
 
 

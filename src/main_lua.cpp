@@ -292,7 +292,7 @@ int MESH_GetOmega(lua_State *L){
 // GetEpsilon(omega index, {x, y, z})
 int MESH_GetEpsilon(lua_State *L){
   Simulation *s = luaW_check<Simulation>(L, 1);
-  int omegaIdx = luaU_check<int>(L, 2);
+  int omegaIdx = luaU_check<int>(L, 2) - 1;
   double vals[3];
   for(int i = 0; i < 3; i++){
     lua_pushinteger(L, i+1);
@@ -331,7 +331,7 @@ int MESH_GetPhiAtKxKy(lua_State *L){
 		return luaL_error(L, "expecting 2 or 3 arguments");
 	}
   Simulation* s = luaW_check<Simulation>(L, 1);
-  int omegaIdx = luaU_check<int>(L, 2);
+  int omegaIdx = luaU_check<int>(L, 2) - 1;
   double kx = luaU_check<double>(L, 3);
   if(n == 3){
     luaU_push(L, s->getPhiAtKxKy(omegaIdx, kx));
@@ -552,7 +552,7 @@ int MESH_SetKParallel(lua_State *L){
 // GetPhiAtKParallel(omega index, k parallel value)
 int MESH_GetPhiAtKParallel(lua_State *L){
   SimulationPlanar* s = luaW_check<SimulationPlanar>(L, 1);
-  int omegaIdx = luaU_check<int>(L, 2);
+  int omegaIdx = luaU_check<int>(L, 2) - 1;
   double k = luaU_check<double>(L, 3);
   luaU_push(L, s->getPhiAtKParallel(omegaIdx, k));
   return 1;

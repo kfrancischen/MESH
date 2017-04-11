@@ -37,13 +37,13 @@ where the integral is evaluated either using Gauss-legendre methdod or Gauss-kro
 GetPhiAtKParallel(omega index, k parallel value)
 ```
 * Arguments:
-    1. omega index: [int], the index of omega where $\Phi(\omega[\text{index}], k_{\parallel})$ is evaluated.
+    1. omega index: [int], the index of omega where $\Phi(\omega[\text{index}], k_{\parallel})$ is evaluated. To be consistent with Lua, this index starts from $1$.
     2. k parallel: [double], the $k_{\parallel}$ value where $\Phi(\omega[\text{index}], k_{\parallel})$ is evaluated. It should be a normalized value with respect to $\omega[\text{index}]/c$.
 
 * Output: [double], value of $\Phi(\omega[\text{index}], k_{\parallel})$.
 
 ```lua
-IntegrateKPrarallel()
+IntegrateKParallel()
 ```
 * Arguments: None
 
@@ -60,7 +60,7 @@ $$ \begin{pmatrix}
 OptUseQuadgl(degree)
 ```
 * Arguments:
-    1. degree: [int, optional], using Gauss-legendre method in the integral and set the degree of legendre polynomial in `IntegrateKPrarallel()`. If degree is not given, it is set to be $1024$.
+    1. degree: [int, optional], using Gauss-legendre method in the integral and set the degree of legendre polynomial in `IntegrateKParallel()`. If degree is not given, it is set to be $1024$.
 
 * Output: None
 
@@ -71,4 +71,4 @@ OptUseQuadgk()
 
 * Output: None
 
-* Note: this function uses Gauss-kronrod adaptive integral algorithm in `IntegrateKPrarallel()`. The simulation will use this function if the integral option is not specified.
+* Note: this function uses Gauss-kronrod adaptive integral algorithm in `IntegrateKParallel()`. The simulation will use this function if the integral option is not specified.

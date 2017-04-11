@@ -238,7 +238,7 @@ GetOmega()
 GetEpsilon(omega index, {x, y, z})
 ```
 * Arguments:
-    1. omega index: [int], the index of the omega value where $\epsilon$ is evaluated.
+    1. omega index: [int], the index of the omega value where $\epsilon$ is evaluated.  To be consistent with Lua, this index starts from $1$.
     2. {x, y, z}: [double table], the real space position where the index is evaluated, in SI unit
 
 * Output: value of epsilon with length $10$, in the form of
@@ -252,7 +252,7 @@ GetEpsilon(omega index, {x, y, z})
 GetPhiAtKxKy(omega index, kx, ky)
 ```
 * Arguments:
-    1. omega index: [int], the index of the omega value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated.
+    1. omega index: [int], the index of the omega value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated.  To be consistent with Lua, this index starts from $1$.
     2. kx: [double], the $k_x$ value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated. It is a normalized value by $\omega[\text{index}]/c$.
     3. ky: [double], the $k_y$ value where $\Phi(\omega[\text{index}], k_x, k_y)$ is evaluated. It is a normalized value by $\omega[\text{index}]/c$.
 

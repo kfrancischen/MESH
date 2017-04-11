@@ -101,7 +101,7 @@ public:
 
   void setPeriodicity(const double p1, const double p2 = 0);
   void addMaterial(const std::string name, const std::string infile);
-  void setMaterial(const std::string name, double** epsilon, const std::string type);
+  void setMaterial(const std::string name, double** &epsilon, const std::string type);
 
   void addLayer(const std::string name, const double thick, const std::string materialName);
   void setLayer(const std::string name, const double thick, const std::string materialName);
@@ -117,7 +117,7 @@ public:
   void setGy(const int nGy);
   double* getPhi();
   double* getOmega();
-  void getEpsilon(const int omegaIndex, const double position[3], double* epsilon);
+  void getEpsilon(const int omegaIndex, const double position[3], double* &epsilon);
   int getNumOfOmega();
 
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);

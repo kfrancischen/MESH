@@ -118,7 +118,7 @@ namespace SYSTEM{
   // omegaList: the omegaList of the material
   // numOfOmega: the number of omega points
   /*==============================================*/
-  void Material::setOmega(const double* omegaList, const int numOfOmega){
+  void Material::setOmega(const double* &omegaList, const int numOfOmega){
     numOfOmega_ = numOfOmega;
     omegaList_ = new double[numOfOmega_];
     std::copy(omegaList, omegaList + numOfOmega_, omegaList_);
@@ -520,7 +520,7 @@ namespace SYSTEM{
   /*==============================================*/
   // function getting the thickness list
   /*==============================================*/
-  void Structure::getThicknessList(double* thicknessList){
+  void Structure::getThicknessList(double* &thicknessList){
     int count = 0;
     for(const_LayerIter it = this->getLayersBegin(); it != this->getLayersEnd(); it++){
       thicknessList[count] = (it->second)->getThickness();

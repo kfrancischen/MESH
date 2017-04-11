@@ -48,7 +48,7 @@ namespace SYSTEM{
     int getNumOfOmega();
     double* getOmegaList();
 
-    void setOmega(const double* omegaList, const int numOfOmega);
+    void setOmega(const double* &omegaList, const int numOfOmega);
     void setEpsilon(const EPSILON& epsilonList, const int numOfOmega);
 
   protected:
@@ -161,7 +161,7 @@ namespace SYSTEM{
     Ptr<Layer> getLayerByIndex(const int index);
     Ptr<Layer> getLayerByName(const std::string name);
     int getNumOfLayer();
-    void getThicknessList(double* thicknessList);
+    void getThicknessList(double* &thicknessList);
 
     const_LayerIter getLayersBegin();
     const_LayerIter getLayersEnd();
