@@ -941,7 +941,7 @@ For tensor dielectric, the format is a list of   <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>omega index: [int], the index of the omega value where <script type="math/tex">\epsilon</script> is evaluated.</li>
+<li>omega index: [int], the index of the omega value where <script type="math/tex">\epsilon</script> is evaluated.  To be consistent with Lua, this index starts from <script type="math/tex">1</script>.</li>
 <li>{x, y, z}: [double table], the real space position where the index is evaluated, in SI unit</li>
 </ol>
 </li>
@@ -959,7 +959,7 @@ For tensor dielectric, the format is a list of   <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>omega index: [int], the index of the omega value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated.</li>
+<li>omega index: [int], the index of the omega value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated.  To be consistent with Lua, this index starts from <script type="math/tex">1</script>.</li>
 <li>kx: [double], the <script type="math/tex">k_x</script> value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated. It is a normalized value by <script type="math/tex">\omega[\text{index}]/c</script>.</li>
 <li>ky: [double], the <script type="math/tex">k_y</script> value where <script type="math/tex">\Phi(\omega[\text{index}], k_x, k_y)</script> is evaluated. It is a normalized value by <script type="math/tex">\omega[\text{index}]/c</script>.</li>
 </ol>
