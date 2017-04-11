@@ -657,7 +657,7 @@
 <p>MESH comes with two versions: one has OpenMP support if the system has OpenMP libraries; one has MPI support. Both of them require the following prerequisites:</p>
 <ul>
 <li><a href="http://www.netlib.org/lapack/">Lapack</a> and <a href="http://www.netlib.org/blas/">blas</a> (or blas mutants, such as <a href="http://www.openblas.net/">openblas</a>, <a href="http://math-atlas.sourceforge.net/">atlas</a>, or <a href="https://software.intel.com/en-us/intel-mkl">mkl</a>). For MacOS this is not necessary.</li>
-<li><a href="https://www.lua.org/">Lua</a> version &gt;= 5.2 (version 5.3.x is preferred).</li>
+<li><a href="https://www.lua.org/">Lua</a> version &gt;= 5.2 (version 5.3.x is preferred). By default it is using mkl.</li>
 </ul>
 <p>In order to have the MPI version of MESH installed, one needs to install MPI besides the above two libraries.</p>
 <p>MESH can be downloaded by</p>
@@ -705,6 +705,11 @@
 
 
 <p>in <code>.bashrc</code> (on stampede it is <code>.profile</code> for <code>bash</code>).</p>
+<p>In addition, on <code>hera</code>, please add the following line to <code>.bashrc</code></p>
+<div class="codehilite"><pre><span></span><span class="nb">export</span> <span class="nv">LD_LIBRARY_PATH</span><span class="o">=</span><span class="s2">&quot;LD_LIBRARY_PATH:/home/kfchen/mkl/mkl/lib/intel64&quot;</span>
+</pre></div>
+
+
 <p>In addition, on <code>comet</code>, please add the following to your job submission file</p>
 <div class="codehilite"><pre><span></span>module purge
 module load gnu
