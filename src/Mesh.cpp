@@ -264,14 +264,13 @@ namespace MESH{
     int layerIdx = 0;
     double offset = 0;
     for(int i = 1; i < structure_->getNumOfLayer(); i++){
-      if(position[3] > offset && position[3] <= offset + thicknessListVec_(i)){
+      if(position[2] > offset && position[2] <= offset + thicknessListVec_(i)){
         layerIdx = i;
         break;
       }
       offset += thicknessListVec_(i);
     }
-    if(position[3] > offset) layerIdx = structure_->getNumOfLayer() - 1;
-
+    if(layerIdx == 0 && position[2] > offset) layerIdx = structure_->getNumOfLayer() - 1;
     int N = getN(nGx_, nGy_);
 
     RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
@@ -280,16 +279,15 @@ namespace MESH{
 
     RCWArMatrix GxMat = Gx_l - Gx_r;
     RCWArMatrix GyMat = Gy_l - Gy_r;
-    int r1 = 0, r2 = N-1, r3 = N, r4 = 2*N-1;
+    int r1 = 0, r2 = N-1, r3 = N, r4 = 2*N-1, mid = (N-1)/2;
 
-    RCWAcMatrix phase = exp(-IMAG_I * (GxMat * position[0] + GyMat * position[1]));
-
-    dcomplex eps_xx = accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r3, r4)) % phase);
-    dcomplex eps_xy = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r1, r2)) % phase);
-    dcomplex eps_yx = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r1, r2), span(r3, r4)) % phase);
-    dcomplex eps_yy = accu(EMatricesVec_[omegaIndex][layerIdx](span(r1, r2), span(r1, r2)) % phase);
-
-    dcomplex eps_zz = accu(inv(eps_zz_Inv_MatrixVec_[omegaIndex][layerIdx]) % phase);
+    arma::cx_rowvec phase = exp(-IMAG_I * (GxMat.row(mid) * position[0] + GyMat.row(mid) * position[1]));
+    dcomplex eps_xx = accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r3, r4)).row(mid) % phase);
+    dcomplex eps_xy = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r1, r2)).row(mid) % phase);
+    dcomplex eps_yx = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r1, r2), span(r3, r4)).row(mid) % phase);
+    dcomplex eps_yy = accu(EMatricesVec_[omegaIndex][layerIdx](span(r1, r2), span(r1, r2)).row(mid) % phase);
+    RCWAcMatrix eps_zz_mat =inv(eps_zz_Inv_MatrixVec_[omegaIndex][layerIdx]);
+    dcomplex eps_zz = accu(eps_zz_mat.row(mid) % phase);
 
     epsilon[0] = real(eps_xx);
     epsilon[1] = -imag(eps_xx);

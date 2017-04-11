@@ -148,12 +148,7 @@
      RCWArMatrix::iterator jincMat_it = jincMat.begin();
      int count = 0;
      for(mat::const_iterator it = rho.begin(); it != rho.end(); it++){
-       if(*it == 0.0){
-         *(jincMat_it + count) = 1;
-       }
-       else{
-         *(jincMat_it + count) = jinc(*it);
-       }
+       *(jincMat_it + count) = jinc(*it);
        count++;
      }
 

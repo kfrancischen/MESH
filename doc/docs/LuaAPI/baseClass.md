@@ -150,14 +150,19 @@ SetKxIntegral(points, end)
 
 * Output: None
 
-* Note: this
+* Note: this function is essentially doing
+$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm G_x/2$.
+
+```lua
+SetKyIntegral(points, end)
+```
 * Arguments:
     1. points: [int], number of points in the integration.
     2. end: [double, optional for pattern geometries], the end of the integral over $k_y$. This end should be a normalized number with respect to $\omega/c$.
 
 * Output: None
 
-* Note: this function is essential doing
+* Note: this function is essentially doing
 $$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm G_y/2$.
 
 ```lua
@@ -169,7 +174,7 @@ SetKxIntegralSym(points, end)
 
 * Output: None
 
-* Note: this function is essential doing
+* Note: this function is essentially doing
 $$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $G_x/2$.
 
 ```lua
@@ -181,7 +186,7 @@ SetKyIntegralSym(points, end)
 
 * Output: None
 
-* Note: this function is essential doing
+* Note: this function is essentially doing
 $$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $G_y/2$.
 
 ```lua
