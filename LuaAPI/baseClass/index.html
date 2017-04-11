@@ -791,8 +791,15 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: this</p>
+<p>Note: this function is essentially doing
+<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm G_x/2</script>.</p>
 </li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">SetKyIntegral</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="kr">end</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
 <li>
 <p>Arguments:</p>
 <ol>
@@ -804,7 +811,7 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: this function is essential doing
+<p>Note: this function is essentially doing
 <script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm G_y/2</script>.</p>
 </li>
 </ul>
@@ -824,7 +831,7 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: this function is essential doing
+<p>Note: this function is essentially doing
 <script type="math/tex; mode=display">2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the upper bound of the integral will be <script type="math/tex">G_x/2</script>.</p>
 </li>
 </ul>
@@ -844,7 +851,7 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: this function is essential doing
+<p>Note: this function is essentially doing
 <script type="math/tex; mode=display">2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the upper bound of the integral will be <script type="math/tex">G_y/2</script>.</p>
 </li>
 </ul>
