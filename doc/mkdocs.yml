@@ -1,7 +1,21 @@
-site_name: MESH documentation
-site_author: Kaifeng Chen
+site_name: 'MESH documentation'
+site_author: 'Kaifeng Chen'
 
-repo_url: https://github.com/kfrancischen/MESH
+repo_name: 'kfrancischen/MESH'
+repo_url: 'https://github.com/kfrancischen/MESH'
+
+copyright: 'Copyright &copy; 2016 - 2018 Kaifeng Chen'
+
+extra:
+  social:
+    - type: 'github'
+      link: 'https://github.com/kfrancischen'
+    - type: 'linkedin'
+      link: 'https://www.linkedin.com/in/kaifeng-chen-b37a2b69/'
+
+google_analytics:
+  - 'UA-40321028-1'
+  - 'auto'
 
 python:
    version: 2 # for unicode
