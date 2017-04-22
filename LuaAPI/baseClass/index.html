@@ -853,7 +853,7 @@ For tensor dielectric, the format is a list of   <br />
 <script type="math/tex; mode=display">2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the upper bound of the integral will be <script type="math/tex">G_y/2</script>.</p>
 </li>
 </ul>
-<div class="codehilite"><pre><span></span><span class="n">BuildRCWA</span><span class="p">()</span>
+<div class="codehilite"><pre><span></span><span class="n">InitSImulation</span><span class="p">()</span>
 </pre></div>
 
 
@@ -862,7 +862,7 @@ For tensor dielectric, the format is a list of   <br />
 <p>Arguments: None</p>
 </li>
 <li>
-<p>Note: this function builds up the matrices for the dielectric [Fourier transform] and prepare for RCWA. This function does not solve RCWA.</p>
+<p>Note: this function builds up the structure of the system.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">IntegrateKxKy</span><span class="p">()</span>
