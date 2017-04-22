@@ -1,8 +1,8 @@
 
 s = SimulationPattern.new();
 s:SetPeriodicity(1e-6, 1e-6);
-s:SetGx(10);
-s:SetGy(10);
+s:SetGx(6);
+s:SetGy(6);
 
 s:AddMaterial("Si", "Si.txt");
 s:AddMaterial("Vacuum", "Vacuum.txt");
@@ -21,6 +21,6 @@ s:OutputSysInfo();
 s:OptPrintIntermediate();
 s:SetKxIntegralSym(20, 60);
 s:SetKyIntegralSym(20, 60);
-s:BuildRCWA();
+s:InitSimulation();
 s:IntegrateKxKy();
 

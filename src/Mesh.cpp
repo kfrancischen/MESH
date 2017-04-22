@@ -236,8 +236,8 @@ namespace MESH{
   double* Simulation::getPhi(){
 
     if(Phi_ == nullptr){
-      std::cerr << "Please do RCWA and integration first!" << std::endl;
-      throw UTILITY::MemoryException("Please do RCWA and integration first!");
+      std::cerr << "Please do integration first!" << std::endl;
+      throw UTILITY::MemoryException("Please do integration first!");
     }
     return Phi_;
   }
@@ -256,21 +256,25 @@ namespace MESH{
   // This function return reconstructed dielectric at a given point
   /*==============================================*/
   void Simulation::getEpsilon(const int omegaIndex, const double position[3], double* &epsilon){
+    double positions[3] = {position[0] * MICRON, position[1] * MICRON, position[2] * MICRON};
     if(omegaIndex < 0 || omegaIndex >= numOfOmega_){
       std::cerr << "index out of range!" << std::endl;
       throw UTILITY::RangeException("index out of range!");
     }
-
+    if(omegaIndex != curOmegaIndex_){
+      curOmegaIndex_ = omegaIndex;
+      this->buildRCWAMatrices();
+    }
     int layerIdx = 0;
     double offset = 0;
     for(int i = 1; i < structure_->getNumOfLayer(); i++){
-      if(position[2] > offset && position[2] <= offset + thicknessListVec_(i)){
+      if(positions[2] > offset && positions[2] <= offset + thicknessListVec_(i)){
         layerIdx = i;
         break;
       }
       offset += thicknessListVec_(i);
     }
-    if(layerIdx == 0 && position[2] > offset) layerIdx = structure_->getNumOfLayer() - 1;
+    if(layerIdx == 0 && positions[2] > offset) layerIdx = structure_->getNumOfLayer() - 1;
     int N = getN(nGx_, nGy_);
 
     RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
@@ -281,12 +285,12 @@ namespace MESH{
     RCWArMatrix GyMat = Gy_l - Gy_r;
     int r1 = 0, r2 = N-1, r3 = N, r4 = 2*N-1, mid = (N-1)/2;
 
-    arma::cx_rowvec phase = exp(-IMAG_I * (GxMat.row(mid) * position[0] + GyMat.row(mid) * position[1]));
-    dcomplex eps_xx = accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r3, r4)).row(mid) % phase);
-    dcomplex eps_xy = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r3, r4), span(r1, r2)).row(mid) % phase);
-    dcomplex eps_yx = -accu(EMatricesVec_[omegaIndex][layerIdx](span(r1, r2), span(r3, r4)).row(mid) % phase);
-    dcomplex eps_yy = accu(EMatricesVec_[omegaIndex][layerIdx](span(r1, r2), span(r1, r2)).row(mid) % phase);
-    RCWAcMatrix eps_zz_mat =inv(eps_zz_Inv_MatrixVec_[omegaIndex][layerIdx]);
+    arma::cx_rowvec phase = exp(-IMAG_I * (GxMat.row(mid) * positions[0] + GyMat.row(mid) * positions[1]));
+    dcomplex eps_xx = accu(EMatrices_[layerIdx](span(r3, r4), span(r3, r4)).row(mid) % phase);
+    dcomplex eps_xy = -accu(EMatrices_[layerIdx](span(r3, r4), span(r1, r2)).row(mid) % phase);
+    dcomplex eps_yx = -accu(EMatrices_[layerIdx](span(r1, r2), span(r3, r4)).row(mid) % phase);
+    dcomplex eps_yy = accu(EMatrices_[layerIdx](span(r1, r2), span(r1, r2)).row(mid) % phase);
+    RCWAcMatrix eps_zz_mat =inv(eps_zz_Inv_Matrices_[layerIdx]);
     dcomplex eps_zz = accu(eps_zz_mat.row(mid) % phase);
 
     epsilon[0] = real(eps_xx);
@@ -580,14 +584,12 @@ namespace MESH{
   // This function cleans up the simulation
   /*==============================================*/
   void Simulation::resetSimulation(){
-    for(size_t i = 0; i < EMatricesVec_.size(); i++){
-      EMatricesVec_[i].clear();
-      grandImaginaryMatrixVec_.clear();
-      eps_zz_Inv_MatrixVec_[i].clear();
-    }
-    EMatricesVec_.clear();
-    grandImaginaryMatrixVec_.clear();
-    eps_zz_Inv_MatrixVec_.clear();
+    EMatrices_.clear();
+    grandImaginaryMatrices_.clear();
+    eps_zz_Inv_Matrices_.clear();
+    sourceList_.clear();
+    thicknessListVec_.clear();
+    curOmegaIndex_ = -1;
   }
 
   /*==============================================*/
@@ -612,15 +614,19 @@ namespace MESH{
       std::cerr << std::to_string(omegaIdx) + ": out of range!" << std::endl;
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
+    if(curOmegaIndex_ != omegaIdx){
+      curOmegaIndex_ = omegaIdx;
+      this->buildRCWAMatrices();
+    }
     int N = getN(nGx_, nGy_);
     return omegaList_[omegaIdx] / datum::c_0 / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0 / MICRON,
         thicknessListVec_,
         kx,
         ky,
-        EMatricesVec_[omegaIdx],
-        grandImaginaryMatrixVec_[omegaIdx],
-        eps_zz_Inv_MatrixVec_[omegaIdx],
+        EMatrices_,
+        grandImaginaryMatrices_,
+        eps_zz_Inv_Matrices_,
         Gx_mat_,
         Gy_mat_,
         sourceList_,
@@ -629,11 +635,11 @@ namespace MESH{
         options_.polarization
       );
   }
-
   /*==============================================*/
-  // This function builds up the matrices
+  // This function intializes the simulation
+  // Will initialize numOfOmega_, omegaList_, thicknessListVec_, sourceList_
   /*==============================================*/
-  void Simulation::buildRCWA(){
+  void Simulation::initSimulation(){
     // reset simulation first
     this->resetSimulation();
     // essential, get the shared Gx_mat_ and Gy_mat_
@@ -674,189 +680,184 @@ namespace MESH{
     for(int i = 0; i < numOfOmega_; i++){
       Phi_[i] = 0;
     }
-
-
-    EMatricesVec_.resize(numOfOmega_);
-    grandImaginaryMatrixVec_.resize(numOfOmega_);
-    eps_zz_Inv_MatrixVec_.resize(numOfOmega_);
-
-    RCWAcMatricesVec eps_xx_MatrixVec(numOfOmega_), eps_xy_MatrixVec(numOfOmega_), eps_yx_MatrixVec(numOfOmega_), eps_yy_MatrixVec(numOfOmega_);
-    RCWAcMatricesVec im_eps_xx_MatrixVec(numOfOmega_), im_eps_xy_MatrixVec(numOfOmega_), im_eps_yx_MatrixVec(numOfOmega_), im_eps_yy_MatrixVec(numOfOmega_), im_eps_zz_MatrixVec(numOfOmega_);
+  }
+  /*==============================================*/
+  // This function builds up the matrices
+  /*==============================================*/
+  void Simulation::buildRCWAMatrices(){
+    RCWAcMatrices eps_xx_Matrices, eps_xy_Matrices, eps_yx_Matrices, eps_yy_Matrices;
+    RCWAcMatrices im_eps_xx_Matrices, im_eps_xy_Matrices, im_eps_yx_Matrices, im_eps_yy_Matrices, im_eps_zz_Matrices;
 
     int N = getN(nGx_, nGy_);
     RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
+    int numOfLayer = structure_->getNumOfLayer();
+    double period[2] = {period_[0] * MICRON, period_[1] * MICRON};
 
     for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
       Ptr<Material> backGround = layer->getBackGround();
 
-      for(int j = 0; j < numOfOmega_; j++){
-        RCWAcMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
-        RCWAcMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
+      RCWAcMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
+      RCWAcMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
 
-        EpsilonVal epsBG = backGround->getEpsilonAtIndex(j);
-        EpsilonVal epsBGTensor = FMM::toTensor(epsBG, backGround->getType());
+      EpsilonVal epsBG = backGround->getEpsilonAtIndex(curOmegaIndex_);
+      EpsilonVal epsBGTensor = FMM::toTensor(epsBG, backGround->getType());
 
-        const_MaterialIter m_it = layer->getMaterialsBegin();
-        int count = 0;
-        for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){
-          Pattern pattern = *it;
-          Ptr<Material> material = *(m_it + count);
-          EpsilonVal epsilon = material->getEpsilonAtIndex(j);
-          count++;
+      const_MaterialIter m_it = layer->getMaterialsBegin();
+      int count = 0;
+      for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){
+        Pattern pattern = *it;
+        Ptr<Material> material = *(m_it + count);
+        EpsilonVal epsilon = material->getEpsilonAtIndex(curOmegaIndex_);
+        count++;
 
-          switch(pattern.type_){
-            /*************************************/
-            // if the pattern is a grating (1D)
-            /************************************/
-            case GRATING_:{
-              double center = pattern.arg1_.first * MICRON;
-              double width = pattern.arg1_.second * MICRON;
-              FMM::transformGrating(
-                eps_xx,
-                eps_xy,
-                eps_yx,
-                eps_yy,
-                eps_zz_Inv,
-                im_eps_xx,
-                im_eps_xy,
-                im_eps_yx,
-                im_eps_yy,
-                im_eps_zz,
-                epsBGTensor,
-                epsilon,
-                material->getType(),
-                nGx_,
-                center,
-                width,
-                period[0],
-                layer->hasTensor(),
-                options_.FMMRule == INVERSERULE_
-              );
-              break;
-            }
-
-            /*************************************/
-            // if the pattern is a rectangle (2D)
-            /************************************/
-            case RECTANGLE_:{
-              double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg1_.second * MICRON};
-              double widths[2] = {pattern.arg2_.first * MICRON, pattern.arg2_.second * MICRON};
-              FMM::transformRectangle(
-                eps_xx,
-                eps_xy,
-                eps_yx,
-                eps_yy,
-                eps_zz_Inv,
-                im_eps_xx,
-                im_eps_xy,
-                im_eps_yx,
-                im_eps_yy,
-                im_eps_zz,
-                epsBGTensor,
-                epsilon,
-                material->getType(),
-                nGx_,
-                nGy_,
-                centers,
-                widths,
-                period,
-                layer->hasTensor(),
-                options_.FMMRule == INVERSERULE_
-              );
-              break;
-            }
-            /*************************************/
-            // if the pattern is a circle (2D)
-            /************************************/
-            case CIRCLE_:{
-              double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg2_.first * MICRON};
-              double radius = pattern.arg1_.second * MICRON;
-              FMM::transformCircle(
-                eps_xx,
-                eps_xy,
-                eps_yx,
-                eps_yy,
-                eps_zz_Inv,
-                im_eps_xx,
-                im_eps_xy,
-                im_eps_yx,
-                im_eps_yy,
-                im_eps_zz,
-                epsBGTensor,
-                epsilon,
-                material->getType(),
-                nGx_,
-                nGy_,
-                centers,
-                radius,
-                period,
-                layer->hasTensor(),
-                options_.FMMRule == INVERSERULE_
-              );
-              break;
-            }
-            default: break;
+        switch(pattern.type_){
+          /*************************************/
+          // if the pattern is a grating (1D)
+          /************************************/
+          case GRATING_:{
+            double center = pattern.arg1_.first * MICRON;
+            double width = pattern.arg1_.second * MICRON;
+            FMM::transformGrating(
+              eps_xx,
+              eps_xy,
+              eps_yx,
+              eps_yy,
+              eps_zz_Inv,
+              im_eps_xx,
+              im_eps_xy,
+              im_eps_yx,
+              im_eps_yy,
+              im_eps_zz,
+              epsBGTensor,
+              epsilon,
+              material->getType(),
+              nGx_,
+              center,
+              width,
+              period[0],
+              layer->hasTensor(),
+              options_.FMMRule == INVERSERULE_
+            );
+            break;
           }
+
+          /*************************************/
+          // if the pattern is a rectangle (2D)
+          /************************************/
+          case RECTANGLE_:{
+            double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg1_.second * MICRON};
+            double widths[2] = {pattern.arg2_.first * MICRON, pattern.arg2_.second * MICRON};
+            FMM::transformRectangle(
+              eps_xx,
+              eps_xy,
+              eps_yx,
+              eps_yy,
+              eps_zz_Inv,
+              im_eps_xx,
+              im_eps_xy,
+              im_eps_yx,
+              im_eps_yy,
+              im_eps_zz,
+              epsBGTensor,
+              epsilon,
+              material->getType(),
+              nGx_,
+              nGy_,
+              centers,
+              widths,
+              period,
+              layer->hasTensor(),
+              options_.FMMRule == INVERSERULE_
+            );
+            break;
+          }
+          /*************************************/
+          // if the pattern is a circle (2D)
+          /************************************/
+          case CIRCLE_:{
+            double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg2_.first * MICRON};
+            double radius = pattern.arg1_.second * MICRON;
+            FMM::transformCircle(
+              eps_xx,
+              eps_xy,
+              eps_yx,
+              eps_yy,
+              eps_zz_Inv,
+              im_eps_xx,
+              im_eps_xy,
+              im_eps_yx,
+              im_eps_yy,
+              im_eps_zz,
+              epsBGTensor,
+              epsilon,
+              material->getType(),
+              nGx_,
+              nGy_,
+              centers,
+              radius,
+              period,
+              layer->hasTensor(),
+              options_.FMMRule == INVERSERULE_
+            );
+            break;
+          }
+          default: break;
         }
-        /*************************************/
-        // collection information from the background
-        /************************************/
-        eps_xx += dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]) * onePadding1N;
-        im_eps_xx += epsBGTensor.tensor[1] * onePadding1N;
-
-        eps_yy += dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]) * onePadding1N;
-        im_eps_yy += epsBGTensor.tensor[7] * onePadding1N;
-
-        eps_zz_Inv += dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]) * onePadding1N;
-        eps_zz_Inv = eps_zz_Inv.i();
-
-        im_eps_zz += epsBGTensor.tensor[9] * onePadding1N;
-
-        if(layer->hasTensor()){
-          eps_xy += dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]) * onePadding1N;
-          eps_yx += dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]) * onePadding1N;
-          im_eps_xy += epsBGTensor.tensor[3] * onePadding1N;
-          im_eps_yx += epsBGTensor.tensor[5] * onePadding1N;
-        }
-
-        eps_xx_MatrixVec[j].push_back(eps_xx);
-        eps_xy_MatrixVec[j].push_back(eps_xy);
-        eps_yx_MatrixVec[j].push_back(eps_yx);
-        eps_yy_MatrixVec[j].push_back(eps_yy);
-        eps_zz_Inv_MatrixVec_[j].push_back(eps_zz_Inv);
-        im_eps_xx_MatrixVec[j].push_back(im_eps_xx);
-        im_eps_xy_MatrixVec[j].push_back(im_eps_xy);
-        im_eps_yx_MatrixVec[j].push_back(im_eps_yx);
-        im_eps_yy_MatrixVec[j].push_back(im_eps_yy);
-        im_eps_zz_MatrixVec[j].push_back(im_eps_zz);
       }
+      /*************************************/
+      // collection information from the background
+      /************************************/
+      eps_xx += dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]) * onePadding1N;
+      im_eps_xx += epsBGTensor.tensor[1] * onePadding1N;
+
+      eps_yy += dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]) * onePadding1N;
+      im_eps_yy += epsBGTensor.tensor[7] * onePadding1N;
+
+      eps_zz_Inv += dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]) * onePadding1N;
+      eps_zz_Inv = eps_zz_Inv.i();
+
+      im_eps_zz += epsBGTensor.tensor[9] * onePadding1N;
+
+      if(layer->hasTensor()){
+        eps_xy += dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]) * onePadding1N;
+        eps_yx += dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]) * onePadding1N;
+        im_eps_xy += epsBGTensor.tensor[3] * onePadding1N;
+        im_eps_yx += epsBGTensor.tensor[5] * onePadding1N;
+      }
+
+      eps_xx_Matrices.push_back(eps_xx);
+      eps_xy_Matrices.push_back(eps_xy);
+      eps_yx_Matrices.push_back(eps_yx);
+      eps_yy_Matrices.push_back(eps_yy);
+      eps_zz_Inv_Matrices_.push_back(eps_zz_Inv);
+      im_eps_xx_Matrices.push_back(im_eps_xx);
+      im_eps_xy_Matrices.push_back(im_eps_xy);
+      im_eps_yx_Matrices.push_back(im_eps_yx);
+      im_eps_yy_Matrices.push_back(im_eps_yy);
+      im_eps_zz_Matrices.push_back(im_eps_zz);
     }
 
-    for(int i = 0; i < numOfOmega_; i++){
-      getEMatrices(
-        EMatricesVec_[i],
-        eps_xx_MatrixVec[i],
-        eps_xy_MatrixVec[i],
-        eps_yx_MatrixVec[i],
-        eps_yy_MatrixVec[i],
-        numOfLayer,
-        N
-      );
+    getEMatrices(
+      EMatrices_,
+      eps_xx_Matrices,
+      eps_xy_Matrices,
+      eps_yx_Matrices,
+      eps_yy_Matrices,
+      numOfLayer,
+      N
+    );
 
-      getGrandImaginaryMatrices(
-        grandImaginaryMatrixVec_[i],
-        im_eps_xx_MatrixVec[i],
-        im_eps_xy_MatrixVec[i],
-        im_eps_yx_MatrixVec[i],
-        im_eps_yy_MatrixVec[i],
-        im_eps_zz_MatrixVec[i],
-        numOfLayer,
-        N
-      );
-
-    }
-
+    getGrandImaginaryMatrices(
+      grandImaginaryMatrices_,
+      im_eps_xx_Matrices,
+      im_eps_xy_Matrices,
+      im_eps_yx_Matrices,
+      im_eps_yy_Matrices,
+      im_eps_zz_Matrices,
+      numOfLayer,
+      N
+    );
   }
   /*==============================================*/
   // This function prints out the information of the system
@@ -1094,6 +1095,7 @@ namespace MESH{
   // end: the end index
   /*==============================================*/
   void Simulation::integrateKxKyInternal(const int start, const int end, const bool parallel){
+
     double* kxList = new double[numOfKx_];
     double* kyList = new double[numOfKy_];
     double* scalex = new double[numOfOmega_];
@@ -1139,26 +1141,30 @@ namespace MESH{
     }
 
     if(parallel){
-      #if defined(_OPENMP)
-        #pragma omp parallel for num_threads(numOfThread_)
-      #endif
-      for(int i = start; i < end; i++){
-          int omegaIdx = i / (numOfKx_ * numOfKy_);
-          int residue = i % (numOfKx_ * numOfKy_);
-          int kxIdx = residue / numOfKy_;
-          int kyIdx = residue % numOfKy_;
-          resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+      for(int omegaIdx = 0; omegaIdx < numOfOmega_; omegaIdx++){
+        curOmegaIndex_ = omegaIdx;
+        this->buildRCWAMatrices();
+        #if defined(_OPENMP)
+          #pragma omp parallel for num_threads(numOfThread_)
+        #endif
+        for(int i = 0; i < numOfKx_ * numOfKy_; i++){
+          int kxIdx = i / numOfKy_;
+          int kyIdx = i % numOfKy_;
+          resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
           if(options_.PrintIntermediate){
             std::stringstream msg;
-            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] << std::endl;
             std::cout << msg.str();
           }
+        }
       }
 
     }
     else{
       for(int i = start; i < end; i++){
           int omegaIdx = i / (numOfKx_ * numOfKy_);
+          curOmegaIndex_ = omegaIdx;
+          this->buildRCWAMatrices();
           int residue = i % (numOfKx_ * numOfKy_);
           int kxIdx = residue / numOfKy_;
           int kyIdx = residue % numOfKy_;
@@ -1277,9 +1283,13 @@ namespace MESH{
       std::cerr << std::to_string(omegaIdx) + ": out of range!" << std::endl;
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
+    if(curOmegaIndex_ != omegaIdx){
+      curOmegaIndex_ = omegaIdx;
+      this->buildRCWAMatrices();
+    }
     return POW2(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
-      poyntingFlux(omegaList_[omegaIdx] / datum::c_0 / MICRON, thicknessListVec_, KParallel, 0, EMatricesVec_[omegaIdx],
-      grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
+      poyntingFlux(omegaList_[omegaIdx] / datum::c_0 / MICRON, thicknessListVec_, KParallel, 0, EMatrices_,
+      grandImaginaryMatrices_, eps_zz_Inv_Matrices_, Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,1, options_.polarization);
   }
 
@@ -1296,11 +1306,15 @@ namespace MESH{
       std::cerr << "Cannot use kparallel integral here!" << std::endl;
       throw UTILITY::InternalException("Cannot use kparallel integral here!");
     }
-    if(Phi_ == nullptr){
-      std::cerr << "Please do RCWA and integration first!" << std::endl;
-      throw UTILITY::MemoryException("Please do RCWA and integration first!");
-    }
 
+    RCWAcMatricesVec EMatricesVec(numOfOmega_), grandImaginaryMatricesVec(numOfOmega_), eps_zz_Inv_MatricesVec(numOfOmega_);
+    for(int i = 0; i < numOfOmega_; i++){
+      curOmegaIndex_ = i;
+      this->buildRCWAMatrices();
+      EMatricesVec[i] = EMatrices_;
+      grandImaginaryMatricesVec[i] = grandImaginaryMatrices_;
+      eps_zz_Inv_MatricesVec[i] = eps_zz_Inv_Matrices_;
+    }
     #if defined(_OPENMP)
       #pragma omp parallel for num_threads(numOfThread_)
     #endif
@@ -1312,10 +1326,10 @@ namespace MESH{
       wrapper.sourceList = sourceList_;
       wrapper.targetLayer = targetLayer_;
       wrapper.omega = omegaList_[i] / datum::c_0;
-      wrapper.EMatrices = EMatricesVec_[i];
+      wrapper.EMatrices = EMatricesVec[i];
 
-      wrapper.grandImaginaryMatrices = grandImaginaryMatrixVec_[i];
-      wrapper.eps_zz_Inv = eps_zz_Inv_MatrixVec_[i];
+      wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec[i];
+      wrapper.eps_zz_Inv = eps_zz_Inv_MatricesVec[i];
       wrapper.polar = options_.polarization;
       switch (options_.IntegralMethod) {
         case GAUSSLEGENDRE_:{

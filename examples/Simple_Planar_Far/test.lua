@@ -12,7 +12,7 @@ s:SetSourceLayer("GaAsLayer");
 s:SetProbeLayer("VacuumLayer");
 
 s:OptUseQuadgk();
-s:BuildRCWA();
+s:InitSimulation();
 s:SetKParallelIntegral(1);
 s:IntegrateKParallel();
 phi = s:GetPhi();

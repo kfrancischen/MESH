@@ -27,7 +27,7 @@ int main(){
   s->outputSysInfo();
   s->optPrintIntermediate();
   s->setThread(4);
-  s->buildRCWA();
+  s->initSimulation();
   s->integrateKxKy();
   //s->outputPhi("gold_to_vac.txt");
 

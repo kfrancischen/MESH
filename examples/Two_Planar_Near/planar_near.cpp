@@ -21,7 +21,7 @@ int main(){
   // set simulation
   s->setKParallelIntegral(10);
   s->optUseQuadgk();
-  s->buildRCWA();
+  s->initSimulation();
   s->setThread(4);
   s->integrateKParallel();
   double* phi = s->getPhi();

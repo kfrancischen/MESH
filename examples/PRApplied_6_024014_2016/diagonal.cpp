@@ -23,7 +23,7 @@ int main(){
   s->setKParallelIntegral(100);
   s->optUseQuadgk();
   s->setThread(4);
-  s->buildRCWA();
+  s->initSimulation();
   s->integrateKParallel();
   return 0;
 }

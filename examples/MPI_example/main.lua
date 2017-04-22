@@ -18,10 +18,10 @@ s:SetSourceLayer("GoldGratingBottom");
 s:SetProbeLayer("VacGap");
 
 s:OptPrintIntermediate();
-s:SetGx(0);
+s:SetGx(50);
 s:SetKxIntegralSym(2);
 s:SetKyIntegralSym(2, 5);
-s:BuildRCWA();
+s:InitSimulation();
 
 ----------------------------------------------------------------
 -- this part is for MPI

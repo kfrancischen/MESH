@@ -19,7 +19,7 @@ int main(){
 
   s_1->setKParallelIntegral(500);
   s_1->optUseQuadgk();
-  s_1->buildRCWA();
+  s_1->initSimulation();
   s_1->integrateKParallel();
   double* phi = s_1->getPhi();
   double* omega = s_1->getOmega();

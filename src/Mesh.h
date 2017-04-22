@@ -119,10 +119,8 @@ public:
   double* getOmega();
   void getEpsilon(const int omegaIndex, const double position[3], double* &epsilon);
   int getNumOfOmega();
-
+  void initSimulation();
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
-
-  void buildRCWA();
 
   void outputSysInfo();
 
@@ -147,6 +145,7 @@ protected:
   Simulation();
   Simulation(const Simulation&) = delete;
 
+  void buildRCWAMatrices();
   void resetSimulation();
   void setTargetLayerByLayer(const Ptr<Layer>& layer);
   Ptr<Structure> getStructure();
@@ -180,9 +179,9 @@ protected:
   RCWArMatrix Gx_mat_;
   RCWArMatrix Gy_mat_;
 
-  RCWAcMatricesVec EMatricesVec_;
-  RCWAcMatricesVec grandImaginaryMatrixVec_;
-  RCWAcMatricesVec eps_zz_Inv_MatrixVec_;
+  RCWAcMatrices EMatrices_;
+  RCWAcMatrices grandImaginaryMatrices_;
+  RCWAcMatrices eps_zz_Inv_Matrices_;
 
   SourceList sourceList_;
   RCWArVector thicknessListVec_;
@@ -190,6 +189,7 @@ protected:
   Options options_;
 
   int numOfThread_ = 1;
+  int curOmegaIndex_ = -1;
 };
 
 

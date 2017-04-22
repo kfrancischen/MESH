@@ -190,11 +190,11 @@ SetKyIntegralSym(points, end)
 $$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $G_y/2$.
 
 ```lua
-BuildRCWA()
+InitSImulation()
 ```
 * Arguments: None
 
-* Note: this function builds up the matrices for the dielectric [Fourier transform] and prepare for RCWA. This function does not solve RCWA.
+* Note: this function builds up the structure of the system.
 
 ```lua
 IntegrateKxKy()

@@ -16,7 +16,7 @@ s:OptUseQuadgk();
 s:SetKParallelIntegral(10);
 s:SetThread(4);
 
-s:BuildRCWA();
+s:InitSimulation();
 s:IntegrateKParallel();
 
 numOfOmega = s:GetNumOfOmega();

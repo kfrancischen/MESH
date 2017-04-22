@@ -22,5 +22,5 @@ s:SetKxIntegralSym(500);
 s:SetKyIntegralSym(200, 5);
 s:OutputSysInfo();
 s:SetThread(4);
-s:BuildRCWA();
+s:InitSimulation();
 s:IntegrateKxKy();

@@ -247,12 +247,12 @@ int MESH_SetThread(lua_State *L){
   return 1;
 }
 
-// this function wraps buildRCWA()
+// this function wraps InitSimulation()
 // @how to use
-// BuildRCWA()
-int MESH_BuildRCWA(lua_State *L){
+// InitSimulation()
+int MESH_InitSimulation(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
-  s->buildRCWA();
+  s->initSimulation();
   return 1;
 }
 
@@ -671,7 +671,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "OptUseNaiveRule", MESH_OptUseNaiveRule },
   { "OptOnlyComputeTE", MESH_OptOnlyComputeTE },
   { "OptOnlyComputeTM", MESH_OptOnlyComputeTM },
-  { "BuildRCWA", MESH_BuildRCWA },
+  { "InitSimulation", MESH_InitSimulation },
   { "SetThread", MESH_SetThread },
   { "SetKxIntegral", MESH_SetKxIntegral },
   { "SetKxIntegralSym", MESH_SetKxIntegralSym },

@@ -19,7 +19,7 @@ int main(){
   s->setKParallelIntegral(1.0);
   s->optUseQuadgk();
   s->setThread(4);
-  s->buildRCWA();
+  s->initSimulation();
   s->integrateKParallel();
 
   double* phi = s->getPhi();

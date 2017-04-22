@@ -19,7 +19,7 @@ s1:SetProbeLayer("VacGap");
 
 s1:SetKParallelIntegral(500);
 s1:OptUseQuadgk();
-s1:BuildRCWA();
+s1:InitSimulation();
 s1:IntegrateKParallel();
 phi = s1:GetPhi();
 omega = s1:GetOmega();
@@ -50,6 +50,6 @@ s2:OutputSysInfo();
 s2:OptPrintIntermediate();
 s2:SetKxIntegralSym(20, 60);
 s2:SetKyIntegralSym(20, 60);
-s2:BuildRCWA();
+s2:InitSimulation();
 s2:IntegrateKxKy();
 
