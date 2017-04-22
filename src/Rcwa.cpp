@@ -199,7 +199,7 @@ void RCWA::getGMatrices(
   int Nx = 2 * nGx + 1;
   int Ny = 2 * nGy + 1;
   int N = Nx * Ny;
-  int Gx = 0, Gy = 0;
+  double Gx = 0, Gy = 0;
   switch (d) {
     case NO_:
       break;
@@ -495,7 +495,7 @@ double RCWA::poyntingFlux(
     poyntingMat = (targetFields * grandImaginaryMatrices[layerIdx] * targetFields.t()) % integral;
 
     poyntingMat = -R * poyntingMat * R.t();
-    flux += real(trace(poyntingMat(span(r1, r2), span(r3, r4))));
+    flux += real(trace(poyntingMat(span(r1, r2), span(r3, r4)))) / MICRON;
   }
   return flux;
 

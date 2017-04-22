@@ -168,7 +168,7 @@ namespace MESH{
     ){
     ArgWrapper wrapper = *(ArgWrapper*)data;
     fval[0] = kx[0] * poyntingFlux(
-      wrapper.omega,
+      wrapper.omega / MICRON,
       wrapper.thicknessList,
       kx[0],
       0,
@@ -192,7 +192,7 @@ namespace MESH{
   static double wrapperFunQuadgl(const double kx, void* data){
     ArgWrapper wrapper = *(ArgWrapper*) data;
     return kx * poyntingFlux(
-      wrapper.omega,
+      wrapper.omega / MICRON,
       wrapper.thicknessList,
       kx,
       0,
@@ -614,7 +614,7 @@ namespace MESH{
     }
     int N = getN(nGx_, nGy_);
     return omegaList_[omegaIdx] / datum::c_0 / POW3(datum::pi) / 2.0 *
-      poyntingFlux(omegaList_[omegaIdx] / datum::c_0,
+      poyntingFlux(omegaList_[omegaIdx] / datum::c_0 / MICRON,
         thicknessListVec_,
         kx,
         ky,
@@ -637,7 +637,8 @@ namespace MESH{
     // reset simulation first
     this->resetSimulation();
     // essential, get the shared Gx_mat_ and Gy_mat_
-    getGMatrices(nGx_, nGy_, period_, Gx_mat_, Gy_mat_, dim_);
+    double period[2] = {period_[0] * MICRON, period_[1] * MICRON};
+    getGMatrices(nGx_, nGy_, period, Gx_mat_, Gy_mat_, dim_);
     // get constants
     Ptr<Layer> firstLayer = structure_->getLayerByIndex(0);
     Ptr<Material> backGround = firstLayer->getBackGround();
@@ -648,7 +649,7 @@ namespace MESH{
     thicknessListVec_ = zeros<RCWArVector>(numOfLayer);
     sourceList_.resize(numOfLayer);
     for(int i = 0; i < numOfLayer; i++){
-      thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness();
+      thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness() * MICRON;
       sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
       if(sourceList_[i] && i >= targetLayer_){
         std::cerr << "Target Layer needs to be above source layer!" << std::endl;
@@ -709,8 +710,8 @@ namespace MESH{
             // if the pattern is a grating (1D)
             /************************************/
             case GRATING_:{
-              double center = pattern.arg1_.first;
-              double width = pattern.arg1_.second;
+              double center = pattern.arg1_.first * MICRON;
+              double width = pattern.arg1_.second * MICRON;
               FMM::transformGrating(
                 eps_xx,
                 eps_xy,
@@ -728,7 +729,7 @@ namespace MESH{
                 nGx_,
                 center,
                 width,
-                period_[0],
+                period[0],
                 layer->hasTensor(),
                 options_.FMMRule == INVERSERULE_
               );
@@ -739,8 +740,8 @@ namespace MESH{
             // if the pattern is a rectangle (2D)
             /************************************/
             case RECTANGLE_:{
-              double centers[2] = {pattern.arg1_.first, pattern.arg1_.second};
-              double widths[2] = {pattern.arg2_.first, pattern.arg2_.second};
+              double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg1_.second * MICRON};
+              double widths[2] = {pattern.arg2_.first * MICRON, pattern.arg2_.second * MICRON};
               FMM::transformRectangle(
                 eps_xx,
                 eps_xy,
@@ -759,7 +760,7 @@ namespace MESH{
                 nGy_,
                 centers,
                 widths,
-                period_,
+                period,
                 layer->hasTensor(),
                 options_.FMMRule == INVERSERULE_
               );
@@ -769,8 +770,8 @@ namespace MESH{
             // if the pattern is a circle (2D)
             /************************************/
             case CIRCLE_:{
-              double centers[2] = {pattern.arg1_.first, pattern.arg2_.first};
-              double radius = pattern.arg1_.second;
+              double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg2_.first * MICRON};
+              double radius = pattern.arg1_.second * MICRON;
               FMM::transformCircle(
                 eps_xx,
                 eps_xy,
@@ -789,7 +790,7 @@ namespace MESH{
                 nGy_,
                 centers,
                 radius,
-                period_,
+                period,
                 layer->hasTensor(),
                 options_.FMMRule == INVERSERULE_
               );
@@ -1277,7 +1278,7 @@ namespace MESH{
       throw UTILITY::RangeException(std::to_string(omegaIdx) + ": out of range!");
     }
     return POW2(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
-      poyntingFlux(omegaList_[omegaIdx] / datum::c_0, thicknessListVec_, KParallel, 0, EMatricesVec_[omegaIdx],
+      poyntingFlux(omegaList_[omegaIdx] / datum::c_0 / MICRON, thicknessListVec_, KParallel, 0, EMatricesVec_[omegaIdx],
       grandImaginaryMatrixVec_[omegaIdx], eps_zz_Inv_MatrixVec_[omegaIdx], Gx_mat_, Gy_mat_,
       sourceList_, targetLayer_,1, options_.polarization);
   }

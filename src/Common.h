@@ -42,6 +42,7 @@ enum POLARIZATION {TE_, TM_, BOTH_};
 #define MASTER 0
 #define ABSERROR 1e-10
 #define RELERROR 1e-10
+#define MICRON 1e6
 
 typedef std::complex<double> dcomplex;
 const dcomplex IMAG_I = dcomplex(0.0, 1.0);
