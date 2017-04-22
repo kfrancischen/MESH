@@ -3,3 +3,5 @@
   TODO: implement output POVRay object.
 2017-04-06
   remove POVRay functions and finish document.  Now devote all the time of the correct Fourier transform.
+2017-04-22
+  Optimize memory usage. Updated to 1.0.1
