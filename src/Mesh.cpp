@@ -697,7 +697,7 @@ namespace MESH{
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
       Ptr<Material> backGround = layer->getBackGround();
 
-      RCWAcMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
+      RCWAcMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
       RCWAcMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
 
       EpsilonVal epsBG = backGround->getEpsilonAtIndex(curOmegaIndex_);
@@ -723,7 +723,7 @@ namespace MESH{
               eps_xy,
               eps_yx,
               eps_yy,
-              eps_zz_Inv,
+              eps_zz,
               im_eps_xx,
               im_eps_xy,
               im_eps_yx,
@@ -753,7 +753,7 @@ namespace MESH{
               eps_xy,
               eps_yx,
               eps_yy,
-              eps_zz_Inv,
+              eps_zz,
               im_eps_xx,
               im_eps_xy,
               im_eps_yx,
@@ -783,7 +783,7 @@ namespace MESH{
               eps_xy,
               eps_yx,
               eps_yy,
-              eps_zz_Inv,
+              eps_zz,
               im_eps_xx,
               im_eps_xy,
               im_eps_yx,
@@ -814,8 +814,8 @@ namespace MESH{
       eps_yy += dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]) * onePadding1N;
       im_eps_yy += epsBGTensor.tensor[7] * onePadding1N;
 
-      eps_zz_Inv += dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]) * onePadding1N;
-      eps_zz_Inv = eps_zz_Inv.i();
+      eps_zz += dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]) * onePadding1N;
+      eps_zz_Inv = eps_zz.i();
 
       im_eps_zz += epsBGTensor.tensor[9] * onePadding1N;
 

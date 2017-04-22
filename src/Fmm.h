@@ -43,16 +43,16 @@ namespace FMM{
   /*==============================================*/
   // This function computes the Fourier transform for grating geometry
   // @args:
-  // eps_xx: the Fourier trainsform for eps_xx
-  // eps_xy: the Fourier trainsform for eps_xy
-  // eps_zx: the Fourier trainsform for eps_yx
-  // eps_yy: the Fourier trainsform for eps_yy
-  // eps_zz_Inv: the inverse of Fourier transform of eps_zz
-  // im_eps_xx: the Fourier trainsform for imaginary part
-  // im_eps_xy: the Fourier trainsform for imaginary part
-  // im_eps_yx: the Fourier trainsform for imaginary part
-  // im_eps_yy: the Fourier trainsform for imaginary part
-  // im_eps_zz: the Fourier trainsform for imaginary part
+  // eps_xx: the Fourier transform for eps_xx
+  // eps_xy: the Fourier transform for eps_xy
+  // eps_zx: the Fourier transform for eps_yx
+  // eps_yy: the Fourier transform for eps_yy
+  // eps_zz: the Fourier transform for eps_zz
+  // im_eps_xx: the Fourier transform for imaginary part
+  // im_eps_xy: the Fourier transform for imaginary part
+  // im_eps_yx: the Fourier transform for imaginary part
+  // im_eps_yy: the Fourier transform for imaginary part
+  // im_eps_zz: the Fourier transform for imaginary part
   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
   // nGx: the total number of G
   // center: the center of the grating
@@ -66,7 +66,7 @@ namespace FMM{
     RCWAcMatrix& eps_xy,
     RCWAcMatrix& eps_yx,
     RCWAcMatrix& eps_yy,
-    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& eps_zz,
     RCWAcMatrix& im_eps_xx,
     RCWAcMatrix& im_eps_xy,
     RCWAcMatrix& im_eps_yx,
@@ -86,16 +86,16 @@ namespace FMM{
   /*==============================================*/
   // This function computes the Fourier transform for rectangle geometry
   // @args:
-  // eps_xx: the Fourier trainsform for eps_xx
-  // eps_xy: the Fourier trainsform for eps_xy
-  // eps_zx: the Fourier trainsform for eps_yx
-  // eps_yy: the Fourier trainsform for eps_yy
-  // eps_zz_Inv: the inverse of Fourier transform of eps_zz
-  // im_eps_xx: the Fourier trainsform for imaginary part
-  // im_eps_xy: the Fourier trainsform for imaginary part
-  // im_eps_yx: the Fourier trainsform for imaginary part
-  // im_eps_yy: the Fourier trainsform for imaginary part
-  // im_eps_zz: the Fourier trainsform for imaginary part
+  // eps_xx: the Fourier transform for eps_xx
+  // eps_xy: the Fourier transform for eps_xy
+  // eps_zx: the Fourier transform for eps_yx
+  // eps_yy: the Fourier transform for eps_yy
+  // eps_zz: the Fourier transform for eps_zz
+  // im_eps_xx: the Fourier transform for imaginary part
+  // im_eps_xy: the Fourier transform for imaginary part
+  // im_eps_yx: the Fourier transform for imaginary part
+  // im_eps_yy: the Fourier transform for imaginary part
+  // im_eps_zz: the Fourier transform for imaginary part
   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
   // nG_x: the total number of G in x direction
   // nG_y: the total number of G in y direction
@@ -110,7 +110,7 @@ namespace FMM{
     RCWAcMatrix& eps_xy,
     RCWAcMatrix& eps_yx,
     RCWAcMatrix& eps_yy,
-    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& eps_zz,
     RCWAcMatrix& im_eps_xx,
     RCWAcMatrix& im_eps_xy,
     RCWAcMatrix& im_eps_yx,
@@ -131,16 +131,16 @@ namespace FMM{
   /*==============================================*/
   // This function computes the Fourier transform for circle geometry
   // @args:
-  // eps_xx: the Fourier trainsform for eps_xx
-  // eps_xy: the Fourier trainsform for eps_xy
-  // eps_zx: the Fourier trainsform for eps_yx
-  // eps_yy: the Fourier trainsform for eps_yy
-  // eps_zz_Inv: the inverse of Fourier transform of eps_zz
-  // im_eps_xx: the Fourier trainsform for imaginary part
-  // im_eps_xy: the Fourier trainsform for imaginary part
-  // im_eps_yx: the Fourier trainsform for imaginary part
-  // im_eps_yy: the Fourier trainsform for imaginary part
-  // im_eps_zz: the Fourier trainsform for imaginary part
+  // eps_xx: the Fourier transform for eps_xx
+  // eps_xy: the Fourier transform for eps_xy
+  // eps_zx: the Fourier transform for eps_yx
+  // eps_yy: the Fourier transform for eps_yy
+  // eps_zz: the Fourier transform for eps_zz
+  // im_eps_xx: the Fourier transform for imaginary part
+  // im_eps_xy: the Fourier transform for imaginary part
+  // im_eps_yx: the Fourier transform for imaginary part
+  // im_eps_yy: the Fourier transform for imaginary part
+  // im_eps_zz: the Fourier transform for imaginary part
   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
   // nG_x: the total number of G in x direction
   // nG_y: the total number of G in y direction
@@ -155,7 +155,7 @@ namespace FMM{
     RCWAcMatrix& eps_xy,
     RCWAcMatrix& eps_yx,
     RCWAcMatrix& eps_yy,
-    RCWAcMatrix& eps_zz_Inv,
+    RCWAcMatrix& eps_zz,
     RCWAcMatrix& im_eps_xx,
     RCWAcMatrix& im_eps_xy,
     RCWAcMatrix& im_eps_yx,
