@@ -563,7 +563,7 @@
 
 <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">10</span> <span class="kr">do</span>
   <span class="n">s</span><span class="p">:</span><span class="n">SetLayerThickness</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">1e-9</span><span class="p">);</span>
-  <span class="n">s</span><span class="p">:</span><span class="n">BuildRCWA</span><span class="p">();</span>
+  <span class="n">s</span><span class="p">:</span><span class="n">InitSimulation</span><span class="p">();</span>
   <span class="n">s</span><span class="p">:</span><span class="n">IntegrateKParallel</span><span class="p">();</span>
   <span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetPhi</span><span class="p">();</span>
   <span class="n">omega</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetOmega</span><span class="p">();</span>
