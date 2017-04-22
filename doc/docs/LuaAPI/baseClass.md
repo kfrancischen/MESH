@@ -190,7 +190,7 @@ SetKyIntegralSym(points, end)
 $$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $G_y/2$.
 
 ```lua
-InitSImulation()
+InitSimulation()
 ```
 * Arguments: None
 
@@ -203,7 +203,7 @@ IntegrateKxKy()
 
 * Output: None
 
-* Note: this function integrates over $k_x$ and $k_y$ based on the integral properties set by the user. So the function can only be called after the $k_x$ and $k_y$ integrals are configured, and RCWA matrices are built.
+* Note: this function integrates over $k_x$ and $k_y$ based on the integral properties set by the user. So the function can only be called after the $k_x$ and $k_y$ integrals are configured, and the system is initialized.
 
 ```lua
 IntegrateKxKyMPI(rank, size)

@@ -23,7 +23,7 @@ s:OptPrintIntermediate();
 s:SetGx(50);
 s:SetKxIntegralSym(500);
 s:SetKyIntegralSym(200, 5);
-s:BuildRCWA();
+s:InitSimulation();
 ```
 The above are the same as the standard Lua script. The following code configures the MPI.
 ```lua

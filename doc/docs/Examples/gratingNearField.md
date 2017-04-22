@@ -25,7 +25,7 @@ s:SetThread(4);
 s:SetGx(50);
 s:SetKxIntegralSym(500);
 s:SetKyIntegralSym(200, 5);
-s:BuildRCWA();
+s:InitSimulation();
 s:IntegrateKxKy();
 --print(string.format("%e", s:GetPhiAtKxKy(0, 0, 0)));
 phi = s:GetPhi();

@@ -21,7 +21,7 @@ s:SetKParallelIntegral(500);
 
 for i = 10, 100, 10 do
   s:SetLayerThickness("VacGap", i * 1e-9);
-  s:BuildRCWA();
+  s:InitSimulation();
   s:IntegrateKParallel();
   phi = s:GetPhi();
   omega = s:GetOmega();

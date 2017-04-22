@@ -26,7 +26,7 @@ s:SetProbeLayer("VacLayer");
 s:SetKParallelIntegral(100);
 s:SetThread(4);
 s:OptUseQuadgk();
-s:BuildRCWA();
+s:InitSimulation();
 s:IntegrateKParallel();
 phi = s:GetPhi();
 omega = s:GetOmega();

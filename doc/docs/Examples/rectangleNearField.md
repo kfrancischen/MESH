@@ -28,7 +28,7 @@ s:OutputSysInfo();
 s:OptPrintIntermediate();
 s:SetKxIntegralSym(20, 60);
 s:SetKyIntegralSym(20, 60);
-s:BuildRCWA();
+s:InitSimulation();
 s:IntegrateKxKy();
 
 phi = s:GetPhi();

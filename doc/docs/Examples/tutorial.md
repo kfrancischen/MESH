@@ -49,7 +49,7 @@ In this case, since we are simulating the heat transfer between the two GaAs lay
 #### 4. Build simulation and perform integration
 Now, with the system built up and the integral set up, one can build RCWA matrices and perform integration over $k_{\parallel}$.
 ```lua
-s:BuildRCWA();
+s:InitSimulation();
 s:IntegrateKParallel();
 ```
 
