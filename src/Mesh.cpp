@@ -1140,10 +1140,13 @@ namespace MESH{
       resultArray[i] = 0;
     }
 
+    //  this part is for the vanilla/openmp version of mesh
     if(parallel){
       for(int omegaIdx = 0; omegaIdx < numOfOmega_; omegaIdx++){
-        curOmegaIndex_ = omegaIdx;
-        this->buildRCWAMatrices();
+        if(curOmegaIndex_ != omegaIdx){
+          curOmegaIndex_ = omegaIdx;
+          this->buildRCWAMatrices();
+        }
         #if defined(_OPENMP)
           #pragma omp parallel for num_threads(numOfThread_)
         #endif
@@ -1160,11 +1163,14 @@ namespace MESH{
       }
 
     }
+    // this part is for the MPI version of mesh
     else{
       for(int i = start; i < end; i++){
           int omegaIdx = i / (numOfKx_ * numOfKy_);
-          curOmegaIndex_ = omegaIdx;
-          this->buildRCWAMatrices();
+          if(curOmegaIndex_ != omegaIdx){
+            curOmegaIndex_ = omegaIdx;
+            this->buildRCWAMatrices();
+          }
           int residue = i % (numOfKx_ * numOfKy_);
           int kxIdx = residue / numOfKy_;
           int kyIdx = residue % numOfKy_;
