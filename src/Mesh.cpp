@@ -254,6 +254,10 @@ namespace MESH{
   }
   /*==============================================*/
   // This function return reconstructed dielectric at a given point
+  // @args:
+  // omegaIndex: the index of the omega
+  // position: the spacial position in SI unit
+  // epsilon: the ouput epsilon values
   /*==============================================*/
   void Simulation::getEpsilon(const int omegaIndex, const double position[3], double* &epsilon){
     double positions[3] = {position[0] * MICRON, position[1] * MICRON, position[2] * MICRON};
@@ -303,6 +307,74 @@ namespace MESH{
     epsilon[7] = -imag(eps_yy);
     epsilon[8] = real(eps_zz);
     epsilon[9] = -imag(eps_zz);
+  }
+  /*==============================================*/
+  // This function return reconstructed dielectric at a given layer
+  // @args:
+  // omegaIndex: the index of the omega
+  // name: the name of the layer
+  // Nu: number of points in x direction
+  // Nv: number of points in y direction
+  // fileName: optional, the ouput file
+  /*==============================================*/
+  void Simulation::outputLayerPatternRealization(
+    const int omegaIndex,
+    const std::string name,
+    const int Nu,
+    const int Nv,
+    const std::string fileName
+  ){
+    if(Nu <= 0 || Nv <= 0){
+      std::cerr << "Number of point needs to be positive!" << std::endl;
+      throw UTILITY::RangeException("Number of point needs to be positive!");
+    }
+    double dx, dy;
+    if(Nu == 1) dx = period_[0];
+    else dx = period_[0] / (Nu - 1);
+
+    if(Nv == 1) dy = period_[1];
+    else dy = period_[1] / (Nv - 1);
+
+    double position[3] = {0, 0, 0};
+    double* epsilon = new double[10];
+    for(const_LayerInstanceIter it = layerInstanceMap_.cbegin(); it != layerInstanceMap_.cend(); it++){
+      std::string thisLayerName = it->first;
+      if(name.compare(thisLayerName) != 0){
+        position[2] += (it->second)->getThickness();
+      }
+      else{
+        position[2] += (it->second)->getThickness() / 2;
+        // if it is the top layer, be careful
+        if(it == layerInstanceMap_.cend()) position[2] *= 2;
+        break;
+      }
+    }
+
+    std::ofstream outputFile;
+    if(fileName != ""){
+      outputFile.open(fileName);
+    }
+
+    for(int i = 0; i < Nu; i++){
+      position[0] = dx * i;
+      for(int j = 0; j < Nv; j++){
+        position[1] = dy * j;
+        this->getEpsilon(omegaIndex, position, epsilon);
+        if(fileName != ""){
+          outputFile << i << "\t" << j;
+          for(int k = 0; k < 10; k++) outputFile << "\t" << epsilon[k];
+          outputFile << std::endl;
+        }
+        else{
+          std::cout << i << "\t" << j << "\t";
+          for(int k = 0; k < 10; k++) std::cout << "\t" << epsilon[k];
+          std::cout << std::endl;
+        }
+      }
+    }
+
+    if(fileName != "") outputFile.close();
+    delete [] epsilon;
   }
   /*==============================================*/
   // This function return the number of omega
@@ -680,6 +752,11 @@ namespace MESH{
     for(int i = 0; i < numOfOmega_; i++){
       Phi_[i] = 0;
     }
+    // initialize layers
+    for(int i = 0; i < numOfLayer; i++){
+      Ptr<Layer> layer = structure_->getLayerByIndex(i);
+      layer->getGeometryContainmentRelation();
+    }
   }
   /*==============================================*/
   // This function builds up the matrices
@@ -710,7 +787,15 @@ namespace MESH{
         Ptr<Material> material = *(m_it + count);
         EpsilonVal epsilon = material->getEpsilonAtIndex(curOmegaIndex_);
         count++;
-
+        EpsilonVal epsParentTensor;
+        if(pattern.parent == -1){
+          epsParentTensor = epsBGTensor;
+        }
+        else{
+          Ptr<Material> materialParent = *(m_it + pattern.parent);
+          EpsilonVal epsParent = materialParent->getEpsilonAtIndex(curOmegaIndex_);
+          epsParentTensor = FMM::toTensor(epsParent, materialParent->getType());
+        }
         switch(pattern.type_){
           /*************************************/
           // if the pattern is a grating (1D)
@@ -729,7 +814,7 @@ namespace MESH{
               im_eps_yx,
               im_eps_yy,
               im_eps_zz,
-              epsBGTensor,
+              epsParentTensor,
               epsilon,
               material->getType(),
               nGx_,
@@ -759,7 +844,7 @@ namespace MESH{
               im_eps_yx,
               im_eps_yy,
               im_eps_zz,
-              epsBGTensor,
+              epsParentTensor,
               epsilon,
               material->getType(),
               nGx_,
@@ -789,7 +874,7 @@ namespace MESH{
               im_eps_yx,
               im_eps_yy,
               im_eps_zz,
-              epsBGTensor,
+              epsParentTensor,
               epsilon,
               material->getType(),
               nGx_,
@@ -876,6 +961,7 @@ namespace MESH{
     std::cout << "==================================================" << std::endl;
     for(const_LayerIter it = structure_->getLayersBegin(); it != structure_->getLayersEnd(); it++){
       Ptr<Layer> layer = it->second;
+      layer->getGeometryContainmentRelation();
       std::cout << "Layer index " << it->first << ": " << layer->getName() << std::endl;
       std::cout << "Thickness: " << layer->getThickness() << std::endl;
 
@@ -895,7 +981,7 @@ namespace MESH{
         for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){
           std::cout << "Material for pattern " << count + 1 << ": " << (*(m_it + count))->getName() << std::endl;
           std::cout << "Pattern " << count + 1 << " is: ";
-          switch((*it).type_){
+          switch(it->type_){
             case GRATING_:{
               std::cout << "grating, ";
               std::cout << "(c, w) = (" << (*it).arg1_.first << ", " << (*it).arg1_.second << ")\n";
@@ -914,6 +1000,9 @@ namespace MESH{
               break;
             }
             default: break;
+          }
+          if(it->parent != -1){
+            std::cout << "**** contained in pattern " << it->parent + 1 << std::endl;
           }
           count++;
         }

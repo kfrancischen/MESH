@@ -24,6 +24,7 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <algorithm>
 
 namespace SYSTEM{
   /*======================================================
@@ -76,6 +77,8 @@ namespace SYSTEM{
     LayerPattern arg1_;
     LayerPattern arg2_;
     PATTERN type_;
+    double area;
+    int parent = -1;
   } Pattern;
   typedef std::vector< Pattern > PatternVec;
   typedef PatternVec::iterator PatternIter;
@@ -123,7 +126,9 @@ namespace SYSTEM{
     void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
     void addGratingPattern(const Ptr<Material>& material, const double center, const double width);
 
+    void getGeometryContainmentRelation();
   private:
+    bool isContainedInGeometry(const Pattern& pattern1, const Pattern& pattern2);
     enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 
     Layer(const string name, const Ptr<Material>& material, const double thickness);

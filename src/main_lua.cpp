@@ -312,6 +312,28 @@ int MESH_GetEpsilon(lua_State *L){
   return 1;
 }
 
+// this function wraps outputLayerPatternRealization(const int omegaIndex, const std::string name, const int Nu, const int Nv, const std::string fileName)
+// @how to use
+// outputLayerPatternRealization(omegaIndex, layer name, Nu, Nv) or
+// OutputLayerPatternRealization(omegaIndex, layer name, Nu, Nv, filename)
+int MESH_OutputLayerPatternRealization(lua_State *L){
+  int n = lua_gettop(L);
+
+  Simulation *s = luaW_check<Simulation>(L, 1);
+  int omegaIdx = luaU_check<int>(L, 2) - 1;
+  std::string name = luaU_check<std::string>(L, 3);
+  int Nu = luaU_check<int>(L, 4);
+  int Nv = luaU_check<int>(L, 5);
+  if(n == 5){
+    s->outputLayerPatternRealization(omegaIdx, name, Nu, Nv);
+  }
+  else{
+    std::string fileName = luaU_check<std::string>(L, 6);
+    s->outputLayerPatternRealization(omegaIdx, name, Nu, Nv, fileName);
+  }
+  return 1;
+}
+
 // this function wraps getNumOfOmega()
 // @how to use
 // GetNumOfOmega()
@@ -666,6 +688,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "GetNumOfOmega", MESH_GetNumOfOmega },
   { "GetPhiAtKxKy", MESH_GetPhiAtKxKy },
   { "OutputSysInfo", MESH_OutputSysInfo },
+  { "OutputLayerPatternRealization", MESH_OutputLayerPatternRealization },
   { "OptPrintIntermediate", MESH_OptPrintIntermediate },
   { "OptUseInverseRule", MESH_OptUseInverseRule },
   { "OptUseNaiveRule", MESH_OptUseNaiveRule },

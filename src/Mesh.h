@@ -118,6 +118,13 @@ public:
   double* getPhi();
   double* getOmega();
   void getEpsilon(const int omegaIndex, const double position[3], double* &epsilon);
+  void outputLayerPatternRealization(
+    const int omegaIndex,
+    const std::string name,
+    const int Nu,
+    const int Nv,
+    const std::string fileName = ""
+  );
   int getNumOfOmega();
   void initSimulation();
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);

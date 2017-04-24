@@ -272,6 +272,19 @@ OutputSysInfo()
 
 * Note: the function prints out a system description to screen.
 
+```lua
+OutputLayerPatternRealization(omega index, name, Nu, Nv, filename)
+```
+* Arguments:
+    1. omega index: [int], the index of the omega value that the dielectric is evaluated.   To be consistent with Lua, this index starts from $1$.
+    2. name: [string], the name of the layer.
+    3. Nu: [int], number of points in x direction in one periodicity.
+    4. Nv: [int], number of points in y direction in one periodicity.
+    5. filename: [string], optional. If not given, then the epsilon values will be printed to standard output.
+
+* Output: None
+
+* Note: the epsilon format will be the same as the function `GetEpsilon`.
 
 Also, MESH provides some options for printing intermediate information and methods for Fourier transform of the dielectric.
 

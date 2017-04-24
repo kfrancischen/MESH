@@ -365,6 +365,7 @@ namespace SYSTEM{
     pattern.arg1_ = std::make_pair(args1[0], args1[1]);
     pattern.arg2_ = std::make_pair(args2[0], args2[1]);
     pattern.type_ = RECTANGLE_;
+    pattern.area = args2[0] * args2[1];
     patternVec_.push_back(pattern);
   }
 
@@ -386,6 +387,7 @@ namespace SYSTEM{
     pattern.arg1_ = std::make_pair(args[0], radius);
     pattern.arg2_ = std::make_pair(args[1], radius);
     pattern.type_ = CIRCLE_;
+    pattern.area = 3.14159265358979323846 * POW2(radius);
     patternVec_.push_back(pattern);
   }
   /*==============================================*/
@@ -406,7 +408,89 @@ namespace SYSTEM{
     pattern.arg1_ = std::make_pair(center, width);
     pattern.arg2_ = std::make_pair(0, 0);
     pattern.type_ = GRATING_;
+    pattern.area = width;
     patternVec_.push_back(pattern);
+  }
+  /*==============================================*/
+  // function generating the containment relation between patterns
+  /*==============================================*/
+  void Layer::getGeometryContainmentRelation(){
+    std::vector< std::pair<int, double> > areaVec;
+    int count = 0;
+    for(const_PatternIter it = this->getPatternsBegin(); it != this->getPatternsEnd(); it++){
+      areaVec.push_back(std::make_pair(count, it->area));
+      count++;
+    }
+    // sort in reverse order
+    std::sort(
+      areaVec.begin(),
+      areaVec.end(),
+      [](const std::pair<int, double>& lhs, const std::pair<int, double>& rhs) {
+             return lhs.second < rhs.second; }
+    );
+    // for(size_t i = 0; i < areaVec.size(); i++){
+    //   std::cout << areaVec[i].first << "\t" << areaVec[i].second << std::endl;
+    // }
+    for(size_t i = 0; i < areaVec.size(); i++){
+      for(size_t j = i + 1; j < areaVec.size(); j++){
+        Pattern pattern2 = patternVec_[areaVec[i].first]; // pattern with smaller area
+        Pattern pattern1 = patternVec_[areaVec[j].first]; // pattern with larger area
+        if(this->isContainedInGeometry(pattern1, pattern2)){
+          patternVec_[areaVec[i].first].parent = areaVec[j].first;
+          break;
+        }
+      }
+    }
+  }
+
+  /*==============================================*/
+  // function checking whether pattern2 is contained in pattern1
+  // @args:
+  // pattern1: the parent pattern to be checked
+  // pattern2: the child pattern to be checked
+  /*==============================================*/
+  bool Layer::isContainedInGeometry(const Pattern& pattern1, const Pattern& pattern2){
+    double center2[2] = {0, 0};
+    switch (pattern2.type_) {
+      case GRATING_:{
+        center2[0] = pattern2.arg1_.first;
+        break;
+      }
+      case RECTANGLE_:{
+        center2[0] = pattern2.arg1_.first;
+        center2[1] = pattern2.arg1_.second;
+        break;
+      }
+      case CIRCLE_:{
+        center2[0] = pattern2.arg1_.first;
+        center2[1] = pattern2.arg2_.first;
+      }
+      default: break;
+    }
+
+    switch (pattern1.type_) {
+      case GRATING_:{
+        double center1 = pattern1.arg1_.first;
+        double width1 = pattern1.arg1_.second;
+        if(std::abs(center2[0] - center1) <= width1 / 2) return true;
+        break;
+      }
+      case RECTANGLE_:{
+        double center1[2] = {pattern1.arg1_.first, pattern1.arg1_.second};
+        double width1[2] = {pattern1.arg2_.first, pattern1.arg2_.second};
+        if(std::abs(center2[0] - center1[0]) <= width1[0]/2 && std::abs(center2[1] - center1[1]) <= width1[1]/2) return true;
+        break;
+      }
+      case CIRCLE_:{
+        double center1[2] = {pattern1.arg1_.first, pattern1.arg2_.first};
+        double radius = pattern1.arg1_.second;
+        if(POW2(center2[0] - center1[0]) + POW2(center2[1] - center1[1]) <= POW2(radius)) return true;
+        break;
+      }
+      default: break;
+    }
+
+    return false;
   }
 
   /*==============================================*/
