@@ -988,6 +988,28 @@ For tensor dielectric, the format is a list of   <br />
 <p>Note: the function prints out a system description to screen.</p>
 </li>
 </ul>
+<div class="codehilite"><pre><span></span><span class="n">OutputLayerPatternRealization</span><span class="p">(</span><span class="n">omega</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">Nu</span><span class="p">,</span> <span class="n">Nv</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>omega index: [int], the index of the omega value that the dielectric is evaluated.   To be consistent with Lua, this index starts from <script type="math/tex">1</script>.</li>
+<li>name: [string], the name of the layer.</li>
+<li>Nu: [int], number of points in x direction in one periodicity.</li>
+<li>Nv: [int], number of points in y direction in one periodicity.</li>
+<li>filename: [string], optional. If not given, then the epsilon values will be printed to standard output.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+<li>
+<p>Note: the epsilon format will be the same as the function <code>GetEpsilon</code>.</p>
+</li>
+</ul>
 <p>Also, MESH provides some options for printing intermediate information and methods for Fourier transform of the dielectric.</p>
 <div class="codehilite"><pre><span></span><span class="n">OptOnlyComputeTE</span><span class="p">()</span>
 </pre></div>
