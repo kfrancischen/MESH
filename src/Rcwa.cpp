@@ -169,7 +169,7 @@ RCWA::RCWArMatrix RCWA::sinc(const RCWArMatrix x){
  x: the input argument
 ==============================================================*/
 double RCWA::jinc(const double x){
-  if(x == 0.0) return 1;
+  if(x == 0.0) return 0.5;
   double j1 = 0;
   double j0, y0, y1, j0p, j1p, y0p, y1p;
   bessjy01a(x, j0, j1, y0, y1, j0p, j1p, y0p, y1p);
