@@ -432,6 +432,7 @@ namespace SYSTEM{
     //   std::cout << areaVec[i].first << "\t" << areaVec[i].second << std::endl;
     // }
     for(size_t i = 0; i < areaVec.size(); i++){
+      patternVec_[areaVec[i].first].parent = -1;
       for(size_t j = i + 1; j < areaVec.size(); j++){
         Pattern pattern2 = patternVec_[areaVec[i].first]; // pattern with smaller area
         Pattern pattern1 = patternVec_[areaVec[j].first]; // pattern with larger area
