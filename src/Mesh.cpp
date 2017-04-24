@@ -995,7 +995,7 @@ namespace MESH{
             }
             case CIRCLE_:{
               std::cout << "circle, ";
-              std::cout << "(c, w) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first << "), ";
+              std::cout << "(c_x, c_y) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first << "), ";
               std::cout << "r = " << (*it).arg1_.second << std::endl;
               break;
             }
