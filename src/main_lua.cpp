@@ -374,24 +374,6 @@ int MESH_OutputSysInfo(lua_State *L){
   return 1;
 }
 
-// this function wraps optUseInverseRule()
-// @how to use
-// OptUseInverseRule()
-int MESH_OptUseInverseRule(lua_State *L){
-  Simulation* s = luaW_check<Simulation>(L, 1);
-  s->optUseInverseRule();
-  return 1;
-}
-
-// this function wraps optUseNaiveRule()
-// @how to use
-// OptUseNaiveRule()
-int MESH_OptUseNaiveRule(lua_State *L){
-  Simulation* s = luaW_check<Simulation>(L, 1);
-  s->optUseNaiveRule();
-  return 1;
-}
-
 // this function wraps optPrintIntermediate()
 // @how to use
 // OptPrintIntermediate()
@@ -711,8 +693,6 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "OutputSysInfo", MESH_OutputSysInfo },
   { "OutputLayerPatternRealization", MESH_OutputLayerPatternRealization },
   { "OptPrintIntermediate", MESH_OptPrintIntermediate },
-  { "OptUseInverseRule", MESH_OptUseInverseRule },
-  { "OptUseNaiveRule", MESH_OptUseNaiveRule },
   { "OptOnlyComputeTE", MESH_OptOnlyComputeTE },
   { "OptOnlyComputeTM", MESH_OptOnlyComputeTM },
   { "InitSimulation", MESH_InitSimulation },

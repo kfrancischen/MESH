@@ -306,23 +306,6 @@ OptOnlyComputeTM()
 
 * Note: with this function, the package only computes flux contributed from TM mode.
 
-```lua
-OptUseNaiveRule()
-```
-* Arguments: None
-
-* Output: None
-
-* Note: this function tells the RCWA to use the simplest closed form Fourier transform for the dielectric.
-
-```lua
-OptUseInverseRule()
-```
-* Arguments: None
-
-* Output: None
-
-* Note: this function tells the RCWA to use the inverse rule of the Fourier transform for the dielectric. (This options is not implemented yet.)
 
 ```lua
 OptPrintIntermediate()

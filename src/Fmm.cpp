@@ -209,7 +209,6 @@
    // width: the width of the grating
    // period: the periodicity
    // hasTensor: whether this layer contains tensor
-   // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformGrating(
     RCWAcMatrix& eps_xx,
@@ -229,8 +228,7 @@
     const double center,
     const double width,
     const double period,
-    const bool hasTensor,
-    const bool useInverse
+    const bool hasTensor
    ){
 
      RCWArMatrix Gx_mat, Gy_mat;
@@ -303,7 +301,6 @@
    // widths: the widths of the rectangle
    // period: the periodicity
    // hasTensor: whether this layer contains tensor
-   // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformRectangle(
     RCWAcMatrix& eps_xx,
@@ -324,8 +321,7 @@
     const double centers[2],
     const double widths[2],
     const double period[2],
-    const bool hasTensor,
-    const bool useInverse
+    const bool hasTensor
    ){
 
      double area = period[0] * period[1];
@@ -402,7 +398,6 @@
    // radius: the radius of the circle
    // period: the periodicity
    // hasTensor: whether this layer contains tensor
-   // useInverse: whether to use inverse rule
    /*==============================================*/
    void transformCircle(
     RCWAcMatrix& eps_xx,
@@ -423,8 +418,7 @@
     const double centers[2],
     const double radius,
     const double period[2],
-    const bool hasTensor,
-    const bool useInverse
+    const bool hasTensor
    ){
      int N = RCWA::getN(nGx, nGy);
      double area = period[0] * period[1];
@@ -438,7 +432,7 @@
 
      RCWArMatrix GxMat = Gx_l - Gx_r;
      RCWArMatrix GyMat = Gy_l - Gy_r;
-
+     //cout << GxMat << std::endl << GyMat << std::endl;
      RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
 
      dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
@@ -503,7 +497,6 @@
     // halfwidths: the halfwidths of the ellipse
     // period: the periodicity
     // hasTensor: whether this layer contains tensor
-    // useInverse: whether to use inverse rule
     /*==============================================*/
     void transformEllipse(
      RCWAcMatrix& eps_xx,
@@ -524,8 +517,7 @@
      const double centers[2],
      const double halfwidths[2],
      const double period[2],
-     const bool hasTensor,
-     const bool useInverse
+     const bool hasTensor
     ){
       int N = RCWA::getN(nGx, nGy);
       double area = period[0] * period[1];

@@ -821,8 +821,7 @@ namespace MESH{
               center,
               width,
               period[0],
-              layer->hasTensor(),
-              options_.FMMRule == INVERSERULE_
+              layer->hasTensor()
             );
             break;
           }
@@ -852,8 +851,7 @@ namespace MESH{
               centers,
               widths,
               period,
-              layer->hasTensor(),
-              options_.FMMRule == INVERSERULE_
+              layer->hasTensor()
             );
             break;
           }
@@ -882,8 +880,7 @@ namespace MESH{
               centers,
               radius,
               period,
-              layer->hasTensor(),
-              options_.FMMRule == INVERSERULE_
+              layer->hasTensor()
             );
             break;
           }
@@ -912,8 +909,7 @@ namespace MESH{
               centers,
               halfwidths,
               period,
-              layer->hasTensor(),
-              options_.FMMRule == INVERSERULE_
+              layer->hasTensor()
             );
             break;
           }
@@ -1045,18 +1041,6 @@ namespace MESH{
       }
       std::cout << "==================================================" << std::endl;
     }
-  }
-  /*==============================================*/
-  // function using naive implementaion
-  /*==============================================*/
-  void Simulation::optUseNaiveRule(){
-    options_.FMMRule = NAIVEFMM_;
-  }
-  /*==============================================*/
-  // function using inverse rule
-  /*==============================================*/
-  void Simulation::optUseInverseRule(){
-    options_.FMMRule = INVERSERULE_;
   }
   /*==============================================*/
   // function print intermediate results

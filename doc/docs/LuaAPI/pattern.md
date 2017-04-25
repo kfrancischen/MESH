@@ -43,4 +43,4 @@ SetLayerPatternEllipse(layer name, material name, {centerx, centery}, {a, b})
 * Output: None
 
 * Note: the ellipse is written as:
-    $$\frac{x^2}{a^2}+\frac{y^2}{b^2}=1$$
+    $$\frac{(x-x_c)^2}{a^2}+\frac{(y-y_c)^2}{b^2}=1$$

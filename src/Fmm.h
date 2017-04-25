@@ -59,7 +59,6 @@ namespace FMM{
   // width: the width of the grating
   // period: the periodicity
   // hasTensor: whether this layer contains tensor
-  // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformGrating(
     RCWAcMatrix& eps_xx,
@@ -79,8 +78,7 @@ namespace FMM{
     const double center,
     const double width,
     const double period,
-    const bool hasTensor,
-    const bool useInverse
+    const bool hasTensor
   );
 
   /*==============================================*/
@@ -103,7 +101,6 @@ namespace FMM{
   // widths: the widths of the rectangle
   // period: the periodicity
   // hasTensor: whether this layer contains tensor
-  // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformRectangle(
     RCWAcMatrix& eps_xx,
@@ -124,8 +121,7 @@ namespace FMM{
     const double centers[2],
     const double widths[2],
     const double period[2],
-    const bool hasTensor,
-    const bool useInverse
+    const bool hasTensor
   );
 
   /*==============================================*/
@@ -148,7 +144,6 @@ namespace FMM{
   // radius: the radius of the circle
   // period: the periodicity
   // hasTensor: whether this layer contains tensor
-  // userInverse: whether to use inverse rule
   /*==============================================*/
   void transformCircle(
     RCWAcMatrix& eps_xx,
@@ -169,8 +164,7 @@ namespace FMM{
     const double centers[2],
     const double radius,
     const double period[2],
-    const bool hasTensor,
-    const bool useInverse
+    const bool hasTensor
   );
 
   /*==============================================*/
@@ -193,7 +187,6 @@ namespace FMM{
   // halfwidths: the halfwidths of the ellipse
   // period: the periodicity
   // hasTensor: whether this layer contains tensor
-  // useInverse: whether to use inverse rule
   /*==============================================*/
   void transformEllipse(
    RCWAcMatrix& eps_xx,
@@ -214,8 +207,7 @@ namespace FMM{
    const double centers[2],
    const double halfwidths[2],
    const double period[2],
-   const bool hasTensor,
-   const bool useInverse
+   const bool hasTensor
  );
 }
 

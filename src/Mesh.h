@@ -39,7 +39,7 @@ using namespace RCWA;
 
 
 enum INTEGRAL {GAUSSLEGENDRE_, GAUSSKRONROD_};
-enum METHOD {NAIVEFMM_, INVERSERULE_, SPATIALADAPTIVE_};
+enum METHOD {NAIVEFMM_, SPATIALADAPTIVE_};
 
 typedef struct OPTIONS{
   int FMMRule = NAIVEFMM_;
@@ -131,8 +131,6 @@ public:
 
   void outputSysInfo();
 
-  void optUseInverseRule();
-  void optUseNaiveRule();
   void optPrintIntermediate();
   void optOnlyComputeTE();
   void optOnlyComputeTM();
