@@ -647,6 +647,27 @@ int MESH_SetLayerPatternRectangle(lua_State *L){
   return 1;
 }
 
+// this function wraps setLayerPatternEllipse(const std::string layerName, const std::string materialName,
+//  const double centerx, const double centery, const double halfwidthx, const double halfwidthy)
+// @how to use
+// SetLayerPatternEllipse(layer name, material name, {centerx, centery}, {halfwidthx, halfwidthy})
+int MESH_SetLayerPatternEllipse(lua_State *L){
+  SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
+  std::string layerName = luaU_check<std::string>(L, 2);
+  std::string materialName = luaU_check<std::string>(L, 3);
+  double vals[4];
+  for(int i = 0; i < 2; i++){
+    for(int j= 0; j < 2; j++){
+      lua_pushinteger(L, j+1);
+      lua_gettable(L, 4+i);
+      vals[2*i+j] = luaU_check<double>(L, -1);
+      lua_pop(L, 1);
+    }
+  }
+  s->setLayerPatternEllipse(layerName, materialName, vals[0], vals[1], vals[2], vals[3]);
+  return 1;
+}
+
 // this function wraps setLayerPatternCircle(const std::string layerName,const std::string materialName,
 //  const double centerx, const double centery, const double radius)
 // @how to use
@@ -723,6 +744,7 @@ static luaL_Reg character_metatable_SimulationGrating[] = {
 static luaL_Reg character_metatable_SimulationPattern[] = {
   { "SetLayerPatternRectangle", MESH_SetLayerPatternRectangle },
   { "SetLayerPatternCircle", MESH_SetLayerPatternCircle },
+  { "SetLayerPatternEllipse", MESH_SetLayerPatternEllipse },
   { NULL, NULL}
 };
 

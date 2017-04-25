@@ -32,7 +32,7 @@ using UTILITY::PtrInterface;
 using UTILITY::NamedInterface;
 
 enum DIMENSION { NO_, ONE_, TWO_ };
-enum PATTERN {GRATING_, RECTANGLE_, CIRCLE_};
+enum PATTERN {GRATING_, RECTANGLE_, CIRCLE_, ELLIPSE_};
 enum EPSTYPE {SCALAR_, DIAGONAL_, TENSOR_};
 enum POLARIZATION {TE_, TM_, BOTH_};
 #define POW2(x) pow(x, 2)

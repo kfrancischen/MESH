@@ -124,6 +124,7 @@ namespace SYSTEM{
 
     void addRectanlgePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
     void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
+    void addEllipsePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
     void addGratingPattern(const Ptr<Material>& material, const double center, const double width);
 
     void getGeometryContainmentRelation();

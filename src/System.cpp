@@ -223,6 +223,13 @@ namespace SYSTEM{
           const double arg[2] = {pattern.arg1_.first, pattern.arg2_.first};
           const double radius = pattern.arg1_.second;
           newLayer->addCirclePattern(*(itMat + count), arg, radius);
+          break;
+        }
+        case ELLIPSE_:{
+          const double arg1[2] = {pattern.arg1_.first, pattern.arg1_.second};
+          const double arg2[2] = {pattern.arg2_.first, pattern.arg2_.second};
+          newLayer->addEllipsePattern(*(itMat + count), arg1, arg2);
+          break;
         }
         default: break;
       }
@@ -368,7 +375,28 @@ namespace SYSTEM{
     pattern.area = args2[0] * args2[1];
     patternVec_.push_back(pattern);
   }
+  /*==============================================*/
+  // add an ellipse pattern
+  // @args:
+  // material: the material used for this part of the pattern
+  // args1: the position of centers (x,y)
+  // args2: the halfwidths in x and y directions
+  /*==============================================*/
+  void Layer::addEllipsePattern(
+    const Ptr<Material>& material,
+    const double args1[2],
+    const double args2[2]
+  ){
 
+    materialVec_.push_back(material);
+    if(material->getType() == TENSOR_) hasTensor_++;
+    Pattern pattern;
+    pattern.arg1_ = std::make_pair(args1[0], args1[1]);
+    pattern.arg2_ = std::make_pair(args2[0], args2[1]);
+    pattern.type_ = ELLIPSE_;
+    pattern.area = 3.14159265358979323846 * args2[0] * args2[1];
+    patternVec_.push_back(pattern);
+  }
   /*==============================================*/
   // add a circular pattern
   // @args:
@@ -465,6 +493,12 @@ namespace SYSTEM{
       case CIRCLE_:{
         center2[0] = pattern2.arg1_.first;
         center2[1] = pattern2.arg2_.first;
+        break;
+      }
+      case ELLIPSE_:{
+        center2[0] = pattern2.arg1_.first;
+        center2[1] = pattern2.arg1_.second;
+        break;
       }
       default: break;
     }
@@ -486,6 +520,12 @@ namespace SYSTEM{
         double center1[2] = {pattern1.arg1_.first, pattern1.arg2_.first};
         double radius = pattern1.arg1_.second;
         if(POW2(center2[0] - center1[0]) + POW2(center2[1] - center1[1]) <= POW2(radius)) return true;
+        break;
+      }
+      case ELLIPSE_:{
+        double center1[2] = {pattern1.arg1_.first, pattern1.arg1_.second};
+        double halfwidth1[2] = {pattern1.arg2_.first, pattern1.arg2_.second};
+        if(POW2((center2[0] - center1[0]) / halfwidth1[0]) + POW2((center2[1] - center1[1]) / halfwidth1[1]) <= 1) return true;
         break;
       }
       default: break;

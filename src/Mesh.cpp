@@ -887,6 +887,36 @@ namespace MESH{
             );
             break;
           }
+          /*************************************/
+          // if the pattern is an ellipse (2D)
+          /************************************/
+          case ELLIPSE_:{
+            double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg1_.second * MICRON};
+            double halfwidths[2] = {pattern.arg2_.first * MICRON, pattern.arg2_.second * MICRON};
+            FMM::transformEllipse(
+              eps_xx,
+              eps_xy,
+              eps_yx,
+              eps_yy,
+              eps_zz,
+              im_eps_xx,
+              im_eps_xy,
+              im_eps_yx,
+              im_eps_yy,
+              im_eps_zz,
+              epsParentTensor,
+              epsilon,
+              material->getType(),
+              nGx_,
+              nGy_,
+              centers,
+              halfwidths,
+              period,
+              layer->hasTensor(),
+              options_.FMMRule == INVERSERULE_
+            );
+            break;
+          }
           default: break;
         }
       }
@@ -997,6 +1027,12 @@ namespace MESH{
               std::cout << "circle, ";
               std::cout << "(c_x, c_y) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first << "), ";
               std::cout << "r = " << (*it).arg1_.second << std::endl;
+              break;
+            }
+            case ELLIPSE_:{
+              std::cout << "ellipse, ";
+              std::cout << "(c_x, a) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first <<"), ";
+              std::cout << "(c_y, b) = (" << (*it).arg1_.second << ", " << (*it).arg2_.second <<")\n";
               break;
             }
             default: break;
@@ -1562,6 +1598,40 @@ namespace MESH{
     Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
     double arg1[2] = {centerx, centery};
     layer->addCirclePattern(material, arg1, radius);
+  }
+  /*==============================================*/
+  // This function add ellipse pattern to a layer
+  // @args:
+  // layerName: the name of the layer
+  // materialName: the name of the material
+  // centerx: the center of the ellipse in x direction
+  // centery: the center of the ellipse in y direction
+  // halfwidthx: the halfwidth of the ellipse in x direction
+  // halfwidthy: the halfwidth of the ellipse in y direction
+  /*==============================================*/
+  void SimulationPattern::setLayerPatternEllipse(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double halfwidthx,
+    const double halfwidthy
+  ){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      std::cerr << layerName + ": Layer does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
+      return;
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
+    double arg1[2] = {centerx, centery};
+    double arg2[2] = {halfwidthx, halfwidthy};
+    layer->addEllipsePattern(material, arg1, arg2);
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer

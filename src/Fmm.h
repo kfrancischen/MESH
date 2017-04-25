@@ -173,7 +173,50 @@ namespace FMM{
     const bool useInverse
   );
 
-
+  /*==============================================*/
+  // This function computes the Fourier transform for ellipse geometry
+  // @args:
+  // eps_xx: the Fourier transform for eps_xx
+  // eps_xy: the Fourier transform for eps_xy
+  // eps_zx: the Fourier transform for eps_yx
+  // eps_yy: the Fourier transform for eps_yy
+  // eps_zz: the Fourier transform for eps_zz
+  // im_eps_xx: the Fourier transform for imaginary part
+  // im_eps_xy: the Fourier transform for imaginary part
+  // im_eps_yx: the Fourier transform for imaginary part
+  // im_eps_yy: the Fourier transform for imaginary part
+  // im_eps_zz: the Fourier transform for imaginary part
+  // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
+  // nG_x: the total number of G in x direction
+  // nG_y: the total number of G in y direction
+  // centers: the centers of the ellipse
+  // halfwidths: the halfwidths of the ellipse
+  // period: the periodicity
+  // hasTensor: whether this layer contains tensor
+  // useInverse: whether to use inverse rule
+  /*==============================================*/
+  void transformEllipse(
+   RCWAcMatrix& eps_xx,
+   RCWAcMatrix& eps_xy,
+   RCWAcMatrix& eps_yx,
+   RCWAcMatrix& eps_yy,
+   RCWAcMatrix& eps_zz,
+   RCWAcMatrix& im_eps_xx,
+   RCWAcMatrix& im_eps_xy,
+   RCWAcMatrix& im_eps_yx,
+   RCWAcMatrix& im_eps_yy,
+   RCWAcMatrix& im_eps_zz,
+   const EpsilonVal& epsBGTensor,
+   const EpsilonVal& epsilon,
+   const EPSTYPE epsilonType,
+   const int nGx,
+   const int nGy,
+   const double centers[2],
+   const double halfwidths[2],
+   const double period[2],
+   const bool hasTensor,
+   const bool useInverse
+ );
 }
 
 #endif

@@ -275,6 +275,16 @@ public:
     const double centery,
     const double radius
   );
+
+  void setLayerPatternEllipse(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    const double halfwidthx,
+    const double halfwdithy
+  );
+
   SimulationPattern();
   SimulationPattern(const SimulationPattern&) = delete;
 
