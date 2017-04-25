@@ -588,6 +588,29 @@
 <p>Output: None</p>
 </li>
 </ul>
+<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternEllipse</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="p">{</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>layer name: [string], the layer that this ellipse pattern will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>material name: [string],  the material used as the ellipse pattern. Such material should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>{centerx, centery}: [double table], the centers of the ellipse pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
+<li>{a, b}: [double], the half widths the ellipse pattern in SI unit.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+<li>
+<p>Note: the ellipse is written as:
+    <script type="math/tex; mode=display">\frac{x^2}{a^2}+\frac{y^2}{b^2}=1</script>
+</p>
+</li>
+</ul>
                 
                   
                 
