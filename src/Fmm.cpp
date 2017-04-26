@@ -217,29 +217,31 @@
      int count = 0;
      for(RCWArMatrix::const_iterator GxMat_it = GxMat.cbegin(); GxMat_it != GxMat.cend(); GxMat_it++){
        double u = (*GxMat_it), v = *(GyMat_it + count);
-       for(size_t i = 0; i < edgeList.size(); i++){
-         double x_cur = edgeList[i].first, y_cur = edgeList[i].second;
-         double x_next, y_next;
-         if(i == edgeList.size() - 1){
-           x_next = edgeList[0].first;
-           y_next = edgeList[0].second;
-         }
-         else{
-           x_next = edgeList[i+1].first;
-           y_next = edgeList[i+1].second;
-         }
-         if( u == 0.0 && v == 0.0 ){
-           *(result_it + count) = area;
-           break; // this should be only computed once per iteration
-         }
-         // case when u = 0
-         else if( u == 0.0 ){
-           *(result_it + count) += -1.0/v * (x_next - x_cur) * exp(IMAG_I * (u*(x_next+x_cur)/2 + v*(y_next+y_cur)/2))
-              * RCWA::sinc((x_next-x_cur)*u/2 + (y_next-y_cur)*v/2);
-         }
-         else{
-           *(result_it + count) += 1.0/u * (y_next - y_cur) * exp(IMAG_I * (u*(x_next+x_cur)/2 + v*(y_next+y_cur)/2))
-              * RCWA::sinc((x_next-x_cur)*u/2 + (y_next-y_cur)*v/2);
+       if(u == 0.0 && v == 0.0){
+         *(result_it + count) = area;
+       }
+       else{
+         for(size_t i = 0; i < edgeList.size(); i++){
+           double x_cur = edgeList[i].first, y_cur = edgeList[i].second;
+           double x_next, y_next;
+           if(i == edgeList.size() - 1){
+             x_next = edgeList[0].first;
+             y_next = edgeList[0].second;
+           }
+           else{
+             x_next = edgeList[i+1].first;
+             y_next = edgeList[i+1].second;
+           }
+
+           // case when u = 0
+           if( u == 0.0 ){
+             *(result_it + count) += IMAG_I/v * (x_next - x_cur) * exp(IMAG_I * (u*(x_next+x_cur)/2 + v*(y_next+y_cur)/2))
+                * RCWA::sinc((x_next-x_cur)*u/2 + (y_next-y_cur)*v/2);
+           }
+           else{
+             *(result_it + count) += -IMAG_I/u * (y_next - y_cur) * exp(IMAG_I * (u*(x_next+x_cur)/2 + v*(y_next+y_cur)/2))
+                * RCWA::sinc((x_next-x_cur)*u/2 + (y_next-y_cur)*v/2);
+           }
          }
        }
        count++;
