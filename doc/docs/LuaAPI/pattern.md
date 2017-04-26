@@ -44,3 +44,14 @@ SetLayerPatternEllipse(layer name, material name, {centerx, centery}, {a, b})
 
 * Note: the ellipse is written as:
     $$\frac{(x-x_c)^2}{a^2}+\frac{(y-y_c)^2}{b^2}=1$$
+
+```lua
+SetLayerPatternPolygon(layer name, material name, {centerx, centery}, { {v1_x, v2_x}, ..., {vn_x, vn_y} })
+```
+* Arguments:
+    1. layer name: [string], the layer that this polygon pattern will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.
+    2. material name: [string],  the material used as the polygon pattern. Such material should already exist in the simulation, otherwise an error message will be printed out.
+    3. {centerx, centery}: [double table], the centers of the polygon pattern in $x$ and $y$ direction, respectively, in SI unit.
+    4. { {v1_x, v2_x}, ..., {vn_x, vn_y} }: [nested double table], coordinates of the vertices relative to the center in SI unit.
+
+* Output: None

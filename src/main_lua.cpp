@@ -669,6 +669,41 @@ int MESH_SetLayerPatternCircle(lua_State *L){
   s->setLayerPatternCircle(layerName, materialName, vals[0], vals[1], radius);
   return 1;
 }
+// this function wraps setLayerPatternPolygon(layerName, materialName, centerx, centery, edgePoints,numOfPoint)
+// @how to use
+// SetLayerPatternPolygon(layer name, material name, {centerx, centery}, {{point_x, point_y}...})
+int MESH_SetLayerPatternPolygon(lua_State *L){
+  SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
+  std::string layerName = luaU_check<std::string>(L, 2);
+  std::string materialName = luaU_check<std::string>(L, 3);
+  double center[2];
+  for(int i = 0; i < 2; i++){
+    lua_pushinteger(L, i+1);
+    lua_gettable(L, 4);
+    center[i] = luaU_check<double>(L, -1);
+    lua_pop(L, 1);
+  }
+  int numOfPoint = lua_rawlen(L, 5);
+  double** edgePoints = new double*[numOfPoint];
+  for(int i = 0; i < numOfPoint; i++){
+    edgePoints[i] = new double[2];
+    lua_pushinteger(L, i + 1);
+    lua_gettable(L, 5);
+    for(int j = 0; j < 2; j++){
+      lua_pushinteger(L, j+1);
+      lua_gettable(L, 6);
+      edgePoints[i][j] = luaU_check<double>(L, -1);
+      lua_pop(L, 1);
+    }
+    lua_pop(L, 2);
+  }
+  s->setLayerPatternPolygon(layerName, materialName, center[0], center[1], edgePoints, numOfPoint);
+  for(int i = 0; i < numOfPoint; i++){
+    delete [] edgePoints[i];
+  }
+  delete [] edgePoints;
+  return 1;
+}
 /*======================================================*/
 // tables for the three clases
 /*=======================================================*/
@@ -725,6 +760,7 @@ static luaL_Reg character_metatable_SimulationPattern[] = {
   { "SetLayerPatternRectangle", MESH_SetLayerPatternRectangle },
   { "SetLayerPatternCircle", MESH_SetLayerPatternCircle },
   { "SetLayerPatternEllipse", MESH_SetLayerPatternEllipse },
+  { "SetLayerPatternPolygon", MESH_SetLayerPatternPolygon },
   { NULL, NULL}
 };
 

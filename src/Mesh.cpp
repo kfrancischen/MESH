@@ -913,6 +913,38 @@ namespace MESH{
             );
             break;
           }
+          /*************************************/
+          // if the pattern is a polygon (2D)
+          /************************************/
+          case POLYGON_:{
+            double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg1_.second * MICRON};
+            EdgeList edgeList;
+            for(size_t i = 0; i < pattern.edgeList_.size(); i++){
+              edgeList.push_back(std::make_pair(pattern.edgeList_[i].first * MICRON, pattern.edgeList_[i].second * MICRON));
+            }
+            FMM::transformPolygon(
+             eps_xx,
+             eps_xy,
+             eps_yx,
+             eps_yy,
+             eps_zz,
+             im_eps_xx,
+             im_eps_xy,
+             im_eps_yx,
+             im_eps_yy,
+             im_eps_zz,
+             epsParentTensor,
+             epsilon,
+             material->getType(),
+             nGx_,
+             nGy_,
+             centers,
+             edgeList,
+             period,
+             layer->hasTensor()
+           );
+            break;
+          }
           default: break;
         }
       }
@@ -1029,6 +1061,15 @@ namespace MESH{
               std::cout << "ellipse, ";
               std::cout << "(c_x, a) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first <<"), ";
               std::cout << "(c_y, b) = (" << (*it).arg1_.second << ", " << (*it).arg2_.second <<")\n";
+              break;
+            }
+            case POLYGON_:{
+              std::cout << "polygon, ";
+              std::cout << "(c_x, c_y) = (" << (*it).arg1_.first << ", " << (*it).arg1_.second << "), ";
+              std::cout << "==> print vertices in counterclockwise order:" << std::endl;
+              for(size_t i = 0; i < (*it).edgeList_.size(); i++){
+                std::cout << "==> (x" << i + 1 <<", y" << i + 1 << ") = (" << (*it).edgeList_[i].first << ", " << (*it).edgeList_[i].second << "),\n";
+              }
               break;
             }
             default: break;
@@ -1616,6 +1657,43 @@ namespace MESH{
     double arg1[2] = {centerx, centery};
     double arg2[2] = {halfwidthx, halfwidthy};
     layer->addEllipsePattern(material, arg1, arg2);
+  }
+  /*==============================================*/
+  // This function add polygon pattern to a layer
+  // @args:
+  // layerName: the name of the layer
+  // materialName: the name of the material
+  // centerx: the center of the ellipse in x direction
+  // centery: the center of the ellipse in y direction
+  // edgePoints: the vertices in counter clockwise order
+  // numOfPoints: the number of vertices
+  /*==============================================*/
+  void SimulationPattern::setLayerPatternPolygon(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    double**& edgePoints,
+    const int numOfPoint
+  ){
+    if(materialInstanceMap_.find(materialName) == materialInstanceMap_.cend()){
+      std::cerr << materialName + ": Material does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(materialName + ": Material does not exist!");
+      return;
+    }
+    if(layerInstanceMap_.find(layerName) == layerInstanceMap_.cend()){
+      std::cerr << layerName + ": Layer does not exist!" << std::endl;
+      throw UTILITY::IllegalNameException(layerName + ": Layer does not exist!");
+      return;
+    }
+    if(numOfPoint < 3){
+      std::cerr << "Needs no less than 3 vertices!" << std::endl;
+      throw UTILITY::RangeException("Needs no less than 3 vertices!");
+    }
+    Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
+    Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
+    double arg1[2] = {centerx, centery};
+    layer->addPolygonPattern(material, arg1, edgePoints,numOfPoint);
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer

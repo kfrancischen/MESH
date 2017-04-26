@@ -22,4 +22,5 @@
 
 #include "mathlib/gauss_legendre.h"
 #include "mathlib/bessel_functions.h"
+#include "mathlib/geometry_functions.h"
 #endif

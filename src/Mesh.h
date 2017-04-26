@@ -283,6 +283,15 @@ public:
     const double halfwdithy
   );
 
+  void setLayerPatternPolygon(
+    const std::string layerName,
+    const std::string materialName,
+    const double centerx,
+    const double centery,
+    double**& edgePoints,
+    const int numOfPoint
+  );
+
   SimulationPattern();
   SimulationPattern(const SimulationPattern&) = delete;
 

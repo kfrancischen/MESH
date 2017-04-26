@@ -231,6 +231,21 @@ namespace SYSTEM{
           newLayer->addEllipsePattern(*(itMat + count), arg1, arg2);
           break;
         }
+        case POLYGON_:{
+          const double arg1[2] = {pattern.arg1_.first, pattern.arg1_.second};
+          double** edgePoints = new double*[pattern.edgeList_.size()];
+          for(size_t i = 0; i < pattern.edgeList_.size(); i++){
+            edgePoints[i] = new double[2];
+            edgePoints[i][0] = pattern.edgeList_[i].first;
+            edgePoints[i][1] = pattern.edgeList_[i].second;
+          }
+          newLayer->addPolygonPattern(*(itMat + count), arg1, edgePoints, pattern.edgeList_.size());
+          for(size_t i = 0; i < pattern.edgeList_.size(); i++){
+            delete [] edgePoints[i];
+          }
+          delete [] edgePoints;
+          break;
+        }
         default: break;
       }
     }
@@ -372,7 +387,7 @@ namespace SYSTEM{
     pattern.arg1_ = std::make_pair(args1[0], args1[1]);
     pattern.arg2_ = std::make_pair(args2[0], args2[1]);
     pattern.type_ = RECTANGLE_;
-    pattern.area = args2[0] * args2[1];
+    pattern.area = getRectangleArea(args2[0], args2[1]);
     patternVec_.push_back(pattern);
   }
   /*==============================================*/
@@ -394,7 +409,32 @@ namespace SYSTEM{
     pattern.arg1_ = std::make_pair(args1[0], args1[1]);
     pattern.arg2_ = std::make_pair(args2[0], args2[1]);
     pattern.type_ = ELLIPSE_;
-    pattern.area = 3.14159265358979323846 * args2[0] * args2[1];
+    pattern.area = getEllipseArea(args2[0], args2[1]);
+    patternVec_.push_back(pattern);
+  }
+  /*==============================================*/
+  // add a polygon pattern
+  // @args:
+  // material: the material used for this part of the pattern
+  // args1: the position of centers (x,y)
+  // edgePoints: the points of the vertices in counter clockwise order
+  // numOfPoints: the number of the vertces
+  /*==============================================*/
+  void Layer::addPolygonPattern(
+    const Ptr<Material>& material,
+    const double args1[2],
+    double**& edgePoints,
+    const int numOfPoint
+  ){
+    materialVec_.push_back(material);
+    if(material->getType() == TENSOR_) hasTensor_++;
+    Pattern pattern;
+    pattern.arg1_ = std::make_pair(args1[0], args1[1]);
+    pattern.type_ = POLYGON_;
+    for(int i = 0; i < numOfPoint; i++){
+      pattern.edgeList_.push_back(std::make_pair(edgePoints[i][0], edgePoints[i][1]));
+    }
+    pattern.area = getPolygonArea(pattern.edgeList_);
     patternVec_.push_back(pattern);
   }
   /*==============================================*/
@@ -415,7 +455,7 @@ namespace SYSTEM{
     pattern.arg1_ = std::make_pair(args[0], radius);
     pattern.arg2_ = std::make_pair(args[1], radius);
     pattern.type_ = CIRCLE_;
-    pattern.area = 3.14159265358979323846 * POW2(radius);
+    pattern.area = getCircleArea(radius);
     patternVec_.push_back(pattern);
   }
   /*==============================================*/
@@ -436,9 +476,81 @@ namespace SYSTEM{
     pattern.arg1_ = std::make_pair(center, width);
     pattern.arg2_ = std::make_pair(0, 0);
     pattern.type_ = GRATING_;
-    pattern.area = width;
+    pattern.area = getGratingArea(width);
     patternVec_.push_back(pattern);
   }
+  /*==============================================*/
+  // helper function checking whether pattern2 is contained in pattern1
+  // @args:
+  // pattern1: the parent pattern to be checked
+  // pattern2: the child pattern to be checked
+  /*==============================================*/
+  static bool isContainedInGeometry(const Pattern& pattern1, const Pattern& pattern2){
+    double center2[2] = {0, 0};
+    switch (pattern2.type_) {
+      case GRATING_:{
+        center2[0] = pattern2.arg1_.first;
+        break;
+      }
+      case RECTANGLE_:{
+        center2[0] = pattern2.arg1_.first;
+        center2[1] = pattern2.arg1_.second;
+        break;
+      }
+      case CIRCLE_:{
+        center2[0] = pattern2.arg1_.first;
+        center2[1] = pattern2.arg2_.first;
+        break;
+      }
+      case ELLIPSE_:{
+        center2[0] = pattern2.arg1_.first;
+        center2[1] = pattern2.arg1_.second;
+        break;
+      }
+      case POLYGON_:{
+        center2[0] = pattern2.arg1_.first;
+        center2[1] = pattern2.arg1_.second;
+        break;
+      }
+      default: break;
+    }
+
+    switch (pattern1.type_) {
+      case GRATING_:{
+        double center1 = pattern1.arg1_.first;
+        double width1 = pattern1.arg1_.second;
+        return isContainedInGrating(center1, center2[0], width1);
+        break;
+      }
+      case RECTANGLE_:{
+        double center1[2] = {pattern1.arg1_.first, pattern1.arg1_.second};
+        double width1[2] = {pattern1.arg2_.first, pattern1.arg2_.second};
+        return isContainedInRectangle(center1, center2, width1);
+        break;
+      }
+      case CIRCLE_:{
+        double center1[2] = {pattern1.arg1_.first, pattern1.arg2_.first};
+        double radius = pattern1.arg1_.second;
+        return isContainedInCircle(center1, center2, radius);
+        break;
+      }
+      case ELLIPSE_:{
+        double center1[2] = {pattern1.arg1_.first, pattern1.arg1_.second};
+        double halfwidth1[2] = {pattern1.arg2_.first, pattern1.arg2_.second};
+        return isContainedInEllipse(center1, center2, halfwidth1[0], halfwidth1[1]);
+        break;
+      }
+      case POLYGON_:{
+        double center1[2] = {pattern1.arg1_.first, pattern1.arg1_.second};
+        return isContainedInPolygon(center1, center2, pattern1.edgeList_);
+        break;
+      }
+      default: break;
+    }
+
+    return false;
+  }
+
   /*==============================================*/
   // function generating the containment relation between patterns
   /*==============================================*/
@@ -464,74 +576,12 @@ namespace SYSTEM{
       for(size_t j = i + 1; j < areaVec.size(); j++){
         Pattern pattern2 = patternVec_[areaVec[i].first]; // pattern with smaller area
         Pattern pattern1 = patternVec_[areaVec[j].first]; // pattern with larger area
-        if(this->isContainedInGeometry(pattern1, pattern2)){
+        if(isContainedInGeometry(pattern1, pattern2)){
           patternVec_[areaVec[i].first].parent = areaVec[j].first;
           break;
         }
       }
     }
-  }
-
-  /*==============================================*/
-  // function checking whether pattern2 is contained in pattern1
-  // @args:
-  // pattern1: the parent pattern to be checked
-  // pattern2: the child pattern to be checked
-  /*==============================================*/
-  bool Layer::isContainedInGeometry(const Pattern& pattern1, const Pattern& pattern2){
-    double center2[2] = {0, 0};
-    switch (pattern2.type_) {
-      case GRATING_:{
-        center2[0] = pattern2.arg1_.first;
-        break;
-      }
-      case RECTANGLE_:{
-        center2[0] = pattern2.arg1_.first;
-        center2[1] = pattern2.arg1_.second;
-        break;
-      }
-      case CIRCLE_:{
-        center2[0] = pattern2.arg1_.first;
-        center2[1] = pattern2.arg2_.first;
-        break;
-      }
-      case ELLIPSE_:{
-        center2[0] = pattern2.arg1_.first;
-        center2[1] = pattern2.arg1_.second;
-        break;
-      }
-      default: break;
-    }
-
-    switch (pattern1.type_) {
-      case GRATING_:{
-        double center1 = pattern1.arg1_.first;
-        double width1 = pattern1.arg1_.second;
-        if(std::abs(center2[0] - center1) <= width1 / 2) return true;
-        break;
-      }
-      case RECTANGLE_:{
-        double center1[2] = {pattern1.arg1_.first, pattern1.arg1_.second};
-        double width1[2] = {pattern1.arg2_.first, pattern1.arg2_.second};
-        if(std::abs(center2[0] - center1[0]) <= width1[0]/2 && std::abs(center2[1] - center1[1]) <= width1[1]/2) return true;
-        break;
-      }
-      case CIRCLE_:{
-        double center1[2] = {pattern1.arg1_.first, pattern1.arg2_.first};
-        double radius = pattern1.arg1_.second;
-        if(POW2(center2[0] - center1[0]) + POW2(center2[1] - center1[1]) <= POW2(radius)) return true;
-        break;
-      }
-      case ELLIPSE_:{
-        double center1[2] = {pattern1.arg1_.first, pattern1.arg1_.second};
-        double halfwidth1[2] = {pattern1.arg2_.first, pattern1.arg2_.second};
-        if(POW2((center2[0] - center1[0]) / halfwidth1[0]) + POW2((center2[1] - center1[1]) / halfwidth1[1]) <= 1) return true;
-        break;
-      }
-      default: break;
-    }
-
-    return false;
   }
 
   /*==============================================*/

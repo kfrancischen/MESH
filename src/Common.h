@@ -32,7 +32,7 @@ using UTILITY::PtrInterface;
 using UTILITY::NamedInterface;
 
 enum DIMENSION { NO_, ONE_, TWO_ };
-enum PATTERN {GRATING_, RECTANGLE_, CIRCLE_, ELLIPSE_};
+enum PATTERN {GRATING_, RECTANGLE_, CIRCLE_, ELLIPSE_, POLYGON_};
 enum EPSTYPE {SCALAR_, DIAGONAL_, TENSOR_};
 enum POLARIZATION {TE_, TM_, BOTH_};
 #define POW2(x) pow(x, 2)
@@ -63,5 +63,6 @@ struct EPSILON
 };
 
 typedef std::vector<bool> SourceList;
-
+typedef std::pair<double, double> LayerPattern;
+typedef std::vector<LayerPattern> EdgeList;
 #endif

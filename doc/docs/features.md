@@ -37,7 +37,7 @@ In the case of a pattern geometry (implemented as [SimulationPattern](LuaAPI/pat
 
 $$\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-G_y/2}^{-G_y/2}dk_y \Phi(k_x,k_y, \omega)$$
 
-Again similar to the grating geometries, integral settings and printing of intermediate $\Phi(k_x,k_y, \omega)$ are supported. In addition, multiple different kinds of patterns can exist in one layer. However, the code now only supports a rectangle lattice. In MESH, for 2D patterns the only types of patterns supported are rectangle, circle and ellipse, and each pattern cannot partially overlap with each other. But one pattern can be fully contained inside another pattern. In addition, extending the code to non-trivial lattice and adding supports to more patterns are in principle doable.
+Again similar to the grating geometries, integral settings and printing of intermediate $\Phi(k_x,k_y, \omega)$ are supported. In addition, multiple different kinds of patterns can exist in one layer. However, the code now only supports a rectangle lattice. In MESH, for 2D patterns the supported types of patterns supported are rectangle, circle, ellipse and polygon, and each pattern cannot partially overlap with each other. But one pattern can be fully contained inside another pattern. In addition, extending the code to non-trivial lattice and adding supports to more patterns are in principle doable.
 
 #### Supports over both scalar dielectric and tensor dielectric
 

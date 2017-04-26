@@ -72,10 +72,11 @@ namespace SYSTEM{
   /*======================================================
   Implementaion of the Layer class
   =======================================================*/
-  typedef std::pair<double, double> LayerPattern;
   typedef struct PATTERNWRAPPER{
     LayerPattern arg1_;
     LayerPattern arg2_;
+    // private only for polygon
+    EdgeList edgeList_;
     PATTERN type_;
     double area;
     int parent = -1;
@@ -125,11 +126,11 @@ namespace SYSTEM{
     void addRectanlgePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
     void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
     void addEllipsePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
+    void addPolygonPattern(const Ptr<Material>& material, const double args1[2], double**& edgePoints, const int numOfPoint);
     void addGratingPattern(const Ptr<Material>& material, const double center, const double width);
 
     void getGeometryContainmentRelation();
   private:
-    bool isContainedInGeometry(const Pattern& pattern1, const Pattern& pattern2);
     enum SOURCE {ISSOURCE_, ISNOTSOURCE_};
 
     Layer(const string name, const Ptr<Material>& material, const double thickness);
