@@ -611,6 +611,24 @@
 </p>
 </li>
 </ul>
+<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternPolygon</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="p">{</span> <span class="p">{</span><span class="n">v1_x</span><span class="p">,</span> <span class="n">v2_x</span><span class="p">},</span> <span class="p">...,</span> <span class="p">{</span><span class="n">vn_x</span><span class="p">,</span> <span class="n">vn_y</span><span class="p">}</span> <span class="p">})</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>layer name: [string], the layer that this polygon pattern will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>material name: [string],  the material used as the polygon pattern. Such material should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>{centerx, centery}: [double table], the centers of the polygon pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
+<li>{ {v1_x, v2_x}, ..., {vn_x, vn_y} }: [nested double table], coordinates of the vertices relative to the center in SI unit.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
                 
                   
                 
