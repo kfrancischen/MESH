@@ -94,7 +94,7 @@
      const double width
    ){
     return exp(IMAG_I * G_mat * center) * (epsVal - epsBG)
-             * width % sinc(G_mat / 2 * width);
+             * width % RCWA::sinc(G_mat / 2 * width);
    }
 
    /*==============================================*/
@@ -120,7 +120,7 @@
    ){
      return widthx * widthy * (epsVal - epsBG)
              * exp(IMAG_I * (GxMat * centerx + GyMat * centery))
-             % sinc(GxMat * widthx / 2) % sinc(GyMat * widthy / 2);
+             % RCWA::sinc(GxMat * widthx / 2) % RCWA::sinc(GyMat * widthy / 2);
    }
 
    /*==============================================*/
@@ -212,40 +212,37 @@
      const double area
    ){
      RCWAcMatrix result = zeros<RCWAcMatrix>( size(GxMat) );
-     for(size_t i = 0; i < edgeList.size(); i++){
-       double x_cur = edgeList[i].first, y_cur = edgeList[i+1].second;
-       double x_pre, y_pre, x_next, y_next;
-       if(i == 0){
-         x_pre = edgeList[edgeList.size()-1].first;
-         y_pre = edgeList[edgeList.size()-1].second;
-       }
-       else{
-         x_pre = edgeList[i-1].first;
-         y_pre = edgeList[i-1].second;
-       }
-       if(i == edgeList.size() - 1){
-         x_next = edgeList[0].first;
-         y_next = edgeList[0].second;
-       }
-       else{
-         x_next = edgeList[i+1].first;
-         y_next = edgeList[i+1].second;
-       }
-
-       RCWArMatrix::const_iterator GyMat_it = GyMat.cbegin();
-       RCWAcMatrix::iterator result_it = result.begin();
-       int count = 0;
-       for(RCWArMatrix::const_iterator GxMat_it = GxMat.cbegin(); GxMat_it != GxMat.cend(); GxMat_it++){
-         if( (*GxMat_it) == 0 && *(GyMat_it + count) == 0 ){
-           *(result_it + count) = area; // this should be only computed once per iteration
+     RCWArMatrix::const_iterator GyMat_it = GyMat.cbegin();
+     RCWAcMatrix::iterator result_it = result.begin();
+     int count = 0;
+     for(RCWArMatrix::const_iterator GxMat_it = GxMat.cbegin(); GxMat_it != GxMat.cend(); GxMat_it++){
+       double u = (*GxMat_it), v = *(GyMat_it + count);
+       for(size_t i = 0; i < edgeList.size(); i++){
+         double x_cur = edgeList[i].first, y_cur = edgeList[i].second;
+         double x_next, y_next;
+         if(i == edgeList.size() - 1){
+           x_next = edgeList[0].first;
+           y_next = edgeList[0].second;
          }
          else{
-           *(result_it + count) += exp(IMAG_I * ((*GxMat_it) * x_cur +  (*(GyMat_it + count)) * y_cur))
-              * ((y_cur - y_pre) * (x_next - x_cur) - (y_next - y_cur) * (x_cur - x_pre))
-              / ( ( (*GxMat_it) * (x_cur - x_pre) + (*(GyMat_it + count)) * (y_cur - y_pre))  * ( (*GxMat_it) * (x_next - x_cur) +  (*(GyMat_it + count)) * (y_next - y_cur)));
+           x_next = edgeList[i+1].first;
+           y_next = edgeList[i+1].second;
          }
-         count++;
+         if( u == 0.0 && v == 0.0 ){
+           *(result_it + count) = area;
+           break; // this should be only computed once per iteration
+         }
+         // case when u = 0
+         else if( u == 0.0 ){
+           *(result_it + count) += -1.0/v * (x_next - x_cur) * exp(IMAG_I * (u*(x_next+x_cur)/2 + v*(y_next+y_cur)/2))
+              * RCWA::sinc((x_next-x_cur)*u/2 + (y_next-y_cur)*v/2);
+         }
+         else{
+           *(result_it + count) += 1.0/u * (y_next - y_cur) * exp(IMAG_I * (u*(x_next+x_cur)/2 + v*(y_next+y_cur)/2))
+              * RCWA::sinc((x_next-x_cur)*u/2 + (y_next-y_cur)*v/2);
+         }
        }
+       count++;
      }
      return (epsVal - epsBG) * exp(IMAG_I * (GxMat * centerx + GyMat * centery)) % result;
    }
