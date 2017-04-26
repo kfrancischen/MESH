@@ -695,7 +695,7 @@ int MESH_SetLayerPatternPolygon(lua_State *L){
       edgePoints[i][j] = luaU_check<double>(L, -1);
       lua_pop(L, 1);
     }
-    lua_pop(L, 2);
+    lua_pop(L, 1);
   }
   s->setLayerPatternPolygon(layerName, materialName, center[0], center[1], edgePoints, numOfPoint);
   for(int i = 0; i < numOfPoint; i++){

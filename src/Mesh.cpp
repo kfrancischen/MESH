@@ -1065,10 +1065,10 @@ namespace MESH{
             }
             case POLYGON_:{
               std::cout << "polygon, ";
-              std::cout << "(c_x, c_y) = (" << (*it).arg1_.first << ", " << (*it).arg1_.second << "), ";
+              std::cout << "(c_x, c_y) = (" << (*it).arg1_.first << ", " << (*it).arg1_.second << ")\n";
               std::cout << "==> print vertices in counterclockwise order:" << std::endl;
               for(size_t i = 0; i < (*it).edgeList_.size(); i++){
-                std::cout << "==> (x" << i + 1 <<", y" << i + 1 << ") = (" << (*it).edgeList_[i].first << ", " << (*it).edgeList_[i].second << "),\n";
+                std::cout << "==> (x" << i + 1 <<", y" << i + 1 << ") = (" << (*it).edgeList_[i].first + (*it).arg1_.first << ", " << (*it).edgeList_[i].second + (*it).arg1_.second << "),\n";
               }
               break;
             }

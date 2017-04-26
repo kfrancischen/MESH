@@ -154,7 +154,7 @@ int RCWA::getN(
   return (2*nGx + 1) * (2*nGy + 1);
 }
 /*============================================================
-* Function computing the sinc function (sin(x) / x)
+* Function computing the sinc function (sin(x) / x) for matrix x
 @arg:
  x: the input argument
 ==============================================================*/
@@ -162,6 +162,15 @@ RCWA::RCWArMatrix RCWA::sinc(const RCWArMatrix x){
   RCWArMatrix output = sin(x) / x;
   output.elem( find(x == 0.0) ).ones();
   return output;
+}
+/*============================================================
+* Function computing the sinc function (sin(x) / x) for double input x
+@arg:
+ x: the input argument
+==============================================================*/
+double RCWA::sinc(const double x){
+  if(x == 0.0) return 1;
+  else return sin(x) / x;
 }
 /*============================================================
 * Function computing the jinc function (J1(x) / x)

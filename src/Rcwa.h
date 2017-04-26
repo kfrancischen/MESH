@@ -22,6 +22,7 @@
 //#define ARMA_DONT_USE_WRAPPER
 #include <armadillo>
 #include <vector>
+#include <cmath>
 #include "Common.h"
 
 namespace RCWA{
@@ -95,11 +96,17 @@ namespace RCWA{
  );
 
  /*============================================================
- * Function computing the sinc function (sin(x) / x)
+ * Function computing the sinc function (sin(x) / x) for matrix x
  @arg:
   x: the input argument
  ==============================================================*/
  RCWArMatrix sinc(const RCWArMatrix x);
+ /*============================================================
+ * Function computing the sinc function (sin(x) / x) for double input x
+ @arg:
+  x: the input argument
+ ==============================================================*/
+ double sinc(const double x);
  /*============================================================
  * Function computing the jinc function (J1(x) / x)
  @arg:
