@@ -21,7 +21,7 @@
 
 #define _USE_MATH_DEFINES
 #include<cmath>
-
+#include<iostream>
 #define INF 1e10
 /*======================================================*/
 // Functions related to grating
@@ -96,7 +96,7 @@ inline bool onSegment(const Point& p, const Point& q, const Point& r){
 // 0 --> p, q and r are colinear
 // 1 --> Clockwise
 // 2 --> Counterclockwise
-inline bool orientation(const Point& p, const Point& q, const Point& r){
+inline int orientation(const Point& p, const Point& q, const Point& r){
   double val = (q.second - p.second) * (r.first - q.first) - (q.first - p.first) * (r.second - q.second);
   if(val == 0.0) return 0;
   return (val > 0)? 1:2;
@@ -125,15 +125,15 @@ inline bool doIntersect(const Point& p1, const Point& q1, const Point& p2, const
     if (o4 == 0 && onSegment(p2, q1, q2)) return true;
     return false; // Doesn't fall in any of the above cases
 }
-
+/*
 inline bool isContainedInPolygon(const double center1[2], const double center2[2], const EdgeList& edgeList){
   Point pointToCheck = std::make_pair(center2[0] - center1[0], center2[1] - center1[1]);
   Point pointExtreme = std::make_pair(INF, pointToCheck.second);
-
   int count = 0, i = 0, n = edgeList.size();
   do{
     int next = (i+1) % n;
     if(doIntersect(edgeList[i], edgeList[next], pointToCheck, pointExtreme)){
+      std::cout << orientation(edgeList[i], pointToCheck, edgeList[next]) << std::endl;
         if(orientation(edgeList[i], pointToCheck, edgeList[next]) == 0){
           return onSegment(edgeList[i], pointToCheck, edgeList[next]);
         }
@@ -143,6 +143,18 @@ inline bool isContainedInPolygon(const double center1[2], const double center2[2
   } while(i != 0);
 
   return count & 1;
+}
+*/
+inline bool isContainedInPolygon(const double center1[2], const double center2[2], const EdgeList& edgeList){
+  bool isInside = false;
+  Point pointToCheck = std::make_pair(center2[0] - center1[0], center2[1] - center1[1]);
+  for(size_t i = 0, j = edgeList.size() - 1; i < edgeList.size(); j = i++){
+    if( ((edgeList[i].second > pointToCheck.second) != (edgeList[j].second > pointToCheck.second)) &&
+      (pointToCheck.first < (edgeList[j].first - edgeList[i].first) * (pointToCheck.second - edgeList[i].second)/(edgeList[j].second - edgeList[i].second) + edgeList[i].first) ){
+        isInside = !isInside;
+      }
+  }
+  return isInside;
 }
 
 #endif
