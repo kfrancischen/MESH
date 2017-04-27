@@ -17,7 +17,7 @@ s:SetGy(10);
 s:AddMaterial("Si", "Si.txt");
 s:AddMaterial("Vacuum", "Vacuum.txt");
 s:AddLayer("SiBottom", 0, "Si");
-s:SetLayerPatternRectangle("SiBottom", "Vacuum", {25e-9, 25e-9}, {width, width});
+s:SetLayerPatternRectangle("SiBottom", "Vacuum", {25e-9, 25e-9}, 0, {width, width});
 s:AddLayer("VacGap", 20e-9, "Vacuum");
 s:AddLayerCopy("SiTop", "SiBottom");
 

@@ -13,7 +13,7 @@ s:AddMaterial("Vacuum", "Vacuum.txt");
 s:AddLayer("SiBottom", 0, "Si");
 s:AddLayer("VacGap", 1e-6, "Vacuum");
 s:AddLayer("SiTop", 0, "Si");
-s:SetLayerPatternRectangle("SiTop", "Vacuum", {2.5e-7, 2.5e-7}, {3e-7, 3e-7});
+s:SetLayerPatternRectangle("SiTop", "Vacuum", {2.5e-7, 2.5e-7}, 0, {3e-7, 3e-7});
 s:SetLayerPatternCircle("SiTop", "Vacuum", {7.5e-7, 7.5e-7}, 2e-7);
 
 
