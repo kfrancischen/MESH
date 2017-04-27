@@ -267,7 +267,7 @@ void RCWA::getGrandImaginaryMatrices(
     grandImaginaryMatrix(span(N, 2*N-1), span(0, N-1)) = im_eps_yx[i];
     grandImaginaryMatrix(span(N, 2*N-1), span(N, 2*N-1)) = im_eps_yy[i];
     grandImaginaryMatrix(span(2*N, 3*N-1), span(2*N, 3*N-1)) = im_eps_zz[i];
-    grandImaginaryMatrices.push_back(grandImaginaryMatrix);
+    grandImaginaryMatrices[i] = grandImaginaryMatrix;
   }
 }
 
@@ -298,7 +298,7 @@ void RCWA::getEMatrices(
       join_horiz(eps_yy[i], -eps_yx[i]),
       join_horiz(-eps_xy[i], eps_xx[i])
     );
-    EMatrices.push_back(EMatrix);
+    EMatrices[i] = EMatrix;
   }
 }
 

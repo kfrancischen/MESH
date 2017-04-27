@@ -724,6 +724,10 @@ namespace MESH{
     omegaList_ = backGround->getOmegaList();
     int numOfLayer = structure_->getNumOfLayer();
 
+    EMatrices_.resize(numOfLayer);
+    grandImaginaryMatrices_.resize(numOfLayer);
+    eps_zz_Inv_Matrices_.resize(numOfLayer);
+
     thicknessListVec_ = zeros<RCWArVector>(numOfLayer);
     sourceList_.resize(numOfLayer);
     for(int i = 0; i < numOfLayer; i++){
@@ -764,12 +768,10 @@ namespace MESH{
   void Simulation::buildRCWAMatrices(){
     RCWAcMatrices eps_xx_Matrices, eps_xy_Matrices, eps_yx_Matrices, eps_yy_Matrices;
     RCWAcMatrices im_eps_xx_Matrices, im_eps_xy_Matrices, im_eps_yx_Matrices, im_eps_yy_Matrices, im_eps_zz_Matrices;
-
     int N = getN(nGx_, nGy_);
     RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
     int numOfLayer = structure_->getNumOfLayer();
     double period[2] = {period_[0] * MICRON, period_[1] * MICRON};
-
     for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
       Ptr<Material> backGround = layer->getBackGround();
@@ -779,7 +781,6 @@ namespace MESH{
 
       EpsilonVal epsBG = backGround->getEpsilonAtIndex(curOmegaIndex_);
       EpsilonVal epsBGTensor = FMM::toTensor(epsBG, backGround->getType());
-
       const_MaterialIter m_it = layer->getMaterialsBegin();
       int count = 0;
       for(const_PatternIter it = layer->getPatternsBegin(); it != layer->getPatternsEnd(); it++){
@@ -973,7 +974,7 @@ namespace MESH{
       eps_xy_Matrices.push_back(eps_xy);
       eps_yx_Matrices.push_back(eps_yx);
       eps_yy_Matrices.push_back(eps_yy);
-      eps_zz_Inv_Matrices_.push_back(eps_zz_Inv);
+      eps_zz_Inv_Matrices_[i] = eps_zz_Inv;
       im_eps_xx_Matrices.push_back(im_eps_xx);
       im_eps_xy_Matrices.push_back(im_eps_xy);
       im_eps_yx_Matrices.push_back(im_eps_yx);
@@ -1465,7 +1466,7 @@ namespace MESH{
 
     RCWAcMatricesVec EMatricesVec(numOfOmega_), grandImaginaryMatricesVec(numOfOmega_), eps_zz_Inv_MatricesVec(numOfOmega_);
     for(int i = 0; i < numOfOmega_; i++){
-      curOmegaIndex_ = i;
+      curOmegaIndex_= i;
       this->buildRCWAMatrices();
       EMatricesVec[i] = EMatrices_;
       grandImaginaryMatricesVec[i] = grandImaginaryMatrices_;
