@@ -262,6 +262,7 @@ public:
     const std::string materialName,
     const double centerx,
     const double centery,
+    const double angle,
     const double widthx,
     const double widthy
   );
@@ -279,6 +280,7 @@ public:
     const std::string materialName,
     const double centerx,
     const double centery,
+    const double angle,
     const double halfwidthx,
     const double halfwdithy
   );
@@ -288,6 +290,7 @@ public:
     const std::string materialName,
     const double centerx,
     const double centery,
+    const double angle,
     double**& edgePoints,
     const int numOfPoint
   );

@@ -609,44 +609,47 @@ SimulationPattern* MESH_SimulationPattern_New(lua_State* L){
 }
 
 // this function wraps setLayerPatternRectangle(const std::string layerName, const std::string materialName,
-//  const double centerx, const double centery, const double widthx, const double widthy)
+//  const double centerx, const double centery, const double angle, const double widthx, const double widthy)
 // @how to use
-// SetLayerPatternRectangle(layer name, material name, {centerx, centery}, {widthx, widthy})
+// SetLayerPatternRectangle(layer name, material name, {centerx, centery}, angle, {widthx, widthy})
 int MESH_SetLayerPatternRectangle(lua_State *L){
   SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
   std::string layerName = luaU_check<std::string>(L, 2);
   std::string materialName = luaU_check<std::string>(L, 3);
+  double angle = luaU_check<double>(L, 5);
   double vals[4];
   for(int i = 0; i < 2; i++){
     for(int j= 0; j < 2; j++){
       lua_pushinteger(L, j+1);
-      lua_gettable(L, 4+i);
+      lua_gettable(L, 4+2*i);
       vals[2*i+j] = luaU_check<double>(L, -1);
       lua_pop(L, 1);
     }
   }
-  s->setLayerPatternRectangle(layerName, materialName, vals[0], vals[1], vals[2], vals[3]);
+  s->setLayerPatternRectangle(layerName, materialName, vals[0], vals[1], angle, vals[2], vals[3]);
   return 1;
 }
 
 // this function wraps setLayerPatternEllipse(const std::string layerName, const std::string materialName,
-//  const double centerx, const double centery, const double halfwidthx, const double halfwidthy)
+//  const double centerx, const double centery, const double angle, const double halfwidthx, const double halfwidthy)
 // @how to use
-// SetLayerPatternEllipse(layer name, material name, {centerx, centery}, {halfwidthx, halfwidthy})
+// SetLayerPatternEllipse(layer name, material name, {centerx, centery}, angle, {halfwidthx, halfwidthy})
 int MESH_SetLayerPatternEllipse(lua_State *L){
   SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
   std::string layerName = luaU_check<std::string>(L, 2);
   std::string materialName = luaU_check<std::string>(L, 3);
+  double angle = luaU_check<double>(L, 5);
   double vals[4];
+
   for(int i = 0; i < 2; i++){
     for(int j= 0; j < 2; j++){
       lua_pushinteger(L, j+1);
-      lua_gettable(L, 4+i);
+      lua_gettable(L, 4+2*i);
       vals[2*i+j] = luaU_check<double>(L, -1);
       lua_pop(L, 1);
     }
   }
-  s->setLayerPatternEllipse(layerName, materialName, vals[0], vals[1], vals[2], vals[3]);
+  s->setLayerPatternEllipse(layerName, materialName, vals[0], vals[1], angle, vals[2], vals[3]);
   return 1;
 }
 
@@ -671,7 +674,7 @@ int MESH_SetLayerPatternCircle(lua_State *L){
 }
 // this function wraps setLayerPatternPolygon(layerName, materialName, centerx, centery, edgePoints,numOfPoint)
 // @how to use
-// SetLayerPatternPolygon(layer name, material name, {centerx, centery}, {{point_x, point_y}...})
+// SetLayerPatternPolygon(layer name, material name, {centerx, centery}, angle, {{point_x, point_y}...})
 int MESH_SetLayerPatternPolygon(lua_State *L){
   SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
   std::string layerName = luaU_check<std::string>(L, 2);
@@ -683,21 +686,22 @@ int MESH_SetLayerPatternPolygon(lua_State *L){
     center[i] = luaU_check<double>(L, -1);
     lua_pop(L, 1);
   }
-  int numOfPoint = lua_rawlen(L, 5);
+  double angle = luaU_check<double>(L, 5);
+  int numOfPoint = lua_rawlen(L, 6);
   double** edgePoints = new double*[numOfPoint];
   for(int i = 0; i < numOfPoint; i++){
     edgePoints[i] = new double[2];
     lua_pushinteger(L, i + 1);
-    lua_gettable(L, 5);
+    lua_gettable(L, 6);
     for(int j = 0; j < 2; j++){
       lua_pushinteger(L, j+1);
-      lua_gettable(L, 6);
+      lua_gettable(L, 7);
       edgePoints[i][j] = luaU_check<double>(L, -1);
       lua_pop(L, 1);
     }
     lua_pop(L, 1);
   }
-  s->setLayerPatternPolygon(layerName, materialName, center[0], center[1], edgePoints, numOfPoint);
+  s->setLayerPatternPolygon(layerName, materialName, center[0], center[1], angle, edgePoints, numOfPoint);
   for(int i = 0; i < numOfPoint; i++){
     delete [] edgePoints[i];
   }

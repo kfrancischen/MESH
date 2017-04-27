@@ -216,7 +216,7 @@ namespace SYSTEM{
         case RECTANGLE_:{
           const double arg1[2] = {pattern.arg1_.first, pattern.arg1_.second};
           const double arg2[2] = {pattern.arg2_.first, pattern.arg2_.second};
-          newLayer->addRectanlgePattern(*(itMat + count), arg1, arg2);
+          newLayer->addRectanlgePattern(*(itMat + count), arg1, pattern.angle_, arg2);
           break;
         }
         case CIRCLE_:{
@@ -228,7 +228,7 @@ namespace SYSTEM{
         case ELLIPSE_:{
           const double arg1[2] = {pattern.arg1_.first, pattern.arg1_.second};
           const double arg2[2] = {pattern.arg2_.first, pattern.arg2_.second};
-          newLayer->addEllipsePattern(*(itMat + count), arg1, arg2);
+          newLayer->addEllipsePattern(*(itMat + count), arg1, pattern.angle_, arg2);
           break;
         }
         case POLYGON_:{
@@ -239,7 +239,7 @@ namespace SYSTEM{
             edgePoints[i][0] = pattern.edgeList_[i].first;
             edgePoints[i][1] = pattern.edgeList_[i].second;
           }
-          newLayer->addPolygonPattern(*(itMat + count), arg1, edgePoints, pattern.edgeList_.size());
+          newLayer->addPolygonPattern(*(itMat + count), arg1, pattern.angle_, edgePoints, pattern.edgeList_.size());
           for(size_t i = 0; i < pattern.edgeList_.size(); i++){
             delete [] edgePoints[i];
           }
@@ -373,11 +373,13 @@ namespace SYSTEM{
   // @args:
   // material: the material used for this part of the pattern
   // args1: the position of centers (x,y)
+  // angle: the rotated angle with respect to x axis
   // args2: the widths in x and y directions
   /*==============================================*/
   void Layer::addRectanlgePattern(
     const Ptr<Material>& material,
     const double args1[2],
+    const double angle,
     const double args2[2]
   ){
 
@@ -386,6 +388,7 @@ namespace SYSTEM{
     Pattern pattern;
     pattern.arg1_ = std::make_pair(args1[0], args1[1]);
     pattern.arg2_ = std::make_pair(args2[0], args2[1]);
+    pattern.angle_ = angle;
     pattern.type_ = RECTANGLE_;
     pattern.area = getRectangleArea(args2[0], args2[1]);
     patternVec_.push_back(pattern);
@@ -395,11 +398,13 @@ namespace SYSTEM{
   // @args:
   // material: the material used for this part of the pattern
   // args1: the position of centers (x,y)
+  // angle: the rotated angle with respect to x axis
   // args2: the halfwidths in x and y directions
   /*==============================================*/
   void Layer::addEllipsePattern(
     const Ptr<Material>& material,
     const double args1[2],
+    const double angle,
     const double args2[2]
   ){
 
@@ -408,6 +413,7 @@ namespace SYSTEM{
     Pattern pattern;
     pattern.arg1_ = std::make_pair(args1[0], args1[1]);
     pattern.arg2_ = std::make_pair(args2[0], args2[1]);
+    pattern.angle_ = angle;
     pattern.type_ = ELLIPSE_;
     pattern.area = getEllipseArea(args2[0], args2[1]);
     patternVec_.push_back(pattern);
@@ -417,12 +423,14 @@ namespace SYSTEM{
   // @args:
   // material: the material used for this part of the pattern
   // args1: the position of centers (x,y)
+  // angle: the rotated angle with respect to x axis
   // edgePoints: the points of the vertices in counter clockwise order
   // numOfPoints: the number of the vertces
   /*==============================================*/
   void Layer::addPolygonPattern(
     const Ptr<Material>& material,
     const double args1[2],
+    const double angle,
     double**& edgePoints,
     const int numOfPoint
   ){
@@ -430,6 +438,7 @@ namespace SYSTEM{
     if(material->getType() == TENSOR_) hasTensor_++;
     Pattern pattern;
     pattern.arg1_ = std::make_pair(args1[0], args1[1]);
+    pattern.angle_ = angle;
     pattern.type_ = POLYGON_;
     for(int i = 0; i < numOfPoint; i++){
       pattern.edgeList_.push_back(std::make_pair(edgePoints[i][0], edgePoints[i][1]));

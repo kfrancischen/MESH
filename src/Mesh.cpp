@@ -833,6 +833,7 @@ namespace MESH{
           case RECTANGLE_:{
             double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg1_.second * MICRON};
             double widths[2] = {pattern.arg2_.first * MICRON, pattern.arg2_.second * MICRON};
+            double angle = datum::pi / 180 * pattern.angle_;
             FMM::transformRectangle(
               eps_xx,
               eps_xy,
@@ -850,6 +851,7 @@ namespace MESH{
               nGx_,
               nGy_,
               centers,
+              angle,
               widths,
               period,
               layer->hasTensor()
@@ -891,6 +893,7 @@ namespace MESH{
           case ELLIPSE_:{
             double centers[2] = {pattern.arg1_.first * MICRON, pattern.arg1_.second * MICRON};
             double halfwidths[2] = {pattern.arg2_.first * MICRON, pattern.arg2_.second * MICRON};
+            double angle = datum::pi / 180 * pattern.angle_;
             FMM::transformEllipse(
               eps_xx,
               eps_xy,
@@ -908,6 +911,7 @@ namespace MESH{
               nGx_,
               nGy_,
               centers,
+              angle,
               halfwidths,
               period,
               layer->hasTensor()
@@ -923,6 +927,7 @@ namespace MESH{
             for(size_t i = 0; i < pattern.edgeList_.size(); i++){
               edgeList.push_back(std::make_pair(pattern.edgeList_[i].first * MICRON, pattern.edgeList_[i].second * MICRON));
             }
+            double angle = datum::pi / 180 * pattern.angle_;
             FMM::transformPolygon(
              eps_xx,
              eps_xy,
@@ -940,6 +945,7 @@ namespace MESH{
              nGx_,
              nGy_,
              centers,
+             angle,
              edgeList,
              period,
              layer->hasTensor()
@@ -1050,6 +1056,7 @@ namespace MESH{
               std::cout << "rectangle, ";
               std::cout << "(c_x, w_x) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first <<"), ";
               std::cout << "(c_y, w_y) = (" << (*it).arg1_.second << ", " << (*it).arg2_.second <<")\n";
+              std::cout << "angle = " << (*it).angle_ << std::endl;
               break;
             }
             case CIRCLE_:{
@@ -1062,11 +1069,13 @@ namespace MESH{
               std::cout << "ellipse, ";
               std::cout << "(c_x, a) = (" << (*it).arg1_.first << ", " << (*it).arg2_.first <<"), ";
               std::cout << "(c_y, b) = (" << (*it).arg1_.second << ", " << (*it).arg2_.second <<")\n";
+              std::cout << "angle = " << (*it).angle_ << std::endl;
               break;
             }
             case POLYGON_:{
               std::cout << "polygon, ";
               std::cout << "(c_x, c_y) = (" << (*it).arg1_.first << ", " << (*it).arg1_.second << ")\n";
+              std::cout << "angle = " << (*it).angle_ << std::endl;
               std::cout << "==> print vertices in counterclockwise order:" << std::endl;
               for(size_t i = 0; i < (*it).edgeList_.size(); i++){
                 std::cout << "==> (x" << i + 1 <<", y" << i + 1 << ") = (" << (*it).edgeList_[i].first + (*it).arg1_.first << ", " << (*it).edgeList_[i].second + (*it).arg1_.second << "),\n";
@@ -1567,6 +1576,7 @@ namespace MESH{
   // materialName: the name of the material
   // centerx: the center of the rectangle in x direction
   // centery: the center of the rectangle in y direction
+  // angle: the rotated angle with respect to x axis
   // widthx: the width of the rectangle in x direction
   // widthy: the width of the rectangle in y direction
   /*==============================================*/
@@ -1575,6 +1585,7 @@ namespace MESH{
     const std::string materialName,
     const double centerx,
     const double centery,
+    const double angle,
     const double widthx,
     const double widthy
   ){
@@ -1592,7 +1603,7 @@ namespace MESH{
     Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
     double arg1[2] = {centerx, centery};
     double arg2[2] = {widthx, widthy};
-    layer->addRectanlgePattern(material, arg1, arg2);
+    layer->addRectanlgePattern(material, arg1, angle, arg2);
   }
   /*==============================================*/
   // This function add circle pattern to a layer
@@ -1632,6 +1643,7 @@ namespace MESH{
   // materialName: the name of the material
   // centerx: the center of the ellipse in x direction
   // centery: the center of the ellipse in y direction
+  // angle: the rotated angle with respect to x axis
   // halfwidthx: the halfwidth of the ellipse in x direction
   // halfwidthy: the halfwidth of the ellipse in y direction
   /*==============================================*/
@@ -1640,6 +1652,7 @@ namespace MESH{
     const std::string materialName,
     const double centerx,
     const double centery,
+    const double angle,
     const double halfwidthx,
     const double halfwidthy
   ){
@@ -1657,7 +1670,7 @@ namespace MESH{
     Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
     double arg1[2] = {centerx, centery};
     double arg2[2] = {halfwidthx, halfwidthy};
-    layer->addEllipsePattern(material, arg1, arg2);
+    layer->addEllipsePattern(material, arg1, angle, arg2);
   }
   /*==============================================*/
   // This function add polygon pattern to a layer
@@ -1666,6 +1679,7 @@ namespace MESH{
   // materialName: the name of the material
   // centerx: the center of the ellipse in x direction
   // centery: the center of the ellipse in y direction
+  // angle: the rotated angle with respect to x axis
   // edgePoints: the vertices in counter clockwise order
   // numOfPoints: the number of vertices
   /*==============================================*/
@@ -1674,6 +1688,7 @@ namespace MESH{
     const std::string materialName,
     const double centerx,
     const double centery,
+    const double angle,
     double**& edgePoints,
     const int numOfPoint
   ){
@@ -1694,7 +1709,7 @@ namespace MESH{
     Ptr<Material> material = materialInstanceMap_.find(materialName)->second;
     Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
     double arg1[2] = {centerx, centery};
-    layer->addPolygonPattern(material, arg1, edgePoints,numOfPoint);
+    layer->addPolygonPattern(material, arg1, angle, edgePoints,numOfPoint);
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer

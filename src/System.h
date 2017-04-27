@@ -80,6 +80,7 @@ namespace SYSTEM{
     PATTERN type_;
     double area;
     int parent = -1;
+    double angle_ = 0;
   } Pattern;
   typedef std::vector< Pattern > PatternVec;
   typedef PatternVec::iterator PatternIter;
@@ -123,10 +124,10 @@ namespace SYSTEM{
     const_PatternIter getPatternsEnd();
 
 
-    void addRectanlgePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
+    void addRectanlgePattern(const Ptr<Material>& material, const double args1[2], const double angle, const double args2[2]);
     void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
-    void addEllipsePattern(const Ptr<Material>& material, const double args1[2], const double args2[2]);
-    void addPolygonPattern(const Ptr<Material>& material, const double args1[2], double**& edgePoints, const int numOfPoint);
+    void addEllipsePattern(const Ptr<Material>& material, const double args1[2], const double angle, const double args2[2]);
+    void addPolygonPattern(const Ptr<Material>& material, const double args1[2], const double angle, double**& edgePoints, const int numOfPoint);
     void addGratingPattern(const Ptr<Material>& material, const double center, const double width);
 
     void getGeometryContainmentRelation();

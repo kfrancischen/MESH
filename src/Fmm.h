@@ -118,6 +118,7 @@ namespace FMM{
     const int nGx,
     const int nGy,
     const double centers[2],
+    const double angle,
     const double widths[2],
     const double period[2],
     const bool hasTensor
@@ -183,6 +184,7 @@ namespace FMM{
   // nG_x: the total number of G in x direction
   // nG_y: the total number of G in y direction
   // centers: the centers of the ellipse
+  // angle: the rotated angle of the ellipse
   // halfwidths: the halfwidths of the ellipse
   // period: the periodicity
   // hasTensor: whether this layer contains tensor
@@ -204,6 +206,7 @@ namespace FMM{
    const int nGx,
    const int nGy,
    const double centers[2],
+   const double angle,
    const double halfwidths[2],
    const double period[2],
    const bool hasTensor
@@ -246,6 +249,7 @@ namespace FMM{
   const int nGx,
   const int nGy,
   const double centers[2],
+  const double angle,
   const EdgeList& edgeList,
   const double period[2],
   const bool hasTensor
