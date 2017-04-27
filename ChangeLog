@@ -5,3 +5,5 @@
   remove POVRay functions and finish document.  Now devote all the time of the correct Fourier transform.
 2017-04-22
   Optimize memory usage. Updated to 1.0.1
+2017-04-26
+  Add ellipse and polygon pattern to 2D object

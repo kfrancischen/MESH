@@ -41,7 +41,7 @@ brew install gcc --without-multilib
 and then change the compiles from cc and c++ in `Makefile.Darwin` to corresponding GNU compilers, and add `-fopenmp` in the `CFLAGS` and `CXXFLAGS`.
 
 #### Installation on Windows
-//TODO, haven't tried yet
+The easiest way to install mesh on windows is to download [Ubuntu on Windows](https://msdn.microsoft.com/en-us/commandline/wsl/about) and follow the instructions in the Linux installation part. With [Ubuntu on Windows](https://msdn.microsoft.com/en-us/commandline/wsl/about), one can do `sudo apt get` for the required packages.
 
 #### Location on Clusters
 The mesh has been built on `hera`, `comet` and `stampede`. The executables are in the directory
