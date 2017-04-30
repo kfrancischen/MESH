@@ -35,6 +35,8 @@ enum DIMENSION { NO_, ONE_, TWO_ };
 enum PATTERN {GRATING_, RECTANGLE_, CIRCLE_, ELLIPSE_, POLYGON_};
 enum EPSTYPE {SCALAR_, DIAGONAL_, TENSOR_};
 enum POLARIZATION {TE_, TM_, BOTH_};
+enum TRUNCATION {CIRCULAR_, PARALLELOGRAMIC_};
+
 #define POW2(x) pow(x, 2)
 #define POW3(x) pow(x, 3)
 #define SENDTAG 2
@@ -61,6 +63,12 @@ struct EPSILON
   }
   EPSTYPE type_;
 };
+
+typedef struct LATTICE{
+  double xCoor[2] = {0, 0};
+  double yCoor[2] = {0, 0};
+  double area = 0;
+} Lattice;
 
 typedef std::vector<bool> SourceList;
 typedef std::pair<double, double> LayerPattern;

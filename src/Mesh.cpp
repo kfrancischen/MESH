@@ -39,6 +39,7 @@ namespace MESH{
   /*==============================================*/
   EPSTYPE checkType(std::string line){
     int numOfSpace = 0;
+    UTILITY::preprocessString(line);
     for(size_t i = 0; i < line.length(); i++){
       if(isspace(line.at(i))) numOfSpace++;
     }
@@ -47,8 +48,8 @@ namespace MESH{
       case 6: return DIAGONAL_;
       case 10: return TENSOR_;
       default:{
-        std::cerr << "Input type wrong!" << std::endl;
-        throw UTILITY::UnknownTypeException("Input type wrong!");
+        std::cerr << "Input type wrong: should be of 2, 6 or 10 tabs (spaces)!" << std::endl;
+        throw UTILITY::UnknownTypeException("Input type wrong: should be of 2, 6 or 10 tabs (spaces)!");
       }
     }
     return SCALAR_;
