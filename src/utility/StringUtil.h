@@ -19,11 +19,7 @@
 #ifndef _STRINGUTIL_H
 #define _STRINGUTIL_H
 
-#include <string>
-#include <algorithm>
-#include <functional>
-#include <cctype>
-
+// remove multiple string to one
 inline void shrinkSpaces(std::string &s){
   std::string::iterator new_end =
         std::unique(s.begin(), s.end(),
@@ -31,16 +27,17 @@ inline void shrinkSpaces(std::string &s){
         );
   s.erase(new_end, s.end());
 }
-// trim from start (in place)
+
+// trim from start
 inline void ltrim(std::string &s) {
-  s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-          std::not1(std::ptr_fun<int, int>(std::isspace))));
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+            std::not1(std::ptr_fun<int, int>(std::isspace))));
 }
 
-// trim from end (in place)
+// trim from end
 inline void rtrim(std::string &s) {
-  s.erase(std::find_if(s.rbegin(), s.rend(),
-          std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
+    s.erase(std::find_if(s.rbegin(), s.rend(),
+            std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
 }
 
 // trim from both ends (in place)

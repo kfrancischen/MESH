@@ -81,6 +81,8 @@
 #endif
 #include <string.h>
 #include <string>
+#include <iostream>
+#include <algorithm>
 using std::string;
 namespace UTILITY {
 
