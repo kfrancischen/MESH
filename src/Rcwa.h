@@ -84,16 +84,6 @@ namespace RCWA{
     const DIRECTION direction
   );
 
-  /*============================================================
-  * Function computing numbef of G for the system
-  @arg:
-   nGx: positive G along x direction
-   nGy: positive G along y direction
-  ==============================================================*/
- int getN(
-   const int nGx,
-   const int nGy
- );
 
  /*============================================================
  * Function computing the sinc function (sin(x) / x) for matrix x
@@ -113,25 +103,6 @@ namespace RCWA{
   x: the input argument
  ==============================================================*/
  double jinc(const double x);
- /*============================================================
-  * Function computing G matrix for the system
-  @arg:
-   startLayer: the starting layer for the propogation
-   nGx: positive G along x direction
-   nGy: positive G along y direction
-   period: periodicity along two directions
-   Gx_mat: the Gx matrix
-   Gy_mat: the Gy matrix
-   d: the dimension of the structure
-  ==============================================================*/
-  void getGMatrices(
-    const int nGx,
-    const int nGy,
-    const double period[2],
-    RCWArMatrix& Gx_mat,
-    RCWArMatrix& Gy_mat,
-    const DIMENSION d
-  );
 
   /*============================================================
   * Function computing imaginary dielectric matrix for the system

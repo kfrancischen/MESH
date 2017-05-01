@@ -196,25 +196,16 @@ int MESH_DeleteLayer(lua_State* L){
 }
 
 
-// this function wraps setGx(const int nGx)
+// this function wraps setNumOfG(const int nG)
 // @how to use
-// SetGx(number of Gx)
-int MESH_SetGx(lua_State* L){
+// SetNumOfG(number of G)
+int MESH_SetNumOfG(lua_State* L){
   Simulation *s = luaW_check<Simulation>(L, 1);
   int n = luaU_check<int>(L, 2);
-  s->setGx(n);
+  s->setNumOfG(n);
   return 1;
 }
 
-// this function wraps setGy(const int nGy)
-// @how to use
-// SetGy(number of Gy)
-int MESH_SetGy(lua_State* L){
-  Simulation *s = luaW_check<Simulation>(L, 1);
-  int n = luaU_check<int>(L, 2);
-  s->setGy(n);
-  return 1;
-}
 
 // this function wraps setSourceLayer(const std::string name)
 // @how to use
@@ -364,6 +355,14 @@ int MESH_GetPhiAtKxKy(lua_State *L){
   }
   return 1;
 }
+// this function wraps getNumG()
+// @how to use
+// GetNumOfG()
+int MESH_GetNumOfG(lua_State* L){
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  luaU_push(L, s->getNumOfG());
+  return 1;
+}
 
 // this function wraps outputSysInfo()
 // @how to use
@@ -398,6 +397,14 @@ int MESH_OptOnlyComputeTE(lua_State *L){
 int MESH_OptOnlyComputeTM(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   s->optOnlyComputeTM();
+  return 1;
+}
+
+// this function wraps optSetLatticeTruncation(const std::string& truncation)
+int MESH_OptSetLatticeTruncation(lua_State *L){
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  std::string truncation = luaU_check<std::string>(L, 2);
+  s->optSetLatticeTruncation(truncation);
   return 1;
 }
 
@@ -601,6 +608,16 @@ int MESH_OptUseAdaptive(lua_State *L){
   return 1;
 }
 
+// this function wraps setLattice(const double p1)
+// how to use
+// SetLattice(p1)
+int MESH_SetLatticeGrating(lua_State *L){
+  SimulationGrating *s = luaW_check<SimulationGrating>(L, 1);
+  double p1 = luaU_check<double>(L, 2);
+  s->setLattice(p1);
+  return 1;
+}
+
 /*======================================================*/
 // constructor for the 2D pattern
 /*=======================================================*/
@@ -708,6 +725,38 @@ int MESH_SetLayerPatternPolygon(lua_State *L){
   delete [] edgePoints;
   return 1;
 }
+// this function wraps setLattice(const double xLen, const double yLen, const double angle)
+int MESH_SetLatticePattern(lua_State *L){
+  SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
+  double xLen = luaU_check<double>(L, 2);
+  double yLen = luaU_check<double>(L, 3);
+  double angle = luaU_check<double>(L, 4);
+  s->setLattice(xLen, yLen, angle);
+  return 1;
+}
+// this function wraps getReciprocalLattice(double lattice[4])
+// how to use
+// GetReciprocalLattice()
+int MESH_GetReciprocalLattice(lua_State *L){
+  SimulationPattern *s = luaW_check<SimulationPattern>(L, 1);
+  double lattice[4];
+  s->getReciprocalLattice(lattice);
+  lua_createtable(L, 2, 0);    /* {}                   */
+	lua_createtable(L, 2, 0);    /* {} {}                */
+	lua_pushnumber(L, lattice[0]); /* {} {} L0             */
+	lua_rawseti(L, -2, 1);       /* {} {L0}              */
+	lua_pushnumber(L, lattice[1]); /* {} {L0} L1           */
+	lua_rawseti(L, -2, 2);       /* {} {L0, L1}          */
+	lua_rawseti(L, -2, 1);       /* {{L0, L1}}           */
+	lua_createtable(L, 2, 0);    /* {{L0, L1}} {}        */
+	lua_pushnumber(L, lattice[2]); /* {{L0, L1}} {} L2     */
+	lua_rawseti(L, -2, 1);       /* {{L0, L1}} {L2}      */
+	lua_pushnumber(L, lattice[3]); /* {{L0, L1}} {L2} L3   */
+	lua_rawseti(L, -2, 2);       /* {{L0, L1}} {L2, L3}  */
+	lua_rawseti(L, -2, 2);       /* {{L0, L1}, {L2, L3}} */
+
+  return 1;
+}
 /*======================================================*/
 // tables for the three clases
 /*=======================================================*/
@@ -722,18 +771,19 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "DeleteLayer", MESH_DeleteLayer, },
   { "SetSourceLayer", MESH_SetSourceLayer },
   { "SetProbeLayer", MESH_SetProbeLayer },
-  { "SetGx", MESH_SetGx },
-  { "SetGy", MESH_SetGy },
+  { "SetNumOfG", MESH_SetNumOfG },
   { "GetPhi", MESH_GetPhi },
   { "GetOmega", MESH_GetOmega },
   { "GetEpsilon", MESH_GetEpsilon },
   { "GetNumOfOmega", MESH_GetNumOfOmega },
   { "GetPhiAtKxKy", MESH_GetPhiAtKxKy },
+  { "GetNumOfG", MESH_GetNumOfG },
   { "OutputSysInfo", MESH_OutputSysInfo },
   { "OutputLayerPatternRealization", MESH_OutputLayerPatternRealization },
   { "OptPrintIntermediate", MESH_OptPrintIntermediate },
   { "OptOnlyComputeTE", MESH_OptOnlyComputeTE },
   { "OptOnlyComputeTM", MESH_OptOnlyComputeTM },
+  { "OptSetLatticeTruncation", MESH_OptSetLatticeTruncation },
   { "InitSimulation", MESH_InitSimulation },
   { "SetThread", MESH_SetThread },
   { "SetKxIntegral", MESH_SetKxIntegral },
@@ -755,8 +805,9 @@ static luaL_Reg character_metatable_SimulationPlanar[] = {
 };
 
 static luaL_Reg character_metatable_SimulationGrating[] = {
-  { "OptUseAdaptive", MESH_OptUseAdaptive },
+  // { "OptUseAdaptive", MESH_OptUseAdaptive },
   { "SetLayerPatternGrating", MESH_SetLayerPatternGrating },
+  { "SetLattice", MESH_SetLatticeGrating },
   { NULL, NULL}
 };
 
@@ -765,6 +816,8 @@ static luaL_Reg character_metatable_SimulationPattern[] = {
   { "SetLayerPatternCircle", MESH_SetLayerPatternCircle },
   { "SetLayerPatternEllipse", MESH_SetLayerPatternEllipse },
   { "SetLayerPatternPolygon", MESH_SetLayerPatternPolygon },
+  { "SetLattice", MESH_SetLatticePattern },
+  { "GetReciprocalLattice", MESH_GetReciprocalLattice },
   { NULL, NULL}
 };
 

@@ -211,7 +211,7 @@ namespace MESH{
   /*======================================================*/
   // Implementaion of the parent simulation super class
   /*=======================================================*/
-  Simulation::Simulation() : nGx_(0), nGy_(0), numOfOmega_(0), Phi_(nullptr), omegaList_(nullptr),
+  Simulation::Simulation() : nG_(0), numOfOmega_(0), Phi_(nullptr), omegaList_(nullptr),
    kxStart_(0), kxEnd_(0), kyStart_(0), kyEnd_(0), numOfKx_(0), numOfKy_(0)
   {
     targetLayer_ = -1;
@@ -280,7 +280,6 @@ namespace MESH{
       offset += thicknessListVec_(i);
     }
     if(layerIdx == 0 && positions[2] > offset) layerIdx = structure_->getNumOfLayer() - 1;
-    int N = getN(nGx_, nGy_);
 
     RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
     meshGrid(Gx_mat_, Gx_mat_, Gx_r, Gx_l);
@@ -288,7 +287,7 @@ namespace MESH{
 
     RCWArMatrix GxMat = Gx_l - Gx_r;
     RCWArMatrix GyMat = Gy_l - Gy_r;
-    int r1 = 0, r2 = N-1, r3 = N, r4 = 2*N-1, mid = (N-1)/2;
+    int r1 = 0, r2 = nG_-1, r3 = nG_, r4 = 2*nG_-1, mid = (nG_-1)/2;
 
     arma::cx_rowvec phase = exp(-IMAG_I * (GxMat.row(mid) * positions[0] + GyMat.row(mid) * positions[1]));
     dcomplex eps_xx = accu(EMatrices_[layerIdx](span(r3, r4), span(r3, r4)).row(mid) % phase);
@@ -622,21 +621,12 @@ namespace MESH{
     this->setTargetLayerByLayer(layer);
   }
   /*==============================================*/
-  // This function sets number of positive Gx
+  // This function sets number of G
   // @args:
-  // Gx: number of positive Gx
+  // nG: number of G
   /*==============================================*/
-  void Simulation::setGx(const int Gx){
-    nGx_ = Gx;
-  }
-
-  /*==============================================*/
-  // This function sets number of positive Gy
-  // @args:
-  // Gy: number of positive Gy
-  /*==============================================*/
-  void Simulation::setGy(const int Gy){
-    nGy_ = Gy;
+  void Simulation::setNumOfG(const int nG){
+    nG_ = nG;
   }
 
   /*==============================================*/
@@ -691,7 +681,6 @@ namespace MESH{
       curOmegaIndex_ = omegaIdx;
       this->buildRCWAMatrices();
     }
-    int N = getN(nGx_, nGy_);
     return omegaList_[omegaIdx] / datum::c_0 / POW3(datum::pi) / 2.0 *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0 / MICRON,
         thicknessListVec_,
@@ -704,10 +693,18 @@ namespace MESH{
         Gy_mat_,
         sourceList_,
         targetLayer_,
-        N,
+        nG_,
         options_.polarization
       );
   }
+  /*==============================================*/
+  // function return the number of G values
+  /*==============================================*/
+  int Simulation::getNumOfG(){
+    // TODO
+    return 0;
+  }
+
   /*==============================================*/
   // This function intializes the simulation
   // Will initialize numOfOmega_, omegaList_, thicknessListVec_, sourceList_
@@ -716,8 +713,15 @@ namespace MESH{
     // reset simulation first
     this->resetSimulation();
     // essential, get the shared Gx_mat_ and Gy_mat_
-    double period[2] = {period_[0] * MICRON, period_[1] * MICRON};
-    getGMatrices(nGx_, nGy_, period, Gx_mat_, Gy_mat_, dim_);
+    Lattice rescaledLattice;
+    rescaledLattice.bx[0] = reciprocalLattice_.bx[0] / MICRON;
+    rescaledLattice.bx[1] = reciprocalLattice_.bx[1] / MICRON;
+    rescaledLattice.by[0] = reciprocalLattice_.by[0] / MICRON;
+    rescaledLattice.by[1] = reciprocalLattice_.by[1] / MICRON;
+    rescaledLattice.angle = reciprocalLattice_.angle;
+    rescaledLattice.area = reciprocalLattice_.area / POW2(MICRON);
+
+    GSEL::getGMatrices(nG_, rescaledLattice, Gx_mat_, Gy_mat_, dim_, options_.truncation_);
     // get constants
     Ptr<Layer> firstLayer = structure_->getLayerByIndex(0);
     Ptr<Material> backGround = firstLayer->getBackGround();
@@ -769,16 +773,16 @@ namespace MESH{
   void Simulation::buildRCWAMatrices(){
     RCWAcMatrices eps_xx_Matrices, eps_xy_Matrices, eps_yx_Matrices, eps_yy_Matrices;
     RCWAcMatrices im_eps_xx_Matrices, im_eps_xy_Matrices, im_eps_yx_Matrices, im_eps_yy_Matrices, im_eps_zz_Matrices;
-    int N = getN(nGx_, nGy_);
-    RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
+
+    RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(nG_, nG_);
     int numOfLayer = structure_->getNumOfLayer();
-    double period[2] = {period_[0] * MICRON, period_[1] * MICRON};
+    double area = lattice_.area * POW2(MICRON);
     for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
       Ptr<Material> backGround = layer->getBackGround();
 
-      RCWAcMatrix eps_xx(N, N, fill::zeros), eps_xy(N, N, fill::zeros), eps_yx(N, N, fill::zeros), eps_yy(N, N, fill::zeros), eps_zz(N, N, fill::zeros), eps_zz_Inv(N, N, fill::zeros);
-      RCWAcMatrix im_eps_xx(N, N, fill::zeros), im_eps_xy(N, N, fill::zeros), im_eps_yx(N, N, fill::zeros), im_eps_yy(N, N, fill::zeros), im_eps_zz(N, N, fill::zeros);
+      RCWAcMatrix eps_xx(nG_, nG_, fill::zeros), eps_xy(nG_, nG_, fill::zeros), eps_yx(nG_, nG_, fill::zeros), eps_yy(nG_, nG_, fill::zeros), eps_zz(nG_, nG_, fill::zeros), eps_zz_Inv(nG_, nG_, fill::zeros);
+      RCWAcMatrix im_eps_xx(nG_, nG_, fill::zeros), im_eps_xy(nG_, nG_, fill::zeros), im_eps_yx(nG_, nG_, fill::zeros), im_eps_yy(nG_, nG_, fill::zeros), im_eps_zz(nG_, nG_, fill::zeros);
 
       EpsilonVal epsBG = backGround->getEpsilonAtIndex(curOmegaIndex_);
       EpsilonVal epsBGTensor = FMM::toTensor(epsBG, backGround->getType());
@@ -819,10 +823,10 @@ namespace MESH{
               epsParentTensor,
               epsilon,
               material->getType(),
-              nGx_,
+              Gx_mat_,
               center,
               width,
-              period[0],
+              area,
               layer->hasTensor()
             );
             break;
@@ -849,12 +853,12 @@ namespace MESH{
               epsParentTensor,
               epsilon,
               material->getType(),
-              nGx_,
-              nGy_,
+              Gx_mat_,
+              Gy_mat_,
               centers,
               angle,
               widths,
-              period,
+              area,
               layer->hasTensor()
             );
             break;
@@ -879,11 +883,11 @@ namespace MESH{
               epsParentTensor,
               epsilon,
               material->getType(),
-              nGx_,
-              nGy_,
+              Gx_mat_,
+              Gy_mat_,
               centers,
               radius,
-              period,
+              area,
               layer->hasTensor()
             );
             break;
@@ -909,12 +913,12 @@ namespace MESH{
               epsParentTensor,
               epsilon,
               material->getType(),
-              nGx_,
-              nGy_,
+              Gx_mat_,
+              Gy_mat_,
               centers,
               angle,
               halfwidths,
-              period,
+              area,
               layer->hasTensor()
             );
             break;
@@ -943,12 +947,12 @@ namespace MESH{
              epsParentTensor,
              epsilon,
              material->getType(),
-             nGx_,
-             nGy_,
+             Gx_mat_,
+             Gy_mat_,
              centers,
              angle,
              edgeList,
-             period,
+             area,
              layer->hasTensor()
            );
             break;
@@ -996,7 +1000,7 @@ namespace MESH{
       eps_yx_Matrices,
       eps_yy_Matrices,
       numOfLayer,
-      N
+      nG_
     );
 
     getGrandImaginaryMatrices(
@@ -1007,7 +1011,7 @@ namespace MESH{
       im_eps_yy_Matrices,
       im_eps_zz_Matrices,
       numOfLayer,
-      N
+      nG_
     );
   }
   /*==============================================*/
@@ -1111,6 +1115,23 @@ namespace MESH{
   /*==============================================*/
   void Simulation::optOnlyComputeTM(){
     options_.polarization = TM_;
+  }
+  /*==============================================*/
+  // function sets the truncation of lattice
+  // @args:
+  //  truncation: string, one of "Circular" and "Parallelogramic"
+  /*==============================================*/
+  void Simulation::optSetLatticeTruncation(const std::string &truncation){
+    if(truncation.compare("Circular") != 0){
+      options_.truncation_ = CIRCULAR_;
+    }
+    else if(truncation.compare("Parallelogramic") != 0){
+      options_.truncation_ = PARALLELOGRAMIC_;
+    }
+    else{
+      std::cerr << "truncation should be one of Circular or Parallelogramic!" << std::endl;
+      UTILITY::ValueException("truncation should be one of Circular or Parallelogramic!");
+    }
   }
 
   /*==============================================*/
@@ -1558,6 +1579,17 @@ namespace MESH{
     layer->addGratingPattern(material, center, width);
   }
   /*==============================================*/
+  // function setting the periodicity
+  // p1: the length of one periodicity
+  /*==============================================*/
+  void SimulationGrating::setLattice(const double p1){
+    lattice_.bx[0] = p1;
+    lattice_.area = p1;
+
+    reciprocalLattice_.bx[0] = 2 * datum::pi / p1;
+    reciprocalLattice_.area = 2 * datum::pi / p1;
+  }
+  /*==============================================*/
   // function using adaptive resolution algorithm
   /*==============================================*/
   void SimulationGrating::optUseAdaptive(){
@@ -1711,6 +1743,44 @@ namespace MESH{
     Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
     double arg1[2] = {centerx, centery};
     layer->addPolygonPattern(material, arg1, angle, edgePoints,numOfPoint);
+  }
+  /*==============================================*/
+  // function setting the lattice
+  // xLen: the length of coordinate in x direction
+  // yLen: the length of coordinate in y direction
+  // angle: the angle between the two vectors
+  /*==============================================*/
+  void SimulationPattern::setLattice(const double xLen, const double yLen, const double angle){
+    // point1 = (x1,x2) = (xLen, 0), point2 = (y1,y2) = (yLen * cos(theta), yLen * sin(theta))
+    // b1 = (2*pi/x1, -2*pi/y2 * y1), b2 = (2*pi/y2, 0)
+    if(angle == 0.0 || angle == 180.0){
+      std::cerr << "the angle should be within range of (0, 180), exclusive!" << std::endl;
+      UTILITY::RangeException("the angle should be within range of (0, 180), exclusive!");
+    }
+    lattice_.bx[0] = xLen;
+    lattice_.by[0] = yLen * cos(angle);
+    if(angle > 90) lattice_.by[0] *= -1;
+    lattice_.by[1] = std::abs(yLen * sin(angle));
+    lattice_.angle = angle;
+    lattice_.area = lattice_.bx[0] * lattice_.by[1];
+
+    reciprocalLattice_.bx[0] = 2 * datum::pi / lattice_.bx[0];
+    reciprocalLattice_.bx[1] = -2 * datum::pi / lattice_.by[1] * lattice_.by[0];
+    reciprocalLattice_.by[1] = 2 * datum::pi / lattice_.by[1];
+    reciprocalLattice_.angle = 180 - angle;
+    reciprocalLattice_.area = std::abs(reciprocalLattice_.by[1] * reciprocalLattice_.bx[0]);
+
+  }
+  /*==============================================*/
+  // function return the reciprocal lattice
+  // @args:
+  // lattice: the return reciprocal lattice
+  /*==============================================*/
+  void SimulationPattern::getReciprocalLattice(double lattice[4]){
+    lattice[0] = reciprocalLattice_.bx[0];
+    lattice[1] = reciprocalLattice_.bx[1];
+    lattice[2] = reciprocalLattice_.by[0];
+    lattice[3] = reciprocalLattice_.by[1];
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer

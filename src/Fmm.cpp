@@ -242,10 +242,10 @@
    // im_eps_yy: the Fourier transform for imaginary part
    // im_eps_zz: the Fourier transform for imaginary part
    // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-   // nGx: the total number of G
+   // Gx_mat: the Gx matrix
    // center: the center of the grating
    // width: the width of the grating
-   // period: the periodicity
+   // area: the area of one periodicity
    // hasTensor: whether this layer contains tensor
    /*==============================================*/
    void transformGrating(
@@ -262,19 +262,15 @@
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
-    const int nGx,
+    const RCWArMatrix& Gx_Mat,
     const double center,
     const double width,
-    const double period,
+    const double area,
     const bool hasTensor
    ){
 
-     RCWArMatrix Gx_mat, Gy_mat;
-     double periods[2] = {period, 0};
-     RCWA::getGMatrices(nGx, 0, periods, Gx_mat, Gy_mat, ONE_);
-     // dcomplex IMAG_I = dcomplex(0, 1.0);
      RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
-     meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
+     meshGrid(Gx_Mat, Gx_Mat, Gx_r, Gx_l);
 
      RCWArMatrix G_mat = Gx_l - Gx_r;
      RCWAcMatrix phase = exp(IMAG_I * G_mat * center);
@@ -293,29 +289,29 @@
      EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
 
      eps_xx += phase % transformGratingElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]),
-         eps_BG_xx, G_mat, width) / period;
+         eps_BG_xx, G_mat, width) / area;
      im_eps_xx += phase % transformGratingElement(dcomplex(epsTensor.tensor[1], 0),
-         im_eps_BG_xx, G_mat, width) / period;
+         im_eps_BG_xx, G_mat, width) / area;
 
      eps_yy += phase % transformGratingElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]),
-         eps_BG_yy, G_mat, width) / period;
+         eps_BG_yy, G_mat, width) / area;
      im_eps_yy += phase % transformGratingElement(dcomplex(epsTensor.tensor[7], 0),
-         im_eps_BG_yy, G_mat, width) / period;
+         im_eps_BG_yy, G_mat, width) / area;
 
      eps_zz += phase % transformGratingElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]),
-         eps_BG_zz, G_mat, width) / period;
+         eps_BG_zz, G_mat, width) / area;
      im_eps_zz += phase % transformGratingElement(dcomplex(epsTensor.tensor[9], 0),
-         im_eps_BG_zz, G_mat, width) / period;
+         im_eps_BG_zz, G_mat, width) / area;
 
      if(hasTensor){
          eps_xy += phase % transformGratingElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]),
-           eps_BG_xy, G_mat, width) / period;
+           eps_BG_xy, G_mat, width) / area;
          eps_yx += phase % transformGratingElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]),
-           eps_BG_yx, G_mat, width) / period;
+           eps_BG_yx, G_mat, width) / area;
          im_eps_xy += phase % transformGratingElement(dcomplex(epsTensor.tensor[3], 0),
-           im_eps_BG_xy, G_mat, width) / period;
+           im_eps_BG_xy, G_mat, width) / area;
          im_eps_yx += phase % transformGratingElement(dcomplex(epsTensor.tensor[5], 0),
-           im_eps_BG_yx, G_mat, width) / period;
+           im_eps_BG_yx, G_mat, width) / area;
      }
    }
 
@@ -333,12 +329,12 @@
    // im_eps_yy: the Fourier transform for imaginary part
    // im_eps_zz: the Fourier transform for imaginary part
    // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-   // nGx: the total number of G in x direction
-   // nGy: the total number of G in y direction
+   // Gx_mat: the Gx matrix
+   // Gy_mat: the Gy matrix
    // centers: the centers of the rectangle
    // angle: the rotated angle with respect to x axis
    // widths: the widths of the rectangle
-   // period: the periodicity
+   // area: the area of one periodicity
    // hasTensor: whether this layer contains tensor
    /*==============================================*/
    void transformRectangle(
@@ -355,23 +351,19 @@
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
-    const int nGx,
-    const int nGy,
+    const RCWArMatrix& Gx_Mat,
+    const RCWArMatrix& Gy_Mat,
     const double centers[2],
     const double angle,
     const double widths[2],
-    const double period[2],
+    const double area,
     const bool hasTensor
    ){
 
-     double area = period[0] * period[1];
 
-     RCWArMatrix Gx_mat, Gy_mat;
-     RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
-     // dcomplex IMAG_I = dcomplex(0, 1.0);
      RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
-     meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
-     meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
+     meshGrid(Gx_Mat, Gx_Mat, Gx_r, Gx_l);
+     meshGrid(Gy_Mat, Gy_Mat, Gy_r, Gy_l);
 
      RCWArMatrix GxMat = Gx_l - Gx_r;
      RCWArMatrix GyMat = Gy_l - Gy_r;
@@ -437,12 +429,12 @@
    // im_eps_yy: the Fourier transform for imaginary part
    // im_eps_zz: the Fourier transform for imaginary part
    // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-   // nG_x: the total number of G in x direction
-   // nG_y: the total number of G in y direction
+   // Gx_mat: the Gx matrix
+   // Gy_mat: the Gy matrix
    // centers: the centers of the circle
    // angle: the rotated angle with respect to x axis
    // radius: the radius of the circle
-   // period: the periodicity
+   // area: the area of one periodicity
    // hasTensor: whether this layer contains tensor
    /*==============================================*/
    void transformCircle(
@@ -459,28 +451,23 @@
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
-    const int nGx,
-    const int nGy,
+    const RCWArMatrix& Gx_Mat,
+    const RCWArMatrix& Gy_Mat,
     const double centers[2],
     const double radius,
-    const double period[2],
+    const double area,
     const bool hasTensor
    ){
-     int N = RCWA::getN(nGx, nGy);
-     double area = period[0] * period[1];
 
-     RCWArMatrix Gx_mat, Gy_mat;
-     RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
      // dcomplex IMAG_I = dcomplex(0, 1.0);
      RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
-     meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
-     meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
+     meshGrid(Gx_Mat, Gx_Mat, Gx_r, Gx_l);
+     meshGrid(Gy_Mat, Gy_Mat, Gy_r, Gy_l);
 
      RCWArMatrix GxMat = Gx_l - Gx_r;
      RCWArMatrix GyMat = Gy_l - Gy_r;
      RCWAcMatrix phase = exp(IMAG_I * (GxMat * centers[0] + GyMat * centers[1]));
 
-     RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
 
      dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
      dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
@@ -538,12 +525,12 @@
     // im_eps_yy: the Fourier transform for imaginary part
     // im_eps_zz: the Fourier transform for imaginary part
     // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-    // nG_x: the total number of G in x direction
-    // nG_y: the total number of G in y direction
+    // Gx_mat: the Gx matrix
+    // Gy_mat: the Gy matrix
     // centers: the centers of the ellipse
     // angle: the rotated angle with respect to x axis
     // halfwidths: the halfwidths of the ellipse
-    // period: the periodicity
+    // area: the area of one periodicity
     // hasTensor: whether this layer contains tensor
     /*==============================================*/
     void transformEllipse(
@@ -560,23 +547,18 @@
      const EpsilonVal& epsBGTensor,
      const EpsilonVal& epsilon,
      const EPSTYPE epsilonType,
-     const int nGx,
-     const int nGy,
+     const RCWArMatrix& Gx_Mat,
+     const RCWArMatrix& Gy_Mat,
      const double centers[2],
      const double angle,
      const double halfwidths[2],
-     const double period[2],
+     const double area,
      const bool hasTensor
     ){
-      int N = RCWA::getN(nGx, nGy);
-      double area = period[0] * period[1];
-
-      RCWArMatrix Gx_mat, Gy_mat;
-      RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
       // dcomplex IMAG_I = dcomplex(0, 1.0);
       RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
-      meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
-      meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
+      meshGrid(Gx_Mat, Gx_Mat, Gx_r, Gx_l);
+      meshGrid(Gy_Mat, Gy_Mat, Gy_r, Gy_l);
 
       RCWArMatrix GxMat = Gx_l - Gx_r;
       RCWArMatrix GyMat = Gy_l - Gy_r;
@@ -585,7 +567,6 @@
       GyMat = -GxMat * sin(angle) + GyMat * cos(angle);
       GxMat = G_temp;
 
-      RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
 
       dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
       dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);
@@ -642,12 +623,12 @@
      // im_eps_yy: the Fourier transform for imaginary part
      // im_eps_zz: the Fourier transform for imaginary part
      // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-     // nG_x: the total number of G in x direction
-     // nG_y: the total number of G in y direction
+     // Gx_mat: the Gx matrix
+     // Gy_mat: the Gy matrix
      // centers: the centers of the polygon
      // angle: the rotated angle with respect to x axis
      // edgeList: the edges of the polygon
-     // period: the periodicity
+     // area: the area of one periodicity
      // hasTensor: whether this layer contains tensor
      /*==============================================*/
      void transformPolygon(
@@ -664,23 +645,19 @@
       const EpsilonVal& epsBGTensor,
       const EpsilonVal& epsilon,
       const EPSTYPE epsilonType,
-      const int nGx,
-      const int nGy,
+      const RCWArMatrix& Gx_Mat,
+      const RCWArMatrix& Gy_Mat,
       const double centers[2],
       const double angle,
       const EdgeList& edgeList,
-      const double period[2],
+      const double area,
       const bool hasTensor
     ){
-      int N = RCWA::getN(nGx, nGy);
-      double area = period[0] * period[1];
       double polygonArea = getPolygonArea(edgeList);
-      RCWArMatrix Gx_mat, Gy_mat;
-      RCWA::getGMatrices(nGx, nGy, period, Gx_mat, Gy_mat, TWO_);
       // dcomplex IMAG_I = dcomplex(0, 1.0);
       RCWArMatrix Gx_r, Gx_l, Gy_r, Gy_l;
-      meshGrid(Gx_mat, Gx_mat, Gx_r, Gx_l);
-      meshGrid(Gy_mat, Gy_mat, Gy_r, Gy_l);
+      meshGrid(Gx_Mat, Gx_Mat, Gx_r, Gx_l);
+      meshGrid(Gy_Mat, Gy_Mat, Gy_r, Gy_l);
 
       RCWArMatrix GxMat = Gx_l - Gx_r;
       RCWArMatrix GyMat = Gy_l - Gy_r;
@@ -689,7 +666,6 @@
       GyMat = -GxMat * sin(angle) + GyMat * cos(angle);
       GxMat = G_temp;
 
-      RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(N, N);
 
       dcomplex eps_BG_xx = dcomplex(epsBGTensor.tensor[0], epsBGTensor.tensor[1]);
       dcomplex eps_BG_xy = dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]);

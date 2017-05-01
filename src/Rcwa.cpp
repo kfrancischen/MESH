@@ -142,18 +142,6 @@ void RCWA::getSMatrices(
 }
 
 /*============================================================
-* Function computing numbef of G for the system
-@arg:
- nGx: positive G along x direction
- nGy: positive G along y direction
-==============================================================*/
-int RCWA::getN(
- const int nGx,
- const int nGy
-){
-  return (2*nGx + 1) * (2*nGy + 1);
-}
-/*============================================================
 * Function computing the sinc function (sin(x) / x) for matrix x
 @arg:
  x: the input argument
@@ -195,6 +183,7 @@ double RCWA::jinc(const double x){
  Gy_mat: the Gy matrix
  d: the dimension of the structure
 ==============================================================*/
+/*
 void RCWA::getGMatrices(
   const int nGx,
   const int nGy,
@@ -235,7 +224,7 @@ void RCWA::getGMatrices(
   Gx_mat.reshape(N, 1);
   Gy_mat.reshape(N, 1);
 }
-
+*/
 /*============================================================
 * Function computing imaginary dielectric matrix for the system
 @arg:

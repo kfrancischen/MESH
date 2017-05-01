@@ -27,6 +27,7 @@
 #include "Fmm.h"
 #include "Common.h"
 #include "config.h"
+#include "Gsel.h"
 #include <fstream>
 #if defined(_OPENMP)
   #include <omp.h>
@@ -49,6 +50,7 @@ typedef struct OPTIONS{
   bool IntegrateKParallel = true;
   bool kxIntegralPreset = false;
   bool kyIntegralPreset = false;
+  TRUNCATION truncation_ = CIRCULAR_;
 } Options;
 
 
@@ -113,8 +115,7 @@ public:
   void setSourceLayer(const std::string name);
   void setProbeLayer(const std::string name);
 
-  void setGx(const int nGx);
-  void setGy(const int nGy);
+  void setNumOfG(const int nG);
   double* getPhi();
   double* getOmega();
   void getEpsilon(const int omegaIndex, const double position[3], double* &epsilon);
@@ -128,12 +129,14 @@ public:
   int getNumOfOmega();
   void initSimulation();
   double getPhiAtKxKy(const int omegaIndex, const double kx, const double ky = 0);
+  int getNumOfG();
 
   void outputSysInfo();
 
   void optPrintIntermediate();
   void optOnlyComputeTE();
   void optOnlyComputeTM();
+  void optSetLatticeTruncation(const std::string& truncation);
   void setThread(const int numThread);
 
   void setKxIntegral(const int points, const double end = 0);
@@ -156,8 +159,7 @@ protected:
   Ptr<Structure> getStructure();
 
 
-  int nGx_;
-  int nGy_;
+  int nG_;
   int numOfOmega_;
   double* Phi_;
   double* omegaList_;
@@ -170,6 +172,10 @@ protected:
   int numOfKy_;
 
   double period_[2];
+
+  Lattice lattice_;
+  Lattice reciprocalLattice_;
+
   int prefactor_;
 
   LayerInstanceMap layerInstanceMap_;
@@ -243,6 +249,8 @@ public:
     const double width
   );
 
+  void setLattice(const double p1);
+
   void optUseAdaptive();
   SimulationGrating();
 protected:
@@ -295,6 +303,8 @@ public:
     const int numOfPoint
   );
 
+  void getReciprocalLattice(double lattice[4]);
+  void setLattice(const double xLen, const double yLen, const double angle);
   SimulationPattern();
   SimulationPattern(const SimulationPattern&) = delete;
 

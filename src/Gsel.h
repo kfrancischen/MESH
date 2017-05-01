@@ -29,7 +29,7 @@ namespace GSEL{
   using RCWA::RCWArMatrix;
   using RCWA::RCWAcMatrix;
 
-  void getGMatrix(
+  void getGMatrices(
     int& nG,
     const Lattice& lattice,
     RCWArMatrix& Gx_mat,

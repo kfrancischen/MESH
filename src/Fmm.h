@@ -53,10 +53,11 @@ namespace FMM{
   // im_eps_yy: the Fourier transform for imaginary part
   // im_eps_zz: the Fourier transform for imaginary part
   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-  // nGx: the total number of G
+  // Gx_mat: the Gx matrix
+  // Gy_mat: the Gy matrix
   // center: the center of the grating
   // width: the width of the grating
-  // period: the periodicity
+  // area: the area of one periodicity
   // hasTensor: whether this layer contains tensor
   /*==============================================*/
   void transformGrating(
@@ -73,10 +74,10 @@ namespace FMM{
     const EpsilonVal& epsilonBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
-    const int nGx,
+    const RCWArMatrix& Gx_Mat,
     const double center,
     const double width,
-    const double period,
+    const double area,
     const bool hasTensor
   );
 
@@ -94,11 +95,11 @@ namespace FMM{
   // im_eps_yy: the Fourier transform for imaginary part
   // im_eps_zz: the Fourier transform for imaginary part
   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-  // nG_x: the total number of G in x direction
-  // nG_y: the total number of G in y direction
+  // Gx_mat: the Gx matrix
+  // Gy_mat: the Gy matrix
   // centers: the centers of the rectangle
   // widths: the widths of the rectangle
-  // period: the periodicity
+  // area: the area of one periodicity
   // hasTensor: whether this layer contains tensor
   /*==============================================*/
   void transformRectangle(
@@ -115,12 +116,12 @@ namespace FMM{
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
-    const int nGx,
-    const int nGy,
+    const RCWArMatrix& Gx_Mat,
+    const RCWArMatrix& Gy_Mat,
     const double centers[2],
     const double angle,
     const double widths[2],
-    const double period[2],
+    const double area,
     const bool hasTensor
   );
 
@@ -138,11 +139,11 @@ namespace FMM{
   // im_eps_yy: the Fourier transform for imaginary part
   // im_eps_zz: the Fourier transform for imaginary part
   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-  // nG_x: the total number of G in x direction
-  // nG_y: the total number of G in y direction
+  // Gx_mat: the Gx matrix
+  // Gy_mat: the Gy matrix
   // centers: the centers of the circle
   // radius: the radius of the circle
-  // period: the periodicity
+  // area: the area of one periodicity
   // hasTensor: whether this layer contains tensor
   /*==============================================*/
   void transformCircle(
@@ -159,11 +160,11 @@ namespace FMM{
     const EpsilonVal& epsBGTensor,
     const EpsilonVal& epsilon,
     const EPSTYPE epsilonType,
-    const int nGx,
-    const int nGy,
+    const RCWArMatrix& Gx_Mat,
+    const RCWArMatrix& Gy_Mat,
     const double centers[2],
     const double radius,
-    const double period[2],
+    const double area,
     const bool hasTensor
   );
 
@@ -181,9 +182,9 @@ namespace FMM{
   // im_eps_yy: the Fourier transform for imaginary part
   // im_eps_zz: the Fourier transform for imaginary part
   // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
-  // nG_x: the total number of G in x direction
-  // nG_y: the total number of G in y direction
-  // centers: the centers of the ellipse
+  // Gx_mat: the Gx matrix
+  // Gy_mat: the Gy matrix
+  // area: the area of one periodicity
   // angle: the rotated angle of the ellipse
   // halfwidths: the halfwidths of the ellipse
   // period: the periodicity
@@ -203,12 +204,12 @@ namespace FMM{
    const EpsilonVal& epsBGTensor,
    const EpsilonVal& epsilon,
    const EPSTYPE epsilonType,
-   const int nGx,
-   const int nGy,
+   const RCWArMatrix& Gx_Mat,
+   const RCWArMatrix& Gy_Mat,
    const double centers[2],
    const double angle,
    const double halfwidths[2],
-   const double period[2],
+   const double area,
    const bool hasTensor
  );
  /*==============================================*/
@@ -225,11 +226,11 @@ namespace FMM{
  // im_eps_yy: the Fourier transform for imaginary part
  // im_eps_zz: the Fourier transform for imaginary part
  // epsilonBGTensor: the epsilon of bacground (transformed to tensor already)
- // nG_x: the total number of G in x direction
- // nG_y: the total number of G in y direction
+ // Gx_mat: the Gx matrix
+ // Gy_mat: the Gy matrix
  // centers: the centers of the polygon
  // edgeList: the edges of the polygon
- // period: the periodicity
+ // area: the area of one periodicity
  // hasTensor: whether this layer contains tensor
  /*==============================================*/
  void transformPolygon(
@@ -246,12 +247,12 @@ namespace FMM{
   const EpsilonVal& epsBGTensor,
   const EpsilonVal& epsilon,
   const EPSTYPE epsilonType,
-  const int nGx,
-  const int nGy,
+  const RCWArMatrix& Gx_Mat,
+  const RCWArMatrix& Gy_Mat,
   const double centers[2],
   const double angle,
   const EdgeList& edgeList,
-  const double period[2],
+  const double area,
   const bool hasTensor
 );
 }
