@@ -19,9 +19,7 @@
 
 
 #include "Gsel.h"
-#ifndef DBL_EPSILON
-  #define DBL_EPSILON 2.2204460492503131e-16
-#endif
+
 namespace GSEL{
   /*============================================================
   // this part of code is copied from S4
@@ -93,7 +91,53 @@ namespace GSEL{
     RCWArMatrix& Gx_mat,
     RCWArMatrix& Gy_mat
   ){
+    double Lk[4] = {
+      reciprocalLattice.bx[0] / (2 * M_PI),
+      reciprocalLattice.bx[1] / (2 * M_PI),
+      reciprocalLattice.by[0] / (2 * M_PI),
+      reciprocalLattice.by[1] / (2 * M_PI),
+    };
+    const double u = hypot(Lk[0],Lk[1]);
+  	const double v = hypot(Lk[2],Lk[3]);
+  	const double u2 = Lk[0]*Lk[0] + Lk[1]*Lk[1];
+  	const double v2 = Lk[2]*Lk[2] + Lk[3]*Lk[3];
+  	const double uv = Lk[0]*Lk[2] + Lk[1]*Lk[3];
+  	double Lkprod[3] = { u2, 2*uv, v2 };
+  	const double uxv = fabs(Lk[0]*Lk[3] - Lk[1]*Lk[2]);
 
+  	const double circ_area = nG * uxv;
+  	const double circ_radius = sqrt(circ_area/M_PI) + u + v;
+
+  	const int u_extent = 1+(int)(circ_radius/(u*sqrt(1.-uv*uv/(u2*v2))));
+  	const int v_extent = 1+(int)(circ_radius/(v*sqrt(1.-uv*uv/(u2*v2))));
+  	const int uext21 = 2*u_extent+1;
+  	const int vext21 = 2*v_extent+1;
+  	int *Gtemp = (int*)malloc(sizeof(int)*2*uext21*vext21);
+  	int i, j;
+
+  	for(i = 0; i < uext21; ++i){
+  		for(j = 0; j < vext21; ++j){
+  			Gtemp[2*(i+j*uext21)+0] = i-u_extent;
+  			Gtemp[2*(i+j*uext21)+1] = j-v_extent;
+  		}
+  	}
+  	UTILITY::Sort(Gtemp, uext21*vext21, 2*sizeof(int), &Gcmp, &Lkprod[0]);
+  	j = uext21*vext21;
+  	if(nG < j){ j = nG; }
+  	for(i = j; i > 0; --i){
+  		if(!G_same(&Gtemp[2*(i-1)], &Gtemp[2*(i-0)], Lk)){
+  			break;
+  		}
+  	}
+  	nG = i;
+    Gx_mat.set_size(nG, 1);
+    Gy_mat.set_size(nG, 1);
+
+  	for(i = 0; i < nG; ++i){
+  		Gx_mat(i, 0) = Gtemp[2*i+0];
+  		Gy_mat(i, 0) = Gtemp[2*i+1];
+  	}
+  	free(Gtemp);
   }
   /*============================================================
   * Function computing G matrix for the system using parallelogramic truncation
@@ -139,6 +183,9 @@ namespace GSEL{
     RCWArMatrix GxMat_temp = Gx_mat * reciprocalLattice.bx[0] + Gy_mat * reciprocalLattice.by[0];
     Gy_mat = Gx_mat * reciprocalLattice.bx[1] + Gy_mat * reciprocalLattice.by[1];
     Gx_mat = GxMat_temp;
+
+    Gx_mat.reshape(nG, 1);
+    Gy_mat.reshape(nG, 1);
   }
 
   /*============================================================
@@ -185,6 +232,5 @@ namespace GSEL{
     }
 
   }
+
 }
-
-

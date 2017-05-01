@@ -22,13 +22,17 @@
 
 #include "Rcwa.h"
 #include "Common.h"
-#include "Sort.h"
-#include <cmath>
+#include<cmath>
+#ifndef DBL_EPSILON
+  #define DBL_EPSILON 2.2204460492503131e-16
+#endif
+#ifndef M_PI
+  #define M_PI 3.14159265358979323846
+#endif
 
 namespace GSEL{
   using RCWA::RCWArMatrix;
   using RCWA::RCWAcMatrix;
-
   void getGMatrices(
     int& nG,
     const Lattice& lattice,

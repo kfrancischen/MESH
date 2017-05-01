@@ -35,7 +35,6 @@ objdir:
 	mkdir -p $(OBJDIR)/MESH_o
 
 MESH_LIBOBJS = \
-	$(OBJDIR)/MESH_o/Sort.o \
 	$(OBJDIR)/MESH_o/Rcwa.o \
 	$(OBJDIR)/MESH_o/Gsel.o \
 	$(OBJDIR)/MESH_o/Cubature.o \
@@ -45,8 +44,6 @@ MESH_LIBOBJS = \
 
 $(OBJDIR)/libmesh.a: objdir $(MESH_LIBOBJS)
 	$(AR) crvs $@ $(MESH_LIBOBJS)
-$(OBJDIR)/MESH_o/Sort.o: src/Sort.c
-	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
 $(OBJDIR)/MESH_o/Rcwa.o: src/Rcwa.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
 $(OBJDIR)/MESH_o/Gsel.o: src/Gsel.cpp
