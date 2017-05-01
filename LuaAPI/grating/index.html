@@ -547,20 +547,25 @@
 </pre></div>
 
 
-<p>All of the function provided in <a href="../baseClass/">base class</a> can be used except for the following changes.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The following function needs to be called specifically for <code>SimulationGrating</code> object.</p>
-</div>
-<div class="codehilite"><pre><span></span><span class="n">SetPeriodicity</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
-</pre></div>
-
-
-<p>The above function can only be called without the second argument <code>p2</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The following functions are added and specific to <code>SimulationGrating</code> object.</p>
 </div>
+<div class="codehilite"><pre><span></span><span class="n">SetLattice</span><span class="p">(</span><span class="n">p1</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>p1: [double], the periodicity in <script type="math/tex">x</script> direction in SI unit</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
 <div class="codehilite"><pre><span></span><span class="n">SetLayerPatternGrating</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
 </pre></div>
 
@@ -577,21 +582,6 @@
 </li>
 <li>
 <p>Output: None</p>
-</li>
-</ul>
-<div class="codehilite"><pre><span></span><span class="n">OptUseAdaptive</span><span class="p">()</span>
-</pre></div>
-
-
-<ul>
-<li>
-<p>Arguments: None</p>
-</li>
-<li>
-<p>Output: None</p>
-</li>
-<li>
-<p>Note: this function will use the <a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.125404">spatial adaptive resolution method</a> to compute the Fourier transform of the dielectric. (This option is not implemented yet).</p>
 </li>
 </ul>
                 

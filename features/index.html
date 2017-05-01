@@ -683,7 +683,7 @@
 <h4 id="heat-transfer-in-grating-geometries">Heat transfer in grating geometries<a class="headerlink" href="#heat-transfer-in-grating-geometries" title="Permanent link">&para;</a></h4>
 <p>In the case of a grating geometry (implemented as <a href="../LuaAPI/grating/">SimulationGrating</a> object), the heat transfer rate is written as</p>
 <p>
-<script type="math/tex; mode=display">\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)</script>
+<script type="math/tex; mode=display">\Phi(\omega)=\int_{-G_1/2}^{G_1/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)</script>
 </p>
 <p>Here again, MESH gives access to a few things</p>
 <ul>
@@ -693,7 +693,7 @@
 <h4 id="heat-transfer-in-pattern-geometries">Heat transfer in pattern geometries<a class="headerlink" href="#heat-transfer-in-pattern-geometries" title="Permanent link">&para;</a></h4>
 <p>In the case of a pattern geometry (implemented as <a href="../LuaAPI/pattern/">SimulationPattern</a> object), the heat transfer rate is written as</p>
 <p>
-<script type="math/tex; mode=display">\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-G_y/2}^{-G_y/2}dk_y \Phi(k_x,k_y, \omega)</script>
+<script type="math/tex; mode=display">\Phi(\omega)=\int\int_{first BZ}dk_xdk_y \Phi(k_x,k_y, \omega)</script>
 </p>
 <p>Again similar to the grating geometries, integral settings and printing of intermediate <script type="math/tex">\Phi(k_x,k_y, \omega)</script> are supported. In addition, multiple different kinds of patterns can exist in one layer. However, the code now only supports a rectangle lattice. In MESH, for 2D patterns the supported types of patterns supported are rectangle, circle, ellipse and polygon, and each pattern cannot partially overlap with each other. But one pattern can be fully contained inside another pattern. In addition, extending the code to non-trivial lattice and adding supports to more patterns are in principle doable.</p>
 <h4 id="supports-over-both-scalar-dielectric-and-tensor-dielectric">Supports over both scalar dielectric and tensor dielectric<a class="headerlink" href="#supports-over-both-scalar-dielectric-and-tensor-dielectric" title="Permanent link">&para;</a></h4>

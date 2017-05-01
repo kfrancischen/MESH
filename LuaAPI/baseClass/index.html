@@ -675,7 +675,7 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: None</p>
 </li>
 </ul>
-<div class="codehilite"><pre><span></span><span class="n">SetPeriodicity</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+<div class="codehilite"><pre><span></span><span class="n">SetNumOfG</span><span class="p">(</span><span class="n">nG</span><span class="p">)</span>
 </pre></div>
 
 
@@ -683,38 +683,7 @@ For tensor dielectric, the format is a list of   <br />
 <li>
 <p>Arguments:</p>
 <ol>
-<li>p1: [double], the periodicity in <script type="math/tex">x</script> direction in SI unit.</li>
-<li>p2: [double, optional for grating geometry], the periodicity in <script type="math/tex">y</script> direction in SI unit.</li>
-</ol>
-</li>
-<li>
-<p>Output: None</p>
-</li>
-</ul>
-<div class="codehilite"><pre><span></span><span class="n">SetGx</span><span class="p">(</span><span class="n">nGx</span><span class="p">)</span>
-</pre></div>
-
-
-<ul>
-<li>
-<p>Arguments:</p>
-<ol>
-<li>nGx: [int], the number of positive Fourier components in <script type="math/tex">x</script> direction. The total number of G in <script type="math/tex">x</script> direction is thus 2nGx + 1.</li>
-</ol>
-</li>
-<li>
-<p>Output: None</p>
-</li>
-</ul>
-<div class="codehilite"><pre><span></span><span class="n">SetGy</span><span class="p">(</span><span class="n">nGy</span><span class="p">)</span>
-</pre></div>
-
-
-<ul>
-<li>
-<p>Arguments:</p>
-<ol>
-<li>nGy: [int], the number of positive Fourier components in <script type="math/tex">y</script> direction. The total number of G in <script type="math/tex">y</script> direction is thus 2nGy + 1.</li>
+<li>nG: [int], the number of total Fourier components in both directions. Note this nG might not be the true nG used in the simulation.</li>
 </ol>
 </li>
 <li>
@@ -790,7 +759,7 @@ For tensor dielectric, the format is a list of   <br />
 </li>
 <li>
 <p>Note: this function is essentially doing
-<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm G_x/2</script>.</p>
+<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm |G_1|/2</script>.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">SetKyIntegral</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="kr">end</span><span class="p">)</span>
@@ -810,7 +779,7 @@ For tensor dielectric, the format is a list of   <br />
 </li>
 <li>
 <p>Note: this function is essentially doing
-<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm G_y/2</script>.</p>
+<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm |G_2|/2</script>.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="kr">end</span><span class="p">)</span>
@@ -830,7 +799,7 @@ For tensor dielectric, the format is a list of   <br />
 </li>
 <li>
 <p>Note: this function is essentially doing
-<script type="math/tex; mode=display">2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the upper bound of the integral will be <script type="math/tex">G_x/2</script>.</p>
+<script type="math/tex; mode=display">2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the upper bound of the integral will be <script type="math/tex">|G_1|/2</script>.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="kr">end</span><span class="p">)</span>
@@ -850,7 +819,7 @@ For tensor dielectric, the format is a list of   <br />
 </li>
 <li>
 <p>Note: this function is essentially doing
-<script type="math/tex; mode=display">2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the upper bound of the integral will be <script type="math/tex">G_y/2</script>.</p>
+<script type="math/tex; mode=display">2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the upper bound of the integral will be <script type="math/tex">|G_2|/2</script>.</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">InitSimulation</span><span class="p">()</span>
@@ -973,6 +942,18 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: [double], the value of <script type="math/tex">\Phi(\omega, k_x, k_y)</script>.</p>
 </li>
 </ul>
+<div class="codehilite"><pre><span></span><span class="n">GetNumOfG</span><span class="p">()</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments: None</p>
+</li>
+<li>
+<p>Output: number of G. If function <code>InitSimulation</code> has been called, then this function returns the true nG used in the simulation, otherwise return the user input nG.</p>
+</li>
+</ul>
 <div class="codehilite"><pre><span></span><span class="n">OutputSysInfo</span><span class="p">()</span>
 </pre></div>
 
@@ -1007,7 +988,7 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: the epsilon format will be the same as the function <code>GetEpsilon</code>.</p>
+<p>Note: the epsilon format will be the same as the function <code>GetEpsilon</code> along with the spacial coordinates.</p>
 </li>
 </ul>
 <p>Also, MESH provides some options for printing intermediate information and methods for Fourier transform of the dielectric.</p>
@@ -1064,6 +1045,21 @@ a list of "<script type="math/tex">\omega</script>
 <p class="admonition-title">Warning</p>
 <p>In MPI this function is not guaranteed to be atomic, meaning the printed output might be messed because each process is writing its own value to the screen. However for OpenMP, there is no such problem.</p>
 </div>
+<div class="codehilite"><pre><span></span><span class="n">OptSetLatticeTruncation</span><span class="p">(</span><span class="n">truncation</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>truncation: [string], the truncation method for the  reciprocal lattice. Should be one of "Circular" or "Parallelogramic".</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
 <p>MESH also provides physics constants to facilitate computation. The constant object can be initiated by</p>
 <div class="codehilite"><pre><span></span><span class="n">constant</span> <span class="o">=</span> <span class="n">Constants</span><span class="p">()</span>
 </pre></div>

@@ -552,7 +552,28 @@
 <p class="admonition-title">Note</p>
 <p>The following functions are added and specific to <code>SimulationPattern</code> object.</p>
 </div>
-<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternRectangle</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="p">{</span><span class="n">widthx</span><span class="p">,</span> <span class="n">widthy</span><span class="p">})</span>
+<div class="codehilite"><pre><span></span><span class="n">SetLattice</span><span class="p">(</span><span class="n">xLen</span><span class="p">,</span> <span class="n">yLen</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>xLen: [double], the length of the periodicity in <script type="math/tex">x</script> direction in SI unit.</li>
+<li>yLen: [double], the length of the periodicity in the other direction in SI unit.</li>
+<li>angle: the angle between the two lattice axises, in degree.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+<li>
+<p>Note: MESH handles the case when one of the real space lattice is aligned with <script type="math/tex">x</script> axis (with length <code>xLen</code>), and the other axis should be in the upper plane. The angle between the two axises are specified by <code>angle</code>. See the following figure:
+<img alt="coordinate system" src="../coordinate.png" /></p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternRectangle</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="n">angle</span><span class="p">,</span> <span class="p">{</span><span class="n">widthx</span><span class="p">,</span> <span class="n">widthy</span><span class="p">})</span>
 </pre></div>
 
 
@@ -562,6 +583,7 @@
 <ol>
 <li>layer name: [string], the layer that this rectangle pattern will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.</li>
 <li>material name: [string],  the material used as the rectangle pattern. Such material should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>angle: the rotated angle with respect to the positive <script type="math/tex">x</script> direction in a counterclockwise manner, in degree.</li>
 <li>{centerx, centery}: [double table], the centers of the rectangle pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
 <li>{widthx, widthy}: [double table], the widths of the rectangle pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
 </ol>
@@ -588,7 +610,7 @@
 <p>Output: None</p>
 </li>
 </ul>
-<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternEllipse</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="p">{</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">})</span>
+<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternEllipse</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="n">angle</span><span class="p">,</span> <span class="p">{</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">})</span>
 </pre></div>
 
 
@@ -598,6 +620,7 @@
 <ol>
 <li>layer name: [string], the layer that this ellipse pattern will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.</li>
 <li>material name: [string],  the material used as the ellipse pattern. Such material should already exist in the simulation, otherwise an error message will be printed out.</li>
+<li>angle: the rotated angle with respect to the positive <script type="math/tex">x</script> direction in a counterclockwise manner, in degree.</li>
 <li>{centerx, centery}: [double table], the centers of the ellipse pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
 <li>{a, b}: [double], the half widths the ellipse pattern in SI unit.</li>
 </ol>
@@ -606,12 +629,12 @@
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: the ellipse is written as:
+<p>Note: the ellipse with angle<script type="math/tex">=0</script> is written as:
     <script type="math/tex; mode=display">\frac{(x-x_c)^2}{a^2}+\frac{(y-y_c)^2}{b^2}=1</script>
 </p>
 </li>
 </ul>
-<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternPolygon</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="p">{</span> <span class="p">{</span><span class="n">v1_x</span><span class="p">,</span> <span class="n">v2_x</span><span class="p">},</span> <span class="p">...,</span> <span class="p">{</span><span class="n">vn_x</span><span class="p">,</span> <span class="n">vn_y</span><span class="p">}</span> <span class="p">})</span>
+<div class="codehilite"><pre><span></span><span class="n">SetLayerPatternPolygon</span><span class="p">(</span><span class="n">layer</span> <span class="n">name</span><span class="p">,</span> <span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="p">{</span><span class="n">centerx</span><span class="p">,</span> <span class="n">centery</span><span class="p">},</span> <span class="n">angle</span><span class="p">,</span> <span class="p">{</span> <span class="p">{</span><span class="n">v1_x</span><span class="p">,</span> <span class="n">v2_x</span><span class="p">},</span> <span class="p">...,</span> <span class="p">{</span><span class="n">vn_x</span><span class="p">,</span> <span class="n">vn_y</span><span class="p">}</span> <span class="p">})</span>
 </pre></div>
 
 
@@ -622,6 +645,7 @@
 <li>layer name: [string], the layer that this polygon pattern will be embedded. Such layer should already exist in the simulation, otherwise an error message will be printed out.</li>
 <li>material name: [string],  the material used as the polygon pattern. Such material should already exist in the simulation, otherwise an error message will be printed out.</li>
 <li>{centerx, centery}: [double table], the centers of the polygon pattern in <script type="math/tex">x</script> and <script type="math/tex">y</script> direction, respectively, in SI unit.</li>
+<li>angle: the rotated angle with respect to the positive <script type="math/tex">x</script> direction in a counterclockwise manner, in degree.</li>
 <li>{ {v1_x, v2_x}, ..., {vn_x, vn_y} }: [nested double table], coordinates of the vertices relative to the center in SI unit.</li>
 </ol>
 </li>
