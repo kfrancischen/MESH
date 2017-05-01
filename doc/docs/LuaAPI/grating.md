@@ -3,19 +3,16 @@ The SimulationGrating class can be initiated in Lua script by
 s = SimulationGrating.new()
 ```
 
-All of the function provided in [base class](baseClass.md) can be used except for the following changes.
-
-!!! warning
-    The following function needs to be called specifically for `SimulationGrating` object.
-
-```lua
-SetPeriodicity(p1)
-```
-The above function can only be called without the second argument `p2`.
-
 !!! note
     The following functions are added and specific to `SimulationGrating` object.
 
+```lua
+SetLattice(p1)
+```
+* Arguments:
+    1. p1: [double], the periodicity in $x$ direction in SI unit
+
+* Output: None
 
 ```lua
 SetLayerPatternGrating(layer name, material name, center, width)
@@ -27,12 +24,3 @@ SetLayerPatternGrating(layer name, material name, center, width)
     4. width: [double], the width of the grating in SI unit.
 
 * Output: None
-
-```lua
-OptUseAdaptive()
-```
-* Arguments: None
-
-* Output: None
-
-* Note: this function will use the [spatial adaptive resolution method](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.125404) to compute the Fourier transform of the dielectric. (This option is not implemented yet).

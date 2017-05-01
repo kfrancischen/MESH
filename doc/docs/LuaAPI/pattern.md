@@ -10,6 +10,19 @@ All of the function provided in [base class](baseClass.md) can be used.
     The following functions are added and specific to `SimulationPattern` object.
 
 ```lua
+SetLattice(xLen, yLen, angle)
+```
+* Arguments:
+    1. xLen: [double], the length of the periodicity in $x$ direction in SI unit.
+    2. yLen: [double], the length of the periodicity in the other direction in SI unit.
+    3. angle: the angle between the two lattice axises, in degree.
+
+* Output: None
+
+* Note: MESH handles the case when one of the real space lattice is aligned with $x$ axis (with length `xLen`), and the other axis should be in the upper plane. The angle between the two axises are specified by `angle`. See the following figure:
+![coordinate system](coordinate.png)
+
+```lua
 SetLayerPatternRectangle(layer name, material name, {centerx, centery}, angle, {widthx, widthy})
 ```
 * Arguments:

@@ -24,7 +24,7 @@ MESH directly provides functions to compute $\Phi(\omega, k_x, k_y)$, $\Phi(\ome
 
 In the case of a grating geometry (implemented as [SimulationGrating](LuaAPI/grating.md) object), the heat transfer rate is written as
 
-$$\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)$$
+$$\Phi(\omega)=\int_{-G_1/2}^{G_1/2}dk_x\int_{-\infty}^{\infty}dk_y \Phi(k_x,k_y, \omega)$$
 
 Here again, MESH gives access to a few things
 
@@ -35,7 +35,7 @@ Here again, MESH gives access to a few things
 
 In the case of a pattern geometry (implemented as [SimulationPattern](LuaAPI/pattern.md) object), the heat transfer rate is written as
 
-$$\Phi(\omega)=\int_{-G_x/2}^{G_x/2}dk_x\int_{-G_y/2}^{-G_y/2}dk_y \Phi(k_x,k_y, \omega)$$
+$$\Phi(\omega)=\int\int_{first BZ}dk_xdk_y \Phi(k_x,k_y, \omega)$$
 
 Again similar to the grating geometries, integral settings and printing of intermediate $\Phi(k_x,k_y, \omega)$ are supported. In addition, multiple different kinds of patterns can exist in one layer. However, the code now only supports a rectangle lattice. In MESH, for 2D patterns the supported types of patterns supported are rectangle, circle, ellipse and polygon, and each pattern cannot partially overlap with each other. But one pattern can be fully contained inside another pattern. In addition, extending the code to non-trivial lattice and adding supports to more patterns are in principle doable.
 

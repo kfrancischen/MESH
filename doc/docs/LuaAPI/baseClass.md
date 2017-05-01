@@ -86,28 +86,12 @@ DeleteLayer(layer name)
 
 * Output: None
 
-```lua
-SetPeriodicity(p1, p2)
-```
-* Arguments:
-    1. p1: [double], the periodicity in $x$ direction in SI unit.
-    2. p2: [double, optional for grating geometry], the periodicity in $y$ direction in SI unit.
-
-* Output: None
 
 ```lua
-SetGx(nGx)
+SetNumOfG(nG)
 ```
 * Arguments:
-    1. nGx: [int], the number of positive Fourier components in $x$ direction. The total number of G in $x$ direction is thus 2nGx + 1.
-
-* Output: None
-
-```lua
-SetGy(nGy)
-```
-* Arguments:
-    1. nGy: [int], the number of positive Fourier components in $y$ direction. The total number of G in $y$ direction is thus 2nGy + 1.
+    1. nG: [int], the number of total Fourier components in both directions. Note this nG might not be the true nG used in the simulation.
 
 * Output: None
 
@@ -151,7 +135,7 @@ SetKxIntegral(points, end)
 * Output: None
 
 * Note: this function is essentially doing
-$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm G_x/2$.
+$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm |G_1|/2$.
 
 ```lua
 SetKyIntegral(points, end)
@@ -163,7 +147,7 @@ SetKyIntegral(points, end)
 * Output: None
 
 * Note: this function is essentially doing
-$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm G_y/2$.
+$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm |G_2|/2$.
 
 ```lua
 SetKxIntegralSym(points, end)
@@ -175,7 +159,7 @@ SetKxIntegralSym(points, end)
 * Output: None
 
 * Note: this function is essentially doing
-$$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $G_x/2$.
+$$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $|G_1|/2$.
 
 ```lua
 SetKyIntegralSym(points, end)
@@ -187,7 +171,7 @@ SetKyIntegralSym(points, end)
 * Output: None
 
 * Note: this function is essentially doing
-$$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $G_y/2$.
+$$2\times \int_{0}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the upper bound of the integral will be $|G_2|/2$.
 
 ```lua
 InitSimulation()
@@ -264,6 +248,13 @@ GetPhiAtKxKy(omega index, kx, ky)
 * Output: [double], the value of $\Phi(\omega, k_x, k_y)$.
 
 ```lua
+GetNumOfG()
+```
+* Arguments: None
+
+* Output: number of G. If function `InitSimulation` has been called, then this function returns the true nG used in the simulation, otherwise return the user input nG.
+
+```lua
 OutputSysInfo()
 ```
 * Arguments: None
@@ -284,7 +275,7 @@ OutputLayerPatternRealization(omega index, name, Nu, Nv, filename)
 
 * Output: None
 
-* Note: the epsilon format will be the same as the function `GetEpsilon`.
+* Note: the epsilon format will be the same as the function `GetEpsilon` along with the spacial coordinates.
 
 Also, MESH provides some options for printing intermediate information and methods for Fourier transform of the dielectric.
 
@@ -320,7 +311,13 @@ a list of "$\omega$  $k_x$ $k_y$ $\Phi(\omega, k_x, k_y)$", where $k_x$ and $k_y
 !!! warning
     In MPI this function is not guaranteed to be atomic, meaning the printed output might be messed because each process is writing its own value to the screen. However for OpenMP, there is no such problem.
 
+```lua
+OptSetLatticeTruncation(truncation)
+```
+* Arguments:
+    1. truncation: [string], the truncation method for the  reciprocal lattice. Should be one of "Circular" or "Parallelogramic".
 
+* Output: None
 
 MESH also provides physics constants to facilitate computation. The constant object can be initiated by
 ```lua
