@@ -68,26 +68,6 @@ struct luaU_Impl<std::string>
 /*======================================================*/
 // wrappaer for the main class
 /*=======================================================*/
-// this function wraps setPeriodicity(const double p1, const double p2 = 0)
-// @how to use:
-// SetPeriodicity(p1) or
-// SetPeriodicity(p1, p2)
-int MESH_SetPeriodicity(lua_State* L){
-  int n = lua_gettop(L);
-	if(n != 2 && n != 3){
-		return luaL_error(L, "expecting 1 or 2 arguments");
-	}
-	Simulation* s = luaW_check<Simulation>(L, 1);
-	double p1 = luaU_check<double>(L, 2);
-	if(n == 2){
-		s->setPeriodicity(p1);
-	}
-  else{
-  	double p2 = luaU_check<double>(L, 3);
-  	s->setPeriodicity(p1, p2);
-  }
-	return 1;
-}
 // this function wraps addMaterial(const std::string name, const std::string infile)
 // @how to use:
 // AddMaterial(material name, input file)
@@ -761,7 +741,6 @@ int MESH_GetReciprocalLattice(lua_State *L){
 // tables for the three clases
 /*=======================================================*/
 static luaL_Reg character_metatable_Simulation[] = {
-	{ "SetPeriodicity", MESH_SetPeriodicity },
 	{ "AddMaterial", MESH_AddMaterial },
   { "SetMaterial", MESH_SetMaterial, },
   { "SetLayer", MESH_SetLayer, },
