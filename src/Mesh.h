@@ -29,6 +29,7 @@
 #include "config.h"
 #include "Gsel.h"
 #include <fstream>
+#include <cmath>
 #if defined(_OPENMP)
   #include <omp.h>
 #endif
@@ -101,7 +102,6 @@ public:
 
   // adding new function for the same interface as S4
 
-  void setPeriodicity(const double p1, const double p2 = 0);
   void addMaterial(const std::string name, const std::string infile);
   void setMaterial(const std::string name, double** &epsilon, const std::string type);
 
@@ -171,7 +171,6 @@ protected:
   int numOfKx_;
   int numOfKy_;
 
-  double period_[2];
 
   Lattice lattice_;
   Lattice reciprocalLattice_;
@@ -211,10 +210,7 @@ class SimulationPlanar : public Simulation{
 public:
   static Ptr<SimulationPlanar> instanceNew();
   SimulationPlanar(const SimulationPlanar&) = delete;
-  void setPeriodicity(const double p1, const double p2 = 0) = delete;
   void useInverseRule() = delete;
-  void setGx() = delete;
-  void setGy() = delete;
 
   // this function is used when one knows that the problem is only a kx integral
   void setKParallelIntegral(const double end);
@@ -241,7 +237,6 @@ public:
   static Ptr<SimulationGrating> instanceNew();
   SimulationGrating(const SimulationGrating&) = delete;
 
-  void setGy() = delete;
   void setLayerPatternGrating(
     const std::string layerName,
     const std::string materialName,

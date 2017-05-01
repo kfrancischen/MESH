@@ -80,39 +80,31 @@
   /*==============================================*/
    // helper function to do fourier transform for one value
    // @args:
-   // epsVal: the value need to be transformed
-   // epsBG: the background value need to be transformed
    // G_mat: the G_mat
    // width: the width of the grating
    /*==============================================*/
-   static RCWAcMatrix transformGratingElement(
-     const dcomplex epsVal,
-     const dcomplex epsBG,
+   static RCWArMatrix transformGratingElement(
      const RCWArMatrix& G_mat,
      const double width
    ){
-    return (epsVal - epsBG)
-             * width * RCWA::sinc(G_mat / 2 * width);
+    return width * RCWA::sinc(G_mat / 2 * width);
    }
 
    /*==============================================*/
    // helper function to do fourier transform for one value
    // @args:
-   // epsVal: the value need to be transformed
-   // epsBG: the background value need to be transformed
-   // G_mat: the G_mat
+   // Gx_mat: the Gx_mat
+   // Gy_mat: the Gy_mat
    // widthx: the width of the rectangle in x direction
    // widthy: the width of the rectangle in y direction
    /*==============================================*/
-   static RCWAcMatrix transformRectangleElement(
-     const dcomplex epsVal,
-     const dcomplex epsBG,
+   static RCWArMatrix transformRectangleElement(
      const RCWArMatrix& GxMat,
      const RCWArMatrix& GyMat,
      const double widthx,
      const double widthy
    ){
-     return widthx * widthy * (epsVal - epsBG)
+     return widthx * widthy
              * RCWA::sinc( GxMat * widthx / 2 )
              % RCWA::sinc( GyMat * widthy / 2 );
    }
@@ -120,14 +112,11 @@
    /*==============================================*/
    // helper function to do fourier transform for one value
    // @args:
-   // epsVal: the value need to be transformed
-   // epsBG: the background value need to be transformed
-   // G_mat: the G_mat
+   // Gx_mat: the Gx_mat
+   // Gy_mat: the Gy_mat
    // radius: the radius of the circle
    /*==============================================*/
-   static RCWAcMatrix transformCircleElement(
-     const dcomplex epsVal,
-     const dcomplex epsBG,
+   static RCWArMatrix transformCircleElement(
      const RCWArMatrix& GxMat,
      const RCWArMatrix& GyMat,
      const double radius
@@ -142,21 +131,18 @@
        count++;
      }
 
-     return (epsVal - epsBG) * dcomplex(2, 0) * datum::pi * POW2(radius) * jincMat;
+     return 2 * datum::pi * POW2(radius) * jincMat;
 
    }
    /*==============================================*/
    // helper function to do fourier transform for one value
    // @args:
-   // epsVal: the value need to be transformed
-   // epsBG: the background value need to be transformed
-   // G_mat: the G_mat
+   // Gx_mat: the Gx_mat
+   // Gy_mat: the Gy_mat
    // a: the half width of the rectangle in x direction
    // b: the half width of the rectangle in y direction
    /*==============================================*/
-   static RCWAcMatrix transformEllipseElement(
-     const dcomplex epsVal,
-     const dcomplex epsBG,
+   static RCWArMatrix transformEllipseElement(
      const RCWArMatrix& GxMat,
      const RCWArMatrix& GyMat,
      const double a,
@@ -172,20 +158,17 @@
        count++;
      }
 
-     return (epsVal - epsBG) * dcomplex(2, 0) * datum::pi * a * b * jincMat;
+     return 2 * datum::pi * a * b * jincMat;
    }
    /*==============================================*/
    // helper function to do fourier transform for one value
    // @args:
-   // epsVal: the value need to be transformed
-   // epsBG: the background value need to be transformed
-   // G_mat: the G_mat
+   // Gx_mat: the Gx_mat
+   // Gy_mat: the Gy_mat
    // edgeList: the list of edges
    // area: the area of the polygon
    /*==============================================*/
    static RCWAcMatrix transformPolygonElement(
-     const dcomplex epsVal,
-     const dcomplex epsBG,
      const RCWArMatrix& GxMat,
      const RCWArMatrix& GyMat,
      const EdgeList& edgeList,
@@ -226,7 +209,7 @@
        }
        count++;
      }
-     return (epsVal - epsBG) * result;
+     return result;
    }
    /*==============================================*/
    // This function computes the Fourier transform for grating geometry
@@ -287,31 +270,27 @@
      dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
      EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
+     RCWArMatrix geoMat = transformGratingElement(G_mat, width);
+     eps_xx += (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_xx) / area * phase % geoMat;
 
-     eps_xx += phase % transformGratingElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]),
-         eps_BG_xx, G_mat, width) / area;
-     im_eps_xx += phase % transformGratingElement(dcomplex(epsTensor.tensor[1], 0),
-         im_eps_BG_xx, G_mat, width) / area;
+     im_eps_xx += (dcomplex(epsTensor.tensor[1], 0) - im_eps_BG_xx) / area * phase % geoMat;
 
-     eps_yy += phase % transformGratingElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]),
-         eps_BG_yy, G_mat, width) / area;
-     im_eps_yy += phase % transformGratingElement(dcomplex(epsTensor.tensor[7], 0),
-         im_eps_BG_yy, G_mat, width) / area;
+     eps_yy += (dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]) - eps_BG_yy) / area * phase % geoMat;
 
-     eps_zz += phase % transformGratingElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]),
-         eps_BG_zz, G_mat, width) / area;
-     im_eps_zz += phase % transformGratingElement(dcomplex(epsTensor.tensor[9], 0),
-         im_eps_BG_zz, G_mat, width) / area;
+     im_eps_yy += (dcomplex(epsTensor.tensor[7], 0) - im_eps_BG_yy) / area * phase % geoMat;
+
+     eps_zz += (dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]) - eps_BG_zz) / area * phase % geoMat;
+
+     im_eps_zz +=(dcomplex(epsTensor.tensor[9], 0) - im_eps_BG_zz) / area * phase % geoMat;
 
      if(hasTensor){
-         eps_xy += phase % transformGratingElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]),
-           eps_BG_xy, G_mat, width) / area;
-         eps_yx += phase % transformGratingElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]),
-           eps_BG_yx, G_mat, width) / area;
-         im_eps_xy += phase % transformGratingElement(dcomplex(epsTensor.tensor[3], 0),
-           im_eps_BG_xy, G_mat, width) / area;
-         im_eps_yx += phase % transformGratingElement(dcomplex(epsTensor.tensor[5], 0),
-           im_eps_BG_yx, G_mat, width) / area;
+       eps_xy += (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - eps_BG_xy) / area * phase % geoMat;
+
+       eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
+
+       im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+
+       im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
      }
    }
 
@@ -385,33 +364,29 @@
      dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
      EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
+     RCWArMatrix geoMat = transformRectangleElement(GxMat, GyMat, widths[0], widths[1]);
 
-     eps_xx += phase % transformRectangleElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
-         GxMat, GyMat, widths[0], widths[1]) / area;
-     im_eps_xx += phase % transformRectangleElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
-         GxMat, GyMat, widths[0], widths[1]) / area;
+     eps_xx += (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_xx) / area * phase % geoMat;
 
-     eps_yy += phase % transformRectangleElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
-         GxMat, GyMat, widths[0], widths[1]) / area;
-     im_eps_yy += phase % transformRectangleElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
-         GxMat, GyMat, widths[0], widths[1]) / area;
+     im_eps_xx += (dcomplex(epsTensor.tensor[1], 0) - im_eps_BG_xx) / area * phase % geoMat;
 
-     eps_zz += phase % transformRectangleElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
-         GxMat, GyMat, widths[0], widths[1]) / area;
-     im_eps_zz += phase % transformRectangleElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
-         GxMat, GyMat, widths[0], widths[1]) / area;
+     eps_yy += (dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]) - eps_BG_yy) / area * phase % geoMat;
+
+     im_eps_yy += (dcomplex(epsTensor.tensor[7], 0) - im_eps_BG_yy) / area * phase % geoMat;
+
+     eps_zz += (dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]) - eps_BG_zz) / area * phase % geoMat;
+
+     im_eps_zz += (dcomplex(epsTensor.tensor[9], 0) - im_eps_BG_zz) / area * phase % geoMat;
 
 
      if(hasTensor){
-        eps_xy += phase % transformRectangleElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
-           GxMat, GyMat, widths[0], widths[1]) / area;
-        eps_yx += phase % transformRectangleElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
-           GxMat, GyMat, widths[0], widths[1]) / area;
+       eps_xy += (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - eps_BG_xy) / area * phase % geoMat;
 
-        im_eps_xy += phase % transformRectangleElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
-           GxMat, GyMat, widths[0], widths[1]) / area;
-        im_eps_yx += phase % transformRectangleElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
-           GxMat, GyMat, widths[0], widths[1]) / area;
+       eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
+
+       im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+
+       im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
      }
    }
 
@@ -481,33 +456,28 @@
      dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
      EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
+     RCWArMatrix geoMat = transformCircleElement(GxMat, GyMat, radius);
 
-     eps_xx += phase % transformCircleElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
-         GxMat, GyMat, radius) / area;
-     im_eps_xx += phase % transformCircleElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
-         GxMat, GyMat, radius) / area;
+     eps_xx += (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_xx) / area * phase % geoMat;
 
-     eps_yy += phase % transformCircleElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
-         GxMat, GyMat, radius) / area;
-     im_eps_yy += phase % transformCircleElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
-         GxMat, GyMat, radius) / area;
+     im_eps_xx += (dcomplex(epsTensor.tensor[1], 0) - im_eps_BG_xx) / area * phase % geoMat;
 
-     eps_zz += phase % transformCircleElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
-         GxMat, GyMat, radius) / area;
-     im_eps_zz += phase % transformCircleElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
-         GxMat, GyMat, radius) / area;
+     eps_yy += (dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]) - eps_BG_yy) / area * phase % geoMat;
 
+     im_eps_yy += (dcomplex(epsTensor.tensor[7], 0) - im_eps_BG_yy) / area * phase % geoMat;
+
+     eps_zz += (dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]) - eps_BG_zz) / area * phase % geoMat;
+
+     im_eps_zz += (dcomplex(epsTensor.tensor[9], 0) - im_eps_BG_zz) / area * phase % geoMat;
 
      if(hasTensor){
-        eps_xy += phase % transformCircleElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
-           GxMat, GyMat, radius) / area;
-        eps_yx += phase % transformCircleElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
-           GxMat, GyMat, radius) / area;
+       eps_xy += (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - eps_BG_xy) / area * phase % geoMat;
 
-        im_eps_xy += phase % transformCircleElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
-           GxMat, GyMat, radius) / area;
-        im_eps_yx += phase % transformCircleElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
-           GxMat, GyMat, radius) / area;
+       eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
+
+       im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+
+       im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
      }
     }
 
@@ -580,33 +550,27 @@
       dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
       EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
+      RCWArMatrix geoMat = transformEllipseElement(GxMat, GyMat, halfwidths[0], halfwidths[1]);
 
-      eps_xx += phase % transformEllipseElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
-          GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
-      im_eps_xx += phase % transformEllipseElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
-          GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
+      eps_xx += (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_xx) / area * phase % geoMat;
 
-      eps_yy += phase % transformEllipseElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
-          GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
-      im_eps_yy += phase % transformEllipseElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
-          GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
+      im_eps_xx += (dcomplex(epsTensor.tensor[1], 0) - im_eps_BG_xx) / area * phase % geoMat;
 
-      eps_zz += phase % transformEllipseElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
-          GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
-      im_eps_zz += phase % transformEllipseElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
-          GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
+      eps_yy += (dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]) - eps_BG_yy) / area * phase % geoMat;
 
+      im_eps_yy += (dcomplex(epsTensor.tensor[7], 0) - im_eps_BG_yy) / area * phase % geoMat;
+
+      eps_zz += (dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]) - eps_BG_zz) / area * phase % geoMat;
+
+      im_eps_zz += (dcomplex(epsTensor.tensor[9], 0) - im_eps_BG_zz) / area * phase % geoMat;
 
       if(hasTensor){
-         eps_xy += phase % transformEllipseElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
-            GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
-         eps_yx += phase % transformEllipseElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
-            GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
+        eps_xy += (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - eps_BG_xy) / area * phase % geoMat;
+        eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
 
-         im_eps_xy += phase % transformEllipseElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
-            GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
-         im_eps_yx += phase % transformEllipseElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
-            GxMat, GyMat, halfwidths[0], halfwidths[1]) / area;
+        im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+
+        im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
       }
      }
      /*==============================================*/
@@ -679,33 +643,28 @@
       dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
       EpsilonVal epsTensor = toTensor(epsilon, epsilonType);
+      RCWAcMatrix geoMat = transformPolygonElement(GxMat, GyMat, edgeList, polygonArea);
 
-      eps_xx += phase % transformPolygonElement(dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]), eps_BG_xx,
-          GxMat, GyMat, edgeList, polygonArea) / area;
-      im_eps_xx += phase % transformPolygonElement(dcomplex(epsTensor.tensor[1], 0), im_eps_BG_xx,
-          GxMat, GyMat, edgeList, polygonArea) / area;
+      eps_xx += (dcomplex(epsTensor.tensor[0], epsTensor.tensor[1]) - eps_BG_xx) / area * phase % geoMat;
 
-      eps_yy += phase % transformPolygonElement(dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]), eps_BG_yy,
-          GxMat, GyMat, edgeList, polygonArea) / area;
-      im_eps_yy += phase % transformPolygonElement(dcomplex(epsTensor.tensor[7], 0), im_eps_BG_yy,
-          GxMat, GyMat, edgeList, polygonArea) / area;
+      im_eps_xx += (dcomplex(epsTensor.tensor[1], 0) - im_eps_BG_xx) / area * phase % geoMat;
 
-      eps_zz += phase % transformPolygonElement(dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]), eps_BG_zz,
-          GxMat, GyMat, edgeList, polygonArea) / area;
-      im_eps_zz += phase % transformPolygonElement(dcomplex(epsTensor.tensor[9], 0), im_eps_BG_zz,
-          GxMat, GyMat, edgeList, polygonArea) / area;
+      eps_yy += (dcomplex(epsTensor.tensor[6], epsTensor.tensor[7]) - eps_BG_yy) / area * phase % geoMat;
 
+      im_eps_yy += (dcomplex(epsTensor.tensor[7], 0) - im_eps_BG_yy) / area * phase % geoMat;
+
+      eps_zz += (dcomplex(epsTensor.tensor[8], epsTensor.tensor[9]) - eps_BG_zz) / area * phase % geoMat;
+
+      im_eps_zz += (dcomplex(epsTensor.tensor[9], 0) - im_eps_BG_zz) / area * phase % geoMat;
 
       if(hasTensor){
-         eps_xy += phase % transformPolygonElement(dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]), eps_BG_xy,
-            GxMat, GyMat, edgeList, polygonArea) / area;
-         eps_yx += phase % transformPolygonElement(dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]), eps_BG_yx,
-            GxMat, GyMat, edgeList, polygonArea) / area;
+        eps_xy += (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - eps_BG_xy) / area * phase % geoMat;
 
-         im_eps_xy += phase % transformPolygonElement(dcomplex(epsTensor.tensor[3], 0), im_eps_BG_xy,
-            GxMat, GyMat, edgeList, polygonArea) / area;
-         im_eps_yx += phase % transformPolygonElement(dcomplex(epsTensor.tensor[5], 0), im_eps_BG_yx,
-            GxMat, GyMat, edgeList, polygonArea) / area;
+        eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
+
+        im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+
+        im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
       }
     }
  }

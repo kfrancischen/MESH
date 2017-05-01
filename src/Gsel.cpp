@@ -112,7 +112,7 @@ namespace GSEL{
   	const int v_extent = 1+(int)(circ_radius/(v*sqrt(1.-uv*uv/(u2*v2))));
   	const int uext21 = 2*u_extent+1;
   	const int vext21 = 2*v_extent+1;
-  	int *Gtemp = (int*)malloc(sizeof(int)*2*uext21*vext21);
+    int *Gtemp = new int[2*uext21*vext21];
   	int i, j;
 
   	for(i = 0; i < uext21; ++i){
@@ -137,6 +137,9 @@ namespace GSEL{
   		Gx_mat(i, 0) = Gtemp[2*i+0];
   		Gy_mat(i, 0) = Gtemp[2*i+1];
   	}
+    RCWArMatrix GxMat_temp = Gx_mat * reciprocalLattice.bx[0] + Gy_mat * reciprocalLattice.by[0];
+    Gy_mat = Gx_mat * reciprocalLattice.bx[1] + Gy_mat * reciprocalLattice.by[1];
+    Gx_mat = GxMat_temp;
   	free(Gtemp);
   }
   /*============================================================
