@@ -91,7 +91,7 @@ namespace UTILITY {
 #   include "utility/NamedInterface.h"
 #   include "utility/Exception.h"
 #   include "utility/StringUtil.h"
-
+#   include "utility/Sort.h"
 }
 
 #endif /* FWK_FWK_H */
