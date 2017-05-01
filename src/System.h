@@ -163,7 +163,7 @@ namespace SYSTEM{
 
     void addMaterial(const Ptr<Material>& material);
     void addLayer(const Ptr<Layer>& layer);
-    void setPeriodicity(const double p1, const double p2 = 0);
+    void setLattice(const Lattice& lattice);
     void deleteLayerByName(const string name);
     void deleteLayerByLayer(const Ptr<Layer>& layer);
     Ptr<Layer> getLayerByIndex(const int index);
@@ -180,7 +180,7 @@ namespace SYSTEM{
     void reorganizeLayers();
     LayerMap layerMap_;
     MaterialMap materialMap_;
-    double period_[2];
+    Lattice lattice_;
   };
 
 

@@ -597,8 +597,6 @@ namespace SYSTEM{
   // Implementaion of the structure class
   /*==============================================*/
   Structure::Structure(){
-    period_[0] = 0;
-    period_[1] = 0;
   }
   /*==============================================*/
   // This is a thin wrapper for the usage of smart pointer
@@ -639,14 +637,12 @@ namespace SYSTEM{
     layerMap_.insert(LayerMap::value_type(size, layer));
   }
   /*==============================================*/
-  // function setting the periodicity of a layer
+  // function setting the lattice of a layer
   // @args:
-  // p1: periodicity in x direction
-  // p2: periodicity in y direction
+  // lattice: the lattice of the structure
   /*==============================================*/
-  void Structure::setPeriodicity(const double p1, const double p2){
-    period_[0] = p1;
-    period_[1] = p2;
+  void Structure::setLattice(const Lattice& lattice){
+    lattice_ = lattice;
   }
   /*==============================================*/
   // function deleting a layer in the structure by its name
