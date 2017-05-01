@@ -329,11 +329,11 @@ namespace MESH{
       throw UTILITY::RangeException("Number of point needs to be positive!");
     }
     double dx, dy;
-    if(Nu == 1) dx = period_[0];
-    else dx = period_[0] / (Nu - 1);
+    if(Nu == 1) dx = lattice_.bx[0];
+    else dx = lattice_.bx[0] / (Nu - 1);
 
-    if(Nv == 1) dy = period_[1];
-    else dy = period_[1] / (Nv - 1);
+    if(Nv == 1) dy = hypot(lattice_.by[0], lattice_.by[1]);
+    else dy = hypot(lattice_.by[0], lattice_.by[1]) / (Nv - 1);
 
     double position[3] = {0, 0, 0};
     double* epsilon = new double[10];
@@ -356,17 +356,17 @@ namespace MESH{
     }
 
     for(int i = 0; i < Nu; i++){
-      position[0] = dx * i;
       for(int j = 0; j < Nv; j++){
-        position[1] = dy * j;
+        position[0] = dx * i + dy * j * sin(lattice_.angle * datum::pi / 180);
+        position[1] = dy * j * cos(lattice_.angle * datum::pi / 180);
         this->getEpsilon(omegaIndex, position, epsilon);
         if(fileName != ""){
-          outputFile << i << "\t" << j;
+          outputFile << position[0] << "\t" << position[1];
           for(int k = 0; k < 10; k++) outputFile << "\t" << epsilon[k];
           outputFile << std::endl;
         }
         else{
-          std::cout << i << "\t" << j << "\t";
+          std::cout << position[0] << "\t" << position[1] << "\t";
           for(int k = 0; k < 10; k++) std::cout << "\t" << epsilon[k];
           std::cout << std::endl;
         }
@@ -381,17 +381,6 @@ namespace MESH{
   /*==============================================*/
   int Simulation::getNumOfOmega(){
     return numOfOmega_;
-  }
-  /*==============================================*/
-  // This function set the periodicity
-  // @args:
-  // p1: the periodicity along x direction
-  // p2: the periodicity along x direction
-  /*==============================================*/
-  void Simulation::setPeriodicity(const double p1, const double p2){
-    period_[0] = p1;
-    period_[1] = p2;
-    structure_->setPeriodicity(p1, p2);
   }
   /*==============================================*/
   // This function adds material to the system
@@ -747,13 +736,13 @@ namespace MESH{
     thicknessListVec_(0) = 0;
     thicknessListVec_(numOfLayer - 1) = 0;
 
-    if(dim_ != NO_ && period_[0] == 0.0){
-      std::cerr << "Periodicity not set!" << std::endl;
-      throw UTILITY::ValueException("Periodicity not set!");
+    if(dim_ != NO_ && reciprocalLattice_.bx[0] == 0.0){
+      std::cerr << "Lattice not set!" << std::endl;
+      throw UTILITY::ValueException("Lattice not set!");
     }
-    if(dim_ == TWO_ && period_[1] == 0.0){
-      std::cerr << "Periodicity not set!" << std::endl;
-      throw UTILITY::ValueException("Periodicity not set!");
+    if(dim_ == TWO_ && reciprocalLattice_.by[1] == 0.0){
+      std::cerr << "Lattice not set!" << std::endl;
+      throw UTILITY::ValueException("Lattice not set!");
     }
 
     // initializing for the output
@@ -1021,10 +1010,11 @@ namespace MESH{
     std::cout << "==================================================" << std::endl;
     std::cout << "The system has in total " << structure_->getNumOfLayer() << " layers." << std::endl;
     if(dim_ == ONE_){
-      std::cout << "Periodicity in x direction is " << period_[0] << std::endl;
+      std::cout << "Periodicity in x direction is " << lattice_.bx[0] << std::endl;
     }
     else if(dim_ == TWO_){
-      std::cout << "Periodicity in x, y directions are " << period_[0] << ", " << period_[1] << std::endl;
+      std::cout << "Lattice coordinates are (" << lattice_.bx[0] << "," << lattice_.bx[1] << "), ("
+       << lattice_.by[0] << ", " << lattice_.by[1] << ")" << std::endl;
     }
     std::cout << "==================================================" << std::endl;
     std::cout << "Printing from bottom to up." << std::endl;
@@ -1158,9 +1148,9 @@ namespace MESH{
       throw UTILITY::ValueException("Needs no less than 2 points!");
     }
     numOfKx_ = points;
-    if(dim_ != NO_ && period_[0] == 0.0){
-      std::cerr << "Periodicity not set!" << std::endl;
-      throw UTILITY::ValueException("Periodicity not set!");
+    if(dim_ != NO_ && reciprocalLattice_.bx[0] == 0.0){
+      std::cerr << "Lattice not set!" << std::endl;
+      throw UTILITY::ValueException("Lattice not set!");
     }
     if(dim_ == NO_ && end == 0.0){
       std::cerr << "integral upper bound cannot be zero!" << std::endl;
@@ -1171,7 +1161,7 @@ namespace MESH{
       options_.kxIntegralPreset = true;
     }
     else{
-      kxEnd_ = datum::pi / period_[0];
+      kxEnd_ = hypot(reciprocalLattice_.bx[0], reciprocalLattice_.bx[1]) / 2;
       options_.kxIntegralPreset = false;
     }
     kxStart_ = -kxEnd_;
@@ -1189,9 +1179,9 @@ namespace MESH{
       throw UTILITY::ValueException("Needs no less than 2 points!");
     }
     numOfKx_ = points;
-    if(dim_ != NO_ && period_[0] == 0.0){
-      std::cerr << "Periodicity not set!" << std::endl;
-      throw UTILITY::ValueException("Periodicity not set!");
+    if(dim_ != NO_ && reciprocalLattice_.bx[0] == 0.0){
+      std::cerr << "Lattice not set!" << std::endl;
+      throw UTILITY::ValueException("Lattice not set!");
     }
     if(dim_ == NO_ && end == 0.0){
       std::cerr << "integral upper bound cannot be zero!" << std::endl;
@@ -1202,7 +1192,7 @@ namespace MESH{
       options_.kxIntegralPreset = true;
     }
     else{
-      kxEnd_ = datum::pi / period_[0];
+      kxEnd_ = hypot(reciprocalLattice_.bx[0], reciprocalLattice_.bx[1]) / 2;
       options_.kxIntegralPreset = false;
     }
     kxStart_ = 0;
@@ -1221,9 +1211,9 @@ namespace MESH{
       throw UTILITY::ValueException("Needs no less than 2 points!");
     }
     numOfKy_ = points;
-    if(dim_ == TWO_ && period_[1] == 0.0){
-      std::cerr << "Periodicity not set!" << std::endl;
-      throw UTILITY::ValueException("Periodicity not set!");
+    if(dim_ == TWO_ && reciprocalLattice_.by[1] == 0.0){
+      std::cerr << "Lattice not set!" << std::endl;
+      throw UTILITY::ValueException("Lattice not set!");
     }
     if((dim_ == NO_ || dim_ == ONE_) && end == 0.0){
       std::cerr << "integral upper bound cannot be zero!" << std::endl;
@@ -1234,7 +1224,7 @@ namespace MESH{
       options_.kyIntegralPreset = true;
     }
     else{
-      kyEnd_ = datum::pi / period_[1];
+      kyEnd_ = hypot(reciprocalLattice_.by[0], reciprocalLattice_.by[1]) / 2;
       options_.kyIntegralPreset = false;
     }
     kxStart_ = -kxEnd_;
@@ -1251,9 +1241,9 @@ namespace MESH{
       throw UTILITY::ValueException("Needs no less than 2 points!");
     }
     numOfKy_ = points;
-    if(dim_ == TWO_ && period_[1] == 0.0){
-      std::cerr << "Periodicity not set!" << std::endl;
-      throw UTILITY::ValueException("Periodicity not set!");
+    if(dim_ == TWO_ && reciprocalLattice_.by[1] == 0.0){
+      std::cerr << "Lattice not set!" << std::endl;
+      throw UTILITY::ValueException("Lattice not set!");
     }
     if((dim_ == NO_ || dim_ == ONE_) && end == 0.0){
       std::cerr << "integral upper bound cannot be zero!" << std::endl;
@@ -1264,7 +1254,7 @@ namespace MESH{
       options_.kyIntegralPreset = true;
     }
     else{
-      kyEnd_ = datum::pi / period_[1];
+      kyEnd_ = hypot(reciprocalLattice_.by[0], reciprocalLattice_.by[1]) / 2;
       options_.kyIntegralPreset = false;
     }
     kyStart_ = 0;
@@ -1278,8 +1268,12 @@ namespace MESH{
   /*==============================================*/
   void Simulation::integrateKxKyInternal(const int start, const int end, const bool parallel){
 
-    double* kxList = new double[numOfKx_];
-    double* kyList = new double[numOfKy_];
+    double** kxList = new double*[numOfKx_];
+    double** kyList = new double*[numOfKx_];
+    for(int i = 0; i < numOfKx_; i++){
+      kxList[i] = new double[numOfKy_];
+      kyList[i] = new double[numOfKy_];
+    }
     double* scalex = new double[numOfOmega_];
     double* scaley = new double[numOfOmega_];
     // here dkx is not normalized
@@ -1287,11 +1281,14 @@ namespace MESH{
     // here kyEnd_ is normalized for 1D case
     double dky = (kyEnd_ - kyStart_) / (numOfKy_ - 1);
     for(int i = 0; i < numOfKx_; i++){
-      kxList[i] = kxStart_ + dkx * i;
+      double kx = kxStart_ + dkx * i;
+      for(int j = 0; j < numOfKy_; j++){
+        double ky = kyStart_ + dky * j;
+        kxList[i][j] = kx * cos((reciprocalLattice_.angle - 90) * datum::pi/180);
+        kyList[i][j] = ky - kx * sin((reciprocalLattice_.angle - 90) * datum::pi/180);
+      }
     }
-    for(int i = 0; i < numOfKy_; i++){
-      kyList[i] = kyStart_ + dky * i;
-    }
+
 
     for(int i = 0; i < numOfOmega_; i++){
       switch (dim_) {
@@ -1335,10 +1332,10 @@ namespace MESH{
         for(int i = 0; i < numOfKx_ * numOfKy_; i++){
           int kxIdx = i / numOfKy_;
           int kyIdx = i % numOfKy_;
-          resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+          resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx][kyIdx] / scalex[omegaIdx], kyList[kxIdx][kyIdx] / scaley[omegaIdx]);
           if(options_.PrintIntermediate){
             std::stringstream msg;
-            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] << std::endl;
+            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx][kyIdx] / scalex[omegaIdx] << "\t" << kyList[kxIdx][kyIdx] / scaley[omegaIdx] << "\t" << resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] << std::endl;
             std::cout << msg.str();
           }
         }
@@ -1356,10 +1353,10 @@ namespace MESH{
           int residue = i % (numOfKx_ * numOfKy_);
           int kxIdx = residue / numOfKy_;
           int kyIdx = residue % numOfKy_;
-          resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx] / scalex[omegaIdx], kyList[kyIdx] / scaley[omegaIdx]);
+          resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx][kyIdx] / scalex[omegaIdx], kyList[kxIdx][kyIdx] / scaley[omegaIdx]);
           if(options_.PrintIntermediate){
             std::stringstream msg;
-            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx] / scalex[omegaIdx] << "\t" << kyList[kyIdx]  / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx][kyIdx] / scalex[omegaIdx] << "\t" << kyList[kxIdx][kyIdx] / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
             std::cout << msg.str();
           }
       }
@@ -1367,10 +1364,14 @@ namespace MESH{
 
     for(int i = start; i < end; i++){
       int omegaIdx = i / (numOfKx_ * numOfKy_);
-      Phi_[omegaIdx] += prefactor_ * resultArray[i] * dkx / scalex[omegaIdx] * dky / scaley[omegaIdx] * POW2(omegaList_[omegaIdx] / datum::c_0);
+      Phi_[omegaIdx] += prefactor_ * resultArray[i] * dkx / scalex[omegaIdx] * dky / scaley[omegaIdx]
+        * POW2(omegaList_[omegaIdx] / datum::c_0) * std::abs(sin(reciprocalLattice_.angle * datum::pi/180));
     }
 
-
+    for(int i = 0; i < numOfKx_; i++){
+      delete [] kxList[i];
+      delete [] kyList[i];
+    }
     delete[] kxList;
     kxList = nullptr;
     delete[] kyList;
@@ -1588,6 +1589,7 @@ namespace MESH{
 
     reciprocalLattice_.bx[0] = 2 * datum::pi / p1;
     reciprocalLattice_.area = 2 * datum::pi / p1;
+    structure_->setLattice(lattice_);
   }
   /*==============================================*/
   // function using adaptive resolution algorithm
@@ -1758,9 +1760,9 @@ namespace MESH{
       UTILITY::RangeException("the angle should be within range of (0, 180), exclusive!");
     }
     lattice_.bx[0] = xLen;
-    lattice_.by[0] = yLen * cos(angle);
+    lattice_.by[0] = yLen * cos(angle * datum::pi / 180);
     if(angle > 90) lattice_.by[0] *= -1;
-    lattice_.by[1] = std::abs(yLen * sin(angle));
+    lattice_.by[1] = std::abs(yLen * sin(angle * datum::pi / 180));
     lattice_.angle = angle;
     lattice_.area = lattice_.bx[0] * lattice_.by[1];
 
@@ -1769,7 +1771,7 @@ namespace MESH{
     reciprocalLattice_.by[1] = 2 * datum::pi / lattice_.by[1];
     reciprocalLattice_.angle = 180 - angle;
     reciprocalLattice_.area = std::abs(reciprocalLattice_.by[1] * reciprocalLattice_.bx[0]);
-
+    structure_->setLattice(lattice_);
   }
   /*==============================================*/
   // function return the reciprocal lattice
