@@ -10,11 +10,6 @@ Most of the function provided in [base class](baseClass.md) can be used except f
     The following function are unavailable and cannot be called for a `SimulationPlanar` object.
 
 ```lua
-SetGx(nGx)
-SetGy(nGy)
-Setperiodicity(p1, p2)
-OptUseNaiveRule()
-OptUseInverseRule()
 OptPrintIntermediate()
 ```
 

@@ -20,6 +20,7 @@
 #define _SETUP_H
 
 #include "Rcwa.h"
+#include "Gsel.h"
 #include "Cubature.h"
 #include "System.h"
 #include "Fmm.h"

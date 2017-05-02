@@ -23,6 +23,13 @@ SetLattice(xLen, yLen, angle)
 ![coordinate system](coordinate.png)
 
 ```lua
+GetReciprocalLattice()
+```
+* Arguments: None
+
+* Outputs: Gu, Gv. Two tables of the reciprocal lattices in SI unit.
+
+```lua
 SetLayerPatternRectangle(layer name, material name, {centerx, centery}, angle, {widthx, widthy})
 ```
 * Arguments:
