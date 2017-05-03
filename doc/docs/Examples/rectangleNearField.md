@@ -25,8 +25,8 @@ s:SetProbeLayer("VacGap");
 s:OutputSysInfo();
 
 s:OptPrintIntermediate();
-s:SetKxIntegralSym(20, 60);
-s:SetKyIntegralSym(20, 60);
+s:SetKxIntegralSym(50);
+s:SetKyIntegralSym(50);
 s:InitSimulation();
 s:IntegrateKxKy();
 
@@ -37,4 +37,5 @@ for i = 1,s:GetNumOfOmega(), 1 do
 end
 ```
 
-// TODO: test
+The results is shown below
+![2DHTC](arxiv.png)
