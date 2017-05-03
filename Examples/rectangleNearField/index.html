@@ -553,9 +553,8 @@
 <span class="n">f</span> <span class="o">=</span> <span class="mf">0.98</span><span class="p">;</span>
 <span class="n">width</span> <span class="o">=</span> <span class="nb">math.sqrt</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="mf">50e-9</span> <span class="o">*</span> <span class="mf">50e-9</span><span class="p">);</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPattern</span><span class="p">.</span><span class="n">new</span><span class="p">();</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetPeriodicity</span><span class="p">(</span><span class="mf">50e-9</span><span class="p">,</span> <span class="mf">50e-9</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetGx</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetGy</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetLattice</span><span class="p">(</span><span class="mf">50e-9</span><span class="p">,</span> <span class="mf">50e-9</span><span class="p">,</span> <span class="mi">90</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetNumOfG</span><span class="p">(</span><span class="mi">440</span><span class="p">);</span>
 
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">,</span> <span class="s2">&quot;Si.txt&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">);</span>

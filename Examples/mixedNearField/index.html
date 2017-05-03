@@ -544,9 +544,8 @@
                 
                 <p>The following is an example with a mixed pattern on one layer. The layer <code>SiTop</code> has two patterns: (1) a rectangle patten centered at (250 nm, 250 nm) with widths (300 nm, 300 nm), and (2) a circle pattern centered at (750 nm, 750 nm) with radius 200 nm. Note that MESH has a contraint that patterns cannot interleave with each other.</p>
 <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPattern</span><span class="p">.</span><span class="n">new</span><span class="p">();</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetPeriodicity</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetGx</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetGy</span><span class="p">(</span><span class="mi">12</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetLattice</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="mi">90</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetnumOfG</span><span class="p">(</span><span class="mi">441</span><span class="p">);</span>
 
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">,</span> <span class="s2">&quot;Si.txt&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">);</span>

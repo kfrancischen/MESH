@@ -544,7 +544,7 @@
                 
                 <p>This code can produce the result in Fig. 3 (a) red curve in <a href="https://journals.aps.org/prb/abstract/10.1103/PhysRevB.93.155403">Phys. Rev. B 93, 155403, 2016</a>.</p>
 <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationGrating</span><span class="p">.</span><span class="n">new</span><span class="p">()</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetPeriodicity</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetLattice</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Au&quot;</span><span class="p">,</span> <span class="s2">&quot;fullGold.txt&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;fullVacuum.txt&quot;</span><span class="p">);</span>
 
@@ -565,12 +565,12 @@
 
 <span class="n">s</span><span class="p">:</span><span class="n">OptPrintIntermediate</span><span class="p">();</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetThread</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetGx</span><span class="p">(</span><span class="mi">50</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetNumOfG</span><span class="p">(</span><span class="mi">101</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">InitSimulation</span><span class="p">();</span>
 <span class="n">s</span><span class="p">:</span><span class="n">IntegrateKxKy</span><span class="p">();</span>
-<span class="c1">--print(string.format(&quot;%e&quot;, s:GetPhiAtKxKy(0, 0, 0)));</span>
+<span class="c1">--print(string.format(&quot;%e&quot;, s:GetPhiAtKxKy(1, 0, 0)));</span>
 <span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetPhi</span><span class="p">();</span>
 <span class="n">omega</span> <span class="o">=</span> <span class="n">s</span><span class="p">:</span><span class="n">GetOmega</span><span class="p">();</span>
 <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">s</span><span class="p">:</span><span class="n">GetNumOfOmega</span><span class="p">(),</span> <span class="mi">1</span> <span class="kr">do</span>
