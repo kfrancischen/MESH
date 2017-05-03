@@ -67,7 +67,7 @@ struct EPSILON
 typedef struct LATTICE{
   double bx[2] = {0, 0};
   double by[2] = {0, 0};
-  double angle = 0;
+  double angle = 90;
   double area = 0;
 } Lattice;
 

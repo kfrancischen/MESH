@@ -1278,27 +1278,12 @@ namespace MESH{
   /*==============================================*/
   void Simulation::integrateKxKyInternal(const int start, const int end, const bool parallel){
 
-    double** kxList = new double*[numOfKx_];
-    double** kyList = new double*[numOfKx_];
-    for(int i = 0; i < numOfKx_; i++){
-      kxList[i] = new double[numOfKy_];
-      kyList[i] = new double[numOfKy_];
-    }
     double* scalex = new double[numOfOmega_];
     double* scaley = new double[numOfOmega_];
     // here dkx is not normalized
     double dkx = (kxEnd_ - kxStart_) / (numOfKx_ - 1);
     // here kyEnd_ is normalized for 1D case
     double dky = (kyEnd_ - kyStart_) / (numOfKy_ - 1);
-    for(int i = 0; i < numOfKx_; i++){
-      double kx = kxStart_ + dkx * i;
-      for(int j = 0; j < numOfKy_; j++){
-        double ky = kyStart_ + dky * j;
-        kxList[i][j] = kx * cos((reciprocalLattice_.angle - 90) * datum::pi/180);
-        kyList[i][j] = ky - kx * sin((reciprocalLattice_.angle - 90) * datum::pi/180);
-      }
-    }
-
 
     for(int i = 0; i < numOfOmega_; i++){
       switch (dim_) {
@@ -1336,19 +1321,42 @@ namespace MESH{
           curOmegaIndex_ = omegaIdx;
           this->buildRCWAMatrices();
         }
+        double** kxList = new double*[numOfKx_];
+        double** kyList = new double*[numOfKx_];
+        for(int i = 0; i < numOfKx_; i++){
+          kxList[i] = new double[numOfKy_];
+          kyList[i] = new double[numOfKy_];
+        }
+
+        for(int i = 0; i < numOfKx_; i++){
+          double kx = kxStart_ + dkx * i;
+          for(int j = 0; j < numOfKy_; j++){
+            double ky = kyStart_ + dky * j;
+            kxList[i][j] = (kx * cos((reciprocalLattice_.angle - 90) * datum::pi/180)) / scalex[omegaIdx];
+            kyList[i][j] = (ky - kx * sin((reciprocalLattice_.angle - 90) * datum::pi/180)) / scaley[omegaIdx];
+          }
+        }
         #if defined(_OPENMP)
           #pragma omp parallel for num_threads(numOfThread_)
         #endif
         for(int i = 0; i < numOfKx_ * numOfKy_; i++){
           int kxIdx = i / numOfKy_;
           int kyIdx = i % numOfKy_;
-          resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx][kyIdx] / scalex[omegaIdx], kyList[kxIdx][kyIdx] / scaley[omegaIdx]);
+          resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx][kyIdx], kyList[kxIdx][kyIdx]);
           if(options_.PrintIntermediate){
             std::stringstream msg;
-            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx][kyIdx] / scalex[omegaIdx] << "\t" << kyList[kxIdx][kyIdx] / scaley[omegaIdx] << "\t" << resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] << std::endl;
+            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx][kyIdx] << "\t" << kyList[kxIdx][kyIdx] << "\t" << resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] << std::endl;
             std::cout << msg.str();
           }
         }
+        for(int i = 0; i < numOfKx_; i++){
+          delete [] kxList[i];
+          delete [] kyList[i];
+        }
+        delete[] kxList;
+        kxList = nullptr;
+        delete[] kyList;
+        kyList = nullptr;
       }
 
     }
@@ -1363,10 +1371,16 @@ namespace MESH{
           int residue = i % (numOfKx_ * numOfKy_);
           int kxIdx = residue / numOfKy_;
           int kyIdx = residue % numOfKy_;
-          resultArray[i] = this->getPhiAtKxKy(omegaIdx, kxList[kxIdx][kyIdx] / scalex[omegaIdx], kyList[kxIdx][kyIdx] / scaley[omegaIdx]);
+
+          double kx = kxStart_ + dkx * kxIdx;
+          double ky = kyStart_ + dky * kyIdx;
+
+          ky = (ky - kx * sin((reciprocalLattice_.angle - 90) * datum::pi/180)) / scaley[omegaIdx];
+          kx = (kx * cos((reciprocalLattice_.angle - 90) * datum::pi/180)) / scalex[omegaIdx];
+          resultArray[i] = this->getPhiAtKxKy(omegaIdx, kx, ky);
           if(options_.PrintIntermediate){
             std::stringstream msg;
-            msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx][kyIdx] / scalex[omegaIdx] << "\t" << kyList[kxIdx][kyIdx] / scaley[omegaIdx] << "\t" << resultArray[i] << std::endl;
+            msg << omegaList_[omegaIdx] << "\t" << kx << "\t" << ky << "\t" << resultArray[i] << std::endl;
             std::cout << msg.str();
           }
       }
@@ -1378,14 +1392,6 @@ namespace MESH{
         * POW2(omegaList_[omegaIdx] / datum::c_0) * std::abs(sin(reciprocalLattice_.angle * datum::pi/180));
     }
 
-    for(int i = 0; i < numOfKx_; i++){
-      delete [] kxList[i];
-      delete [] kyList[i];
-    }
-    delete[] kxList;
-    kxList = nullptr;
-    delete[] kyList;
-    kyList = nullptr;
     delete[] scalex;
     scalex = nullptr;
     delete[] scaley;
