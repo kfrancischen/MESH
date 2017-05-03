@@ -34,9 +34,8 @@ int main(){
   double width = std::sqrt(f * 50e-9 * 50e-9);
 
   Ptr<SimulationPattern> s_2 = SimulationPattern::instanceNew();
-  s_2->setPeriodicity(50e-9, 50e-9);
-  s_2->setGx(10);
-  s_2->setGy(10);
+  s_2->setLattice(50e-9, 50e-9, 90);
+  s_2->setNumOfG(440);
 
   s_2->addMaterial("Si", "Si.txt");
   s_2->addMaterial("Vacuum", "Vacuum.txt");

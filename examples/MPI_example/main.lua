@@ -1,5 +1,5 @@
 s = SimulationGrating.new();
-s:SetPeriodicity(1e-6);
+s:SetLattice(1e-6);
 s:AddMaterial("Au", "fullGold.txt");
 s:AddMaterial("Vacuum", "fullVacuum.txt");
 
@@ -18,7 +18,7 @@ s:SetSourceLayer("GoldGratingBottom");
 s:SetProbeLayer("VacGap");
 
 s:OptPrintIntermediate();
-s:SetGx(50);
+s:SetNumOfG(50);
 s:SetKxIntegralSym(2);
 s:SetKyIntegralSym(2, 5);
 s:InitSimulation();

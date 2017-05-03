@@ -3,8 +3,8 @@
 int main(){
   // initializing simulation
   Ptr<SimulationGrating> s = SimulationGrating::instanceNew();
-  s->setPeriodicity(0.5e-6);
-  s->setGx(50);
+  s->setLattice(0.5e-6);
+  s->setNumOfG(101);
   // initialize materials
   s->addMaterial("Au", "fullGold.txt");
   s->addMaterial("Vacuum", "fullVacuum.txt");

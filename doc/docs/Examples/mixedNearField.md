@@ -3,9 +3,8 @@ The following is an example with a mixed pattern on one layer. The layer `SiTop`
 ```lua
 
 s = SimulationPattern.new();
-s:SetPeriodicity(1e-6, 1e-6);
-s:SetGx(12);
-s:SetGy(12);
+s:SetLattice(1e-6, 1e-6, 90);
+s:SetnumOfG(441);
 
 s:AddMaterial("Si", "Si.txt");
 s:AddMaterial("Vacuum", "Vacuum.txt");

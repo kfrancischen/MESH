@@ -1,7 +1,7 @@
 This code can produce the result in Fig. 3 (a) red curve in [Phys. Rev. B 93, 155403, 2016](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.93.155403).
 ```lua
 s = SimulationGrating.new()
-s:SetPeriodicity(1e-6);
+s:SetLattice(1e-6);
 s:AddMaterial("Au", "fullGold.txt");
 s:AddMaterial("Vacuum", "fullVacuum.txt");
 
@@ -22,12 +22,12 @@ s:OutputSysInfo();
 
 s:OptPrintIntermediate();
 s:SetThread(4);
-s:SetGx(50);
+s:SetNumOfG(101);
 s:SetKxIntegralSym(500);
 s:SetKyIntegralSym(200, 5);
 s:InitSimulation();
 s:IntegrateKxKy();
---print(string.format("%e", s:GetPhiAtKxKy(0, 0, 0)));
+--print(string.format("%e", s:GetPhiAtKxKy(1, 0, 0)));
 phi = s:GetPhi();
 omega = s:GetOmega();
 for i = 1,s:GetNumOfOmega(), 1 do

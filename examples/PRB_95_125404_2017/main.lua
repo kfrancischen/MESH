@@ -1,7 +1,7 @@
 -- this is a lua realization for the corresponding cpp file
 s = SimulationGrating.new()
-s:SetPeriodicity(0.5e-6);
-s:SetGx(50);
+s:SetLattice(0.5e-6);
+s:SetNumOfG(101);
 s:OptPrintIntermediate();
 
 s:AddMaterial("Au", "fullGold.txt");

@@ -1,6 +1,6 @@
 -- this is a lua realization of the corresponding cpp file
 s = SimulationGrating.new()
-s:SetPeriodicity(1e-6);
+s:SetLattice(1e-6);
 s:AddMaterial("Au", "fullGold.txt");
 s:AddMaterial("Vacuum", "fullVacuum.txt");
 
@@ -21,7 +21,7 @@ s:OutputSysInfo();
 
 s:OptPrintIntermediate();
 s:SetThread(4);
-s:SetGx(50);
+s:SetNumOfG(101);
 s:SetKxIntegralSym(500);
 s:SetKyIntegralSym(200, 5);
 s:InitSimulation();

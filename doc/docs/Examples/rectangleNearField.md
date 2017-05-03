@@ -10,9 +10,8 @@ end
 f = 0.98;
 width = math.sqrt(f * 50e-9 * 50e-9);
 s = SimulationPattern.new();
-s:SetPeriodicity(50e-9, 50e-9);
-s:SetGx(10);
-s:SetGy(10);
+s:SetLattice(50e-9, 50e-9, 90);
+s:SetNumOfG(440);
 
 s:AddMaterial("Si", "Si.txt");
 s:AddMaterial("Vacuum", "Vacuum.txt");

@@ -1,8 +1,7 @@
 
 s = SimulationPattern.new();
-s:SetPeriodicity(1e-6, 1e-6);
-s:SetGx(6);
-s:SetGy(6);
+s:SetLattice(1e-6, 1e-6, 90);
+s:SetNumOfG(440);
 
 s:AddMaterial("Si", "Si.txt");
 s:AddMaterial("Vacuum", "Vacuum.txt");
