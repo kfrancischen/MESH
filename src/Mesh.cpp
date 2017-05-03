@@ -1237,7 +1237,7 @@ namespace MESH{
       kyEnd_ = hypot(reciprocalLattice_.by[0], reciprocalLattice_.by[1]) / 2;
       options_.kyIntegralPreset = false;
     }
-    kxStart_ = -kxEnd_;
+    kyStart_ = -kyEnd_;
   }
   /*==============================================*/
   // This function set the integral of ky assume y symmetry
