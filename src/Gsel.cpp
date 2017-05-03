@@ -140,7 +140,7 @@ namespace GSEL{
     RCWArMatrix GxMat_temp = Gx_mat * reciprocalLattice.bx[0] + Gy_mat * reciprocalLattice.by[0];
     Gy_mat = Gx_mat * reciprocalLattice.bx[1] + Gy_mat * reciprocalLattice.by[1];
     Gx_mat = GxMat_temp;
-  	free(Gtemp);
+  	delete [] Gtemp;
   }
   /*============================================================
   * Function computing G matrix for the system using parallelogramic truncation
@@ -160,7 +160,7 @@ namespace GSEL{
   ){
     // case of 2D
     if(option == 1){
-      int NRoot = (int)std::sqrt(nG);
+      int NRoot = (int)std::sqrt(1.0 * nG);
       if(NRoot % 2 == 0 && NRoot > 0) NRoot--;
       int M = NRoot / 2;
 
@@ -173,7 +173,7 @@ namespace GSEL{
     }
     // case of 1D
     else{
-      int M = nG / 2;
+      int M = (int)(nG / 2.0);
       nG = 2 * M + 1;
       RCWArMatrix Gx_list(nG, 1), Gy_list(1, 1);
       for(int i = -M; i <= M; i++){
@@ -186,7 +186,6 @@ namespace GSEL{
     RCWArMatrix GxMat_temp = Gx_mat * reciprocalLattice.bx[0] + Gy_mat * reciprocalLattice.by[0];
     Gy_mat = Gx_mat * reciprocalLattice.bx[1] + Gy_mat * reciprocalLattice.by[1];
     Gx_mat = GxMat_temp;
-
     Gx_mat.reshape(nG, 1);
     Gy_mat.reshape(nG, 1);
   }
@@ -209,7 +208,7 @@ namespace GSEL{
     const DIMENSION d,
     const TRUNCATION truncation
   ){
-    if(nG <= 0){
+    if(nG <= 0 && d != NO_){
       std::cerr << "Need G value more than 1!" << std::endl;
       throw UTILITY::ValueException("Need G value more than 1!");
     }
