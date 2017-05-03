@@ -759,7 +759,8 @@ For tensor dielectric, the format is a list of   <br />
 </li>
 <li>
 <p>Note: this function is essentially doing
-<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm |G_1|/2</script>.</p>
+<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm |G_1|/2</script>. where <script type="math/tex">G_1</script> is the length of the reciprocal lattice with component in <script type="math/tex">x</script> direction. See the following figure:
+<img alt="reciprocal lattice" src="../reciprocal.png" /></p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">SetKyIntegral</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="kr">end</span><span class="p">)</span>
@@ -779,7 +780,7 @@ For tensor dielectric, the format is a list of   <br />
 </li>
 <li>
 <p>Note: this function is essentially doing
-<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm |G_2|/2</script>.</p>
+<script type="math/tex; mode=display">\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y</script> where the integral is evaluated as a summation of <code>points</code> points. In the case when <code>end</code> is not given, the lower and upper bounds of the integral will be <script type="math/tex">\pm |G_2|/2</script>, where <script type="math/tex">G_2</script> is the length of the reciprocal lattice along <script type="math/tex">y</script> direction</p>
 </li>
 </ul>
 <div class="codehilite"><pre><span></span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="kr">end</span><span class="p">)</span>
