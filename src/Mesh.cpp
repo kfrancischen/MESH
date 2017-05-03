@@ -287,15 +287,16 @@ namespace MESH{
 
     RCWArMatrix GxMat = Gx_l - Gx_r;
     RCWArMatrix GyMat = Gy_l - Gy_r;
-    int r1 = 0, r2 = nG_-1, r3 = nG_, r4 = 2*nG_-1, mid = (nG_-1)/2;
-
-    arma::cx_rowvec phase = exp(-IMAG_I * (GxMat.row(mid) * positions[0] + GyMat.row(mid) * positions[1]));
-    dcomplex eps_xx = accu(EMatrices_[layerIdx](span(r3, r4), span(r3, r4)).row(mid) % phase);
-    dcomplex eps_xy = -accu(EMatrices_[layerIdx](span(r3, r4), span(r1, r2)).row(mid) % phase);
-    dcomplex eps_yx = -accu(EMatrices_[layerIdx](span(r1, r2), span(r3, r4)).row(mid) % phase);
-    dcomplex eps_yy = accu(EMatrices_[layerIdx](span(r1, r2), span(r1, r2)).row(mid) % phase);
+    int r1 = 0, r2 = nG_-1, r3 = nG_, r4 = 2*nG_-1;
+    int pos = (nG_-1)/2;
+    if(options_.truncation_ == CIRCULAR_ && dim_ == TWO_) pos = 0;
+    arma::cx_rowvec phase = exp(-IMAG_I * (GxMat.row(pos) * positions[0] + GyMat.row(pos) * positions[1]));
+    dcomplex eps_xx = accu(EMatrices_[layerIdx](span(r3, r4), span(r3, r4)).row(pos) % phase);
+    dcomplex eps_xy = -accu(EMatrices_[layerIdx](span(r3, r4), span(r1, r2)).row(pos) % phase);
+    dcomplex eps_yx = -accu(EMatrices_[layerIdx](span(r1, r2), span(r3, r4)).row(pos) % phase);
+    dcomplex eps_yy = accu(EMatrices_[layerIdx](span(r1, r2), span(r1, r2)).row(pos) % phase);
     RCWAcMatrix eps_zz_mat =inv(eps_zz_Inv_Matrices_[layerIdx]);
-    dcomplex eps_zz = accu(eps_zz_mat.row(mid) % phase);
+    dcomplex eps_zz = accu(eps_zz_mat.row(pos) % phase);
 
     epsilon[0] = real(eps_xx);
     epsilon[1] = -imag(eps_xx);
@@ -690,8 +691,7 @@ namespace MESH{
   // function return the number of G values
   /*==============================================*/
   int Simulation::getNumOfG(){
-    // TODO
-    return 0;
+    return nG_;
   }
 
   /*==============================================*/
@@ -708,8 +708,12 @@ namespace MESH{
     rescaledLattice.by[0] = reciprocalLattice_.by[0] / MICRON;
     rescaledLattice.by[1] = reciprocalLattice_.by[1] / MICRON;
     rescaledLattice.angle = reciprocalLattice_.angle;
-    rescaledLattice.area = reciprocalLattice_.area / POW2(MICRON);
-
+    if(dim_ == ONE_){
+      rescaledLattice.area = reciprocalLattice_.area / MICRON;
+    }
+    else{
+      rescaledLattice.area = reciprocalLattice_.area / POW2(MICRON);
+    }
     GSEL::getGMatrices(nG_, rescaledLattice, Gx_mat_, Gy_mat_, dim_, options_.truncation_);
     // get constants
     Ptr<Layer> firstLayer = structure_->getLayerByIndex(0);
@@ -765,7 +769,13 @@ namespace MESH{
 
     RCWAcMatrix onePadding1N = eye<RCWAcMatrix>(nG_, nG_);
     int numOfLayer = structure_->getNumOfLayer();
-    double area = lattice_.area * POW2(MICRON);
+    double area;
+    if(dim_ == ONE_){
+      area = lattice_.area * MICRON;
+    }
+    else {
+      area = lattice_.area * POW2(MICRON);
+    }
     for(int i = 0; i < numOfLayer; i++){
       Ptr<Layer> layer = structure_->getLayerByIndex(i);
       Ptr<Material> backGround = layer->getBackGround();
@@ -1112,10 +1122,10 @@ namespace MESH{
   //  truncation: string, one of "Circular" and "Parallelogramic"
   /*==============================================*/
   void Simulation::optSetLatticeTruncation(const std::string &truncation){
-    if(truncation.compare("Circular") != 0){
+    if(truncation.compare("Circular") == 0){
       options_.truncation_ = CIRCULAR_;
     }
-    else if(truncation.compare("Parallelogramic") != 0){
+    else if(truncation.compare("Parallelogramic") == 0){
       options_.truncation_ = PARALLELOGRAMIC_;
     }
     else{
@@ -1761,8 +1771,7 @@ namespace MESH{
     }
     lattice_.bx[0] = xLen;
     lattice_.by[0] = yLen * cos(angle * datum::pi / 180);
-    if(angle > 90) lattice_.by[0] *= -1;
-    lattice_.by[1] = std::abs(yLen * sin(angle * datum::pi / 180));
+    lattice_.by[1] = yLen * sin(angle * datum::pi / 180);
     lattice_.angle = angle;
     lattice_.area = lattice_.bx[0] * lattice_.by[1];
 
