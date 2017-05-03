@@ -1316,21 +1316,23 @@ namespace MESH{
 
     //  this part is for the vanilla/openmp version of mesh
     if(parallel){
+      double** kxList = new double*[numOfKx_];
+      double** kyList = new double*[numOfKx_];
+      for(int i = 0; i < numOfKx_; i++){
+        kxList[i] = new double[numOfKy_];
+        kyList[i] = new double[numOfKy_];
+      }
       for(int omegaIdx = 0; omegaIdx < numOfOmega_; omegaIdx++){
         if(curOmegaIndex_ != omegaIdx){
           curOmegaIndex_ = omegaIdx;
           this->buildRCWAMatrices();
         }
-        double** kxList = new double*[numOfKx_];
-        double** kyList = new double*[numOfKx_];
+        #if defined(_OPENMP)
+          #pragma omp parallel for num_threads(numOfThread_), collapse(2)
+        #endif
         for(int i = 0; i < numOfKx_; i++){
-          kxList[i] = new double[numOfKy_];
-          kyList[i] = new double[numOfKy_];
-        }
-
-        for(int i = 0; i < numOfKx_; i++){
-          double kx = kxStart_ + dkx * i;
           for(int j = 0; j < numOfKy_; j++){
+            double kx = kxStart_ + dkx * i;
             double ky = kyStart_ + dky * j;
             kxList[i][j] = (kx * cos((reciprocalLattice_.angle - 90) * datum::pi/180)) / scalex[omegaIdx];
             kyList[i][j] = (ky - kx * sin((reciprocalLattice_.angle - 90) * datum::pi/180)) / scaley[omegaIdx];
@@ -1349,16 +1351,15 @@ namespace MESH{
             std::cout << msg.str();
           }
         }
-        for(int i = 0; i < numOfKx_; i++){
-          delete [] kxList[i];
-          delete [] kyList[i];
-        }
-        delete[] kxList;
-        kxList = nullptr;
-        delete[] kyList;
-        kyList = nullptr;
       }
-
+      for(int i = 0; i < numOfKx_; i++){
+        delete [] kxList[i];
+        delete [] kyList[i];
+      }
+      delete[] kxList;
+      kxList = nullptr;
+      delete[] kyList;
+      kyList = nullptr;
     }
     // this part is for the MPI version of mesh
     else{
@@ -1782,7 +1783,7 @@ namespace MESH{
     lattice_.area = lattice_.bx[0] * lattice_.by[1];
 
     reciprocalLattice_.bx[0] = 2 * datum::pi / lattice_.bx[0];
-    reciprocalLattice_.bx[1] = -2 * datum::pi / lattice_.by[1] * lattice_.by[0];
+    reciprocalLattice_.bx[1] = -2 * datum::pi / (lattice_.by[1] * lattice_.bx[0]) * lattice_.by[0];
     reciprocalLattice_.by[1] = 2 * datum::pi / lattice_.by[1];
     reciprocalLattice_.angle = 180 - angle;
     reciprocalLattice_.area = std::abs(reciprocalLattice_.by[1] * reciprocalLattice_.bx[0]);

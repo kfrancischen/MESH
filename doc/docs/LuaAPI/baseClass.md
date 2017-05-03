@@ -135,7 +135,8 @@ SetKxIntegral(points, end)
 * Output: None
 
 * Note: this function is essentially doing
-$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm |G_1|/2$.
+$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_x$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm |G_1|/2$. where $G_1$ is the length of the reciprocal lattice with component in $x$ direction. See the following figure:
+![reciprocal lattice](reciprocal.png)
 
 ```lua
 SetKyIntegral(points, end)
@@ -147,7 +148,7 @@ SetKyIntegral(points, end)
 * Output: None
 
 * Note: this function is essentially doing
-$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm |G_2|/2$.
+$$\int_{-\text{end}\cdot \omega/c}^{\text{end}\cdot \omega/c}dk_y$$ where the integral is evaluated as a summation of `points` points. In the case when `end` is not given, the lower and upper bounds of the integral will be $\pm |G_2|/2$, where $G_2$ is the length of the reciprocal lattice along $y$ direction
 
 ```lua
 SetKxIntegralSym(points, end)

@@ -27,7 +27,7 @@ GetReciprocalLattice()
 ```
 * Arguments: None
 
-* Outputs: Gu, Gv. Two tables of the reciprocal lattices in SI unit.
+* Outputs: {{$x_1$, $y_1$}, {$x_2$, $y_2$}}. Two tables of the reciprocal lattices in SI unit.
 
 ```lua
 SetLayerPatternRectangle(layer name, material name, {centerx, centery}, angle, {widthx, widthy})

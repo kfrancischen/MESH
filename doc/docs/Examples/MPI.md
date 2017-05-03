@@ -1,7 +1,7 @@
 This is an MPI example, rewriting the same example in [Two Gratings Near-field](gratingNearField.md)
 ```lua
 s = SimulationGrating.new();
-s:SetPeriodicity(1e-6);
+s:SetLattice(1e-6);
 s:AddMaterial("Au", "fullGold.txt");
 s:AddMaterial("Vacuum", "fullVacuum.txt");
 
@@ -20,7 +20,7 @@ s:SetSourceLayer("GoldGratingBottom");
 s:SetProbeLayer("VacGap");
 
 s:OptPrintIntermediate();
-s:SetGx(50);
+s:SetNumOfG(101);
 s:SetKxIntegralSym(500);
 s:SetKyIntegralSym(200, 5);
 s:InitSimulation();
