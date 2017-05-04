@@ -56,6 +56,7 @@ pages:
   - 'Two Gratings Near-field': 'Examples/gratingNearField.md'
   - 'Two Rectangle Patterns Near-field': 'Examples/rectangleNearField.md'
   - 'Mixed Patterns Near-field': 'Examples/mixedNearField.md'
+  - 'Contained Patterns Near-field': 'Examples/containedPattern.md'
   - 'MPI Example': 'Examples/MPI.md'
 - Developer: 'develop.md'
 - About: 'about.md'

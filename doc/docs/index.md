@@ -29,6 +29,7 @@ The program is built upon C++ and wrapped with Lua (>= 5.2), with OpenMP and MPI
 * [Two Gratings Near-field](Examples/gratingNearField.md): example the calculation between two grating structures in the near-field regime.
 * [Two Rectangle Patterns Near-field](Examples/rectangleNearField.md): example about the near-field heat transfer between two rectangle patterned structures.
 * [Mixed Patterns Near-field](Examples/mixedNearField.md): example about the near-field heat transfer between two structures with different kinds of patterns (rectangle and circle).
+* [Contained Patterns Near-field](Examples/containedPattern.md): example about the near-field heat transfer between two structures with two contained circles that result in a cylindrical shell.
 * [MPI Example](Examples/MPI.md): example about how to use Lua wrapped MPI interface for fast parallelization on distributed clusters.
 
 #### Other information
