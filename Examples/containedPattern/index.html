@@ -17,7 +17,7 @@
     
     
       
-        <title>Mixed Patterns Near-field - MESH documentation</title>
+        <title>Contained Patterns Near-field - MESH documentation</title>
       
     
     
@@ -80,7 +80,7 @@
                 </span>
               
             
-            Mixed Patterns Near-field
+            Contained Patterns Near-field
           
         </span>
       </div>
@@ -458,6 +458,18 @@
           
           
 
+
+  <li class="md-nav__item">
+    <a href="../mixedNearField/" title="Mixed Patterns Near-field" class="md-nav__link">
+      Mixed Patterns Near-field
+    </a>
+  </li>
+
+        
+          
+          
+          
+
   
 
 
@@ -466,22 +478,10 @@
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
     
-    <a href="./" title="Mixed Patterns Near-field" class="md-nav__link md-nav__link--active">
-      Mixed Patterns Near-field
-    </a>
-    
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../containedPattern/" title="Contained Patterns Near-field" class="md-nav__link">
+    <a href="./" title="Contained Patterns Near-field" class="md-nav__link md-nav__link--active">
       Contained Patterns Near-field
     </a>
+    
   </li>
 
         
@@ -552,33 +552,35 @@
               
                 
                 
-                  <h1>Mixed Patterns Near-field</h1>
+                  <h1>Contained Patterns Near-field</h1>
                 
-                <p>The following is an example with a mixed pattern on one layer. The layer <code>SiTop</code> has two patterns: (1) a rectangle patten centered at (250 nm, 250 nm) with widths (300 nm, 300 nm), and (2) a circle pattern centered at (750 nm, 750 nm) with radius 200 nm. Note that MESH has a contraint that patterns cannot interleave with each other.</p>
+                <p>The following example creates two contained circle patterns in the layer of <code>SiBottom</code>, resulting in a cylindrical shell made of vacuum.</p>
 <div class="codehilite"><pre><span></span><span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPattern</span><span class="p">.</span><span class="n">new</span><span class="p">();</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetLattice</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="mi">90</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetNumOfG</span><span class="p">(</span><span class="mi">441</span><span class="p">);</span>
-
+<span class="n">s</span><span class="p">:</span><span class="n">SetLattice</span><span class="p">(</span><span class="mf">1e-7</span><span class="p">,</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="mi">90</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetNumOfG</span><span class="p">(</span><span class="mi">250</span><span class="p">);</span>
+<span class="c1">--s:OptSetLatticeTruncation(&quot;Parallelogramic&quot;)</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">,</span> <span class="s2">&quot;Si.txt&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">);</span>
-
 <span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetLayerPatternCircle</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mf">50e-9</span><span class="p">,</span> <span class="mf">50e-9</span><span class="p">},</span> <span class="mf">45e-9</span><span class="p">)</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetLayerPatternCircle</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mf">50e-9</span><span class="p">,</span> <span class="mf">50e-9</span><span class="p">},</span> <span class="mf">30e-9</span><span class="p">)</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="mf">1e-7</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;SiTop&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetLayerPatternRectangle</span><span class="p">(</span><span class="s2">&quot;SiTop&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mf">2.5e-7</span><span class="p">,</span> <span class="mf">2.5e-7</span><span class="p">},</span> <span class="mi">0</span><span class="p">,</span> <span class="p">{</span><span class="mf">3e-7</span><span class="p">,</span> <span class="mf">3e-7</span><span class="p">});</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetLayerPatternCircle</span><span class="p">(</span><span class="s2">&quot;SiTop&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mf">7.5e-7</span><span class="p">,</span> <span class="mf">7.5e-7</span><span class="p">},</span> <span class="mf">2e-7</span><span class="p">);</span>
-
-
 <span class="n">s</span><span class="p">:</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">OutputSysInfo</span><span class="p">();</span>
 
 <span class="n">s</span><span class="p">:</span><span class="n">OptPrintIntermediate</span><span class="p">();</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetKxIntegral</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
-<span class="n">s</span><span class="p">:</span><span class="n">SetKyIntegral</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+<span class="n">s</span><span class="p">:</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
 <span class="n">s</span><span class="p">:</span><span class="n">InitSimulation</span><span class="p">();</span>
+<span class="n">s</span><span class="p">:</span><span class="n">OutputSysInfo</span><span class="p">();</span>
 <span class="n">s</span><span class="p">:</span><span class="n">IntegrateKxKy</span><span class="p">();</span>
 </pre></div>
+
+
+<p>The output from the function <code>GetLayerPatternRealization</code> results in the following figure
+<img alt="Fourier transform" src="../fourier.png" />
+The resulting <script type="math/tex">\Phi(\omega)</script> is</p>
                 
                   
                 
@@ -597,7 +599,7 @@
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../rectangleNearField/" title="Two Rectangle Patterns Near-field" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../mixedNearField/" title="Mixed Patterns Near-field" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -606,19 +608,19 @@
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Two Rectangle Patterns Near-field
+                Mixed Patterns Near-field
               </span>
             </div>
           </a>
         
         
-          <a href="../containedPattern/" title="Contained Patterns Near-field" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../MPI/" title="MPI Example" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Contained Patterns Near-field
+                MPI Example
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">

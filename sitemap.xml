@@ -114,6 +114,12 @@
     </url>
         
     <url>
+     <loc>/Examples/containedPattern/</loc>
+     <lastmod>2017-05-03</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+        
+    <url>
      <loc>/Examples/MPI/</loc>
      <lastmod>2017-05-03</lastmod>
      <changefreq>daily</changefreq>
