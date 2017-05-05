@@ -23,7 +23,7 @@
 inline void shrinkSpaces(std::string &s){
   std::string::iterator new_end =
         std::unique(s.begin(), s.end(),
-        [](char lhs, char rhs){ return (lhs == rhs) && (lhs == ' '); }
+        [](char lhs, char rhs){ return (lhs == rhs) && (lhs == ' ' || lhs == '\t'); }
         );
   s.erase(new_end, s.end());
 }
