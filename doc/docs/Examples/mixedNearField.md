@@ -27,3 +27,5 @@ s:InitSimulation();
 s:IntegrateKxKy();
 
 ```
+The result is
+![mixedPattern](mixedpattern.png)

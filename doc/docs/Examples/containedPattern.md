@@ -25,3 +25,4 @@ s:IntegrateKxKy();
 The output from the function `GetLayerPatternRealization` results in the following figure
 ![Fourier transform](fourier.png)
 The resulting $\Phi(\omega)$ is
+![composite](composite.png)
