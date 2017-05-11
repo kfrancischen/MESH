@@ -1035,7 +1035,7 @@ namespace MESH{
       std::cout << "Layer index " << it->first << ": " << layer->getName() << std::endl;
       std::cout << "Thickness: " << layer->getThickness() << std::endl;
 
-      std::cout << "contains tensor: ";
+      std::cout << "contains off diagonal epsilon: ";
       if(layer->hasTensor()) std::cout << "YES" << std::endl;
       else std::cout << "NO" << std::endl;
 
