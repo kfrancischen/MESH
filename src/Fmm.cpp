@@ -264,8 +264,10 @@
      dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
      dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
      dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
-     dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
-     dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     //dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+     //dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     dcomplex im_eps_BG_xy = ( eps_BG_xy - std::conj(eps_BG_yx) ) / 2.0 / IMAG_I;
+     dcomplex im_eps_BG_yx = ( eps_BG_yx - std::conj(eps_BG_xy) ) / 2.0 / IMAG_I;
      dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
      dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
@@ -288,9 +290,13 @@
 
        eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
 
-       im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+       // im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+       im_eps_xy += ( (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - dcomplex(epsTensor.tensor[4], -epsTensor.tensor[5])) / 2.0 / IMAG_I - im_eps_BG_xy)
+        / area * phase % geoMat;
 
-       im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+       // im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+       im_eps_yx += ( (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - dcomplex(epsTensor.tensor[2], -epsTensor.tensor[3])) / 2.0 / IMAG_I - im_eps_BG_yx)
+        / area * phase % geoMat;
      }
    }
 
@@ -358,8 +364,10 @@
      dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
      dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
      dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
-     dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
-     dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     //dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+     //dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     dcomplex im_eps_BG_xy = ( eps_BG_xy - std::conj(eps_BG_yx) ) / 2.0 / IMAG_I;
+     dcomplex im_eps_BG_yx = ( eps_BG_yx - std::conj(eps_BG_xy) ) / 2.0 / IMAG_I;
      dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
      dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
@@ -384,9 +392,13 @@
 
        eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
 
-       im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+       // im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+       im_eps_xy += ( (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - dcomplex(epsTensor.tensor[4], -epsTensor.tensor[5])) / 2.0 / IMAG_I - im_eps_BG_xy)
+        / area * phase % geoMat;
 
-       im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+       // im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+       im_eps_yx += ( (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - dcomplex(epsTensor.tensor[2], -epsTensor.tensor[3])) / 2.0 / IMAG_I - im_eps_BG_yx)
+        / area * phase % geoMat;
      }
    }
 
@@ -450,8 +462,10 @@
      dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
      dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
      dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
-     dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
-     dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     //dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+     //dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+     dcomplex im_eps_BG_xy = ( eps_BG_xy - std::conj(eps_BG_yx) ) / 2.0 / IMAG_I;
+     dcomplex im_eps_BG_yx = ( eps_BG_yx - std::conj(eps_BG_xy) ) / 2.0 / IMAG_I;
      dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
      dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
@@ -475,9 +489,13 @@
 
        eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
 
-       im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+       // im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+       im_eps_xy += ( (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - dcomplex(epsTensor.tensor[4], -epsTensor.tensor[5])) / 2.0 / IMAG_I - im_eps_BG_xy)
+        / area * phase % geoMat;
 
-       im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+       // im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+       im_eps_yx += ( (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - dcomplex(epsTensor.tensor[2], -epsTensor.tensor[3])) / 2.0 / IMAG_I - im_eps_BG_yx)
+        / area * phase % geoMat;
      }
     }
 
@@ -544,8 +562,10 @@
       dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
       dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
       dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
-      dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
-      dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+      //dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+      //dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+      dcomplex im_eps_BG_xy = ( eps_BG_xy - std::conj(eps_BG_yx) ) / 2.0 / IMAG_I;
+      dcomplex im_eps_BG_yx = ( eps_BG_yx - std::conj(eps_BG_xy) ) / 2.0 / IMAG_I;
       dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
       dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
@@ -568,9 +588,13 @@
         eps_xy += (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - eps_BG_xy) / area * phase % geoMat;
         eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
 
-        im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+        // im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+        im_eps_xy += ( (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - dcomplex(epsTensor.tensor[4], -epsTensor.tensor[5])) / 2.0 / IMAG_I - im_eps_BG_xy)
+         / area * phase % geoMat;
 
-        im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+        // im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+        im_eps_yx += ( (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - dcomplex(epsTensor.tensor[2], -epsTensor.tensor[3])) / 2.0 / IMAG_I - im_eps_BG_yx)
+         / area * phase % geoMat;
       }
      }
      /*==============================================*/
@@ -637,8 +661,10 @@
       dcomplex eps_BG_yy = dcomplex(epsBGTensor.tensor[6], epsBGTensor.tensor[7]);
       dcomplex eps_BG_zz = dcomplex(epsBGTensor.tensor[8], epsBGTensor.tensor[9]);
       dcomplex im_eps_BG_xx = dcomplex(epsBGTensor.tensor[1], 0);
-      dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
-      dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+      //dcomplex im_eps_BG_xy = dcomplex(epsBGTensor.tensor[3], 0);
+      //dcomplex im_eps_BG_yx = dcomplex(epsBGTensor.tensor[5], 0);
+      dcomplex im_eps_BG_xy = ( eps_BG_xy - std::conj(eps_BG_yx) ) / 2.0 / IMAG_I;
+      dcomplex im_eps_BG_yx = ( eps_BG_yx - std::conj(eps_BG_xy) ) / 2.0 / IMAG_I;
       dcomplex im_eps_BG_yy = dcomplex(epsBGTensor.tensor[7], 0);
       dcomplex im_eps_BG_zz = dcomplex(epsBGTensor.tensor[9], 0);
 
@@ -662,9 +688,13 @@
 
         eps_yx += (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - eps_BG_yx) / area * phase % geoMat;
 
-        im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+        // im_eps_xy += (dcomplex(epsTensor.tensor[3], 0) - im_eps_BG_xy) / area * phase % geoMat;
+        im_eps_xy += ( (dcomplex(epsTensor.tensor[2], epsTensor.tensor[3]) - dcomplex(epsTensor.tensor[4], -epsTensor.tensor[5])) / 2.0 / IMAG_I - im_eps_BG_xy)
+         / area * phase % geoMat;
 
-        im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+        // im_eps_yx += (dcomplex(epsTensor.tensor[5], 0) - im_eps_BG_yx) / area * phase % geoMat;
+        im_eps_yx += ( (dcomplex(epsTensor.tensor[4], epsTensor.tensor[5]) - dcomplex(epsTensor.tensor[2], -epsTensor.tensor[3])) / 2.0 / IMAG_I - im_eps_BG_yx)
+         / area * phase % geoMat;
       }
     }
  }

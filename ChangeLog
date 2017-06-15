@@ -9,3 +9,5 @@
   Add ellipse and polygon pattern to 2D object
 2017-05-02
   Add non-orthogonal lattice, and circular truncation of G.
+2017-06-15
+  Fixed the bug of JJ correlation

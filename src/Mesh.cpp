@@ -976,8 +976,12 @@ namespace MESH{
       if(layer->hasTensor()){
         eps_xy += dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]) * onePadding1N;
         eps_yx += dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]) * onePadding1N;
-        im_eps_xy += epsBGTensor.tensor[3] * onePadding1N;
-        im_eps_yx += epsBGTensor.tensor[5] * onePadding1N;
+        //im_eps_xy += epsBGTensor.tensor[3] * onePadding1N;
+        //im_eps_yx += epsBGTensor.tensor[5] * onePadding1N;
+        im_eps_xy += ( dcomplex(epsBGTensor.tensor[2], epsBGTensor.tensor[3]) - dcomplex(epsBGTensor.tensor[4], -epsBGTensor.tensor[5]) )
+            / 2.0 / IMAG_I * onePadding1N;
+        im_eps_yx += ( dcomplex(epsBGTensor.tensor[4], epsBGTensor.tensor[5]) - dcomplex(epsBGTensor.tensor[2], -epsBGTensor.tensor[3]) )
+            / 2.0 / IMAG_I * onePadding1N;
       }
 
       eps_xx_Matrices.push_back(eps_xx);
