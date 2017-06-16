@@ -114,7 +114,7 @@ SetProbeLayer(layer name)
 
 * Output: None
 
-* Note: a system can have only one probe layer. Setting another layer as the probe layer will overwrite the previous one. In addition, the source layer should be above all the source layers in the real geometry.
+* Note: a system can have only one probe layer. Setting another layer as the probe layer will overwrite the previous one. In addition, the probe layer should be above all the source layers in the real geometry.
 
 ```lua
 SetThread(nthread)
