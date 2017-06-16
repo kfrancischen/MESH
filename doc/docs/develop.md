@@ -6,6 +6,7 @@ The source code of MESH is in `src/` folder, which consists of the following fil
 * `utility/`: templates for smart points as well as exception handling.
 * `Cubature.c`: a fast adaptive integration method for high dimensional functions, adoptted from [the original code](http://ab-initio.mit.edu/wiki/index.php/Cubature).
 * `Fmm.cpp`: file computing the Fourier transform for different geometries.
+* `Gsel.cpp`: file containing functions to select G vectors.
 * `Rcwa.cpp`: file computing the RCWA and Poynting vector.
 * `System.cpp`: file containing material, layer and structure classes and their methods.
 * `Mesh.cpp`: file containing different types of simulations and C++ API.
