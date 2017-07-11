@@ -731,9 +731,9 @@ namespace MESH{
     for(int i = 0; i < numOfLayer; i++){
       thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness() * MICRON;
       sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
-      if(sourceList_[i] && i >= targetLayer_){
-        std::cerr << "Target Layer needs to be above source layer!" << std::endl;
-        throw UTILITY::RangeException("Target Layer needs to be above source layer!");
+      if(sourceList_[i] && i > targetLayer_){
+        std::cerr << "Probe layer cannot be lower than source layer!" << std::endl;
+        throw UTILITY::RangeException("Probe layer cannot be lower than source layer!");
       }
     }
     // set the first and last layer to have 0 thickness
