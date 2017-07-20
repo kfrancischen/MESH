@@ -731,9 +731,9 @@ namespace MESH{
     for(int i = 0; i < numOfLayer; i++){
       thicknessListVec_(i) = (structure_->getLayerByIndex(i))->getThickness() * MICRON;
       sourceList_[i] = (structure_->getLayerByIndex(i))->checkIsSource();
-      if(sourceList_[i] && i > targetLayer_){
-        std::cerr << "Probe layer cannot be lower than source layer!" << std::endl;
-        throw UTILITY::RangeException("Probe layer cannot be lower than source layer!");
+      if(sourceList_[i] && i >= targetLayer_){
+        std::cerr << "Probe layer should be higher than source layer!" << std::endl;
+        throw UTILITY::RangeException("Probe layer should be higher than source layer!");
       }
     }
     // set the first and last layer to have 0 thickness
@@ -1332,7 +1332,7 @@ namespace MESH{
           this->buildRCWAMatrices();
         }
         #if defined(_OPENMP)
-          #pragma omp parallel for num_threads(numOfThread_), collapse(2)
+          #pragma omp parallel for schedule(dynamic) num_threads(numOfThread_), collapse(2)
         #endif
         for(int i = 0; i < numOfKx_; i++){
           for(int j = 0; j < numOfKy_; j++){
@@ -1343,7 +1343,7 @@ namespace MESH{
           }
         }
         #if defined(_OPENMP)
-          #pragma omp parallel for num_threads(numOfThread_)
+          #pragma omp parallel for schedule(dynamic) num_threads(numOfThread_)
         #endif
         for(int i = 0; i < numOfKx_ * numOfKy_; i++){
           int kxIdx = i / numOfKy_;
@@ -1526,7 +1526,7 @@ namespace MESH{
       eps_zz_Inv_MatricesVec[i] = eps_zz_Inv_Matrices_;
     }
     #if defined(_OPENMP)
-      #pragma omp parallel for num_threads(numOfThread_)
+      #pragma omp parallel for schedule(dynamic) num_threads(numOfThread_)
     #endif
     for(int i = 0; i < numOfOmega_; i++){
       ArgWrapper wrapper;
