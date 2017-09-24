@@ -31,9 +31,9 @@ Cube<eT>::~Cube()
     memory::release( access::rw(mem) );
     }
   
-  if(arma_config::debug == true)
+  // try to expose buggy user code that accesses deleted objects
+  if(arma_config::debug)
     {
-    // try to expose buggy user code that accesses deleted objects
     access::rw(mem)      = 0;
     access::rw(mat_ptrs) = 0;
     }
@@ -1582,6 +1582,69 @@ Cube<eT>::each_slice(const Base<uword, T1>& indices) const
     return *this;
     }
   
+  
+  
+  template<typename eT>
+  inline
+  const Cube<eT>&
+  Cube<eT>::each_slice(const std::function< void(Mat<eT>&) >& F, const bool use_mp)
+    {
+    arma_extra_debug_sigprint();
+    
+    if((use_mp == false) || (arma_config::openmp == false))
+      {
+      return (*this).each_slice(F);
+      }
+    
+    #if defined(ARMA_USE_OPENMP)
+      {
+      const uword local_n_slices = n_slices;
+      const int   n_threads      = mp_thread_limit::get();
+      
+      #pragma omp parallel for schedule(static) num_threads(n_threads)
+      for(uword slice_id=0; slice_id < local_n_slices; ++slice_id)
+        {
+        Mat<eT> tmp('j', slice_memptr(slice_id), n_rows, n_cols);
+        
+        F(tmp);
+        }
+      }
+    #endif
+    
+    return *this;
+    }
+  
+  
+  
+  template<typename eT>
+  inline
+  const Cube<eT>&
+  Cube<eT>::each_slice(const std::function< void(const Mat<eT>&) >& F, const bool use_mp) const
+    {
+    arma_extra_debug_sigprint();
+    
+    if((use_mp == false) || (arma_config::openmp == false))
+      {
+      return (*this).each_slice(F);
+      }
+    
+    #if defined(ARMA_USE_OPENMP)
+      {
+      const uword local_n_slices = n_slices;
+      const int   n_threads      = mp_thread_limit::get();
+      
+      #pragma omp parallel for schedule(static) num_threads(n_threads)
+      for(uword slice_id=0; slice_id < local_n_slices; ++slice_id)
+        {
+        Mat<eT> tmp('j', slice_memptr(slice_id), n_rows, n_cols);
+        
+        F(tmp);
+        }
+      }
+    #endif
+    
+    return *this;
+    }
 #endif
 
 
@@ -2948,10 +3011,10 @@ Cube<eT>::impl_print(const std::string& extra_text) const
   
   if(extra_text.length() != 0)
     {
-    ARMA_DEFAULT_OSTREAM << extra_text << '\n';
+    get_cout_stream() << extra_text << '\n';
     }
   
-  arma_ostream::print(ARMA_DEFAULT_OSTREAM, *this, true);
+  arma_ostream::print(get_cout_stream(), *this, true);
   }
 
 
@@ -2989,10 +3052,10 @@ Cube<eT>::impl_raw_print(const std::string& extra_text) const
   
   if(extra_text.length() != 0)
     {
-    ARMA_DEFAULT_OSTREAM << extra_text << '\n';
+    get_cout_stream() << extra_text << '\n';
     }
   
-  arma_ostream::print(ARMA_DEFAULT_OSTREAM, *this, false);
+  arma_ostream::print(get_cout_stream(), *this, false);
   }
 
 
@@ -3453,6 +3516,26 @@ Cube<eT>::reset()
 
 
 template<typename eT>
+inline
+void
+Cube<eT>::soft_reset()
+  {
+  arma_extra_debug_sigprint();
+  
+  // don't change the size if the cube has a fixed size
+  if(mem_state <= 1)
+    {
+    reset();
+    }
+  else
+    {
+    fill(Datum<eT>::nan);
+    }
+  }
+
+
+
+template<typename eT>
 template<typename T1>
 inline
 void
@@ -3663,7 +3746,7 @@ Cube<eT>::save(const std::string name, const file_type type, const bool print_st
       break;
 
     case hdf5_binary:
-      save_okay = diskio::save_hdf5_binary(*this, name);
+      save_okay = diskio::save_hdf5_binary(*this, hdf5_name(name));
       break;
     
     case hdf5_binary_trans:
@@ -3672,7 +3755,7 @@ Cube<eT>::save(const std::string name, const file_type type, const bool print_st
       
       op_strans_cube::apply_noalias(tmp, (*this));
       
-      save_okay = diskio::save_hdf5_binary(tmp, name);
+      save_okay = diskio::save_hdf5_binary(tmp, hdf5_name(name));
       }
       break;
     
@@ -3682,6 +3765,43 @@ Cube<eT>::save(const std::string name, const file_type type, const bool print_st
     }
   
   if(print_status && (save_okay == false))  { arma_debug_warn("Cube::save(): couldn't write to ", name); }
+  
+  return save_okay;
+  }
+
+
+
+template<typename eT>
+inline
+bool
+Cube<eT>::save(const hdf5_name& spec, const file_type type, const bool print_status) const
+  {
+  arma_extra_debug_sigprint();
+  
+  bool save_okay;
+  
+  switch(type)
+    {
+    case hdf5_binary:
+      save_okay = diskio::save_hdf5_binary(*this, spec);
+      break;
+    
+    case hdf5_binary_trans:
+      {
+      Cube<eT> tmp;
+      
+      op_strans_cube::apply_noalias(tmp, (*this));
+      
+      save_okay = diskio::save_hdf5_binary(tmp, spec);
+      }
+      break;
+    
+    default:
+      if(print_status)  { arma_debug_warn("Cube::save(): unsupported file type"); }
+      save_okay = false;
+    }
+  
+  if(print_status && (save_okay == false))  { arma_debug_warn("Cube::save(): couldn't write to ", spec.filename); }
   
   return save_okay;
   }
@@ -3770,14 +3890,14 @@ Cube<eT>::load(const std::string name, const file_type type, const bool print_st
       break;
 
     case hdf5_binary:
-      load_okay = diskio::load_hdf5_binary(*this, name, err_msg);
+      load_okay = diskio::load_hdf5_binary(*this, hdf5_name(name), err_msg);
       break;
     
     case hdf5_binary_trans:
       {
       Cube<eT> tmp;
       
-      load_okay = diskio::load_hdf5_binary(tmp, name, err_msg);
+      load_okay = diskio::load_hdf5_binary(tmp, hdf5_name(name), err_msg);
       
       if(load_okay)  { op_strans_cube::apply_noalias((*this), tmp); }
       }
@@ -3802,7 +3922,60 @@ Cube<eT>::load(const std::string name, const file_type type, const bool print_st
   
   if(load_okay == false)
     {
-    (*this).reset();
+    (*this).soft_reset();
+    }
+    
+  return load_okay;
+  }
+
+
+
+template<typename eT>
+inline
+bool
+Cube<eT>::load(const hdf5_name& spec, const file_type type, const bool print_status)
+  {
+  arma_extra_debug_sigprint();
+  
+  bool load_okay;
+  std::string err_msg;
+  
+  switch(type)
+    {
+    case hdf5_binary:
+      load_okay = diskio::load_hdf5_binary(*this, spec, err_msg);
+      break;
+    
+    case hdf5_binary_trans:
+      {
+      Cube<eT> tmp;
+      
+      load_okay = diskio::load_hdf5_binary(tmp, spec, err_msg);
+      
+      if(load_okay)  { op_strans_cube::apply_noalias((*this), tmp); }
+      }
+      break;
+    
+    default:
+      if(print_status)  { arma_debug_warn("Cube::load(): unsupported file type"); }
+      load_okay = false;
+    }
+  
+  if( (print_status == true) && (load_okay == false) )
+    {
+    if(err_msg.length() > 0)
+      {
+      arma_debug_warn("Cube::load(): ", err_msg, spec.filename);
+      }
+    else
+      {
+      arma_debug_warn("Cube::load(): couldn't read ", spec.filename);
+      }
+    }
+  
+  if(load_okay == false)
+    {
+    (*this).soft_reset();
     }
     
   return load_okay;
@@ -3867,7 +4040,7 @@ Cube<eT>::load(std::istream& is, const file_type type, const bool print_status)
   
   if(load_okay == false)
     {
-    (*this).reset();
+    (*this).soft_reset();
     }
     
   return load_okay;
@@ -3884,6 +4057,18 @@ Cube<eT>::quiet_save(const std::string name, const file_type type) const
   arma_extra_debug_sigprint();
   
   return (*this).save(name, type, false);
+  }
+
+
+
+template<typename eT>
+inline
+bool
+Cube<eT>::quiet_save(const hdf5_name& spec, const file_type type) const
+  {
+  arma_extra_debug_sigprint();
+  
+  return (*this).save(spec, type, false);
   }
 
 
@@ -3910,6 +4095,18 @@ Cube<eT>::quiet_load(const std::string name, const file_type type)
   arma_extra_debug_sigprint();
   
   return (*this).load(name, type, false);
+  }
+
+
+
+template<typename eT>
+inline
+bool
+Cube<eT>::quiet_load(const hdf5_name& spec, const file_type type)
+  {
+  arma_extra_debug_sigprint();
+  
+  return (*this).load(spec, type, false);
   }
 
 

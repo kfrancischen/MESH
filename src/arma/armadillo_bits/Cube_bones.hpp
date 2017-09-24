@@ -157,6 +157,9 @@ class Cube : public BaseCube< eT, Cube<eT> >
   #if defined(ARMA_USE_CXX11)
   inline const Cube& each_slice(const std::function< void(      Mat<eT>&) >& F);
   inline const Cube& each_slice(const std::function< void(const Mat<eT>&) >& F) const;
+  
+  inline const Cube& each_slice(const std::function< void(      Mat<eT>&) >& F, const bool use_mp);
+  inline const Cube& each_slice(const std::function< void(const Mat<eT>&) >& F, const bool use_mp) const;
   #endif
   
   
@@ -312,7 +315,8 @@ class Cube : public BaseCube< eT, Cube<eT> >
   inline const Cube& randn(const uword in_rows, const uword in_cols, const uword in_slices);
   inline const Cube& randn(const SizeCube& s);
   
-  inline void reset();
+  inline void      reset();
+  inline void soft_reset();
   
   
   template<typename T1> inline void set_real(const BaseCube<pod_type,T1>& X);
@@ -330,15 +334,19 @@ class Cube : public BaseCube< eT, Cube<eT> >
   
   
   inline bool save(const std::string   name, const file_type type = arma_binary, const bool print_status = true) const;
+  inline bool save(const hdf5_name&    spec, const file_type type = hdf5_binary, const bool print_status = true) const;
   inline bool save(      std::ostream& os,   const file_type type = arma_binary, const bool print_status = true) const;
   
   inline bool load(const std::string   name, const file_type type = auto_detect, const bool print_status = true);
+  inline bool load(const hdf5_name&    spec, const file_type type = hdf5_binary, const bool print_status = true);
   inline bool load(      std::istream& is,   const file_type type = auto_detect, const bool print_status = true);
   
   inline bool quiet_save(const std::string   name, const file_type type = arma_binary) const;
+  inline bool quiet_save(const hdf5_name&    spec, const file_type type = hdf5_binary) const;
   inline bool quiet_save(      std::ostream& os,   const file_type type = arma_binary) const;
   
   inline bool quiet_load(const std::string   name, const file_type type = auto_detect);
+  inline bool quiet_load(const hdf5_name&    spec, const file_type type = hdf5_binary);
   inline bool quiet_load(      std::istream& is,   const file_type type = auto_detect);
   
   
