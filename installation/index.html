@@ -738,6 +738,8 @@ module load mkl
 
 
 <p>For a job that use more than <script type="math/tex">24</script> cores for <code>comet</code> and <script type="math/tex">16</script> cores for <code>stampede</code>, MPI version should be used. On <code>hera</code>, the OpenMP version is recommended.</p>
+<p>(Update for <code>stampede2</code>, 09/27/2017):    <br />
+For <code>stampede2</code> please change <code>module load mvapich2</code> to <code>module load impi</code></p>
 <h4 id="installation-on-clusters-not-recommended">Installation on clusters (not recommended)<a class="headerlink" href="#installation-on-clusters-not-recommended" title="Permanent link">&para;</a></h4>
 <p>If one wants to install MESH on his/her own directory, one <code>hera</code> please use</p>
 <div class="codehilite"><pre><span></span>make -f Makefile.hera
