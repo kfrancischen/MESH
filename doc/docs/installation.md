@@ -76,6 +76,9 @@ module load mkl
 ```
 For a job that use more than $24$ cores for `comet` and $16$ cores for `stampede`, MPI version should be used. On `hera`, the OpenMP version is recommended.
 
+(Update for `stampede2`, 09/27/2017):      
+For `stampede2` please change `module load mvapich2` to `module load impi`
+
 #### Installation on clusters (not recommended)
 If one wants to install MESH on his/her own directory, one `hera` please use
 ```bash
