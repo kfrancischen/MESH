@@ -738,6 +738,21 @@ For tensor dielectric, the format is a list of   <br />
 <p>Note: a system can have only one probe layer. Setting another layer as the probe layer will overwrite the previous one. In addition, the probe layer should be above all the source layers in the real geometry.</p>
 </li>
 </ul>
+<div class="codehilite"><pre><span></span><span class="n">SetProbeLayerZCoordinate</span><span class="p">(</span><span class="n">target_z</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>target_z: [double], the zth coordinate in the target layer where the Poynting flux is evaluated. By default this value is the thickness of the target layer</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
 <div class="codehilite"><pre><span></span><span class="n">SetThread</span><span class="p">(</span><span class="n">nthread</span><span class="p">)</span>
 </pre></div>
 
