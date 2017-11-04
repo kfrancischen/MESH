@@ -307,6 +307,8 @@ Gy_mat: the Gy matrix
 sourceList: list of 0 or 1 with the same size of thicknessList
 targetLayer: the targetLayer for the flux measurement
 N: total number of G
+polar: the polarization of the light
+target_z: the relative z coordinate in the target layer, in micron
 ==============================================================*/
 // IMPORTANT: there is no change in this function even for a tensor
 double RCWA::poyntingFlux(
@@ -322,7 +324,8 @@ double RCWA::poyntingFlux(
   const SourceList& sourceList,
   const int targetLayer,
   const int N,
-  const POLARIZATION polar
+  const POLARIZATION polar,
+  const double target_z
 ){
 
   /*======================================================
@@ -347,7 +350,7 @@ double RCWA::poyntingFlux(
   =======================================================*/
   RCWAcMatrices TMatrices(numOfLayer), MMatrices(numOfLayer);
   RCWAcMatrices EigenValMatrices(numOfLayer), EigenVecMatrices(numOfLayer), FMatrices(numOfLayer);
-
+  RCWAcMatrix CoeffOfA = onePadding2N, CoeffOfB = onePadding2N;
 
   // initialize K matrix
   RCWArMatrix KMatrix = join_vert(
@@ -384,6 +387,19 @@ double RCWA::poyntingFlux(
     else{
       FMatrices[i] = diagmat(exp(-IMAG_I * dcomplex(thicknessList(i),0) * eigVal));
     }
+
+    if(i == targetLayer){
+      if(target_z < 0) {
+        CoeffOfA = FMatrices[i];
+      }
+      else{
+        CoeffOfA = diagmat(exp(-IMAG_I * dcomplex(target_z,0) * eigVal));
+        if(i != 0 && i != numOfLayer - 1){
+          CoeffOfB = diagmat(exp(-IMAG_I * dcomplex(thicknessList(i)-target_z,0) * eigVal));
+        }
+      }
+    }
+
     MMatrices[i] = zeroPadding4N;
     MMatrices[i](span(r1, r2), span(r1, r2)) = (omega * onePadding2N - TMatrices[i] / omega) *
       EigenVecMatrices[i] * (EigenValMatrices[i]).i();
@@ -469,7 +485,7 @@ double RCWA::poyntingFlux(
     Q2 = -FMatrices[layerIdx] * S_matrices[0](span(r3, r4), span(r1, r2));
 
     // calculating R
-    R = MMatrices[targetLayer] * join_vert(FMatrices[targetLayer] * P1, P2) *
+    R = MMatrices[targetLayer] * join_vert(CoeffOfA * P1, CoeffOfB * P2) *
       Q1.i() * join_horiz(onePadding2N, Q2);
 
     // calculating integrands

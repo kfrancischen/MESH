@@ -11,3 +11,5 @@
   Add non-orthogonal lattice, and circular truncation of G.
 2017-06-15
   Fixed the bug of JJ correlation
+2017-11-04
+  Add function allowing to specify z-coordinate in the target layer for Poynting flux calculation

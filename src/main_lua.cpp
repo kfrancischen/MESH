@@ -207,6 +207,16 @@ int MESH_SetProbeLayer(lua_State* L){
   return 1;
 }
 
+// this function wraps setProbeLayerZCoordinate(const double z)
+// @how to use
+// setProbeLayerZCoordinate(z)
+int MESH_SetProbeLayerZCoordinate(lua_State* L){
+  Simulation* s = luaW_check<Simulation>(L, 1);
+  double z = luaU_check<double>(L, 2);
+  s->setProbeLayerZCoordinate(z);
+  return 1;
+}
+
 
 // this function wraps setThread(const int numThread)
 // @how to use
@@ -750,6 +760,7 @@ static luaL_Reg character_metatable_Simulation[] = {
   { "DeleteLayer", MESH_DeleteLayer, },
   { "SetSourceLayer", MESH_SetSourceLayer },
   { "SetProbeLayer", MESH_SetProbeLayer },
+  { "SetProbeLayerZCoordinate", MESH_SetProbeLayerZCoordinate},
   { "SetNumOfG", MESH_SetNumOfG },
   { "GetPhi", MESH_GetPhi },
   { "GetOmega", MESH_GetOmega },

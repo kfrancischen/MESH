@@ -117,6 +117,15 @@ SetProbeLayer(layer name)
 * Note: a system can have only one probe layer. Setting another layer as the probe layer will overwrite the previous one. In addition, the probe layer should be above all the source layers in the real geometry.
 
 ```lua
+SetProbeLayerZCoordinate(target_z)
+```
+* Arguments:
+    1. target_z: [double], the zth coordinate in the target layer where the Poynting flux is evaluated. By default this value is the thickness of the target layer
+
+* Output: None
+
+
+```lua
 SetThread(nthread)
 ```
 * Arguments:

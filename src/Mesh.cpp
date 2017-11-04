@@ -181,7 +181,8 @@ namespace MESH{
       wrapper.sourceList,
       wrapper.targetLayer,
       1,
-      wrapper.polar
+      wrapper.polar,
+      wrapper.target_z
     );
   }
   /*==============================================*/
@@ -205,7 +206,8 @@ namespace MESH{
       wrapper.sourceList,
       wrapper.targetLayer,
       1,
-      wrapper.polar
+      wrapper.polar,
+      wrapper.target_z
     );
   }
   /*======================================================*/
@@ -611,6 +613,32 @@ namespace MESH{
     this->setTargetLayerByLayer(layer);
   }
   /*==============================================*/
+  // This function sets the position z for Poynting flux evaluation in the probe layer
+  // @args:
+  // target_z: the z-th coordinate
+  /*==============================================*/
+  void Simulation::setProbeLayerZCoordinate(const double target_z){
+    if(targetLayer_ == -1){
+      std::cerr << "Please set target layer first!" << std::endl;
+      throw UTILITY::ValueException("Please set target layer first!");
+      return;
+    }
+    if(target_z < 0){
+      std::cerr << "Value of " + std::to_string(target_z) + " shouldn't be negative" << std::endl;
+      throw UTILITY::RangeException("Value of " + std::to_string(target_z) + " shouldn't be negative");
+      return;
+    }
+    if(targetLayer_ != 0 && targetLayer_ != structure_->getNumOfLayer() - 1 && 
+      target_z > (structure_->getLayerByIndex(targetLayer_))->getThickness()){
+      std::cerr << "Value of " + std::to_string(target_z) + " shouldn't exceed the thickness of the layer" << std::endl;
+      throw UTILITY::RangeException("Value of " + std::to_string(target_z) + " shouldn't exceed the thickness of the layer");
+      return;
+    }
+    target_z_ = target_z * MICRON;
+  }
+  
+
+  /*==============================================*/
   // This function sets number of G
   // @args:
   // nG: number of G
@@ -684,7 +712,8 @@ namespace MESH{
         sourceList_,
         targetLayer_,
         nG_,
-        options_.polarization
+        options_.polarization,
+        target_z_
       );
   }
   /*==============================================*/
@@ -1500,7 +1529,7 @@ namespace MESH{
     return POW2(omegaList_[omegaIdx] / datum::c_0) / POW2(datum::pi) * KParallel *
       poyntingFlux(omegaList_[omegaIdx] / datum::c_0 / MICRON, thicknessListVec_, KParallel, 0, EMatrices_,
       grandImaginaryMatrices_, eps_zz_Inv_Matrices_, Gx_mat_, Gy_mat_,
-      sourceList_, targetLayer_,1, options_.polarization);
+      sourceList_, targetLayer_,1, options_.polarization, target_z_);
   }
 
 
@@ -1541,6 +1570,7 @@ namespace MESH{
       wrapper.grandImaginaryMatrices = grandImaginaryMatricesVec[i];
       wrapper.eps_zz_Inv = eps_zz_Inv_MatricesVec[i];
       wrapper.polar = options_.polarization;
+      wrapper.target_z = target_z_;
       switch (options_.IntegralMethod) {
         case GAUSSLEGENDRE_:{
           Phi_[i] = gauss_legendre(degree_, wrapperFunQuadgl, &wrapper, kxStart_, kxEnd_);

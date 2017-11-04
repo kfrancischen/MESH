@@ -66,6 +66,7 @@ typedef struct ARGWEAPPER{
   SourceList sourceList;
   int targetLayer;
   POLARIZATION polar;
+  double target_z;
 } ArgWrapper;
 
 /*======================================================*/
@@ -114,6 +115,7 @@ public:
 
   void setSourceLayer(const std::string name);
   void setProbeLayer(const std::string name);
+  void setProbeLayerZCoordinate(const double target_z);
 
   void setNumOfG(const int nG);
   double* getPhi();
@@ -161,6 +163,8 @@ protected:
 
   int nG_;
   int numOfOmega_;
+  double target_z_ = -1;
+
   double* Phi_;
   double* omegaList_;
   double kxStart_;

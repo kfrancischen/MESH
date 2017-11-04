@@ -177,7 +177,8 @@ namespace RCWA{
     const SourceList& sourceList,
     const int targetLayer,
     const int N,
-    const POLARIZATION polar
+    const POLARIZATION polar,
+    const double z
   );
 
 }
