@@ -637,6 +637,33 @@
 <p class="admonition-title">Note</p>
 <p>The following functions are added and specific to <code>SimulationPattern</code> object.</p>
 </div>
+<div class="codehilite"><pre><span></span><span class="n">SetNumOfG</span><span class="p">(</span><span class="n">nG</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>nG: [int], the number of total Fourier components in both directions. Note this nG might not be the true nG used in the simulation.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">GetNumOfG</span><span class="p">()</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments: None</p>
+</li>
+<li>
+<p>Output: number of G. If function <code>InitSimulation</code> has been called, then this function returns the true nG used in the simulation, otherwise return the user input nG.</p>
+</li>
+</ul>
 <div class="codehilite"><pre><span></span><span class="n">SetLattice</span><span class="p">(</span><span class="n">xLen</span><span class="p">,</span> <span class="n">yLen</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
 </pre></div>
 
