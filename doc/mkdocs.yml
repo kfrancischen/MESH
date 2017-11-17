@@ -45,6 +45,11 @@ pages:
   - 'SimulationPlanar': 'LuaAPI/planar.md'
   - 'SimulationGrating': 'LuaAPI/grating.md'
   - 'SimulationPattern': 'LuaAPI/pattern.md'
+- Python API:
+  - 'Base Class': 'PythonAPI/baseClass.md'
+  - 'SimulationPlanar': 'PythonAPI/planar.md'
+  - 'SimulationGrating': 'PythonAPI/grating.md'
+  - 'SimulationPattern': 'PythonAPI/pattern.md'
 - C++ API:
   - 'Classes and Functions': 'C++API/classAndFunction.md'
 - Examples:

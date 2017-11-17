@@ -7,7 +7,7 @@ A program for computing electromagnetic far-field and near-field heat transfer f
 structures, developed by [Kaifeng Chen](http://web.stanford.edu/~kfchen/) (<kfrancischen@gmail.com>) of the
 [Fan group](http://web.stanford.edu/group/fan/) in the Stanford Electrical Engineering Department.
 
-The program is built upon C++ and wrapped with Lua (>= 5.2), with OpenMP and MPI support. It is enabled with heat flux calculation in both far and near field for planar, grating and pattern geometries. The source code can be downloaded at [Github](https://github.com/kfrancischen/MESH). This document will cover the basic ideas behind MESH, complete descriptions of the Lua API and C++ API, and a few concrete examples created either to illustrate the simple usage or to reproduce some of results from existing literatures. The documents are organized as follows:
+The program is built upon C++ and wrapped with Lua (>= 5.2) and Python (both 2 and 3), with OpenMP and MPI support. It is enabled with heat flux calculation in both far and near field for planar, grating and pattern geometries. The source code can be downloaded at [Github](https://github.com/kfrancischen/MESH). This document will cover the basic ideas behind MESH, complete descriptions of the Lua API and C++ API, and a few concrete examples created either to illustrate the simple usage or to reproduce some of results from existing literatures. The documents are organized as follows:
 
 #### Overview
 * [Equations & Features](features.md): detailed equations computed and features offered by the package.
@@ -18,6 +18,12 @@ The program is built upon C++ and wrapped with Lua (>= 5.2), with OpenMP and MPI
 * [SimulationPlanar](LuaAPI/planar.md): the inherited class for planar geometries.
 * [SimulationGrating](LuaAPI/grating.md): the inherited class for 1D grating geometries.
 * [SimulationPattern](LuaAPI/pattern.md): the inherited class for 2D pattern geometries.
+
+#### Python API
+* [Base Class](PythonAPI/baseClass.md): the base class the code is built upon.
+* [SimulationPlanar](PythonAPI/planar.md): the inherited class for planar geometries.
+* [SimulationGrating](PythonAPI/grating.md): the inherited class for 1D grating geometries.
+* [SimulationPattern](PythonAPI/pattern.md): the inherited class for 2D pattern geometries.
 
 #### C++ API
 * [C++ classes and functions](C++API/classAndFunction.md): the C++ interface for all the functions.

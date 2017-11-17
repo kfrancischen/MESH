@@ -39,3 +39,39 @@ end
 
 The results is shown below
 ![2DHTC](arxiv.png)
+
+
+The Python version of this example is
+```python
+from MESH import SimulationPattern, Constants
+import math
+
+consts = Constants()
+
+def thetaDerivative(omega, T):
+  theta = consts['h_bar'] * omega / (math.exp(consts['h_bar'] * omega / consts['k_B']/T) - 1)
+  return theta ** 2 * math.exp(consts['h_bar'] * omega /consts['k_B'] / T) / consts['k_B'] / T ** 2
+
+f = 0.98
+width = math.sqrt(f * 50e-9 * 50e-9)
+s = SimulationPattern()
+s.SetLattice(50e-9, 50e-9, 90)
+s.SetNumOfG(440)
+
+s.AddMaterial("Si", "Si.txt")
+s.AddMaterial("Vacuum", "Vacuum.txt")
+s.AddLayer("SiBottom", 0, "Si")
+s.SetLayerPatternRectangle("SiBottom", "Vacuum", (25e-9, 25e-9), 0, (width, width))
+s.AddLayer("VacGap", 20e-9, "Vacuum")
+s.AddLayerCopy("SiTop", "SiBottom")
+
+s.SetSourceLayer("SiBottom")
+s.SetProbeLayer("VacGap")
+s.OutputSysInfo()
+
+s.OptPrintIntermediate()
+s.SetKxIntegralSym(20, 60)
+s.SetKyIntegralSym(20, 60)
+s.InitSimulation()
+s.IntegrateKxKy()
+```

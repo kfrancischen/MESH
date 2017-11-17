@@ -3,6 +3,7 @@ MESH comes with two versions: one has OpenMP support if the system has OpenMP li
 
 * [Lapack](http://www.netlib.org/lapack/) and [blas](http://www.netlib.org/blas/) (or blas mutants, such as [openblas](http://www.openblas.net/), [atlas](http://math-atlas.sourceforge.net/), or [mkl](https://software.intel.com/en-us/intel-mkl)). For MacOS this is not necessary.
 * [Lua](https://www.lua.org/) version >= 5.2 (version 5.3.x is preferred). By default it is using mkl.
+* [Python](https://www.python.org/) (optional) version 2 and 3 are both fine.
 
 In order to have the MPI version of MESH installed, one needs to install MPI besides the above two libraries.
 
@@ -11,6 +12,7 @@ MESH can be downloaded by
 git clone git@github.com:kfrancischen/MESH.git
 cd MESH
 ```
+Below are the instructions on install the Lua version:
 
 #### Installation on Linux
 
@@ -104,3 +106,10 @@ make -f Makefile.stampede
 ```
 
 On clusters, both OpenMP version and MPI version will be generated.
+
+
+To Install Python version, please modify `gensetup.py.sh`, and then
+```bash
+make meshPy
+```
+For Python MPI support, one needs [mpi4py](http://mpi4py.readthedocs.io/en/stable/)

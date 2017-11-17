@@ -21,6 +21,9 @@ MESHmodule = Extension('MESH',
 		'$LIBFILE',
     '-lgomp'
 	],
+	include_dirs = [
+		'src/arma'
+	]
   extra_compile_args=[
     '-std=c++11', 
     '-fopenmp',
