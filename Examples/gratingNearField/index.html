@@ -323,10 +323,82 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
     
     <label class="md-nav__link" for="nav-4">
-      C++ API
+      Python API
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-4">
+        Python API
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/baseClass/" title="Base Class" class="md-nav__link">
+      Base Class
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/planar/" title="SimulationPlanar" class="md-nav__link">
+      SimulationPlanar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/grating/" title="SimulationGrating" class="md-nav__link">
+      SimulationGrating
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/pattern/" title="SimulationPattern" class="md-nav__link">
+      SimulationPattern
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      C++ API
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         C++ API
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -358,13 +430,13 @@
 
   <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
     
-    <label class="md-nav__link" for="nav-5">
+    <label class="md-nav__link" for="nav-6">
       Examples
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-5">
+      <label class="md-nav__title" for="nav-6">
         Examples
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -593,6 +665,37 @@
 
 <p>The curve produced by this code is
 <img alt="Output from MESH" src="../comparisonGrating.png" /></p>
+<p>The corresponding Python version is</p>
+<div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">MESH</span> <span class="kn">import</span> <span class="n">SimulationGrating</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">SimulationGrating</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetLattice</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Au&quot;</span><span class="p">,</span> <span class="s2">&quot;fullGold.txt&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;fullVacuum.txt&quot;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;BottomAir&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;GoldSubstrateBottom&quot;</span><span class="p">,</span> <span class="mf">0.5e-6</span><span class="p">,</span> <span class="s2">&quot;Au&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;GoldGratingBottom&quot;</span><span class="p">,</span> <span class="mf">5e-6</span><span class="p">,</span><span class="s2">&quot;Au&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetLayerPatternGrating</span><span class="p">(</span><span class="s2">&quot;GoldGratingBottom&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="mf">0.5e-6</span><span class="p">,</span> <span class="mf">0.2e-6</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;GoldGratingTop&quot;</span><span class="p">,</span> <span class="s2">&quot;GoldGratingBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;GoldSubstrateTop&quot;</span><span class="p">,</span> <span class="s2">&quot;GoldSubstrateBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;TopAir&quot;</span><span class="p">,</span> <span class="s2">&quot;BottomAir&quot;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;GoldSubstrateBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;GoldGratingBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">OutputSysInfo</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">OptPrintIntermediate</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetThread</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetNumOfG</span><span class="p">(</span><span class="mi">101</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">InitSimulation</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">IntegrateKxKy</span><span class="p">()</span>
+</pre></div>
                 
                   
                 

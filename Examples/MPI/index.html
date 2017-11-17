@@ -323,10 +323,82 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
     
     <label class="md-nav__link" for="nav-4">
-      C++ API
+      Python API
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-4">
+        Python API
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/baseClass/" title="Base Class" class="md-nav__link">
+      Base Class
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/planar/" title="SimulationPlanar" class="md-nav__link">
+      SimulationPlanar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/grating/" title="SimulationGrating" class="md-nav__link">
+      SimulationGrating
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/pattern/" title="SimulationPattern" class="md-nav__link">
+      SimulationPattern
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      C++ API
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         C++ API
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -358,13 +430,13 @@
 
   <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
     
-    <label class="md-nav__link" for="nav-5">
+    <label class="md-nav__link" for="nav-6">
       Examples
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-5">
+      <label class="md-nav__title" for="nav-6">
         Examples
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -639,6 +711,74 @@
 
 <p>The above code uses master-slave manner, where rank <script type="math/tex">0</script> is the master node that collects all the <script type="math/tex">\Phi(\omega)</script> from the other slave nodes, and then sum them together. The code can be run by:</p>
 <div class="codehilite"><pre><span></span>mpirun -np <span class="m">40</span> meshMPI main.lua
+</pre></div>
+
+
+<p>The corresponding Python MPI version is</p>
+<div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">MESH</span> <span class="kn">import</span> <span class="n">SimulationGrating</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">SimulationGrating</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetLattice</span><span class="p">(</span><span class="mf">1e-6</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Au&quot;</span><span class="p">,</span> <span class="s2">&quot;fullGold.txt&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;fullVacuum.txt&quot;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;BottomAir&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;GoldSubstrateBottom&quot;</span><span class="p">,</span> <span class="mf">0.5e-6</span><span class="p">,</span> <span class="s2">&quot;Au&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;GoldGratingBottom&quot;</span><span class="p">,</span> <span class="mf">5e-6</span><span class="p">,</span><span class="s2">&quot;Au&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetLayerPatternGrating</span><span class="p">(</span><span class="s2">&quot;GoldGratingBottom&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="mf">0.5e-6</span><span class="p">,</span> <span class="mf">0.2e-6</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;GoldGratingTop&quot;</span><span class="p">,</span> <span class="s2">&quot;GoldGratingBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;GoldSubstrateTop&quot;</span><span class="p">,</span> <span class="s2">&quot;GoldSubstrateBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;TopAir&quot;</span><span class="p">,</span> <span class="s2">&quot;BottomAir&quot;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;GoldSubstrateBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;GoldGratingBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">OptPrintIntermediate</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetNumOfG</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">InitSimulation</span><span class="p">()</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">-- this part is for MPI</span>
+<span class="sd">-- in principle there is no need to change this part for your simulation</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">mpi4py</span> <span class="kn">import</span> <span class="n">MPI</span>
+
+<span class="n">comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+<span class="n">size</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span>
+<span class="n">rank</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">Get_rank</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">OutputSysInfo</span><span class="p">()</span>
+
+<span class="n">numOfOmega</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">GetNumOfOmega</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">IntegrateKxKyMPI</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+  <span class="n">phi_master</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">GetPhi</span><span class="p">()</span>
+  <span class="n">phi</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">phi_master</span><span class="p">)</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+    <span class="n">phi_slave</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="n">source</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span> <span class="n">tag</span> <span class="o">=</span> <span class="mi">11</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numOfOmega</span><span class="p">):</span>
+      <span class="n">phi</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">phi</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">phi_slave</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+
+  <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">numOfOmega</span><span class="p">):</span>
+    <span class="k">print</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+<span class="k">else</span><span class="p">:</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">IntegrateKxKyMPI</span><span class="p">(</span><span class="n">rank</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+  <span class="n">phi_slave</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">GetPhi</span><span class="p">()</span>
+  <span class="n">comm</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">phi_slave</span><span class="p">,</span> <span class="n">dest</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tag</span> <span class="o">=</span> <span class="mi">11</span><span class="p">)</span>
+</pre></div>
+
+
+<p>The code can be run by:</p>
+<div class="codehilite"><pre><span></span>mpirun -np <span class="m">40</span> Python main.py
 </pre></div>
                 
                   

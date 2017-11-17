@@ -392,10 +392,82 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
     
     <label class="md-nav__link" for="nav-4">
-      C++ API
+      Python API
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-4">
+        Python API
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../PythonAPI/baseClass/" title="Base Class" class="md-nav__link">
+      Base Class
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../PythonAPI/planar/" title="SimulationPlanar" class="md-nav__link">
+      SimulationPlanar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../PythonAPI/grating/" title="SimulationGrating" class="md-nav__link">
+      SimulationGrating
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../PythonAPI/pattern/" title="SimulationPattern" class="md-nav__link">
+      SimulationPattern
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      C++ API
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         C++ API
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -425,13 +497,13 @@
 
   <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
     
-    <label class="md-nav__link" for="nav-5">
+    <label class="md-nav__link" for="nav-6">
       Examples
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-5">
+      <label class="md-nav__title" for="nav-6">
         Examples
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -668,6 +740,7 @@
 <ul>
 <li><a href="http://www.netlib.org/lapack/">Lapack</a> and <a href="http://www.netlib.org/blas/">blas</a> (or blas mutants, such as <a href="http://www.openblas.net/">openblas</a>, <a href="http://math-atlas.sourceforge.net/">atlas</a>, or <a href="https://software.intel.com/en-us/intel-mkl">mkl</a>). For MacOS this is not necessary.</li>
 <li><a href="https://www.lua.org/">Lua</a> version &gt;= 5.2 (version 5.3.x is preferred). By default it is using mkl.</li>
+<li><a href="https://www.python.org/">Python</a> (optional) version 2 and 3 are both fine.</li>
 </ul>
 <p>In order to have the MPI version of MESH installed, one needs to install MPI besides the above two libraries.</p>
 <p>MESH can be downloaded by</p>
@@ -676,6 +749,7 @@
 </pre></div>
 
 
+<p>Below are the instructions on install the Lua version:</p>
 <h4 id="installation-on-linux">Installation on Linux<a class="headerlink" href="#installation-on-linux" title="Permanent link">&para;</a></h4>
 <p>If the above libraries are installed on the system default directory, The vanilla version of MESH can be simply installed by</p>
 <div class="codehilite"><pre><span></span>make
@@ -766,6 +840,12 @@ make -f Makefile.stampede
 
 
 <p>On clusters, both OpenMP version and MPI version will be generated.</p>
+<p>To Install Python version, please modify <code>gensetup.py.sh</code>, and then</p>
+<div class="codehilite"><pre><span></span>make meshPy
+</pre></div>
+
+
+<p>For Python MPI support, one needs <a href="http://mpi4py.readthedocs.io/en/stable/">mpi4py</a></p>
                 
                   
                 

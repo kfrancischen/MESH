@@ -323,10 +323,82 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
     
     <label class="md-nav__link" for="nav-4">
-      C++ API
+      Python API
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-4">
+        Python API
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/baseClass/" title="Base Class" class="md-nav__link">
+      Base Class
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/planar/" title="SimulationPlanar" class="md-nav__link">
+      SimulationPlanar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/grating/" title="SimulationGrating" class="md-nav__link">
+      SimulationGrating
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/pattern/" title="SimulationPattern" class="md-nav__link">
+      SimulationPattern
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      C++ API
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         C++ API
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -358,13 +430,13 @@
 
   <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
     
-    <label class="md-nav__link" for="nav-5">
+    <label class="md-nav__link" for="nav-6">
       Examples
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-5">
+      <label class="md-nav__title" for="nav-6">
         Examples
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -576,6 +648,32 @@
 <span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span><span class="n">s</span><span class="p">:</span><span class="n">GetNumOfOmega</span><span class="p">(),</span> <span class="mi">1</span> <span class="kr">do</span>
   <span class="nb">print</span><span class="p">(</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">..</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="o">..</span><span class="nb">string.format</span><span class="p">(</span><span class="s2">&quot;%e&quot;</span><span class="p">,</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
 <span class="kr">end</span>
+</pre></div>
+
+
+<p>The Python version of this example is</p>
+<div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">MESH</span> <span class="kn">import</span> <span class="n">SimulationPlanar</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPlanar</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="n">material_name</span> <span class="o">=</span> <span class="s1">&#39;GaAs&#39;</span><span class="p">,</span> <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;GaAs.txt&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="n">material_name</span> <span class="o">=</span> <span class="s1">&#39;Vacuum&#39;</span><span class="p">,</span> <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;Vacuum.txt&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="n">material_name</span> <span class="o">=</span> <span class="s1">&#39;PEC&#39;</span><span class="p">,</span> <span class="n">file_name</span> <span class="o">=</span> <span class="s1">&#39;PEC.txt&#39;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="n">layer_name</span> <span class="o">=</span> <span class="s1">&#39;PECLayer&#39;</span><span class="p">,</span> <span class="n">thickness</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">material_name</span> <span class="o">=</span> <span class="s1">&#39;PEC&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="n">layer_name</span> <span class="o">=</span> <span class="s1">&#39;GaAsLayer&#39;</span><span class="p">,</span> <span class="n">thickness</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">material_name</span> <span class="o">=</span> <span class="s1">&#39;GaAs&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="n">layer_name</span> <span class="o">=</span> <span class="s1">&#39;VacuumLayer&#39;</span><span class="p">,</span> <span class="n">thickness</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">material_name</span> <span class="o">=</span> <span class="s1">&#39;Vacuum&#39;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="n">layer_name</span> <span class="o">=</span> <span class="s1">&#39;GaAsLayer&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="n">layer_name</span> <span class="o">=</span> <span class="s1">&#39;VacuumLayer&#39;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">OptUseQuadgk</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">InitSimulation</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetKParallelIntegral</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">s</span><span class="o">.</span><span class="n">IntegrateKParallel</span><span class="p">()</span>
+<span class="n">phi</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">GetPhi</span><span class="p">()</span>
+<span class="n">omega</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">GetOmega</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">GetNumOfOmega</span><span class="p">()):</span>
+  <span class="k">print</span> <span class="n">omega</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">phi</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 </pre></div>
                 
                   

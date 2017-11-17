@@ -323,10 +323,82 @@
       <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
     
     <label class="md-nav__link" for="nav-4">
-      C++ API
+      Python API
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
       <label class="md-nav__title" for="nav-4">
+        Python API
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/baseClass/" title="Base Class" class="md-nav__link">
+      Base Class
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/planar/" title="SimulationPlanar" class="md-nav__link">
+      SimulationPlanar
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/grating/" title="SimulationGrating" class="md-nav__link">
+      SimulationGrating
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../PythonAPI/pattern/" title="SimulationPattern" class="md-nav__link">
+      SimulationPattern
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      C++ API
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
         C++ API
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -358,13 +430,13 @@
 
   <li class="md-nav__item md-nav__item--active md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
     
-    <label class="md-nav__link" for="nav-5">
+    <label class="md-nav__link" for="nav-6">
       Examples
     </label>
     <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-5">
+      <label class="md-nav__title" for="nav-6">
         Examples
       </label>
       <ul class="md-nav__list" data-md-scrollfix>
@@ -595,6 +667,39 @@
 
 <p>The results is shown below
 <img alt="2DHTC" src="../arxiv.png" /></p>
+<p>The Python version of this example is</p>
+<div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">MESH</span> <span class="kn">import</span> <span class="n">SimulationPattern</span><span class="p">,</span> <span class="n">Constants</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="n">consts</span> <span class="o">=</span> <span class="n">Constants</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">thetaDerivative</span><span class="p">(</span><span class="n">omega</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+  <span class="n">theta</span> <span class="o">=</span> <span class="n">consts</span><span class="p">[</span><span class="s1">&#39;h_bar&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span> <span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">consts</span><span class="p">[</span><span class="s1">&#39;h_bar&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span> <span class="n">consts</span><span class="p">[</span><span class="s1">&#39;k_B&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">T</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">theta</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">consts</span><span class="p">[</span><span class="s1">&#39;h_bar&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">/</span><span class="n">consts</span><span class="p">[</span><span class="s1">&#39;k_B&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">T</span><span class="p">)</span> <span class="o">/</span> <span class="n">consts</span><span class="p">[</span><span class="s1">&#39;k_B&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">T</span> <span class="o">**</span> <span class="mi">2</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="mf">0.98</span>
+<span class="n">width</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">f</span> <span class="o">*</span> <span class="mf">50e-9</span> <span class="o">*</span> <span class="mf">50e-9</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SimulationPattern</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetLattice</span><span class="p">(</span><span class="mf">50e-9</span><span class="p">,</span> <span class="mf">50e-9</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetNumOfG</span><span class="p">(</span><span class="mi">440</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Si&quot;</span><span class="p">,</span> <span class="s2">&quot;Si.txt&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddMaterial</span><span class="p">(</span><span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum.txt&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Si&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetLayerPatternRectangle</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mf">25e-9</span><span class="p">,</span> <span class="mf">25e-9</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">width</span><span class="p">))</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">,</span> <span class="mf">20e-9</span><span class="p">,</span> <span class="s2">&quot;Vacuum&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">AddLayerCopy</span><span class="p">(</span><span class="s2">&quot;SiTop&quot;</span><span class="p">,</span> <span class="s2">&quot;SiBottom&quot;</span><span class="p">)</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">SetSourceLayer</span><span class="p">(</span><span class="s2">&quot;SiBottom&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetProbeLayer</span><span class="p">(</span><span class="s2">&quot;VacGap&quot;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">OutputSysInfo</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">OptPrintIntermediate</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetKxIntegralSym</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">SetKyIntegralSym</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">InitSimulation</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">IntegrateKxKy</span><span class="p">()</span>
+</pre></div>
                 
                   
                 
