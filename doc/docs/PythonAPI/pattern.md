@@ -11,6 +11,23 @@ All of the function provided in [base class](baseClass.md) can be used.
     The following functions are added and specific to `SimulationPattern` object.
 
 ```python
+SetNumOfG(nG)
+```
+* Arguments:
+    1. nG: [int], the number of total Fourier components in both directions. Note this nG might not be the true nG used in the simulation.
+
+* Output: None
+
+
+```python
+GetNumOfG()
+```
+* Arguments: None
+
+* Output: number of G. If function `InitSimulation` has been called, then this function returns the true nG used in the simulation, otherwise return the user input nG.
+
+
+```python
 SetLattice(xLen, yLen, angle)
 ```
 * Arguments:
