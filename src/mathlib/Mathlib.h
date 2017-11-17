@@ -20,7 +20,7 @@
 #define MATHLIB_H
 
 
-#include "mathlib/gauss_legendre.h"
-#include "mathlib/bessel_functions.h"
-#include "mathlib/geometry_functions.h"
+#include "gauss_legendre.h"
+#include "bessel_functions.h"
+#include "geometry_functions.h"
 #endif

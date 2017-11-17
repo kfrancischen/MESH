@@ -8,7 +8,7 @@
 #   SHLIB_EXT (so, dll)
 #   SHLIB_FLAGS
 
-CPPFLAGS += -Isrc/
+CPPFLAGS += -Isrc/ -Isrc/utility -Isrc/mathlib
 ARMAFLAG = -Isrc/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG
 
 #### Compilation targets
@@ -61,6 +61,14 @@ $(OBJDIR)/MESH_o/main_lua_mpi.o: src/main_lua.cpp objdir
 	$(MPICXX) -c -DHAVE_MPI $(CXXFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
 $(OBJDIR)/meshMPI: $(OBJDIR)/MESH_o/main_lua_mpi.o $(OBJDIR)/MESH_o/lua_mpi.o $(OBJDIR)/MESH_o/buffer_mpi.o  $(OBJDIR)/$(MESH_LIBNAME)
 	$(MPICXX) $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ -L$(OBJDIR) -lmesh $(LA_LIBS) $(LUA_LIB)
+
+### Build Python frontend
+meshPy: objdir $(OBJDIR)/$(MESH_LIBNAME)
+	echo "$(LIBS)" > $(OBJDIR)/tmp.txt
+	sh gensetup.py.sh $(OBJDIR) $(OBJDIR)/$(MESH_LIBNAME)
+	CC=$(CXX) python setup.py build
+	sudo CC=$(CXX) python setup.py install
+
 
 clean:
 	rm -rf $(OBJDIR)

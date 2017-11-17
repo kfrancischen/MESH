@@ -36,3 +36,6 @@ main
 # output files
 *.txt
 site/
+
+setup.py
+TODO

@@ -19,3 +19,9 @@ s:SetThread(4);
 s:OptUseQuadgk();
 s:InitSimulation();
 s:IntegrateKParallel();
+
+phi = s:GetPhi()
+omega = s:GetOmega()
+for i = 1, s:GetNumOfOmega() do
+  print(string.format("%e", omega[i]).."\t"..string.format("%e", phi[i]));
+end

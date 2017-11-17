@@ -86,12 +86,12 @@
 using std::string;
 namespace UTILITY {
 
-#   include "utility/Ptr.h"
-#   include "utility/PtrInterface.h"
-#   include "utility/NamedInterface.h"
-#   include "utility/Exception.h"
-#   include "utility/StringUtil.h"
-#   include "utility/Sort.h"
+#   include "Ptr.h"
+#   include "PtrInterface.h"
+#   include "NamedInterface.h"
+#   include "Exception.h"
+#   include "StringUtil.h"
+#   include "Sort.h"
 }
 
 #endif /* FWK_FWK_H */
