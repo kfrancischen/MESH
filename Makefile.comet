@@ -23,7 +23,7 @@ MPICXX = mpicxx
 
 
 
-CPPFLAGS += -Isrc/
+CPPFLAGS += -Isrc/ -Isrc/utility -Isrc/mathlib
 ARMAFLAG = -Isrc/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG
 
 #### Compilation targets

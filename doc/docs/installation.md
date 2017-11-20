@@ -112,4 +112,4 @@ To Install Python version, please modify `gensetup.py.sh`, and then
 ```bash
 make meshPy
 ```
-For Python MPI support, one needs [mpi4py](http://mpi4py.readthedocs.io/en/stable/)
+Currently the Python version hasn't been tested on `comet` and `stampede`. For Python MPI support, one needs [mpi4py](http://mpi4py.readthedocs.io/en/stable/)
