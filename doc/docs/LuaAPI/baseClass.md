@@ -315,11 +315,8 @@ OptPrintIntermediate()
 
 * Output: None
 
-* Note: this function prints intermediate $\Phi(\omega, k_x, k_y)$ when function `IntegrateKxKy()` or `IntegrateKxKyMPI(rank, size)` is called. The output format is
+* Note: this function prints intermediate $\Phi(\omega, k_x, k_y)$ to file when function `IntegrateKxKy()` or `IntegrateKxKyMPI(rank, size)` is called. The output format is
 a list of "$\omega$  $k_x$ $k_y$ $\Phi(\omega, k_x, k_y)$", where $k_x$ and $k_y$ are values normalized to $\omega/c$.
-
-!!! warning
-    In MPI this function is not guaranteed to be atomic, meaning the printed output might be messed because each process is writing its own value to the screen. However for OpenMP, there is no such problem.
 
 ```lua
 OptSetLatticeTruncation(truncation)

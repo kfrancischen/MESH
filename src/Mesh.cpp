@@ -1309,7 +1309,7 @@ namespace MESH{
   // start: the starting index
   // end: the end index
   /*==============================================*/
-  void Simulation::integrateKxKyInternal(const int start, const int end, const bool parallel){
+  void Simulation::integrateKxKyInternal(const int start, const int end, const bool parallel, const int rank){
 
     double* scalex = new double[numOfOmega_];
     double* scaley = new double[numOfOmega_];
@@ -1355,6 +1355,16 @@ namespace MESH{
         kxList[i] = new double[numOfKy_];
         kyList[i] = new double[numOfKy_];
       }
+      std::vector< std::unique_ptr<std::ofstream> > outfiles;
+      if(options_.PrintIntermediate){
+        for (int i = 0; i < numOfThread_; i++){
+          std::ostringstream fileName;
+          fileName << "omega_kx_ky_phi_thread_" << i << ".txt";
+          std::unique_ptr<std::ofstream> file( new std::ofstream(fileName.str()) );
+          outfiles.push_back(std::move(file));
+        }
+      }
+
       for(int omegaIdx = 0; omegaIdx < numOfOmega_; omegaIdx++){
         if(curOmegaIndex_ != omegaIdx){
           curOmegaIndex_ = omegaIdx;
@@ -1381,7 +1391,13 @@ namespace MESH{
           if(options_.PrintIntermediate){
             std::stringstream msg;
             msg << omegaList_[omegaIdx] << "\t" << kxList[kxIdx][kyIdx] << "\t" << kyList[kxIdx][kyIdx] << "\t" << resultArray[omegaIdx * numOfKx_ * numOfKy_ + i] << std::endl;
-            std::cout << msg.str();
+            // std::cout << msg.str();
+            int thread_num = 0;
+            #if defined(_OPENMP)
+              thread_num = omp_get_thread_num();
+            #endif
+            (outfiles[thread_num])->write(msg.str().c_str(), sizeof(char) * msg.str().size());
+            (outfiles[thread_num])->flush();
           }
         }
       }
@@ -1393,30 +1409,47 @@ namespace MESH{
       kxList = nullptr;
       delete[] kyList;
       kyList = nullptr;
+
+      if(options_.PrintIntermediate){
+        for(int i = 0; i < numOfThread_; i++){
+          (outfiles[i])->close();
+        }
+      }
     }
     // this part is for the MPI version of mesh
     else{
+      std::ofstream outfile;
+      if(options_.PrintIntermediate){
+        std::ostringstream fileName;
+        fileName << "omega_kx_ky_phi_rank_" << rank << ".txt";
+        outfile.open(fileName.str());
+      }
       for(int i = start; i < end; i++){
-          int omegaIdx = i / (numOfKx_ * numOfKy_);
-          if(curOmegaIndex_ != omegaIdx){
-            curOmegaIndex_ = omegaIdx;
-            this->buildRCWAMatrices();
-          }
-          int residue = i % (numOfKx_ * numOfKy_);
-          int kxIdx = residue / numOfKy_;
-          int kyIdx = residue % numOfKy_;
+        int omegaIdx = i / (numOfKx_ * numOfKy_);
+        if(curOmegaIndex_ != omegaIdx){
+          curOmegaIndex_ = omegaIdx;
+          this->buildRCWAMatrices();
+        }
+        int residue = i % (numOfKx_ * numOfKy_);
+        int kxIdx = residue / numOfKy_;
+        int kyIdx = residue % numOfKy_;
 
-          double kx = kxStart_ + dkx * kxIdx;
-          double ky = kyStart_ + dky * kyIdx;
+        double kx = kxStart_ + dkx * kxIdx;
+        double ky = kyStart_ + dky * kyIdx;
 
-          ky = (ky - kx * sin((reciprocalLattice_.angle - 90) * datum::pi/180)) / scaley[omegaIdx];
-          kx = (kx * cos((reciprocalLattice_.angle - 90) * datum::pi/180)) / scalex[omegaIdx];
-          resultArray[i] = this->getPhiAtKxKy(omegaIdx, kx, ky);
-          if(options_.PrintIntermediate){
-            std::stringstream msg;
-            msg << omegaList_[omegaIdx] << "\t" << kx << "\t" << ky << "\t" << resultArray[i] << std::endl;
-            std::cout << msg.str();
-          }
+        ky = (ky - kx * sin((reciprocalLattice_.angle - 90) * datum::pi/180)) / scaley[omegaIdx];
+        kx = (kx * cos((reciprocalLattice_.angle - 90) * datum::pi/180)) / scalex[omegaIdx];
+        resultArray[i] = this->getPhiAtKxKy(omegaIdx, kx, ky);
+        if(options_.PrintIntermediate){
+          std::stringstream msg;
+          msg << omegaList_[omegaIdx] << "\t" << kx << "\t" << ky << "\t" << resultArray[i] << std::endl;
+          //std::cout << msg.str();
+          outfile << msg.str();
+          outfile.flush();
+        }
+      }
+      if(options_.PrintIntermediate){
+        outfile.close();
       }
     }
 
@@ -1457,7 +1490,7 @@ namespace MESH{
       end = start + chunksize + 1;
     }
     if(end > totalNum) end = totalNum;
-    this->integrateKxKyInternal(start, end, false);
+    this->integrateKxKyInternal(start, end, false, rank);
 
   }
   /*==============================================*/

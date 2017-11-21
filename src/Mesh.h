@@ -30,6 +30,7 @@
 #include "Gsel.h"
 #include <fstream>
 #include <cmath>
+#include <memory>
 #if defined(_OPENMP)
   #include <omp.h>
 #endif
@@ -151,7 +152,7 @@ public:
 
   ~Simulation();
 protected:
-  void integrateKxKyInternal(const int start, const int end, const bool parallel);
+  void integrateKxKyInternal(const int start, const int end, const bool parallel, const int rank = 0);
   Simulation();
   Simulation(const Simulation&) = delete;
 
