@@ -1134,17 +1134,13 @@ For tensor dielectric, the format is a list of   <br />
 <p>Output: None</p>
 </li>
 <li>
-<p>Note: this function prints intermediate <script type="math/tex">\Phi(\omega, k_x, k_y)</script> when function <code>IntegrateKxKy()</code> or <code>IntegrateKxKyMPI(rank, size)</code> is called. The output format is
+<p>Note: this function prints intermediate <script type="math/tex">\Phi(\omega, k_x, k_y)</script> to file when function <code>IntegrateKxKy()</code> or <code>IntegrateKxKyMPI(rank, size)</code> is called. The output format is
 a list of "<script type="math/tex">\omega</script>
 <script type="math/tex">k_x</script>
 <script type="math/tex">k_y</script>
 <script type="math/tex">\Phi(\omega, k_x, k_y)</script>", where <script type="math/tex">k_x</script> and <script type="math/tex">k_y</script> are values normalized to <script type="math/tex">\omega/c</script>.</p>
 </li>
 </ul>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>In MPI this function is not guaranteed to be atomic, meaning the printed output might be messed because each process is writing its own value to the screen. However for OpenMP, there is no such problem.</p>
-</div>
 <div class="codehilite"><pre><span></span><span class="n">OptSetLatticeTruncation</span><span class="p">(</span><span class="n">truncation</span><span class="p">)</span>
 </pre></div>
 
