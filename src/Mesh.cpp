@@ -1397,7 +1397,7 @@ namespace MESH{
               thread_num = omp_get_thread_num();
             #endif
             (outfiles[thread_num])->write(msg.str().c_str(), sizeof(char) * msg.str().size());
-            (outfiles[thread_num])->flush();
+            //(outfiles[thread_num])->flush();
           }
         }
       }
@@ -1445,7 +1445,7 @@ namespace MESH{
           msg << omegaList_[omegaIdx] << "\t" << kx << "\t" << ky << "\t" << resultArray[i] << std::endl;
           //std::cout << msg.str();
           outfile << msg.str();
-          outfile.flush();
+          //outfile.flush();
         }
       }
       if(options_.PrintIntermediate){
