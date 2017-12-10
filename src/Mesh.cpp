@@ -1215,8 +1215,9 @@ namespace MESH{
   /*==============================================*/
   // function print intermediate results
   /*==============================================*/
-  void Simulation::optPrintIntermediate(){
+  void Simulation::optPrintIntermediate(const std::string& output_flag){
     options_.PrintIntermediate = true;
+    options_.output_flag = output_flag;
   }
   /*==============================================*/
   // function sets that only TE mode is computed
@@ -1440,7 +1441,12 @@ namespace MESH{
       if(options_.PrintIntermediate){
         for (int i = 0; i < numOfThread_; i++){
           std::ostringstream fileName;
-          fileName << "omega_kx_ky_phi_thread_" << i << ".txt";
+          if(options_.output_flag == ""){
+            fileName << "omega_kx_ky_phi_thread_" << i << ".txt";
+          }
+          else{
+            fileName << "omega_kx_ky_phi_thread_" << options_.output_flag << "_" << i << ".txt";
+          }
           std::unique_ptr<std::ofstream> file( new std::ofstream(fileName.str()) );
           outfiles.push_back(std::move(file));
         }
@@ -1502,7 +1508,12 @@ namespace MESH{
       std::ofstream outfile;
       if(options_.PrintIntermediate){
         std::ostringstream fileName;
-        fileName << "omega_kx_ky_phi_rank_" << rank << ".txt";
+        if(options_.output_flag == ""){
+          fileName << "omega_kx_ky_phi_rank_" << rank << ".txt";
+        }
+        else{
+          fileName << "omega_kx_ky_phi_rank_" << options_.output_flag << "_" << rank << ".txt";
+        }
         outfile.open(fileName.str());
       }
       for(int i = start; i < end; i++){

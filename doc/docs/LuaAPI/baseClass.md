@@ -321,9 +321,10 @@ OptOnlyComputeTM()
 
 
 ```lua
-OptPrintIntermediate()
+OptPrintIntermediate(output_flag)
 ```
-* Arguments: None
+* Arguments: 
+    1. output_flag [string, optional], the output file suffix.
 
 * Output: None
 

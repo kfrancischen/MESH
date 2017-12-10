@@ -120,8 +120,12 @@ class glue_join_cols;
 class glue_join_rows;
 class glue_atan2;
 class glue_hypot;
+class glue_max;
+class glue_min;
 class glue_polyfit;
 class glue_polyval;
+class glue_intersect;
+class glue_affmul;
 
 class glue_rel_lt;
 class glue_rel_gt;
@@ -223,6 +227,51 @@ class spglue_minus2;
 class spglue_times;
 class spglue_times2;
 
+struct state_type
+  {
+  #if   defined(_OPENMP)
+                int  state;
+  #elif defined(ARMA_USE_CXX11)
+    std::atomic<int> state;
+  #else
+                int  state;
+  #endif
+  
+  // openmp: "omp atomic" does an implicit flush on the affected variable
+  // C++11:  std::atomic<>::load() and std::atomic<>::store() use std::memory_order_seq_cst by default, which has an implied fence
+  
+  arma_inline
+  operator int () const
+    {
+    int out;
+    
+    #if   defined(_OPENMP)
+      #pragma omp atomic read
+      out = state;
+    #elif defined(ARMA_USE_CXX11)
+      out = state.load();
+    #else
+      out = state;
+    #endif
+    
+    return out;
+    }
+  
+  arma_inline
+  void
+  operator= (const int in_state)
+    {
+    #if   defined(_OPENMP)
+      #pragma omp atomic write
+      state = in_state;
+    #elif defined(ARMA_USE_CXX11)
+      state.store(in_state);
+    #else
+      state = in_state;
+    #endif
+    }
+  };
+
 
 template<                 typename T1, typename spop_type> class   SpOp;
 template<typename out_eT, typename T1, typename spop_type> class mtSpOp;
@@ -272,20 +321,71 @@ enum file_type
   };
 
 
-struct hdf5_name
+namespace hdf5_opts
   {
-  const std::string filename;
-  const std::string dsname;
+  typedef unsigned int flag_type;
+  
+  struct opts
+    {
+    const flag_type flags;
+    
+    inline explicit opts(const flag_type in_flags);
+    
+    inline const opts operator+(const opts& rhs) const;
+    };
   
   inline
-  hdf5_name(const std::string& in_filename)
-    : filename(in_filename)
+  opts::opts(const flag_type in_flags)
+    : flags(in_flags)
     {}
   
   inline
-  hdf5_name(const std::string& in_filename, const std::string& in_dsname)
+  const opts
+  opts::operator+(const opts& rhs) const
+    {
+    const opts result( flags | rhs.flags );
+    
+    return result;
+    }
+  
+  // The values below (eg. 1u << 0) are for internal Armadillo use only.
+  // The values can change without notice.
+  
+  static const flag_type flag_none    = flag_type(0      );
+  static const flag_type flag_trans   = flag_type(1u << 0);
+  static const flag_type flag_append  = flag_type(1u << 1);
+  static const flag_type flag_replace = flag_type(1u << 2);
+  
+  struct opts_none    : public opts { inline opts_none()    : opts(flag_none   ) {} };
+  struct opts_trans   : public opts { inline opts_trans()   : opts(flag_trans  ) {} };
+  struct opts_append  : public opts { inline opts_append()  : opts(flag_append ) {} };
+  struct opts_replace : public opts { inline opts_replace() : opts(flag_replace) {} };
+  
+  static const opts_none    none;
+  static const opts_trans   trans;
+  static const opts_append  append;
+  static const opts_replace replace;
+  }
+
+
+struct hdf5_name
+  {
+  const std::string     filename;
+  const std::string     dsname;
+  const hdf5_opts::opts opts;
+  
+  inline
+  hdf5_name(const std::string& in_filename)
+    : filename(in_filename    )
+    , dsname  (std::string()  )
+    , opts    (hdf5_opts::none)
+    {}
+  
+  inline
+  hdf5_name(const std::string& in_filename, const std::string& in_dsname, const hdf5_opts::opts& in_opts = hdf5_opts::none)
     : filename(in_filename)
     , dsname  (in_dsname  )
+    , opts    (in_opts    )
     {}
   };
 

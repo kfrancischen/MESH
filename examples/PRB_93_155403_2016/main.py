@@ -20,7 +20,7 @@ s.SetSourceLayer("GoldGratingBottom")
 s.SetProbeLayer("VacGap")
 s.OutputSysInfo()
 
-s.OptPrintIntermediate()
+s.OptPrintIntermediate("test")
 s.SetThread(4)
 s.SetNumOfG(101)
 s.SetKxIntegralSym(500)

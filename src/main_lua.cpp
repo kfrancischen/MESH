@@ -449,8 +449,15 @@ int MESH_OutputSysInfo(lua_State *L){
 // @how to use
 // OptPrintIntermediate()
 int MESH_OptPrintIntermediate(lua_State *L){
+  int n = lua_gettop(L);
   Simulation* s = luaW_check<Simulation>(L, 1);
-  s->optPrintIntermediate();
+  if(n == 1){
+    s->optPrintIntermediate();
+  }
+  else{
+    std::string output_flag = luaU_check<std::string>(L, 2);
+    s->optPrintIntermediate(output_flag);
+  }
   return 1;
 }
 

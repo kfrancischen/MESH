@@ -589,8 +589,19 @@ static PyObject* MESH_SimulationPlanar_OutputSysInfo(MESH_SimulationPlanar *self
   Py_RETURN_NONE;
 }
 
-static PyObject* MESH_SimulationPlanar_OptPrintIntermediate(MESH_SimulationPlanar *self, PyObject *args){
-  self->s->optPrintIntermediate();
+static PyObject* MESH_SimulationPlanar_OptPrintIntermediate(MESH_SimulationPlanar *self, PyObject *args, PyObject *kwds){
+  static char* kwlist[] = {(char*)"output_flag", NULL };
+  char* outputFlag = (char*)"";
+  if(!PyArg_ParseTupleAndKeywords(args, kwds, "|s:OptPrintIntermediate", kwlist, &outputFlag)){ 
+    return NULL; 
+  }
+  std::string output_flag(outputFlag);
+  if(output_flag == ""){
+    self->s->optPrintIntermediate();
+  }
+  else{
+    self->s->optPrintIntermediate(output_flag);
+  }
   Py_RETURN_NONE;
 }
 
@@ -1080,8 +1091,19 @@ static PyObject* MESH_SimulationGrating_OutputSysInfo(MESH_SimulationGrating *se
   Py_RETURN_NONE;
 }
 
-static PyObject* MESH_SimulationGrating_OptPrintIntermediate(MESH_SimulationGrating *self, PyObject *args){
-  self->s->optPrintIntermediate();
+static PyObject* MESH_SimulationGrating_OptPrintIntermediate(MESH_SimulationGrating *self, PyObject *args, PyObject *kwds){
+  static char* kwlist[] = {(char*)"output_flag", NULL };
+  char* outputFlag = (char*)"";
+  if(!PyArg_ParseTupleAndKeywords(args, kwds, "|s:OptPrintIntermediate", kwlist, &outputFlag)){ 
+    return NULL; 
+  }
+  std::string output_flag(outputFlag);
+  if(output_flag == ""){
+    self->s->optPrintIntermediate();
+  }
+  else{
+    self->s->optPrintIntermediate(output_flag);
+  }
   Py_RETURN_NONE;
 }
 
@@ -1574,8 +1596,19 @@ static PyObject* MESH_SimulationPattern_OutputSysInfo(MESH_SimulationPattern *se
   Py_RETURN_NONE;
 }
 
-static PyObject* MESH_SimulationPattern_OptPrintIntermediate(MESH_SimulationPattern *self, PyObject *args){
-  self->s->optPrintIntermediate();
+static PyObject* MESH_SimulationPattern_OptPrintIntermediate(MESH_SimulationPattern *self, PyObject *args, PyObject *kwds){
+  static char* kwlist[] = {(char*)"output_flag", NULL };
+  char* outputFlag = (char*)"";
+  if(!PyArg_ParseTupleAndKeywords(args, kwds, "|s:OptPrintIntermediate", kwlist, &outputFlag)){ 
+    return NULL; 
+  }
+  std::string output_flag(outputFlag);
+  if(output_flag == ""){
+    self->s->optPrintIntermediate();
+  }
+  else{
+    self->s->optPrintIntermediate(output_flag);
+  }
   Py_RETURN_NONE;
 }
 
@@ -1880,10 +1913,32 @@ static PyObject* MESH_Constants(PyObject *self, PyObject *args){
   }
   return consts;
 }
+/*======================================================*/
+// information about the package
+/*=======================================================*/
+static PyObject* MESH_Usage(PyObject *self, PyObject *args){
+  std::string output;
+  output += "========================================================\n";
+  output += "Please refer to https://kfrancischen.github.io/MESH/\n";
+  output += "========================================================\n";
+  return PyString_FromString(output.c_str());
+}
+static PyObject* MESH_Version(PyObject *self, PyObject *args){
+  std::string output;
+  output += "========================================================\n";
+  output += "Copyright (C) 2016-2018, and GNU GPL'd, by Kaifeng Chen.\n";
+	output += "Multilayer Electromagnetic Solver for Heat transfer (MESH)\n";
+	output += "Version: " + string(PACKAGE_VERSION);
+  output += "\nEmail: " + string(PACKAGE_BUGREPORT);
+  output += "\n========================================================\n";
+  return PyString_FromString(output.c_str());
+}
 
 /* MODULE codie function table */
 static PyMethodDef MESH_module_methods[] = {
-  {"Constants", MESH_Constants, METH_VARARGS | METH_KEYWORDS,"Physical Constants"},
+  {"Constants", MESH_Constants, METH_VARARGS | METH_KEYWORDS,"Physical Constants" },
+  {"Usage"    , MESH_Usage    , METH_VARARGS | METH_KEYWORDS,"Instructions"       },
+  {"Version"  , MESH_Version  , METH_VARARGS | METH_KEYWORDS,"Version information"},
   {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

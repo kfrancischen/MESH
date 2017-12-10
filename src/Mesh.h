@@ -49,6 +49,7 @@ typedef struct OPTIONS{
   int IntegralMethod = GAUSSKRONROD_;
   POLARIZATION polarization = BOTH_;
   bool PrintIntermediate = false;
+  std::string output_flag = "";
   bool IntegrateKParallel = true;
   bool kxIntegralPreset = false;
   bool kyIntegralPreset = false;
@@ -137,7 +138,7 @@ public:
 
   void outputSysInfo();
 
-  void optPrintIntermediate();
+  void optPrintIntermediate(const std::string& output_flag = "");
   void optOnlyComputeTE();
   void optOnlyComputeTM();
   void optSetLatticeTruncation(const std::string& truncation);

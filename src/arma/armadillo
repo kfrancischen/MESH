@@ -59,6 +59,8 @@
   #include <random>
   #include <functional>
   #include <chrono>
+  #include <mutex>
+  #include <atomic>
 #endif
 
 
@@ -293,6 +295,7 @@ namespace arma
   #include "armadillo_bits/glue_hypot_bones.hpp"
   #include "armadillo_bits/glue_polyfit_bones.hpp"
   #include "armadillo_bits/glue_polyval_bones.hpp"
+  #include "armadillo_bits/glue_intersect_bones.hpp"
   #include "armadillo_bits/glue_affmul_bones.hpp"
   
   #include "armadillo_bits/gmm_misc_bones.hpp"
@@ -521,6 +524,8 @@ namespace arma
   #include "armadillo_bits/fn_range.hpp"
   #include "armadillo_bits/fn_polyfit.hpp"
   #include "armadillo_bits/fn_polyval.hpp"
+  #include "armadillo_bits/fn_intersect.hpp"
+  #include "armadillo_bits/fn_normpdf.hpp"
   
   #include "armadillo_bits/fn_speye.hpp"
   #include "armadillo_bits/fn_spones.hpp"
@@ -536,6 +541,7 @@ namespace arma
   
   #include "armadillo_bits/hdf5_misc.hpp"
   #include "armadillo_bits/fft_engine.hpp"
+  #include "armadillo_bits/band_helper.hpp"
   
   //
   // classes implementing various forms of dense matrix multiplication
@@ -671,6 +677,7 @@ namespace arma
   #include "armadillo_bits/glue_hypot_meat.hpp"
   #include "armadillo_bits/glue_polyfit_meat.hpp"
   #include "armadillo_bits/glue_polyval_meat.hpp"
+  #include "armadillo_bits/glue_intersect_meat.hpp"
   #include "armadillo_bits/glue_affmul_meat.hpp"
   
   #include "armadillo_bits/gmm_misc_meat.hpp"
