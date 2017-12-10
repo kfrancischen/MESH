@@ -409,6 +409,87 @@ namespace MESH{
   }
 
   /*==============================================*/
+  // This function adds material to the system
+  // @args:
+  // name: the name of the material
+  // omega:  the omega values
+  // epsilon: the epsilon values of the material
+  /*==============================================*/
+  void Simulation::addMaterial(const std::string name, const std::vector<double>& omega, const std::vector< std::vector<double> >& epsilon){
+    if(materialInstanceMap_.find(name) != materialInstanceMap_.cend()){
+      std::cerr << name + ": Material already exist!" << std::endl;
+      throw UTILITY::NameInUseException(name + ": Material already exist!");
+      return;
+    }
+
+    int numOfOmega = omega.size();
+    EPSILON epsilonList;
+    epsilonList.epsilonVals = new EpsilonVal[numOfOmega];
+    switch(epsilon[0].size()){
+      case 2:{
+        epsilonList.type_ = SCALAR_;
+        for(int i = 0; i < numOfOmega; i++){
+          epsilonList.epsilonVals[i].scalar[0] = epsilon[i][0];
+          epsilonList.epsilonVals[i].scalar[1] = -epsilon[i][1];
+        }
+        break;
+      }
+      case 6:{
+        epsilonList.type_ = DIAGONAL_;
+        for(int i = 0; i < numOfOmega; i++){
+          epsilonList.epsilonVals[i].diagonal[0] = epsilon[i][0];
+          epsilonList.epsilonVals[i].diagonal[1] = -epsilon[i][1];
+          epsilonList.epsilonVals[i].diagonal[2] = epsilon[i][2];
+          epsilonList.epsilonVals[i].diagonal[3] = -epsilon[i][3];
+          epsilonList.epsilonVals[i].diagonal[4] = epsilon[i][4];
+          epsilonList.epsilonVals[i].diagonal[5] = -epsilon[i][5];
+        }
+        break;
+      }
+      case 10:{
+        epsilonList.type_ = TENSOR_;
+        for(int i = 0; i < numOfOmega; i++){
+          epsilonList.epsilonVals[i].tensor[0] = epsilon[i][0];
+          epsilonList.epsilonVals[i].tensor[1] = -epsilon[i][1];
+          epsilonList.epsilonVals[i].tensor[2] = epsilon[i][2];
+          epsilonList.epsilonVals[i].tensor[3] = -epsilon[i][3];
+          epsilonList.epsilonVals[i].tensor[4] = epsilon[i][4];
+          epsilonList.epsilonVals[i].tensor[5] = -epsilon[i][5];
+          epsilonList.epsilonVals[i].tensor[6] = epsilon[i][6];
+          epsilonList.epsilonVals[i].tensor[7] = -epsilon[i][7];
+          epsilonList.epsilonVals[i].tensor[8] = epsilon[i][8];
+          epsilonList.epsilonVals[i].tensor[9] = -epsilon[i][9];
+        }
+        break;
+      }
+      default:{
+        std::cerr << "Input type wrong: should be of 2, 6 or 10 columns!" << std::endl;
+        throw UTILITY::UnknownTypeException("Input type wrong: should be of 2, 6 or 10 columns!");
+        break;
+      }
+    }
+
+    double* omegaList = new double[numOfOmega];
+    for(int i = 0; i < numOfOmega; i++){
+      omegaList[i] = omega[i];
+    }
+
+    Ptr<Material> material = Material::instanceNew(name,
+      omegaList,
+      epsilonList,
+      numOfOmega
+      );
+
+    materialInstanceMap_.insert(MaterialMap::value_type(name, material));
+    structure_->addMaterial(material);
+
+    delete [] omegaList;
+    omegaList = nullptr;
+    delete [] epsilonList.epsilonVals;
+    epsilonList.epsilonVals = nullptr;
+  }
+
+  /*==============================================*/
   // This function reset the dielectric of a material
   // @args:
   // name: the name of the material

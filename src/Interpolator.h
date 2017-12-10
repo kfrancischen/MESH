@@ -16,32 +16,28 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-#ifndef _SETUP_H
-#define _SETUP_H
 
-#include "Rcwa.h"
-#include "Gsel.h"
-#include "Cubature.h"
-#include "System.h"
-#include "Fmm.h"
-#include "Interpolator.h"
-#include "Mesh.h"
+#ifndef _INTERPOLATOR_H
+#define _INTERPOLATOR_H
+#include <string>
+#include <vector>
+#include <algorithm>
+#include "Common.h"
 
-using namespace MESH;
+namespace MESH{
+class Interpolator{
+public:
+  Interpolator(const std::vector<double>& x, const std::vector< std::vector<double> >& y);
+  std::vector<double> getVal(const double& x);
+  Interpolator(const Interpolator&) = delete;
+  ~Interpolator();
 
-typedef struct CONSTANT{
-  double pi = datum::pi;
-  double k_B = datum::k;
-  double eps_0 = datum::eps_0;
-  double m_e = datum::m_e;
-  double eV = datum::eV;
-  double mu_0 = datum::mu_0;
-  double h = datum::h;
-  double h_bar = datum::h_bar;
-  double c_0 = datum::c_0;
-  double q = datum::ec;
-  double sigma = datum::sigma;
-} Constant;
+protected:
+private:
+  double* x_vals_;
+  double** y_vals_;
+  int size_x_, size_y_;
+};
+}
 
-const Constant constants;
 #endif

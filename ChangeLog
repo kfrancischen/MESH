@@ -15,3 +15,5 @@
   Add function allowing to specify z-coordinate in the target layer for Poynting flux calculation
 2017-11-15
   Implement Python wrapper
+2017-12-09
+  Fixed a few lua bugs, and add interpolator class

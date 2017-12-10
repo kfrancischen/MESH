@@ -65,17 +65,97 @@ struct luaU_Impl<std::string>
         lua_pushstring(L, val.c_str());
     }
 };
+
+/*======================================================*/
+// wrappaer for the interpolator class
+/*=======================================================*/
+Interpolator* MESH_Interpolator_New(lua_State *L){
+  std::vector<double> x;
+  int size_x = lua_rawlen(L, 1);
+  for(int i = 0; i < size_x; i++){
+    lua_pushinteger(L, i+1);
+    lua_gettable(L, 1);
+    x.push_back(luaU_check<double>(L, -1));
+    lua_pop(L, 1);
+  }
+  std::vector<std::vector<double>> y;
+  for(int i = 0; i < size_x; i++){
+    std::vector<double> singleY;
+    lua_pushinteger(L, i + 1);
+    lua_gettable(L, 2);
+    int size_y = lua_rawlen(L, -1);
+    for(int j = 0; j < size_y; j++){
+      lua_pushinteger(L, j + 1);
+      lua_gettable(L, 3);
+      singleY.push_back(luaU_check<double>(L, -1));
+      lua_pop(L, 1);
+    }
+    y.push_back(singleY);
+    lua_pop(L, 1);
+  }
+  return new Interpolator(x, y);
+}
+
+// this function wraps getVal(const double& x)
+// @how to use
+// Get(x)
+int Interpolator_Get(lua_State* L){
+  Interpolator* interpolator = luaW_check<Interpolator>(L, 1);
+  double x = luaU_check<double>(L, 2);
+  std::vector<double> result = interpolator->getVal(x);
+  lua_createtable(L, result.size(), 0);
+  for(size_t i = 0; i < result.size(); i++){
+    lua_pushinteger(L, i+1);
+    lua_pushnumber(L, result[i]);
+    lua_settable(L, -3);
+    std::cout << i << "\t" << result[i] << std::endl;
+  }
+  return 1;
+}
+
 /*======================================================*/
 // wrappaer for the main class
 /*=======================================================*/
-// this function wraps addMaterial(const std::string name, const std::string infile)
+// this function wraps addMaterial(const std::string name, const std::string infile) and 
+// addMaterial(const std::string name, const std::vector<double>& omega, const std::vector< std::vector<double> >& epsilon)
 // @how to use:
-// AddMaterial(material name, input file)
+// AddMaterial(material name, input file) or 
+// AddMaterial(material name, omega, epsilon)
 int MESH_AddMaterial(lua_State *L){
+  int n = lua_gettop(L);
 	Simulation* s = luaW_check<Simulation>(L, 1);
-	std::string name = luaU_check<std::string>(L, 2);
-	std::string infile = luaU_check<std::string>(L, 3);
-	s->addMaterial(name, infile);
+  std::string name = luaU_check<std::string>(L, 2);
+  if(n == 3){
+    std::string infile = luaU_check<std::string>(L, 3);
+    s->addMaterial(name, infile);
+  }
+  else{
+    std::vector<double> omegaList;
+    int numOfOmega = lua_rawlen(L, 3);
+    for(int i = 0; i < numOfOmega; i++){
+      lua_pushinteger(L, i+1);
+      lua_gettable(L, 3);
+      omegaList.push_back(luaU_check<double>(L, -1));
+      lua_pop(L, 1);
+    }
+
+    std::vector< std::vector<double> > epsilon;
+    for(int i = 0; i < numOfOmega; i++){
+      std::vector<double> singleEpsilon;
+      lua_pushinteger(L, i+1);
+      lua_gettable(L, 4);
+      int len = lua_rawlen(L, -1);
+      for(int j = 0; j < len; j++){
+        lua_pushinteger(L, j + 1);
+        lua_gettable(L, 5);
+        singleEpsilon.push_back(luaU_check<double>(L, -1));
+        lua_pop(L, 1);
+      }
+      epsilon.push_back(singleEpsilon);
+      lua_pop(L, 1);
+    }
+    s->addMaterial(name, omegaList, epsilon);
+  }
 	return 1;
 }
 
@@ -260,6 +340,7 @@ int MESH_GetOmega(lua_State *L){
   Simulation* s = luaW_check<Simulation>(L, 1);
   double* omega = s->getOmega();
   int numOfOmega = s->getNumOfOmega();
+  lua_createtable(L, numOfOmega, 0);
   for(int i = 0; i < numOfOmega; i++){
     lua_pushinteger(L, i+1);
     lua_pushnumber(L, omega[i]);
@@ -283,6 +364,7 @@ int MESH_GetEpsilon(lua_State *L){
   }
   double* epsilon = new double[10];
   s->getEpsilon(omegaIdx, vals, epsilon);
+  lua_createtable(L, 10, 0);
   for(int i = 0; i < 10; i++){
     lua_pushinteger(L, i+1);
     lua_pushnumber(L, epsilon[i]);
@@ -748,6 +830,14 @@ int MESH_GetReciprocalLattice(lua_State *L){
   return 1;
 }
 /*======================================================*/
+// tables for the interpolator
+/*=======================================================*/
+static luaL_Reg character_metatable_Interpolator[] = {
+  { "Get", Interpolator_Get },
+  { NULL, NULL }
+};
+
+/*======================================================*/
 // tables for the three clases
 /*=======================================================*/
 static luaL_Reg character_metatable_Simulation[] = {
@@ -819,7 +909,7 @@ static int MESH_Constants(lua_State *L){
   std::vector<double> vals = {constants.pi, constants.k_B, constants.eps_0, constants.m_e, constants.eV, constants.mu_0,
     constants.h, constants.h_bar, constants.c_0, constants.q, constants.sigma};
   int tableLen = properties.size();
-  lua_createtable(L, 0, tableLen);
+  lua_createtable(L, tableLen, 0);
   for(int i = 0; i < tableLen; i++){
     lua_pushstring(L, properties[i]);
     lua_pushnumber(L, vals[i]);
@@ -839,6 +929,8 @@ static int luaopen_Simulation(lua_State *L){
 	luaW_extend<SimulationPlanar, Simulation>(L);
   luaW_extend<SimulationGrating, Simulation>(L);
   luaW_extend<SimulationPattern, Simulation>(L);
+
+  luaW_register<Interpolator>(L, "Interpolator", NULL, character_metatable_Interpolator, MESH_Interpolator_New);
 
   lua_register(L, "Constants", MESH_Constants);
 	return 1;

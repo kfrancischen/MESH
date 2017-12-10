@@ -27,6 +27,18 @@ AddMaterial(material name, input file)
 
 * Note: The omega needs to be aligned for all the materials in the simulation.
 
+``lua
+AddMaterial(material name, omega, epsilon)
+```
+* Arguments:
+    1. material name: [string], the name of the material added to the simulation. Such name is unique and if there already exists a material with the same name, an error message will be printed out.
+    2. omega: [table], all the omega values
+    3. epsilon: [nested table], all the epsilon values  
+
+* Output: None
+
+* Note: The omega needs to be aligned for all the materials in the simulation.
+
 ```lua
 SetMaterial(material name, new epsilon)
 ```
@@ -325,6 +337,27 @@ OptSetLatticeTruncation(truncation)
     1. truncation: [string], the truncation method for the  reciprocal lattice. Should be one of "Circular" or "Parallelogramic".
 
 * Output: None
+
+MESH provides class for linear interpolating data points. In Lua, the class can be initiated using
+
+```lua
+interpolator = Interpolator.new(x_vals, y_vals)
+```
+* Arguments:
+    1. x_vals: [table], all the x values
+    2. y_vals: [nested table], all the y values, should be two dimensional.
+
+* Output: None
+
+At a certain point $x$, the interpolated $y$ can be retrieved by
+```lua
+interpolator:Get(x)
+```
+* Arguments:
+    1. x: [double], the point where the interpolation is performned
+
+* Output: a table of $y$ values at $x$
+
 
 MESH also provides physics constants to facilitate computation. The constant object can be initiated by
 ```lua

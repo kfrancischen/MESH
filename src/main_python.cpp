@@ -126,8 +126,43 @@ int epsilon_converter(PyObject *obj, struct epsilon_converter_data *data){
     }
   }
 
-  PyErr_SetString(PyExc_TypeError, "Wrong type of tensor");
-	return 0;
+	return 1;
+}
+
+struct interpolator_converter_data{
+  int num_omega;
+  std::vector<double> omega;
+  std::vector<std::vector<double>> epsilon;
+};
+
+int interpolator_converter(PyObject* obj, struct interpolator_converter_data *data){
+  data->num_omega = PyTuple_Size(obj);
+  
+  for(int i = 0; i < data->num_omega; i++){
+    PyObject* pi = PyTuple_GetItem(obj, i);
+    PyObject* pi_0 = PyTuple_GetItem(pi, 0);
+    if(CheckPyNumber(pi_0)){
+      data->omega.push_back(AsNumberPyNumber(pi_0));
+    }
+    else{
+      PyErr_SetString(PyExc_TypeError, "Wrong type of omega value");
+      return 0;
+    }
+    PyObject* pi_other = PyTuple_GetItem(pi, 1);
+    std::vector<double> singleEpsilon;
+    for(int j = 0; j < PyTuple_Size(pi_other); j++){
+      PyObject* pj = PyTuple_GetItem(pi_other, j);
+      if(CheckPyNumber(pj)){
+        singleEpsilon.push_back(AsNumberPyNumber(pj));
+      }
+      else{
+        PyErr_SetString(PyExc_TypeError, "Wrong type of omega value");
+        return 0;
+      }
+    }
+    data->epsilon.push_back(singleEpsilon);
+  }
+  return 1;
 }
 
 
@@ -185,6 +220,99 @@ int coordinate_converter(PyObject *obj, struct coordinate_converter_data *data){
 }
 
 /*======================================================*/
+// wrapper for Interpolator
+/*=======================================================*/
+typedef struct {
+  PyObject_HEAD;
+  Interpolator* interpolator;
+} MESH_Interpolator;
+
+/* DEALLOC */
+static void MESH_Interpolator_dealloc(MESH_Interpolator* self){
+  delete self->interpolator;
+  Py_TYPE(self)->tp_free((PyObject*)self);
+}
+
+/* NEW */
+static PyObject *MESH_Interpolator_new(PyTypeObject *type, PyObject *args, PyObject *kwds){
+  static char *kwlist[] = { (char*)"vals", NULL };
+	struct interpolator_converter_data interpolator_data;
+
+  if(!PyArg_ParseTupleAndKeywords(args, kwds, "O&:Interpolator_new", kwlist, &interpolator_converter, &interpolator_data)){
+    return NULL;
+  }
+  
+  MESH_Interpolator *self;
+  self = (MESH_Interpolator*)type->tp_alloc(type, 0);
+  if(self != NULL){
+    self->interpolator = new Interpolator(interpolator_data.omega, interpolator_data.epsilon);
+  }
+  return (PyObject*) self;
+}
+
+static PyObject *MESH_Interpolator_Get(MESH_Interpolator *self, PyObject *args, PyObject *kwds){
+  static char *kwlist[] = { (char*)"x", NULL };
+  double x;
+  if(!PyArg_ParseTupleAndKeywords(args, kwds, "d:Get", kwlist, &x)){ 
+    return NULL; 
+  }
+  std::vector<double> result = self->interpolator->getVal(x);
+  PyObject* output = PyTuple_New(result.size());
+  for(size_t i = 0; i < result.size(); i++){
+    PyTuple_SetItem(output, i, PyFloat_FromDouble(result[i]));
+  }
+  return output;
+}
+
+/* METHOD TABLE */
+static PyMethodDef MESH_Interpolator_methods[] = {
+  {"Get",  (PyCFunction) MESH_Interpolator_Get, METH_VARARGS | METH_KEYWORDS, "Interpolating at a given value x"},
+  {NULL}  /* Sentinel */
+};
+
+/* TYPE ... whatever */
+static PyTypeObject MESH_Interpolator_Type = {
+  PyVarObject_HEAD_INIT(NULL, 0)
+  "MESH_Interpolator",          /* tp_name */
+  sizeof(MESH_Interpolator),    /* tp_basicsize */
+  0,                         /* tp_itemsize */
+  (destructor)MESH_Interpolator_dealloc, /* tp_dealloc */
+  0,                         /* tp_print */
+  0,                         /* tp_getattr */
+  0,                         /* tp_setattr */
+  0,                         /* tp_reserved */
+  0,                         /* tp_repr */
+  0,                         /* tp_as_number */
+  0,                         /* tp_as_sequence */
+  0,                         /* tp_as_mapping */
+  0,                         /* tp_hash  */
+  0,                         /* tp_call */
+  0,                         /* tp_str */
+  0,                         /* tp_getattro */
+  0,                         /* tp_setattro */
+  0,                         /* tp_as_buffer */
+  Py_TPFLAGS_DEFAULT,        /* tp_flags */ 
+  "MESH_Interpolator",       /* tp_doc */
+  0,                         /* tp_traverse */
+  0,                         /* tp_clear */
+  0,                         /* tp_richcompare */
+  0,                         /* tp_weaklistoffset */
+  0,                         /* tp_iter */
+  0,                         /* tp_iternext */
+  MESH_Interpolator_methods, /* tp_methods */
+  0,                         /* tp_members */
+  0,                         /* tp_getset */
+  0,                          /* tp_base */ 
+  0,                         /* tp_dict */
+  0,                         /* tp_descr_get */
+  0,                         /* tp_descr_set */
+  0,                         /* tp_dictoffset */
+  0,                         /* tp_init */
+  0,                         /* tp_alloc */
+  MESH_Interpolator_new, /* tp_new */
+};
+
+/*======================================================*/
 // wrapper for planar
 /*=======================================================*/
 /* OBJECT */
@@ -216,14 +344,24 @@ static PyObject *MESH_SimulationPlanar_new(PyTypeObject *type, PyObject *args, P
 static PyObject* MESH_SimulationPlanar_AddMaterial(MESH_SimulationPlanar *self, PyObject *args, PyObject *kwds){
   static char *kwlist[] = { (char*)"material_name", (char*)"file_name", NULL };
 	const char *materialName, *fileName;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "ss:AddMaterial", kwlist, &materialName, &fileName)){ 
-      return NULL; 
+	if(PyArg_ParseTupleAndKeywords(args, kwds, "ss:AddMaterial", kwlist, &materialName, &fileName)){ 
+    std::string material_name(materialName), file_name(fileName);
+    self->s->addMaterial(material_name, file_name);
   }
-  std::string material_name(materialName), file_name(fileName);
-  self->s->addMaterial(material_name, file_name);
-  Py_RETURN_NONE;
+  else{
+    static char *kwlist[] = { (char*)"material name", (char*)"data", NULL };
+    struct interpolator_converter_data interpolator_data;
+    const char *materialName;
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, "sO&:AddMaterial", kwlist, &materialName, &interpolator_converter, &interpolator_data)){
+      return NULL;
+    }
 
+    std::string material_name(materialName);
+    self->s->addMaterial(material_name, interpolator_data.omega, interpolator_data.epsilon);
+  }
+  Py_RETURN_NONE;
 }
+
 
 static PyObject* MESH_SimulationPlanar_SetMaterial(MESH_SimulationPlanar *self, PyObject *args, PyObject *kwds){
   static char *kwlist[] = { (char*)"material_name", (char*)"epsilon", NULL };
@@ -697,11 +835,21 @@ static PyObject *MESH_SimulationGrating_new(PyTypeObject *type, PyObject *args, 
 static PyObject* MESH_SimulationGrating_AddMaterial(MESH_SimulationGrating *self, PyObject *args, PyObject *kwds){
   static char *kwlist[] = { (char*)"material_name", (char*)"file_name", NULL };
 	const char *materialName, *fileName;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "ss:AddMaterial", kwlist, &materialName, &fileName)){ 
-      return NULL; 
+	if(PyArg_ParseTupleAndKeywords(args, kwds, "ss:AddMaterial", kwlist, &materialName, &fileName)){ 
+    std::string material_name(materialName), file_name(fileName);
+    self->s->addMaterial(material_name, file_name);
   }
-  std::string material_name(materialName), file_name(fileName);
-  self->s->addMaterial(material_name, file_name);
+  else{
+    static char *kwlist[] = { (char*)"material name", (char*)"data", NULL };
+    struct interpolator_converter_data interpolator_data;
+    const char *materialName;
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, "sO&:AddMaterial", kwlist, &materialName, &interpolator_converter, &interpolator_data)){
+      return NULL;
+    }
+
+    std::string material_name(materialName);
+    self->s->addMaterial(material_name, interpolator_data.omega, interpolator_data.epsilon);
+  }
   Py_RETURN_NONE;
 
 }
@@ -1181,11 +1329,21 @@ static PyObject *MESH_SimulationPattern_new(PyTypeObject *type, PyObject *args, 
 static PyObject* MESH_SimulationPattern_AddMaterial(MESH_SimulationPattern *self, PyObject *args, PyObject *kwds){
   static char *kwlist[] = { (char*)"material_name", (char*)"file_name", NULL };
 	const char *materialName, *fileName;
-	if(!PyArg_ParseTupleAndKeywords(args, kwds, "ss:AddMaterial", kwlist, &materialName, &fileName)){ 
-      return NULL; 
+	if(PyArg_ParseTupleAndKeywords(args, kwds, "ss:AddMaterial", kwlist, &materialName, &fileName)){ 
+    std::string material_name(materialName), file_name(fileName);
+    self->s->addMaterial(material_name, file_name);
   }
-  std::string material_name(materialName), file_name(fileName);
-  self->s->addMaterial(material_name, file_name);
+  else{
+    static char *kwlist[] = { (char*)"material name", (char*)"data", NULL };
+    struct interpolator_converter_data interpolator_data;
+    const char *materialName;
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, "sO&:AddMaterial", kwlist, &materialName, &interpolator_converter, &interpolator_data)){
+      return NULL;
+    }
+
+    std::string material_name(materialName);
+    self->s->addMaterial(material_name, interpolator_data.omega, interpolator_data.epsilon);
+  }
   Py_RETURN_NONE;
 
 }
@@ -1756,6 +1914,8 @@ static PyMethodDef MESH_module_methods[] = {
 
   PyObject* module;
   // Create the class types
+  if (PyType_Ready(&MESH_Interpolator_Type) < 0)
+    INITERROR;
   if (PyType_Ready(&MESH_SimulationPlanar_Type) < 0)
     INITERROR;
   if (PyType_Ready(&MESH_SimulationGrating_Type) < 0)
@@ -1779,7 +1939,9 @@ static PyMethodDef MESH_module_methods[] = {
   // Initialize Classes
   // Py_INCREF(&MESH_Simulation_Type);
   // PyModule_AddObject(m, "Simulation", (PyObject *)&MESH_Simulation_Type); // This name is used for the import command!!!!
-  
+  Py_INCREF(&MESH_Interpolator_Type);
+  PyModule_AddObject(module, "Interpolator", (PyObject *)&MESH_Interpolator_Type);
+
   Py_INCREF(&MESH_SimulationPlanar_Type);
   PyModule_AddObject(module, "SimulationPlanar", (PyObject *)&MESH_SimulationPlanar_Type);
 

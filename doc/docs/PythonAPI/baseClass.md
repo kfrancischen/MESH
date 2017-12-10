@@ -27,6 +27,19 @@ AddMaterial(material name, input file)
 
 * Note: The omega needs to be aligned for all the materials in the simulation.
 
+``lua
+AddMaterial(material name, omega, epsilon)
+```
+* Arguments:
+    1. material name: [string], the name of the material added to the simulation. Such name is unique and if there already exists a material with the same name, an error message will be printed out.
+    2. omega: [tuple], all the omega values
+    3. epsilon: [nested tuple], all the epsilon values  
+
+* Output: None
+
+* Note: The omega needs to be aligned for all the materials in the simulation.
+
+
 ```python
 SetMaterial(material name, new epsilon)
 ```
@@ -301,6 +314,26 @@ OptPrintIntermediate()
 
 * Note: this function prints intermediate $\Phi(\omega, k_x, k_y)$ to file when function `IntegrateKxKy()` or `IntegrateKxKyMPI(rank, size)` is called. The output format is
 a list of "$\omega$  $k_x$ $k_y$ $\Phi(\omega, k_x, k_y)$", where $k_x$ and $k_y$ are values normalized to $\omega/c$.
+
+MESH provides class for linear interpolating data points. In Python, the class can be initiated using
+
+```python
+from MESH import Interpolator
+interpolator = Interpolator(data)
+```
+* Arguments:
+    1. data: [nested tuples], in the form of ( ($x_1$, $y_1$)...($x_n$, $y_n$)), where $y_i$ should also be a tuple.
+
+* Output: None
+
+At a certain point $x$, the interpolated $y$ can be retrieved by
+```python
+interpolator.Get(x)
+```
+* Arguments:
+    1. x: [double], the point where the interpolation is performned
+
+* Output: a tuple of $y$ values at $x$
 
 
 MESH also provides physics constants to facilitate computation. The constant object can be initiated by

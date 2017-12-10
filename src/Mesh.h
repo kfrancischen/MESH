@@ -105,6 +105,7 @@ public:
   // adding new function for the same interface as S4
 
   void addMaterial(const std::string name, const std::string infile);
+  void addMaterial(const std::string name, const std::vector<double>& omega, const std::vector< std::vector<double> >& epsilon);
   void setMaterial(const std::string name, double** &epsilon, const std::string type);
 
   void addLayer(const std::string name, const double thick, const std::string materialName);

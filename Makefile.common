@@ -26,6 +26,7 @@ MESH_LIBOBJS = \
 	$(OBJDIR)/MESH_o/Cubature.o \
 	$(OBJDIR)/MESH_o/System.o \
 	$(OBJDIR)/MESH_o/Fmm.o \
+	$(OBJDIR)/MESH_o/Interpolator.o \
 	$(OBJDIR)/MESH_o/Mesh.o
 
 $(OBJDIR)/libmesh.a: objdir $(MESH_LIBOBJS)
@@ -39,6 +40,8 @@ $(OBJDIR)/MESH_o/Cubature.o: src/Cubature.c
 $(OBJDIR)/MESH_o/System.o: src/System.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
 $(OBJDIR)/MESH_o/Fmm.o: src/Fmm.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
+$(OBJDIR)/MESH_o/Interpolator.o: src/Interpolator.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
 $(OBJDIR)/MESH_o/Mesh.o: src/Mesh.cpp
 	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
