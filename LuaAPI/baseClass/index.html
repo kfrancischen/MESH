@@ -656,7 +656,19 @@ For tensor dielectric, the format is a list of   <br />
 <p>Note: The omega needs to be aligned for all the materials in the simulation.</p>
 </li>
 </ul>
-<div class="codehilite"><pre><span></span><span class="n">SetMaterial</span><span class="p">(</span><span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="n">new</span> <span class="n">epsilon</span><span class="p">)</span>
+<p>``lua
+AddMaterial(material name, omega, epsilon)</p>
+<div class="codehilite"><pre><span></span><span class="o">*</span> <span class="nl">Arguments</span><span class="p">:</span>
+    <span class="mf">1.</span> <span class="n">material</span> <span class="nl">name</span><span class="p">:</span> <span class="p">[</span><span class="n">string</span><span class="p">],</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">material</span> <span class="n">added</span> <span class="n">to</span> <span class="n">the</span> <span class="n">simulation</span><span class="p">.</span> <span class="n">Such</span> <span class="n">name</span> <span class="n">is</span> <span class="n">unique</span> <span class="n">and</span> <span class="k">if</span> <span class="n">there</span> <span class="n">already</span> <span class="n">exists</span> <span class="n">a</span> <span class="n">material</span> <span class="n">with</span> <span class="n">the</span> <span class="n">same</span> <span class="n">name</span><span class="p">,</span> <span class="n">an</span> <span class="n">error</span> <span class="n">message</span> <span class="n">will</span> <span class="n">be</span> <span class="n">printed</span> <span class="k">out</span><span class="p">.</span>
+    <span class="mf">2.</span> <span class="nl">omega</span><span class="p">:</span> <span class="p">[</span><span class="n">table</span><span class="p">],</span> <span class="n">all</span> <span class="n">the</span> <span class="n">omega</span> <span class="n">values</span>
+    <span class="mf">3.</span> <span class="nl">epsilon</span><span class="p">:</span> <span class="p">[</span><span class="n">nested</span> <span class="n">table</span><span class="p">],</span> <span class="n">all</span> <span class="n">the</span> <span class="n">epsilon</span> <span class="n">values</span>  
+
+<span class="o">*</span> <span class="nl">Output</span><span class="p">:</span> <span class="n">None</span>
+
+<span class="o">*</span> <span class="nl">Note</span><span class="p">:</span> <span class="n">The</span> <span class="n">omega</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">be</span> <span class="n">aligned</span> <span class="k">for</span> <span class="n">all</span> <span class="n">the</span> <span class="n">materials</span> <span class="k">in</span> <span class="n">the</span> <span class="n">simulation</span><span class="p">.</span>
+
+<span class="err">```</span><span class="n">lua</span>
+<span class="n">SetMaterial</span><span class="p">(</span><span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="n">new</span> <span class="n">epsilon</span><span class="p">)</span>
 </pre></div>
 
 
@@ -1154,6 +1166,40 @@ a list of "<script type="math/tex">\omega</script>
 </li>
 <li>
 <p>Output: None</p>
+</li>
+</ul>
+<p>MESH provides class for linear interpolating data points. In Lua, the class can be initiated using</p>
+<div class="codehilite"><pre><span></span><span class="n">interpolator</span> <span class="o">=</span> <span class="n">Interpolator</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="n">x_vals</span><span class="p">,</span> <span class="n">y_vals</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>x_vals: [table], all the x values</li>
+<li>y_vals: [nested table], all the y values, should be two dimensional.</li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+</ul>
+<p>At a certain point <script type="math/tex">x</script>, the interpolated <script type="math/tex">y</script> can be retrieved by</p>
+<div class="codehilite"><pre><span></span><span class="n">interpolator</span><span class="p">:</span><span class="n">Get</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>x: [double], the point where the interpolation is performned</li>
+</ol>
+</li>
+<li>
+<p>Output: a table of <script type="math/tex">y</script> values at <script type="math/tex">x</script>
+</p>
 </li>
 </ul>
 <p>MESH also provides physics constants to facilitate computation. The constant object can be initiated by</p>
