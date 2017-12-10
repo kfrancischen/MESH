@@ -57,13 +57,13 @@ $(OBJDIR)/mesh: $(OBJDIR)/MESH_o/main_lua.o $(OBJDIR)/$(MESH_LIBNAME)
 ### Build lua MPI frontend
 
 $(OBJDIR)/MESH_o/buffer_mpi.o: src/luawrapper/buffer_mpi.c objdir
-	$(MPICC) -c -DHAVE_MPI $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+	$(MPICC) -c -DHAVE_MPI $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) -DARMA_DONT_USE_OPENMP $< -o $@ $(LA_LIBS)
 $(OBJDIR)/MESH_o/lua_mpi.o: src/luawrapper/lua_mpi.c src/luawrapper/funcs_mpi.c objdir
-	$(MPICC) -c -DHAVE_MPI $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+	$(MPICC) -c -DHAVE_MPI $(CFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) -DARMA_DONT_USE_OPENMP $< -o $@ $(LA_LIBS)
 $(OBJDIR)/MESH_o/main_lua_mpi.o: src/main_lua.cpp objdir
-	$(MPICXX) -c -DHAVE_MPI $(CXXFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) $< -o $@ $(LA_LIBS)
+	$(MPICXX) -c -DHAVE_MPI $(CXXFLAGS) $(CPPFLAGS) $(LUA_INC) $(ARMAFLAG) -DARMA_DONT_USE_OPENMP $< -o $@ $(LA_LIBS)
 $(OBJDIR)/meshMPI: $(OBJDIR)/MESH_o/main_lua_mpi.o $(OBJDIR)/MESH_o/lua_mpi.o $(OBJDIR)/MESH_o/buffer_mpi.o  $(OBJDIR)/$(MESH_LIBNAME)
-	$(MPICXX) $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@ -L$(OBJDIR) -lmesh $(LA_LIBS) $(LUA_LIB)
+	$(MPICXX) $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) -DARMA_DONT_USE_OPENMP $< -o $@ -L$(OBJDIR) -lmesh $(LA_LIBS) $(LUA_LIB)
 
 ### Build Python frontend
 meshPy: objdir $(OBJDIR)/$(MESH_LIBNAME)
