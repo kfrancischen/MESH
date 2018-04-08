@@ -3,7 +3,7 @@ MESH comes with two versions: one has OpenMP support if the system has OpenMP li
 
 * [Lapack](http://www.netlib.org/lapack/) and [blas](http://www.netlib.org/blas/) (or blas mutants, such as [openblas](http://www.openblas.net/), [atlas](http://math-atlas.sourceforge.net/), or [mkl](https://software.intel.com/en-us/intel-mkl)). For MacOS this is not necessary.
 * [Lua](https://www.lua.org/) (optional) version >= 5.2 (version 5.3.x is preferred). Required for Lua versions of MESH.
-* [Python](https://www.python.org/) (optional) version 2 and 3 are both fine.
+* [Python](https://www.python.org/) (optional) currently only Python 2 is supported.
 
 In order to have the MPI version of MESH installed, one needs to install MPI besides the above two libraries.
 
@@ -22,7 +22,7 @@ The CPP-only version can be installed by
 ```bash
 make -f Makefile.without_lua
 ```
-This command line will generate static MESH libraries called `libmesh.a` in `build/` folder, and can be used to compile along with C code.
+This command line will generate static MESH library called `libmesh.a` in `build/` folder, and can be used to compile along with C code.
 
 #### installation of Lua vanilla version (no MPI required)
 
@@ -33,7 +33,7 @@ make mesh
 Installing this version does not require MPI packages. The executable can be found in directory `build/`. The executable is called `mesh`.
 
 
-#### installation of Lua MPI version (Lua required)
+#### installation of Lua MPI version (MPI required)
 
 The MPI version can be installed by
 ```bash
