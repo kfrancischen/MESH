@@ -1016,9 +1016,10 @@ SpMat<eT>::operator*=(const Base<eT, T1>& y)
 
   for(uword lcol = 0; lcol < n_cols; ++lcol)
     {
-    const_iterator it = begin();
+    const_iterator it     = begin();
+    const_iterator it_end = end();
 
-    while(it != end())
+    while(it != it_end)
       {
       const eT value = (*it);
 
@@ -1097,11 +1098,12 @@ SpMat<eT>::operator%=(const Base<eT, T1>& x)
   arma_debug_assert_same_size(n_rows, n_cols, p.get_n_rows(), p.get_n_cols(), "element-wise multiplication");
   
   // Count the number of elements we will need.
-  SpMat<eT> tmp(n_rows, n_cols);
-  const_iterator it = begin();
+  const_iterator it     = begin();
+  const_iterator it_end = end();
+  
   uword new_n_nonzero = 0;
-
-  while(it != end())
+  
+  while(it != it_end)
     {
     // use_at == false can't save us any work here
     if(((*it) * p.at(it.row(), it.col())) != eT(0))
@@ -1110,13 +1112,16 @@ SpMat<eT>::operator%=(const Base<eT, T1>& x)
       }
     ++it;
     }
-
-  // Resize.
+  
+  SpMat<eT> tmp(n_rows, n_cols);
   tmp.mem_resize(new_n_nonzero);
 
-  const_iterator c_it = begin();
+  const_iterator c_it     = begin();
+  const_iterator c_it_end = end();
+  
   uword cur_pos = 0;
-  while(c_it != end())
+  
+  while(c_it != c_it_end)
     {
     // use_at == false can't save us any work here
     const eT val = (*c_it) * p.at(c_it.row(), c_it.col());
@@ -3494,7 +3499,10 @@ SpMat<eT>::reshape(const uword in_rows, const uword in_cols)
   
   arrayops::inplace_set(new_col_ptrs, uword(0), in_cols + 1);
   
-  for(const_iterator it = begin(); it != end(); it++)
+  const_iterator it     = begin();
+  const_iterator it_end = end();
+  
+  for(; it != it_end; ++it)
     {
     uword vector_position = (it.col() * n_rows) + it.row();
     new_row_indices[it.pos()] = vector_position % in_rows;
@@ -3557,7 +3565,7 @@ SpMat<eT>::reshape(const uword in_rows, const uword in_cols, const uword dim)
     // Row-wise reshaping.  This is more tedious and we will use a separate sparse matrix to do it.
     SpMat<eT> tmp(in_rows, in_cols);
     
-    for(const_row_iterator it = begin_row(); it.pos() < n_nonzero; it++)
+    for(const_row_iterator it = begin_row(); it.pos() < n_nonzero; ++it)
       {
       uword vector_position = (it.row() * n_cols) + it.col();
       
@@ -3986,6 +3994,7 @@ SpMat<eT>::set_imag(const SpBase<typename SpMat<eT>::pod_type,T1>& X)
 //! save the matrix to a file
 template<typename eT>
 inline
+arma_cold
 bool
 SpMat<eT>::save(const std::string name, const file_type type, const bool print_status) const
   {
@@ -4028,6 +4037,7 @@ SpMat<eT>::save(const std::string name, const file_type type, const bool print_s
 //! save the matrix to a stream
 template<typename eT>
 inline
+arma_cold
 bool
 SpMat<eT>::save(std::ostream& os, const file_type type, const bool print_status) const
   {
@@ -4070,6 +4080,7 @@ SpMat<eT>::save(std::ostream& os, const file_type type, const bool print_status)
 //! load a matrix from a file
 template<typename eT>
 inline
+arma_cold
 bool
 SpMat<eT>::load(const std::string name, const file_type type, const bool print_status)
   {
@@ -4132,6 +4143,7 @@ SpMat<eT>::load(const std::string name, const file_type type, const bool print_s
 //! load a matrix from a stream
 template<typename eT>
 inline
+arma_cold
 bool
 SpMat<eT>::load(std::istream& is, const file_type type, const bool print_status)
   {
@@ -4194,6 +4206,7 @@ SpMat<eT>::load(std::istream& is, const file_type type, const bool print_status)
 //! save the matrix to a file, without printing any error messages
 template<typename eT>
 inline
+arma_cold
 bool
 SpMat<eT>::quiet_save(const std::string name, const file_type type) const
   {
@@ -4207,6 +4220,7 @@ SpMat<eT>::quiet_save(const std::string name, const file_type type) const
 //! save the matrix to a stream, without printing any error messages
 template<typename eT>
 inline
+arma_cold
 bool
 SpMat<eT>::quiet_save(std::ostream& os, const file_type type) const
   {
@@ -4220,6 +4234,7 @@ SpMat<eT>::quiet_save(std::ostream& os, const file_type type) const
 //! load a matrix from a file, without printing any error messages
 template<typename eT>
 inline
+arma_cold
 bool
 SpMat<eT>::quiet_load(const std::string name, const file_type type)
   {
@@ -4233,6 +4248,7 @@ SpMat<eT>::quiet_load(const std::string name, const file_type type)
 //! load a matrix from a stream, without printing any error messages
 template<typename eT>
 inline
+arma_cold
 bool
 SpMat<eT>::quiet_load(std::istream& is, const file_type type)
   {
@@ -5724,7 +5740,7 @@ SpMat<eT>::sync_cache() const
   // reading and writing to sync_state uses std::memory_order_seq_cst which has an implied fence;
   // data races are prevented via the mutex
   
-  #if defined(_OPENMP)
+  #if defined(ARMA_USE_OPENMP)
     if(sync_state == 0)
       {
       #pragma omp critical
@@ -5773,7 +5789,7 @@ SpMat<eT>::sync_csc() const
   
   // see also the note in sync_cache() above
   
-  #if defined(_OPENMP)
+  #if defined(ARMA_USE_OPENMP)
     if(sync_state == 1)
       {
       #pragma omp critical

@@ -17,3 +17,5 @@
   Implement Python wrapper
 2017-12-09
   Fixed a few lua bugs, and add interpolator class
+2018-04-08
+  Update Armardillo version

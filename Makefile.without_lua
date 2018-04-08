@@ -1,0 +1,61 @@
+OBJDIR = build
+SHLIB_EXT = so
+SHLIB_FLAGS = -fPIC -shared
+
+CFLAGS   += -O3 -Wall -march=native -fcx-limited-range -fPIC -fopenmp
+CXXFLAGS += -std=c++11 -O3 -Wall -march=native -fcx-limited-range -fPIC -fopenmp
+
+MKL_INC = -I/home/kfchen/mkl/mkl/include/
+LA_LIBS = -L/home/kfchen/mkl/mkl/lib/intel64/ -lmkl_intel_lp64 -lmkl_gnu_thread -lmkl_core -lpthread -lm
+
+
+#### change to proper compilers
+CC = gcc
+CXX = g++
+
+#### change to proper MPI compilers
+MPICC = mpicc
+MPICXX = mpic++
+
+
+CPPFLAGS += -Isrc/ -Isrc/utility -Isrc/mathlib
+ARMAFLAG = -Isrc/arma -DARMA_DONT_USE_WRAPPER -DARMA_NO_DEBUG -DARMA_DONT_USE_OPENMP
+
+#### Compilation targets
+MESH_LIBNAME = libmesh.a
+all: $(OBJDIR)/$(MESH_LIBNAME)
+
+objdir:
+	mkdir -p $(OBJDIR)
+	mkdir -p $(OBJDIR)/MESH_o
+
+MESH_LIBOBJS = \
+	$(OBJDIR)/MESH_o/Rcwa.o \
+	$(OBJDIR)/MESH_o/Gsel.o \
+	$(OBJDIR)/MESH_o/Cubature.o \
+	$(OBJDIR)/MESH_o/System.o \
+	$(OBJDIR)/MESH_o/Fmm.o \
+	$(OBJDIR)/MESH_o/Interpolator.o \
+	$(OBJDIR)/MESH_o/Mesh.o
+
+$(OBJDIR)/libmesh.a: objdir $(MESH_LIBOBJS)
+	$(AR) crvs $@ $(MESH_LIBOBJS)
+$(OBJDIR)/MESH_o/Rcwa.o: src/Rcwa.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
+$(OBJDIR)/MESH_o/Gsel.o: src/Gsel.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
+$(OBJDIR)/MESH_o/Cubature.o: src/Cubature.c
+	$(CC) -c $(CFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
+$(OBJDIR)/MESH_o/System.o: src/System.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
+$(OBJDIR)/MESH_o/Fmm.o: src/Fmm.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
+$(OBJDIR)/MESH_o/Interpolator.o: src/Interpolator.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
+$(OBJDIR)/MESH_o/Mesh.o: src/Mesh.cpp
+	$(CXX) -c $(CXXFLAGS) $(CPPFLAGS) $(ARMAFLAG) $< -o $@
+
+clean:
+	rm -rf $(OBJDIR)
+
+always:

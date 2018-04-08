@@ -30,7 +30,7 @@ SpMat<eT>::iterator_base::iterator_base()
   , internal_col(0)
   , internal_pos(0)
   {
-  // Technically this iterator is invalid (it may not point to a real element)
+  // Technically this iterator is invalid (it does not point to a valid element)
   }
 
 
@@ -42,7 +42,7 @@ SpMat<eT>::iterator_base::iterator_base(const SpMat<eT>& in_M)
   , internal_col(0)
   , internal_pos(0)
   {
-  // Technically this iterator is invalid (it may not point to a real element)
+  // Technically this iterator is invalid (it may not point to a valid element)
   }
 
 
@@ -171,7 +171,7 @@ SpMat<eT>::const_iterator::operator++()
 
 template<typename eT>
 inline
-arma_hot
+arma_warn_unused
 typename SpMat<eT>::const_iterator
 SpMat<eT>::const_iterator::operator++(int)
   {
@@ -214,7 +214,7 @@ SpMat<eT>::const_iterator::operator--()
 
 template<typename eT>
 inline
-arma_hot
+arma_warn_unused
 typename SpMat<eT>::const_iterator
 SpMat<eT>::const_iterator::operator--(int)
   {
@@ -348,7 +348,7 @@ SpMat<eT>::iterator::operator++()
 
 template<typename eT>
 inline
-arma_hot
+arma_warn_unused
 typename SpMat<eT>::iterator
 SpMat<eT>::iterator::operator++(int)
   {
@@ -375,7 +375,7 @@ SpMat<eT>::iterator::operator--()
 
 template<typename eT>
 inline
-arma_hot
+arma_warn_unused
 typename SpMat<eT>::iterator
 SpMat<eT>::iterator::operator--(int)
   {
@@ -482,19 +482,25 @@ SpMat<eT>::const_row_iterator::const_row_iterator(const SpMat<eT>& in_M, uword i
   , internal_row(0)
   , actual_pos(0)
   {
-  // This is slow.  It needs to be rewritten.
-  // So we have a destination we want to be just after, but don't know what position that is.  Make another iterator to find out...
+  // TODO: replace with more efficient implementation
+  
+  // So we have a destination we want to be just after,
+  // but don't know what position that is.
+  // Make another iterator to find out.
+  
   const_row_iterator it(in_M, 0);
+  
   while((it.row() < in_row) || ((it.row() == in_row) && (it.col() < in_col)))
     {
-    it++;
+    ++it;
     }
-
+  
   // Now that it is at the right place, take its position.
   iterator_base::internal_col = it.internal_col;
   iterator_base::internal_pos = it.internal_pos;
+  
   internal_row = it.internal_row;
-  actual_pos = it.actual_pos;
+  actual_pos   = it.actual_pos;
   }
 
 
@@ -571,7 +577,7 @@ SpMat<eT>::const_row_iterator::operator++()
  */
 template<typename eT>
 inline
-arma_hot
+arma_warn_unused
 typename SpMat<eT>::const_row_iterator
 SpMat<eT>::const_row_iterator::operator++(int)
   {
@@ -631,7 +637,7 @@ SpMat<eT>::const_row_iterator::operator--()
  */
 template<typename eT>
 inline
-arma_hot
+arma_warn_unused
 typename SpMat<eT>::const_row_iterator
 SpMat<eT>::const_row_iterator::operator--(int)
   {
@@ -765,7 +771,7 @@ SpMat<eT>::row_iterator::operator++()
 
 template<typename eT>
 inline
-arma_hot
+arma_warn_unused
 typename SpMat<eT>::row_iterator
 SpMat<eT>::row_iterator::operator++(int)
   {
@@ -792,7 +798,7 @@ SpMat<eT>::row_iterator::operator--()
 
 template<typename eT>
 inline
-arma_hot
+arma_warn_unused
 typename SpMat<eT>::row_iterator
 SpMat<eT>::row_iterator::operator--(int)
   {
