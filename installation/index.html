@@ -266,6 +266,40 @@
     Installation on Linux
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation-of-cpp-openmp-version-no-lua-required" title="installation of CPP openmp version (no Lua required)" class="md-nav__link">
+    installation of CPP openmp version (no Lua required)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation-of-lua-vanilla-version-no-mpi-required" title="installation of Lua vanilla version (no MPI required)" class="md-nav__link">
+    installation of Lua vanilla version (no MPI required)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation-of-lua-mpi-version-lua-required" title="installation of Lua MPI version (Lua required)" class="md-nav__link">
+    installation of Lua MPI version (Lua required)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation-of-python-version-python-required" title="installation of Python version (Python required)" class="md-nav__link">
+    installation of Python version (Python required)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -688,6 +722,40 @@
     Installation on Linux
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installation-of-cpp-openmp-version-no-lua-required" title="installation of CPP openmp version (no Lua required)" class="md-nav__link">
+    installation of CPP openmp version (no Lua required)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation-of-lua-vanilla-version-no-mpi-required" title="installation of Lua vanilla version (no MPI required)" class="md-nav__link">
+    installation of Lua vanilla version (no MPI required)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation-of-lua-mpi-version-lua-required" title="installation of Lua MPI version (Lua required)" class="md-nav__link">
+    installation of Lua MPI version (Lua required)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installation-of-python-version-python-required" title="installation of Python version (Python required)" class="md-nav__link">
+    installation of Python version (Python required)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -739,7 +807,7 @@
 <p>MESH comes with two versions: one has OpenMP support if the system has OpenMP libraries; one has MPI support. Both of them require the following prerequisites:</p>
 <ul>
 <li><a href="http://www.netlib.org/lapack/">Lapack</a> and <a href="http://www.netlib.org/blas/">blas</a> (or blas mutants, such as <a href="http://www.openblas.net/">openblas</a>, <a href="http://math-atlas.sourceforge.net/">atlas</a>, or <a href="https://software.intel.com/en-us/intel-mkl">mkl</a>). For MacOS this is not necessary.</li>
-<li><a href="https://www.lua.org/">Lua</a> version &gt;= 5.2 (version 5.3.x is preferred). By default it is using mkl.</li>
+<li><a href="https://www.lua.org/">Lua</a> (optional) version &gt;= 5.2 (version 5.3.x is preferred). Required for Lua versions of MESH.</li>
 <li><a href="https://www.python.org/">Python</a> (optional) version 2 and 3 are both fine.</li>
 </ul>
 <p>In order to have the MPI version of MESH installed, one needs to install MPI besides the above two libraries.</p>
@@ -750,34 +818,50 @@
 
 
 <p>Below are the instructions on install the Lua version:</p>
-<h4 id="installation-on-linux">Installation on Linux<a class="headerlink" href="#installation-on-linux" title="Permanent link">&para;</a></h4>
-<p>If the above libraries are installed on the system default directory, The vanilla version of MESH can be simply installed by</p>
-<div class="codehilite"><pre><span></span>make
+<h3 id="installation-on-linux">Installation on Linux<a class="headerlink" href="#installation-on-linux" title="Permanent link">&para;</a></h3>
+<h4 id="installation-of-cpp-openmp-version-no-lua-required">installation of CPP openmp version (no Lua required)<a class="headerlink" href="#installation-of-cpp-openmp-version-no-lua-required" title="Permanent link">&para;</a></h4>
+<p>The CPP-only version can be installed by</p>
+<div class="codehilite"><pre><span></span>make -f Makefile.without_lua
 </pre></div>
 
 
-<p>and the MPI version can be installed by</p>
+<p>This command line will generate static MESH libraries called <code>libmesh.a</code> in <code>build/</code> folder, and can be used to compile along with C code.</p>
+<h4 id="installation-of-lua-vanilla-version-no-mpi-required">installation of Lua vanilla version (no MPI required)<a class="headerlink" href="#installation-of-lua-vanilla-version-no-mpi-required" title="Permanent link">&para;</a></h4>
+<p>If the above libraries are installed on the system default directory, The vanilla version of MESH can be simply installed by</p>
+<div class="codehilite"><pre><span></span>make mesh
+</pre></div>
+
+
+<p>Installing this version does not require MPI packages. The executable can be found in directory <code>build/</code>. The executable is called <code>mesh</code>.</p>
+<h4 id="installation-of-lua-mpi-version-lua-required">installation of Lua MPI version (Lua required)<a class="headerlink" href="#installation-of-lua-mpi-version-lua-required" title="Permanent link">&para;</a></h4>
+<p>The MPI version can be installed by</p>
 <div class="codehilite"><pre><span></span>make meshMPI
 </pre></div>
 
 
-<p>Executables can be found in directory <code>build/</code>. The executables are called <code>mesh</code> and <code>meshMPI</code>.</p>
+<p>The executables can be found in directory <code>build/</code>. The executable is called <code>meshMPI</code>.</p>
 <p>For a customized installation, please change the paths for compilers in <code>Makefile.Linux</code>. For OpenMP support, one can add (replace <script type="math/tex">4</script> with the maximum number of cores supported by the computer)</p>
 <div class="codehilite"><pre><span></span><span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">4</span>
 </pre></div>
 
 
 <p>to the <code>.bashrc</code> file.</p>
-<h4 id="installation-on-macos">Installation on MacOS<a class="headerlink" href="#installation-on-macos" title="Permanent link">&para;</a></h4>
+<h4 id="installation-of-python-version-python-required">installation of Python version (Python required)<a class="headerlink" href="#installation-of-python-version-python-required" title="Permanent link">&para;</a></h4>
+<p>To Install Python version, please modify <code>gensetup.py.sh</code>, and then</p>
+<div class="codehilite"><pre><span></span>make meshPy
+</pre></div>
+
+
+<h3 id="installation-on-macos">Installation on MacOS<a class="headerlink" href="#installation-on-macos" title="Permanent link">&para;</a></h3>
 <p>Default clang compiler does not support OpenMP. One can either follow the same steps exactly the same as the installation on Linux machines (then no OpenMP is not supported), or installing gcc with OpenMP first by</p>
 <div class="codehilite"><pre><span></span>brew install gcc --without-multilib
 </pre></div>
 
 
-<p>and then change the compiles from cc and c++ in <code>Makefile.Darwin</code> to corresponding GNU compilers, and add <code>-fopenmp</code> in the <code>CFLAGS</code> and <code>CXXFLAGS</code>.</p>
-<h4 id="installation-on-windows">Installation on Windows<a class="headerlink" href="#installation-on-windows" title="Permanent link">&para;</a></h4>
+<p>and then change the compiles from cc and c++ in <code>Makefile.Darwin</code> to corresponding GNU compilers, and add <code>-fopenmp</code> in the <code>CFLAGS</code> and <code>CXXFLAGS</code>. The installation options are exactly the same as the installation on Linux.</p>
+<h3 id="installation-on-windows">Installation on Windows<a class="headerlink" href="#installation-on-windows" title="Permanent link">&para;</a></h3>
 <p>The easiest way to install mesh on windows is to download <a href="https://msdn.microsoft.com/en-us/commandline/wsl/about">Ubuntu on Windows</a> and follow the instructions in the Linux installation part. With <a href="https://msdn.microsoft.com/en-us/commandline/wsl/about">Ubuntu on Windows</a>, one can do <code>sudo apt get</code> for the required packages.</p>
-<h4 id="location-on-clusters">Location on Clusters<a class="headerlink" href="#location-on-clusters" title="Permanent link">&para;</a></h4>
+<h3 id="location-on-clusters">Location on Clusters<a class="headerlink" href="#location-on-clusters" title="Permanent link">&para;</a></h3>
 <p>The mesh has been built on <code>hera</code>, <code>comet</code> and <code>stampede</code>. The executables are in the directory</p>
 <div class="codehilite"><pre><span></span>/home/kfchen/MESH/build/
 </pre></div>
@@ -814,7 +898,7 @@ module load mkl
 <p>For a job that use more than <script type="math/tex">24</script> cores for <code>comet</code> and <script type="math/tex">16</script> cores for <code>stampede</code>, MPI version should be used. On <code>hera</code>, the OpenMP version is recommended.</p>
 <p>(Update for <code>stampede2</code>, 09/27/2017):    <br />
 For <code>stampede2</code> please change <code>module load mvapich2</code> to <code>module load impi</code></p>
-<h4 id="installation-on-clusters-not-recommended">Installation on clusters (not recommended)<a class="headerlink" href="#installation-on-clusters-not-recommended" title="Permanent link">&para;</a></h4>
+<h3 id="installation-on-clusters-not-recommended">Installation on clusters (not recommended)<a class="headerlink" href="#installation-on-clusters-not-recommended" title="Permanent link">&para;</a></h3>
 <p>If one wants to install MESH on his/her own directory, one <code>hera</code> please use</p>
 <div class="codehilite"><pre><span></span>make -f Makefile.hera
 </pre></div>
@@ -840,11 +924,6 @@ make -f Makefile.stampede
 
 
 <p>On clusters, both OpenMP version and MPI version will be generated.</p>
-<p>To Install Python version, please modify <code>gensetup.py.sh</code>, and then</p>
-<div class="codehilite"><pre><span></span>make meshPy
-</pre></div>
-
-
 <p>Currently the Python version hasn't been tested on <code>comet</code> and <code>stampede</code>. For Python MPI support, one needs <a href="http://mpi4py.readthedocs.io/en/stable/">mpi4py</a></p>
                 
                   
