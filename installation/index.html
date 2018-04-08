@@ -284,8 +284,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#installation-of-lua-mpi-version-lua-required" title="installation of Lua MPI version (Lua required)" class="md-nav__link">
-    installation of Lua MPI version (Lua required)
+  <a href="#installation-of-lua-mpi-version-mpi-required" title="installation of Lua MPI version (MPI required)" class="md-nav__link">
+    installation of Lua MPI version (MPI required)
   </a>
   
 </li>
@@ -740,8 +740,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#installation-of-lua-mpi-version-lua-required" title="installation of Lua MPI version (Lua required)" class="md-nav__link">
-    installation of Lua MPI version (Lua required)
+  <a href="#installation-of-lua-mpi-version-mpi-required" title="installation of Lua MPI version (MPI required)" class="md-nav__link">
+    installation of Lua MPI version (MPI required)
   </a>
   
 </li>
@@ -808,7 +808,7 @@
 <ul>
 <li><a href="http://www.netlib.org/lapack/">Lapack</a> and <a href="http://www.netlib.org/blas/">blas</a> (or blas mutants, such as <a href="http://www.openblas.net/">openblas</a>, <a href="http://math-atlas.sourceforge.net/">atlas</a>, or <a href="https://software.intel.com/en-us/intel-mkl">mkl</a>). For MacOS this is not necessary.</li>
 <li><a href="https://www.lua.org/">Lua</a> (optional) version &gt;= 5.2 (version 5.3.x is preferred). Required for Lua versions of MESH.</li>
-<li><a href="https://www.python.org/">Python</a> (optional) version 2 and 3 are both fine.</li>
+<li><a href="https://www.python.org/">Python</a> (optional) currently only Python 2 is supported.</li>
 </ul>
 <p>In order to have the MPI version of MESH installed, one needs to install MPI besides the above two libraries.</p>
 <p>MESH can be downloaded by</p>
@@ -825,7 +825,7 @@
 </pre></div>
 
 
-<p>This command line will generate static MESH libraries called <code>libmesh.a</code> in <code>build/</code> folder, and can be used to compile along with C code.</p>
+<p>This command line will generate static MESH library called <code>libmesh.a</code> in <code>build/</code> folder, and can be used to compile along with C code.</p>
 <h4 id="installation-of-lua-vanilla-version-no-mpi-required">installation of Lua vanilla version (no MPI required)<a class="headerlink" href="#installation-of-lua-vanilla-version-no-mpi-required" title="Permanent link">&para;</a></h4>
 <p>If the above libraries are installed on the system default directory, The vanilla version of MESH can be simply installed by</p>
 <div class="codehilite"><pre><span></span>make mesh
@@ -833,7 +833,7 @@
 
 
 <p>Installing this version does not require MPI packages. The executable can be found in directory <code>build/</code>. The executable is called <code>mesh</code>.</p>
-<h4 id="installation-of-lua-mpi-version-lua-required">installation of Lua MPI version (Lua required)<a class="headerlink" href="#installation-of-lua-mpi-version-lua-required" title="Permanent link">&para;</a></h4>
+<h4 id="installation-of-lua-mpi-version-mpi-required">installation of Lua MPI version (MPI required)<a class="headerlink" href="#installation-of-lua-mpi-version-mpi-required" title="Permanent link">&para;</a></h4>
 <p>The MPI version can be installed by</p>
 <div class="codehilite"><pre><span></span>make meshMPI
 </pre></div>
