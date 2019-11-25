@@ -27,7 +27,7 @@ AddMaterial(material name, input file)
 
 * Note: The omega needs to be aligned for all the materials in the simulation.
 
-``lua
+```lua
 AddMaterial(material name, omega, epsilon)
 ```
 * Arguments:
