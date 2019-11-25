@@ -1,174 +1,123 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-    
     <url>
-     <loc>/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
-        
     <url>
-     <loc>/features/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/installation/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
-    
-
-    
-        
     <url>
-     <loc>/LuaAPI/baseClass/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/LuaAPI/planar/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/LuaAPI/grating/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/LuaAPI/pattern/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
-    
-
-    
-        
     <url>
-     <loc>/PythonAPI/baseClass/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/PythonAPI/planar/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/PythonAPI/grating/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/PythonAPI/pattern/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
-    
-
-    
-        
     <url>
-     <loc>/C++API/classAndFunction/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
-    
-
-    
-        
     <url>
-     <loc>/Examples/tutorial/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/planeFarField/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/planeNearField/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/anisotropic/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/iterate/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/gratingNearField/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/rectangleNearField/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/mixedNearField/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/containedPattern/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
     <url>
-     <loc>/Examples/MPI/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-        
-    
-
-    
     <url>
-     <loc>/develop/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
-    
     <url>
-     <loc>/about/</loc>
-     <lastmod>2018-04-08</lastmod>
+     <loc>None</loc>
+     <lastmod>2019-11-24</lastmod>
      <changefreq>daily</changefreq>
     </url>
-    
-
 </urlset>
