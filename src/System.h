@@ -124,7 +124,7 @@ namespace SYSTEM{
     const_PatternIter getPatternsEnd();
 
 
-    void addRectanlgePattern(const Ptr<Material>& material, const double args1[2], const double angle, const double args2[2]);
+    void addRectanglePattern(const Ptr<Material>& material, const double args1[2], const double angle, const double args2[2]);
     void addCirclePattern(const Ptr<Material>& material, const double args[2], const double radius);
     void addEllipsePattern(const Ptr<Material>& material, const double args1[2], const double angle, const double args2[2]);
     void addPolygonPattern(const Ptr<Material>& material, const double args1[2], const double angle, double**& edgePoints, const int numOfPoint);

@@ -1814,7 +1814,7 @@ namespace MESH{
     Ptr<Layer> layer = layerInstanceMap_.find(layerName)->second;
     double arg1[2] = {centerx, centery};
     double arg2[2] = {widthx, widthy};
-    layer->addRectanlgePattern(material, arg1, angle, arg2);
+    layer->addRectanglePattern(material, arg1, angle, arg2);
   }
   /*==============================================*/
   // This function add circle pattern to a layer

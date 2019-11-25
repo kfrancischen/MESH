@@ -161,6 +161,7 @@ namespace SYSTEM{
   Layer::Layer(const string name, const Ptr<Material>& material, const double thickness) :
     NamedInterface(name), thickness_(thickness), source_(ISNOTSOURCE_){
     backGround_ = material;
+    if(material->getType() == TENSOR_) hasTensor_++;
   }
 
   /*==============================================*/
@@ -216,7 +217,7 @@ namespace SYSTEM{
         case RECTANGLE_:{
           const double arg1[2] = {pattern.arg1_.first, pattern.arg1_.second};
           const double arg2[2] = {pattern.arg2_.first, pattern.arg2_.second};
-          newLayer->addRectanlgePattern(*(itMat + count), arg1, pattern.angle_, arg2);
+          newLayer->addRectanglePattern(*(itMat + count), arg1, pattern.angle_, arg2);
           break;
         }
         case CIRCLE_:{
@@ -376,7 +377,7 @@ namespace SYSTEM{
   // angle: the rotated angle with respect to x axis
   // args2: the widths in x and y directions
   /*==============================================*/
-  void Layer::addRectanlgePattern(
+  void Layer::addRectanglePattern(
     const Ptr<Material>& material,
     const double args1[2],
     const double angle,
