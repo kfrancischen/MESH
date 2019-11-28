@@ -70,7 +70,7 @@ meshPy: objdir $(OBJDIR)/$(MESH_LIBNAME)
 	echo "$(LIBS)" > $(OBJDIR)/tmp.txt
 	sh gensetup.py.sh $(OBJDIR) $(OBJDIR)/$(MESH_LIBNAME)
 	CC=$(CXX) python setup.py build
-	sudo CC=$(CXX) python setup.py install
+	CC=$(CXX) python setup.py install
 
 
 clean:
