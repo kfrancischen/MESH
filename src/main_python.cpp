@@ -81,6 +81,14 @@ static PyObject *FromIntPyDefInt(int i){
 #endif
 }
 
+static PyObject *FromStringPyDefString(const char* str){
+#if PY_MAJOR_VERSION < 3
+	return PyString_FromString(str);
+#else
+	return PyUnicode_FromString(str);
+#endif
+}
+
 
 /*======================================================*/
 // converters
@@ -1909,7 +1917,7 @@ static PyObject* MESH_Constants(PyObject *self, PyObject *args){
     constants.h, constants.h_bar, constants.c_0, constants.q, constants.sigma};
   int tableLen = properties.size();
   for(int i = 0; i < tableLen; i++){
-    PyDict_SetItem(consts, PyString_FromString(properties[i]), PyFloat_FromDouble(vals[i]));
+    PyDict_SetItem(consts, FromStringPyDefString(properties[i]), PyFloat_FromDouble(vals[i]));
   }
   return consts;
 }
@@ -1921,7 +1929,7 @@ static PyObject* MESH_Usage(PyObject *self, PyObject *args){
   output += "========================================================\n";
   output += "Please refer to https://kfrancischen.github.io/MESH/\n";
   output += "========================================================\n";
-  return PyString_FromString(output.c_str());
+  return FromStringPyDefString(output.c_str());
 }
 static PyObject* MESH_Version(PyObject *self, PyObject *args){
   std::string output;
@@ -1931,7 +1939,7 @@ static PyObject* MESH_Version(PyObject *self, PyObject *args){
 	output += "Version: " + string(PACKAGE_VERSION);
   output += "\nEmail: " + string(PACKAGE_BUGREPORT);
   output += "\n========================================================\n";
-  return PyString_FromString(output.c_str());
+  return FromStringPyDefString(output.c_str());
 }
 
 /* MODULE codie function table */
@@ -1945,6 +1953,9 @@ static PyMethodDef MESH_module_methods[] = {
 /*======================================================*/
 // registering the classes
 /*=======================================================*/
+
+PyDoc_STRVAR(module_doc, "MESH: Multilayer Electromagnetic Solver for Heat transfer");
+
 #if PY_MAJOR_VERSION >= 3
   static struct PyModuleDef MESH_module = {
     PyModuleDef_HEAD_INIT,
@@ -1964,8 +1975,6 @@ static PyMethodDef MESH_module_methods[] = {
   PyMODINIT_FUNC initMESH(void)
 #endif
 {   // The name after init MUST be the same name as in setup.py
-  /* Initialization function for the module (*must* be called PyInit_FunctionSampler1D) */
-  PyDoc_STRVAR(module_doc, "MESH: Multilayer Electromagnetic Solver for Heat transfer");
 
   PyObject* module;
   // Create the class types

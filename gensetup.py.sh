@@ -32,7 +32,7 @@ MESHmodule = Extension('MESH',
 )
 setup(name = 'MESH',
   license = "GNU GPL v3",
-	version = '1.2.1',
+	version = '1.3.0',
   author='Kaifeng Chen',
   author_email='kfchen@stanford.edu',
   url='https://kfrancischen.github.io/MESH/',

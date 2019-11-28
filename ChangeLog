@@ -19,3 +19,6 @@
   Fixed a few lua bugs, and add interpolator class
 2018-04-08
   Update Armardillo version
+2019-11-28
+  Add Python3 support
+ 
