@@ -695,20 +695,27 @@ For tensor dielectric, the format is a list of   <br />
 <p>Note: The omega needs to be aligned for all the materials in the simulation.</p>
 </li>
 </ul>
-<p>``lua
-AddMaterial(material name, omega, epsilon)</p>
-<div class="codehilite"><pre><span></span><span class="o">*</span> <span class="nl">Arguments</span><span class="p">:</span>
-    <span class="mf">1.</span> <span class="n">material</span> <span class="nl">name</span><span class="p">:</span> <span class="p">[</span><span class="n">string</span><span class="p">],</span> <span class="n">the</span> <span class="n">name</span> <span class="n">of</span> <span class="n">the</span> <span class="n">material</span> <span class="n">added</span> <span class="n">to</span> <span class="n">the</span> <span class="n">simulation</span><span class="p">.</span> <span class="n">Such</span> <span class="n">name</span> <span class="n">is</span> <span class="n">unique</span> <span class="n">and</span> <span class="k">if</span> <span class="n">there</span> <span class="n">already</span> <span class="n">exists</span> <span class="n">a</span> <span class="n">material</span> <span class="n">with</span> <span class="n">the</span> <span class="n">same</span> <span class="n">name</span><span class="p">,</span> <span class="n">an</span> <span class="n">error</span> <span class="n">message</span> <span class="n">will</span> <span class="n">be</span> <span class="n">printed</span> <span class="k">out</span><span class="p">.</span>
-    <span class="mf">2.</span> <span class="nl">omega</span><span class="p">:</span> <span class="p">[</span><span class="n">tuple</span><span class="p">],</span> <span class="n">all</span> <span class="n">the</span> <span class="n">omega</span> <span class="n">values</span>
-    <span class="mf">3.</span> <span class="nl">epsilon</span><span class="p">:</span> <span class="p">[</span><span class="n">nested</span> <span class="n">tuple</span><span class="p">],</span> <span class="n">all</span> <span class="n">the</span> <span class="n">epsilon</span> <span class="n">values</span>  
-
-<span class="o">*</span> <span class="nl">Output</span><span class="p">:</span> <span class="n">None</span>
-
-<span class="o">*</span> <span class="nl">Note</span><span class="p">:</span> <span class="n">The</span> <span class="n">omega</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">be</span> <span class="n">aligned</span> <span class="k">for</span> <span class="n">all</span> <span class="n">the</span> <span class="n">materials</span> <span class="k">in</span> <span class="n">the</span> <span class="n">simulation</span><span class="p">.</span>
+<div class="codehilite"><pre><span></span><span class="n">AddMaterial</span><span class="p">(</span><span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="n">omega</span><span class="p">,</span> <span class="n">epsilon</span><span class="p">)</span>
+</pre></div>
 
 
-<span class="err">```</span><span class="n">python</span>
-<span class="n">SetMaterial</span><span class="p">(</span><span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="n">new</span> <span class="n">epsilon</span><span class="p">)</span>
+<ul>
+<li>
+<p>Arguments:</p>
+<ol>
+<li>material name: [string], the name of the material added to the simulation. Such name is unique and if there already exists a material with the same name, an error message will be printed out.</li>
+<li>omega: [tuple], all the omega values</li>
+<li>epsilon: [nested tuple], all the epsilon values  </li>
+</ol>
+</li>
+<li>
+<p>Output: None</p>
+</li>
+<li>
+<p>Note: The omega needs to be aligned for all the materials in the simulation.</p>
+</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="n">SetMaterial</span><span class="p">(</span><span class="n">material</span> <span class="n">name</span><span class="p">,</span> <span class="n">new</span> <span class="n">epsilon</span><span class="p">)</span>
 </pre></div>
 
 
